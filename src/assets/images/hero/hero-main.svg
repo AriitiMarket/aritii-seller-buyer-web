@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520">
+  <defs>
+    <linearGradient id="hm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EAF5EE" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FDF6EC"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="520" rx="30" fill="url(#hm)"/>
+  <!-- floating product cards -->
+  <g font-family="Poppins, Arial, sans-serif">
+    <rect x="48" y="60" width="190" height="250" rx="18" fill="#FFFFFF"/>
+    <rect x="68" y="78" width="150" height="110" rx="12" fill="#EAF3EE"/>
+    <rect x="98" y="112" width="90" height="42" rx="8" fill="#CFE3D8"/>
+    <rect x="68" y="204" width="90" height="12" rx="6" fill="#DDE4E0"/>
+    <rect x="68" y="224" width="120" height="12" rx="6" fill="#EDF1EF"/>
+    <rect x="68" y="252" width="70" height="22" rx="11" fill="#0B6E4F"/>
+  </g>
+  <g font-family="Poppins, Arial, sans-serif">
+    <rect x="482" y="120" width="190" height="250" rx="18" fill="#FFFFFF"/>
+    <circle cx="577" cy="205" r="55" fill="#EAF3EE"/>
+    <circle cx="577" cy="205" r="34" fill="#0B6E4F"/>
+    <circle cx="588" cy="194" r="10" fill="#F5A623"/>
+    <rect x="502" y="280" width="90" height="12" rx="6" fill="#DDE4E0"/>
+    <rect x="502" y="300" width="120" height="12" rx="6" fill="#EDF1EF"/>
+    <rect x="502" y="328" width="70" height="22" rx="11" fill="#0B6E4F"/>
+  </g>
+  <!-- center basket/shopping illustration -->
+  <g transform="translate(360,300)">
+    <path d="M-70 -120 Q0 -180 70 -120 L90 40 L-90 40 Z" fill="#0B6E4F"/>
+    <path d="M-70 -120 Q0 -130 70 -120" stroke="#F5A623" stroke-width="8" fill="none"/>
+    <rect x="-90" y="40" width="180" height="34" rx="10" fill="#0A4A36"/>
+    <circle cx="-45" cy="0" r="12" fill="#F5A623"/>
+    <circle cx="0" cy="10" r="16" fill="#F5A623" opacity="0.85"/>
+    <circle cx="45" cy="-4" r="12" fill="#F5A623"/>
+    <circle cx="-20" cy="-80" r="8" fill="#F5A623"/>
+  </g>
+  <circle cx="140" cy="360" r="46" fill="#F5A623" opacity="0.18"/>
+  <circle cx="600" cy="60" r="30" fill="#C0392B" opacity="0.15"/>
+  <text x="200" y="470" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="16" fill="#6B7280">Aritii Market</text>
+  <text x="200" y="492" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="500" font-size="12" fill="#9AA2A6">Shop from trusted local sellers</text>
+</svg>

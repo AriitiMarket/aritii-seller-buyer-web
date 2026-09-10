@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420">
+  <defs>
+    <linearGradient id="hmm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6F2E9" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FDF6EC"/>
+    </linearGradient>
+  </defs>
+  <rect width="420" height="420" rx="26" fill="url(#hmm)"/>
+  <path d="M60 150 Q210 40 360 150 L360 300 Q210 360 60 300 Z" fill="#CFE3D8"/>
+  <rect x="96" y="128" width="228" height="150" rx="16" fill="#FFFFFF"/>
+  <path d="M140 128 L160 96 H260 L280 128 Z" fill="#F5A623"/>
+  <circle cx="210" cy="203" r="44" fill="#0B6E4F"/>
+  <circle cx="210" cy="203" r="24" fill="#CFE3D8"/>
+  <rect x="210" y="-6" width="16" height="90" rx="8" transform="rotate(45 210 203)" fill="#F5A623"/>
+  <text x="210" y="368" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="18" fill="#1F2937">Aritii Market</text>
+</svg>

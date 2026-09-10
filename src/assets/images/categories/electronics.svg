@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <defs>
+    <radialGradient id="cgt" cx="0.5" cy="0.4" r="0.8">
+      <stop offset="0" stop-color="#F1E8DC"/>
+      <stop offset="1" stop-color="#FDF6EC"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="300" rx="40" fill="url(#cgt)"/>
+  <circle cx="150" cy="128" r="76" fill="#FFFFFF" stroke="#EADFCE" stroke-width="2"/>
+  <g transform="translate(150,128)"><rect x="-34" y="-40" width="68" height="60" rx="9" fill="#0B6E4F"/><rect x="-30" y="-36" width="60" height="44" rx="5" fill="#CFE3D8"/><rect x="-14" y="4" width="28" height="6" rx="3" fill="#1F2937"/><path d="M-26 22 h52 l-9 14 h-34 z" fill="#F5A623"/><circle cx="16" cy="-14" r="4" fill="#FFFFFF"/></g>
+  <text x="150" y="248" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="18" fill="#1F2937">Electronics</text>
+</svg>

@@ -1,0 +1,401 @@
+import React, { useEffect } from 'react'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import {LoginPage,SignUpPage, BestSellingPage, EventsPage, FAQpage, ProductsDetailPage, ShopLoginPage,  CreateShopPage, CheckoutPage, PaymentPage, OrderSuccessPage, UserOrderDetailPage, TrackOrderPage, UserInbox} from './routes/Routes.js'
+import {
+  SellerDashboardPage,
+  SellerStoreProfilePage,
+  SellerStoreMetricsPage,
+  SellerProductsPage,
+  SellerCreateProductPage,
+  SellerProductDetailPage,
+  SellerEditProductPage,
+  SellerOrdersPage,
+  SellerOrderDetailPage,
+  SellerOrderHistoryPage,
+  SellerRefundsPage,
+  SellerInventoryPage,
+  SellerAnalyticsPage,
+  SellerInboxPage,
+  SellerCreateEventPage,
+  SellerEventsPage,
+  SellerCouponsPage,
+  SellerSettingsPage
+} from './seller/index.js'
+import HomePage from './pages/marketplace/HomePage.jsx'
+import NotFound from './pages/marketplace/NotFound.jsx'
+import ShopsPage from './pages/marketplace/ShopsPage.jsx'
+import ShopDetailsPage from './pages/marketplace/ShopDetailsPage.jsx'
+import './App.css'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Store from './store/redux/store.js'
+import { loadUser } from './store/redux/actions/user.js'
+import ProductsPage from './pages/marketplace/ProductsPage.jsx'
+import { useSelector } from 'react-redux'
+import { loadSeller } from './store/redux/actions/user.js'
+import {
+  CustomerAccountLayout,
+  CustomerOverviewPage,
+  CustomerProfilePage,
+  CustomerOrdersPage,
+  CustomerAddressesPage,
+  CustomerWishlistPage,
+  CustomerReviewsPage,
+  CustomerSettingsPage,
+} from './pages/customer/account/index.js'
+import ShopHomePage from './pages/seller/ShopHomePage.jsx'
+import SellerApplicationPage from './pages/seller/SellerApplicationPage.jsx'
+import { getAllProducts } from './store/redux/actions/product.js'
+import { getAllEvents } from './store/redux/actions/event.js'
+import { getAllShops, getAllCategories } from './store/redux/actions/shop.js'
+import SellerAuthRoute from './routes/SellerAuthRoute.jsx'
+import ProtectedRoute from './routes/ProtectedRoute.jsx'
+
+// Boot-once guard so catalog + auth/account fetches happen exactly once per page
+// load, not on every mount. In dev, React StrictMode (double-effects) and Vite
+// fast-refresh remount the App and re-run effects, which would otherwise fire ~6
+// requests per remount and rapidly exhaust the API gateway's rate limit (429s).
+// Being module-level, this flag survives component remounts during fast-refresh.
+let apiBooted = false;
+
+const App = () => {
+
+    const { loading } = useSelector((state) => state.user);
+    const {isLoading, isSeller, seller} = useSelector((state) => state.seller);
+
+  useEffect(() => {
+    if (apiBooted) return;
+    apiBooted = true;
+
+    Store.dispatch(loadUser())   // dispatches the loadUser action to fetch the current user's data from the server when the component mounts. This is important for maintaining user authentication state across page reloads or when the user navigates to different parts of the application.
+    Store.dispatch(loadSeller()) // dispatches the loadSeller action to fetch the current seller's data from the server when the component mounts. This is important for maintaining seller authentication state across page reloads or when the seller navigates to different parts of the application.
+    Store.dispatch(getAllProducts())
+    Store.dispatch(getAllEvents())
+    Store.dispatch(getAllShops())
+    Store.dispatch(getAllCategories())
+  },[])
+
+
+  return (
+    <>
+    {
+      loading || isLoading ?  null : 
+      (
+         <BrowserRouter>
+    <ToastContainer position="top-right" />
+    <Routes>
+      <Route path='/' element={<HomePage />} />
+      <Route path='/login' element={<LoginPage />} />
+      <Route path='/sign-up' element={<SignUpPage />} />
+      <Route path='*' element={<NotFound />} />
+      <Route path="/products" element={<ProductsPage/>} />
+      <Route path="/best-selling" element={<BestSellingPage/>} />
+      <Route path="/events" element={<EventsPage/>} />
+      <Route path="/faq" element={<FAQpage/>} />
+      <Route path="/shops" element={<ShopsPage/>} />
+      <Route path="/shops/:id" element={<ShopDetailsPage/>} />
+      <Route path='/product/:name' element={<ProductsDetailPage/>} />
+
+      {/* /profile is folded into the dedicated Buyer Dashboard (/my-dashboard/profile)
+          so buyers never see the marketplace header inside their account area. */}
+      <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/my-dashboard/profile" replace />
+            </ProtectedRoute>
+          }
+        />
+
+      <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
+
+      <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/order/success"
+          element={
+            <ProtectedRoute>
+              <OrderSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inbox"
+          element={
+            <ProtectedRoute>
+              <UserInbox />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/order/:id"
+          element={
+            <ProtectedRoute>
+              <UserOrderDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/track/order/:id"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+
+
+{/* ===== BUYER ACCOUNT (own dashboard, separate from seller) ===== */}
+        <Route
+          path="/my-dashboard"
+          element={
+            <ProtectedRoute>
+              <CustomerAccountLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<CustomerOverviewPage />} />
+          <Route path="profile" element={<CustomerProfilePage />} />
+          <Route path="orders" element={<CustomerOrdersPage />} />
+          <Route path="addresses" element={<CustomerAddressesPage />} />
+          <Route path="wishlist" element={<CustomerWishlistPage />} />
+          <Route path="reviews" element={<CustomerReviewsPage />} />
+          <Route path="settings" element={<CustomerSettingsPage />} />
+        </Route>
+
+{/* ===== START SELLING / SELLER APPLICATION (unified account) ===== */}
+        <Route
+          path="/sell"
+          element={<SellerApplicationPage />}
+        />
+        <Route
+          path="/seller-application"
+          element={<SellerApplicationPage />}
+        />
+
+      {/*   SHOP ROUTES — these are legacy aliases that now forward to the unified
+            Aritii auth pages (one account). /create-shop -> seller onboarding
+            (/sell) or register (/sign-up); /shop-login -> unified /login. */}
+      <Route path='/create-shop' element={<CreateShopPage />} />
+
+      <Route path='/shop-login' element={<ShopLoginPage />} />
+
+      <Route path='/shop/:id' element={ 
+          <SellerAuthRoute>
+            <ShopHomePage/>
+          </SellerAuthRoute>
+        } />
+
+      <Route
+        path='/dashboard'
+        element={
+          <SellerAuthRoute>
+            <SellerDashboardPage />
+          </SellerAuthRoute>
+        }
+      />
+
+
+      <Route
+        path='/dashboard-create-product'
+        element={
+          <SellerAuthRoute>
+            <SellerCreateProductPage />
+          </SellerAuthRoute>
+        }
+      />
+
+      <Route
+        path='/dashboard-products'
+        element={
+          <SellerAuthRoute>
+            <SellerProductsPage />
+          </SellerAuthRoute>
+        }
+      />
+
+      <Route
+        path='/dashboard-product/:id'
+        element={
+          <SellerAuthRoute>
+            <SellerProductDetailPage />
+          </SellerAuthRoute>
+        }
+      />
+
+      <Route
+        path='/dashboard-edit-product/:id'
+        element={
+          <SellerAuthRoute>
+            <SellerEditProductPage />
+          </SellerAuthRoute>
+        }
+      />
+
+
+      <Route
+        path='/dashboard-create-event'
+        element={
+          <SellerAuthRoute>
+            <SellerCreateEventPage />
+          </SellerAuthRoute>
+        }
+      />
+
+
+
+      <Route
+        path='/dashboard-events'
+        element={
+          <SellerAuthRoute>
+            <SellerEventsPage />
+          </SellerAuthRoute>
+        }
+      />
+
+      <Route
+        path='/dashboard-promotions'
+        element={
+          <SellerAuthRoute>
+            <SellerEventsPage />
+          </SellerAuthRoute>
+        }
+      />
+
+
+          <Route
+            path='/dashboard-coupons'
+            element={
+              <SellerAuthRoute>
+                <SellerCouponsPage />
+              </SellerAuthRoute>
+            }
+          />
+
+
+      <Route
+            path='/dashboard-orders'
+            element={
+              <SellerAuthRoute>
+                <SellerOrdersPage />
+              </SellerAuthRoute>
+            }
+          />
+
+        <Route
+            path='/dashboard-refunds'
+            element={
+              <SellerAuthRoute>
+                <SellerRefundsPage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/order/:id'
+            element={
+              <SellerAuthRoute>
+                <SellerOrderDetailPage />
+              </SellerAuthRoute>
+            }
+          />
+
+        <Route
+            path='/settings'
+            element={
+              <SellerAuthRoute>
+                <SellerSettingsPage />
+              </SellerAuthRoute>
+            }
+          />
+
+        
+        <Route
+            path='/dashboard-messages'
+            element={
+              <SellerAuthRoute>
+                <SellerInboxPage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/dashboard-store-profile'
+            element={
+              <SellerAuthRoute>
+                <SellerStoreProfilePage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/dashboard-store-metrics'
+            element={
+              <SellerAuthRoute>
+                <SellerStoreMetricsPage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/dashboard-order-history'
+            element={
+              <SellerAuthRoute>
+                <SellerOrderHistoryPage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/dashboard-inventory'
+            element={
+              <SellerAuthRoute>
+                <SellerInventoryPage />
+              </SellerAuthRoute>
+            }
+          />
+
+      <Route
+            path='/dashboard-analytics'
+            element={
+              <SellerAuthRoute>
+                <SellerAnalyticsPage />
+              </SellerAuthRoute>
+            }
+          />
+    
+
+
+    
+          
+
+
+    </Routes>
+    </BrowserRouter>
+      )
+    }
+    </>
+   
+  )
+}
+
+export default App

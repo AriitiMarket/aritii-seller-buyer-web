@@ -1,0 +1,11 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="60" rx="12" fill="#0B6E4F"/>
+  <path d="M18 18C22.5 12 35 12 39 18C43 12 55.5 12 60 18" stroke="#F5A623" strokeWidth="3.5" strokeLinecap="round"/>
+  <path d="M12 22C20 14 48 14 57 22" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round"/>
+  <path d="M24 32H32V40H24V32Z" fill="#F5A623"/>
+  <path d="M37 32H45V40H37V32Z" fill="#FFFFFF"/>
+  <path d="M50 32H56V34H50V32Z" fill="#F5A623"/>
+  <path d="M18 42H34V44H18V42ZM40 42H52V44H40V42ZM14 47H36V49H14V47ZM42 47H56V49H42V47Z" fill="#FFFFFF"/>
+  <text x="70" y="40" font-family="Poppins, Arial, sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">Aritii</text>
+  <text x="70" y="54" font-family="Poppins, Arial, sans-serif" font-size="11" font-weight="400" letter-spacing="3" fill="#F5A623">MARKET</text>
+</svg>

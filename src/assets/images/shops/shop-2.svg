@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="sa" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F1E8DC"/>
+      <stop offset="1" stop-color="#E4D7C4"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="50" fill="url(#sa)"/>
+  <circle cx="200" cy="200" r="150" fill="#FFFFFF"/>
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#0B6E4F" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/>
+  <g transform="translate(200,190)"><path d="M-8 48 L-36 30 L-42 -28 L-6 -14 L10 -4 L26 -14 L62 -28 L56 30 Z" fill="#0B6E4F"/><path d="M-6 -14 L10 -4 L26 -14" fill="none" stroke="#CFE3D8" stroke-width="8"/><rect x="-10" y="30" width="40" height="8" rx="4" fill="#F5A623"/><circle cx="10" cy="-20" r="4" fill="#C0392B"/></g>
+  <text x="200" y="338" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="24" fill="#1F2937">Habesha Fashion</text>
+</svg>

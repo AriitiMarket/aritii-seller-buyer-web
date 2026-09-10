@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="340" viewBox="0 0 900 340">
+  <defs>
+    <linearGradient id="bnpromo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5A623"/>
+      <stop offset="1" stop-color="#D88A10"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="340" rx="24" fill="url(#bnpromo)"/>
+  <circle cx="820" cy="30" r="110" fill="#FFFFFF" opacity="0.12"/>
+  <circle cx="60" cy="320" r="90" fill="#FFFFFF" opacity="0.08"/>
+  <text x="70" y="128" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="20" fill="#FDEBD0">Daily Deals</text>
+  <text x="70" y="176" font-family="Poppins, Arial, sans-serif" font-weight="800" font-size="44" fill="#FFFFFF">Deals & Events</text>
+  <text x="70" y="214" font-family="Poppins, Arial, sans-serif" font-weight="500" font-size="18" fill="#F2EFEB">Fresh offers every single day</text>
+  <rect x="70" y="244" width="168" height="46" rx="23" fill="#FFFFFF"/>
+  <text x="154" y="274" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="16" fill="#333">Explore Now</text>
+  <g transform="translate(650,20)"><g><rect x="-70" y="40" width="140" height="140" rx="18" fill="#FFF3DE"/><path d="M0 40 l22 34 h-44 z" fill="#B97D0F"/><rect x="-34" y="120" width="68" height="10" rx="5" fill="#B97D0F"/><rect x="-50" y="78" width="22" height="22" rx="6" fill="#C0392B"/></g></g>
+</svg>
