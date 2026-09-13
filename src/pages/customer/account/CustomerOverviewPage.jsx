@@ -12,6 +12,7 @@ import Store from '../../../store/redux/store'
 // from within their own dashboard (products link to their details, shops are public).
 const CustomerOverviewPage = () => {
   const user = useSelector((state) => state.user?.user)
+  const { isSeller } = useSelector((state) => state.seller)
   const orders = useSelector((state) => state.order?.orders || [])
   const wishlist = useSelector((state) => state.wishlist?.wishlist || [])
   const addresses = user?.addresses || []
@@ -78,11 +79,17 @@ const CustomerOverviewPage = () => {
 
       <div className="rounded-[12px] bg-white p-6 shadow-sm">
         <h3 className="text-lg font-[600] text-[#1F2937]">Quick Links</h3>
-        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div className={`mt-3 grid ${isSeller ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} gap-3 text-sm`}>
           <Link to="/products" className="px-4 py-3 rounded-md bg-[#0B6E4F]/10 text-[#0B6E4F] font-[500]">🛒 Continue Shopping</Link>
           <Link to="/my-dashboard/wishlist" className="px-4 py-3 rounded-md bg-[#C0392B]/10 text-[#C0392B] font-[500]">❤️ My Wishlist</Link>
+          {isSeller && (
+            <Link to="/dashboard" className="px-4 py-3 rounded-md bg-[#0B6E4F] text-white font-[500]">🏪 Seller Center</Link>
+          )}
           <Link to="/my-dashboard/addresses" className="px-4 py-3 rounded-md bg-[#F5A623]/10 text-[#B8860B] font-[500]">📒 Address Book</Link>
           <Link to="/my-dashboard/settings" className="px-4 py-3 rounded-md bg-gray-100 text-gray-700 font-[500]">⚙️ Settings</Link>
+          {!isSeller && (
+            <Link to="/sell" className="px-4 py-3 rounded-md bg-brand-primary/10 text-brand-primary font-[500]">🏬 Become a Seller</Link>
+          )}
         </div>
       </div>
 

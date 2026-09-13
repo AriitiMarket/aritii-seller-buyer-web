@@ -49,6 +49,7 @@ import { getAllProducts } from './store/redux/actions/product.js'
 import { getAllEvents } from './store/redux/actions/event.js'
 import { getAllShops, getAllCategories } from './store/redux/actions/shop.js'
 import SellerAuthRoute from './routes/SellerAuthRoute.jsx'
+import SellerStatusRoute from './routes/SellerStatusRoute.jsx'
 import ProtectedRoute from './routes/ProtectedRoute.jsx'
 
 // Boot-once guard so catalog + auth/account fetches happen exactly once per page
@@ -67,27 +68,33 @@ const App = () => {
     if (apiBooted) return;
     apiBooted = true;
 
-    Store.dispatch(loadUser())   // dispatches the loadUser action to fetch the current user's data from the server when the component mounts. This is important for maintaining user authentication state across page reloads or when the user navigates to different parts of the application.
-    Store.dispatch(loadSeller()) // dispatches the loadSeller action to fetch the current seller's data from the server when the component mounts. This is important for maintaining seller authentication state across page reloads or when the seller navigates to different parts of the application.
-    Store.dispatch(getAllProducts())
-    Store.dispatch(getAllEvents())
-    Store.dispatch(getAllShops())
-    Store.dispatch(getAllCategories())
+    Store.dispatch(loadUser());   // Load current user (includes seller status)
+    Store.dispatch(getAllProducts());
+    Store.dispatch(getAllEvents());
+    Store.dispatch(getAllShops());
+    Store.dispatch(getAllCategories());
+    
+    // Don't call loadSeller() here - it's called by SellerAuthRoute only when needed
   },[])
 
 
   return (
-    <>
-    {
-      loading || isLoading ?  null : 
-      (
-         <BrowserRouter>
-    <ToastContainer position="top-right" />
+    <BrowserRouter>
+      <ToastContainer position="top-right" />
     <Routes>
-      <Route path='/' element={<HomePage />} />
+      {/* After successful login, check seller status and redirect accordingly */}
+      <Route path='/' element={
+        <ProtectedRoute>
+          <SellerStatusRoute />
+        </ProtectedRoute>
+      } />
+      
       <Route path='/login' element={<LoginPage />} />
       <Route path='/sign-up' element={<SignUpPage />} />
       <Route path='*' element={<NotFound />} />
+      
+      {/* Marketplace - public access */}
+      <Route path="/marketplace" element={<ProductsPage/>} />
       <Route path="/products" element={<ProductsPage/>} />
       <Route path="/best-selling" element={<BestSellingPage/>} />
       <Route path="/events" element={<EventsPage/>} />
@@ -181,6 +188,68 @@ const App = () => {
           <Route path="reviews" element={<CustomerReviewsPage />} />
           <Route path="settings" element={<CustomerSettingsPage />} />
         </Route>
+
+{/* ===== BUSINESS DASHBOARD (seller-only, after approval) ===== */}
+        <Route
+          path="/business/dashboard"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerDashboardPage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business/profile"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerStoreProfilePage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business/products"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerProductsPage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business/products/create"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerCreateProductPage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business/orders"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerOrdersPage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business/analytics"
+          element={
+            <ProtectedRoute>
+              <SellerAuthRoute>
+                <SellerAnalyticsPage />
+              </SellerAuthRoute>
+            </ProtectedRoute>
+          }
+        />
 
 {/* ===== START SELLING / SELLER APPLICATION (unified account) ===== */}
         <Route
@@ -389,12 +458,8 @@ const App = () => {
           
 
 
-    </Routes>
+      </Routes>
     </BrowserRouter>
-      )
-    }
-    </>
-   
   )
 }
 

@@ -38,7 +38,7 @@ const Section = ({ title, children }) => (
 const SellerSidebar = ({ active, onNavigate = () => {} }) => {
   const m = (n) => active === n
   return (
-    <div className="w-full h-[90vh] bg-white shadow-sm overflow-y-scroll sticky top-0 left-0 z-10">
+    <div className="w-full max-h-[90vh] bg-white shadow-sm overflow-y-auto sticky top-0 left-0 z-10">
       <div className="p-4 border-b border-brand mb-1">
         <h1 className="text-lg font-semibold text-brand-primary">Seller Portal</h1>
         <p className="text-xs text-brand-muted">Aritii Market</p>
@@ -76,12 +76,21 @@ const SellerSidebar = ({ active, onNavigate = () => {} }) => {
       <Section title="Account">
         <Item to="/settings" icon={CiSettings} label="Settings" match={m(11)} onNavigate={onNavigate} />
       </Section>
+
+{/* ── Buyer Features: Access buyer dashboard while in seller portal ── */}
+      <Section title="Buyer Features">
+        <Item to="/my-dashboard/profile" icon={FiShoppingBag} label="My Buyer Profile" onNavigate={onNavigate} />
+        <Item to="/my-dashboard/orders" icon={FiPackage} label="My Purchases" onNavigate={onNavigate} />
+        <Item to="/my-dashboard/wishlist" icon={AiOutlineGift} label="My Wishlist" onNavigate={onNavigate} />
+        <Item to="/my-dashboard/addresses" icon={CiSettings} label="My Addresses" onNavigate={onNavigate} />
+      </Section>
+
 {/* ── Sidebar footer: return to marketplace / public shop / logout ── */}
       <div className="w-full flex items-center p-3 mt-2 border-t border-brand">
-        <Link to="/" onClick={onNavigate} className="w-full flex items-center">
+        <Link to="/marketplace" onClick={onNavigate} className="w-full flex items-center">
           <FiShoppingBag size={26} color="#555" />
           <h5 className="hidden 800px:block pl-2 text-[15px] font-[400] text-[#555]">
-            View Marketplace
+            Marketplace
           </h5>
         </Link>
       </div>
@@ -90,16 +99,7 @@ const SellerSidebar = ({ active, onNavigate = () => {} }) => {
         <Link to="/shops" onClick={onNavigate} className="w-full flex items-center">
           <MdOutlineStorefront size={26} color="#555" />
           <h5 className="hidden 800px:block pl-2 text-[15px] font-[400] text-[#555]">
-            View Public Shops
-          </h5>
-        </Link>
-      </div>
-
-      <div className="w-full flex items-center p-3">
-        <Link to="/" onClick={onNavigate} className="w-full flex items-center">
-          <CiSettings size={26} color="#C0392B" />
-          <h5 className="hidden 800px:block pl-2 text-[15px] font-[400] text-[#C0392B]">
-            Logout
+            View All Shops
           </h5>
         </Link>
       </div>

@@ -46,7 +46,7 @@ const CustomerAccountLayout = () => {
         ) : null}
 
         {/* Desktop persistent sidebar */}
-        <aside className="hidden 800px:block w-[264px] bg-white shadow-sm rounded-[12px] p-4 sticky top-[72px] h-[calc(100vh-72px)]">
+        <aside className="hidden 800px:block w-[264px] bg-white shadow-sm rounded-[12px] p-4 sticky top-[72px] max-h-[calc(100vh-72px)] overflow-y-auto">
           <CustomerAccountSidebar activePath={location.pathname} />
         </aside>
 

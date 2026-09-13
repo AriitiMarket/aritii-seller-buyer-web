@@ -20,34 +20,33 @@ const Login = () => {
         e.preventDefault()
 
         // ONE Aritii account, ONE session (single `token` cookie).
-        // Every account signs in through the same customer endpoint; the user's
-        // role (CUSTOMER or SELLER) is returned by the identity service after a
-        // seller application is approved. We load the user profile, then route
-        // by role — sellers into the Seller Center, buyers into their account.
-        let user;
         try {
             const res = await api.post('/user/login-user', { email, password });
-            user = res?.data?.user || null;
+            const user = res?.data?.user || null;
+            
+            if (!user) {
+                toast.error("Login failed. No user data returned.");
+                return;
+            }
+
+            // Update Redux state immediately with the returned user
+            Store.dispatch({
+                type: "LoadUserSuccess",
+                payload: user,
+            });
+
+            toast.success("Login successful!");
+            
+            // Now determine redirect based on seller status
+            if (user.sellerStatus === 'APPROVED') {
+                navigate("/business/dashboard");
+            } else {
+                navigate("/marketplace");
+            }
         } catch (e) {
             toast.error("Login failed. Please check your email and password.");
             return;
         }
-
-        // Refresh the buyer store from the single cookie/session.
-        await Store.dispatch(loadUser());
-
-        // If this account is an approved seller (with a shop), load the seller
-        // context from the same session and go to the Seller Center.
-        if (user && (user.role === 'SELLER' || user.shopId)) {
-            await Store.dispatch(loadSeller());
-            toast.success("Welcome back!");
-            navigate("/dashboard");
-            return;
-        }
-
-        // Buyer account -> account dashboard.
-        toast.success("Login successful!");
-        navigate("/my-dashboard");
     }
 
     return (

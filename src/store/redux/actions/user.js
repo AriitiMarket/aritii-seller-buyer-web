@@ -132,15 +132,36 @@ export const loadSeller = () => async (dispatch) => {
       type: "LoadSellerRequest",
     });
     const { data } = await api.get('/shop/getseller');
+    console.log('[loadSeller] Success:', data);
     dispatch({
       type: "LoadSellerSuccess",
       payload: data.seller,
     });
   } catch (error) {
-    dispatch({
-      type: "LoadSellerFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    // Don't spam console with 404 errors - it's expected for non-sellers
+    if (error.response?.status !== 404) {
+      console.log('[loadSeller] Error:', error.response?.status, error.response?.data?.message || error.message);
+    }
+    
+    // Silently fail if seller shop not found (404) - user may not be a seller yet
+    // Only dispatch error for actual connection problems
+    if (error.response?.status === 404) {
+      dispatch({
+        type: "LoadSellerFail",
+        payload: "No seller shop found. User may not be an approved seller yet.",
+      });
+    } else if (error.response?.status === 401) {
+      // Not authenticated - this is expected for non-sellers
+      dispatch({
+        type: "LoadSellerFail",
+        payload: "User not authenticated",
+      });
+    } else {
+      dispatch({
+        type: "LoadSellerFail",
+        payload: error.response?.data?.message || error.message,
+      });
+    }
   }
 };
 

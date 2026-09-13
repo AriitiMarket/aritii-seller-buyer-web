@@ -59,7 +59,13 @@ const SellerApplicationPage = () => {
   }
 
   useEffect(() => {
-    if (isAuthenticated) { dispatch(loadSeller()); fetchStatus() }
+    if (isAuthenticated) { 
+      // Only load seller if they might be a seller (have SELLER role in token or shopId)
+      if (user?.role === 'SELLER' || user?.shopId) {
+        dispatch(loadSeller());
+      }
+      fetchStatus();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated])
 
