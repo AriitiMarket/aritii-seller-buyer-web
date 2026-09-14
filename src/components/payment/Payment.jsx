@@ -46,16 +46,21 @@ const Payment = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center py-8">
-      <div className="w-[90%] 1000px:w-[70%] block 800px:flex">
-        <div className="w-full 800px:w-[65%]">
-          <PaymentInfo
-            user={user}
-            cashOnDeliveryHandler={cashOnDeliveryHandler}
-          />
-        </div>
-        <div className="w-full 800px:w-[35%] 800px:mt-0 mt-8">
-          <CartData orderData={orderData} />
+    <div className="w-full flex flex-col items-center py-8 px-4">
+      <div className="w-full max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Payment Info */}
+          <div className="lg:col-span-2">
+            <PaymentInfo
+              user={user}
+              cashOnDeliveryHandler={cashOnDeliveryHandler}
+            />
+          </div>
+
+          {/* Order Summary */}
+          <div>
+            <CartData orderData={orderData} />
+          </div>
         </div>
       </div>
     </div>
@@ -67,24 +72,56 @@ const PaymentInfo = ({
   cashOnDeliveryHandler,
 }) => {
   return (
-    <div className="w-full 800px:w-[95%] bg-[#fff] rounded-md p-5 pb-8">
-      <div className="w-full border-b pb-5 mb-4">
-        <h4 className="text-[18px] font-[600] text-[#000000b1]">
-          Cash on Delivery
-        </h4>
-        <p className="mt-2 text-[15px] text-[#5f5f5f]">
-          Pay when your order is delivered to your address.
-        </p>
+    <div className="w-full 800px:w-[95%] bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      {/* Payment Method Card */}
+      <div className="mb-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Payment Method</h3>
+        
+        <div className="border border-green-200 bg-green-50 rounded-lg p-4 mb-4">
+          <div className="flex items-start">
+            <input
+              type="radio"
+              id="cod"
+              name="payment"
+              defaultChecked
+              className="w-4 h-4 text-green-600 mt-1"
+            />
+            <label htmlFor="cod" className="ml-3 cursor-pointer flex-1">
+              <h4 className="text-sm font-semibold text-gray-900">Cash on Delivery</h4>
+              <p className="text-xs text-gray-600 mt-1">
+                Pay directly to the delivery agent when your order arrives
+              </p>
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div>
+      {/* Order Info */}
+      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+        <h4 className="text-sm font-semibold text-blue-900 mb-2">Order Information</h4>
+        <div className="space-y-1 text-xs text-blue-800">
+          <p><span className="font-semibold">Delivery to:</span> {user?.name}</p>
+          <p><span className="font-semibold">Contact:</span> {user?.phoneNumber}</p>
+          <p><span className="font-semibold">Email:</span> {user?.email}</p>
+        </div>
+      </div>
+
+      {/* Confirmation */}
+      <div className="space-y-3">
         <form className="w-full" onSubmit={cashOnDeliveryHandler}>
-          <input
+          <button
             type="submit"
-            value="Confirm Order"
-            className={`${styles.button} !bg-[#0B6E4F] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-          />
+            className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Confirm Order
+          </button>
         </form>
+        <p className="text-xs text-gray-500 text-center">
+          By confirming, you agree to our terms and conditions
+        </p>
       </div>
     </div>
   );
@@ -93,25 +130,43 @@ const PaymentInfo = ({
 const CartData = ({ orderData }) => {
   const shipping = orderData?.shipping?.toFixed(2);
   return (
-    <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
-      <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">subtotal:</h3>
-        <h5 className="text-[18px] font-[600]">${orderData?.subTotalPrice}</h5>
+    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
+      
+      <div className="space-y-3 pb-4 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Subtotal</span>
+          <span className="text-sm font-semibold text-gray-900">${orderData?.subTotalPrice?.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Shipping</span>
+          <span className="text-sm font-semibold text-gray-900">${shipping}</span>
+        </div>
+        {orderData?.discountPrice && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Discount</span>
+            <span className="text-sm font-semibold text-green-600">-${orderData.discountPrice.toFixed(2)}</span>
+          </div>
+        )}
       </div>
-      <br />
-      <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">shipping:</h3>
-        <h5 className="text-[18px] font-[600]">${shipping}</h5>
+
+      <div className="flex justify-between items-center mt-4">
+        <span className="text-base font-bold text-gray-900">Total Amount</span>
+        <span className="text-2xl font-bold text-green-600">${orderData?.totalPrice}</span>
       </div>
-      <br />
-      <div className="flex justify-between border-b pb-3">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">Discount:</h3>
-        <h5 className="text-[18px] font-[600]">{orderData?.discountPrice? "$" + orderData.discountPrice : "-"}</h5>
+
+      {/* Order Items */}
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <h4 className="text-sm font-semibold text-gray-900 mb-3">Items ({orderData?.cart?.length})</h4>
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {orderData?.cart?.map((item, index) => (
+            <div key={index} className="flex justify-between text-xs text-gray-600">
+              <span>{item.name} x {item.qty}</span>
+              <span>${(item.discountPrice * item.qty).toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      <h5 className="text-[18px] font-[600] text-end pt-3">
-        ${orderData?.totalPrice}
-      </h5>
-      <br />
     </div>
   );
 };

@@ -3,12 +3,11 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllProductsShop } from '../../store/redux/actions/product.js'
 import { deleteProduct } from '../../store/redux/actions/product.js'
-import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
 import { AiOutlineEye, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Loader from '../common/Loader.jsx';
 import { toast } from 'react-toastify';
+import './AllProductsOfASingleShop.css';
 
 
 const AllProductsOfASingleShop = () => {
@@ -26,13 +25,33 @@ const AllProductsOfASingleShop = () => {
 
 
 
+// Helper function to get stock status
+const getStockStatus = (stock) => {
+  if (stock === 0) return 'out-of-stock';
+  if (stock <= 5) return 'low-stock';
+  return 'in-stock';
+};
+
+// Helper function to get stock status label
+const getStockLabel = (stock) => {
+  if (stock === 0) return 'Out of Stock';
+  if (stock <= 5) return 'Low Stock';
+  return 'In Stock';
+};
+
+
+
+
+
+
+
 
 const handleDeleteProduct = async (id) => {
   try {
-    await dispatch(deleteProduct(id));    // Dispatch the deleteProduct action to delete the product with the given id. This will trigger the corresponding reducer to update the state and remove the product from the list.
+    await dispatch(deleteProduct(id));
    
     if (seller && seller._id) {
-      dispatch(getAllProductsShop(seller._id));  // Refresh the product list after deletion so that the deleted product is removed from the UI. This ensures that the user sees the updated list of products without needing to manually refresh the page.
+      dispatch(getAllProductsShop(seller._id));
     }
 
     toast.success("Product deleted successfully");  
@@ -43,83 +62,6 @@ const handleDeleteProduct = async (id) => {
   }
 }
 
-
-
-
-
-
-  const columns = [
-    { field: "id", headerName: "Product Id", minWidth: 150, flex: 0.7 },
-    {
-      field: "name",
-      headerName: "Name",
-      minWidth: 180,
-      flex: 1.4,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      minWidth: 100,
-      flex: 0.6,
-    },
-    {
-      field: "Stock",
-      headerName: "Stock",
-      type: "number",
-      minWidth: 80,
-      flex: 0.5,
-    },
-
-    {
-      field: "sold",
-      headerName: "Sold out",
-      type: "number",
-      minWidth: 130,
-      flex: 0.6,
-    },
-    {
-      field: "Preview",
-      flex: 0.8,
-      minWidth: 100,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/dashboard-product/${params.id}`} title="View details">
-              <Button>
-                <AiOutlineEye size={20} />
-              </Button>
-            </Link>
-            <Link to={`/dashboard-edit-product/${params.id}`} title="Edit product">
-              <Button>
-                <AiOutlineEdit size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
-    },
-    {
-      field: "Delete",
-      flex: 0.8,
-      minWidth: 120,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Button onClick={() => handleDeleteProduct(params.id)}>
-              <AiOutlineDelete size={20} />
-            </Button>
-          </>
-        );
-      },
-    },
-  ];
-
   const row = [];
 
   products &&
@@ -127,8 +69,8 @@ const handleDeleteProduct = async (id) => {
       row.push({
         id: item._id,
         name: item.name,
-        price: "US $" + item.discountPrice,
-        Stock: item.stock,
+        price: item.discountPrice,
+        stock: item.stock,
         sold: item?.sold_out,
       });
     });
@@ -140,13 +82,65 @@ const handleDeleteProduct = async (id) => {
       isLoading ? (
         <Loader />
       ) : (
-        <DataGrid
-          rows={row}
-          columns={columns}
-          pageSize={10}
-          autoheight
-          disableSelectionOnClick
-        />
+        <div className="products-container">
+          <div className="products-header">
+            <h2>Shop Products</h2>
+            <p className="products-count">{row.length} product{row.length !== 1 ? 's' : ''}</p>
+          </div>
+
+          {row.length === 0 ? (
+            <div className="products-empty">
+              <p>No products found</p>
+            </div>
+          ) : (
+            <div className="products-grid">
+              {row.map((product) => (
+                <div key={product.id} className="product-card">
+                  <div className="product-card-header">
+                    <h3 className="product-name">{product.name}</h3>
+                    <span className={`stock-indicator ${getStockStatus(product.stock)}`}>
+                      {getStockLabel(product.stock)}
+                    </span>
+                  </div>
+
+                  <div className="product-card-body">
+                    <div className="product-info-row">
+                      <span className="info-label">Price:</span>
+                      <span className="info-value">US ${product.price}</span>
+                    </div>
+                    <div className="product-info-row">
+                      <span className="info-label">Stock:</span>
+                      <span className="info-value info-stock">{product.stock} units</span>
+                    </div>
+                    <div className="product-info-row">
+                      <span className="info-label">Sold:</span>
+                      <span className="info-value">{product.sold || 0} units</span>
+                    </div>
+                  </div>
+
+                  <div className="product-card-footer">
+                    <Link to={`/dashboard-product/${product.id}`} className="action-btn action-btn--view" title="View details">
+                      <AiOutlineEye size={18} />
+                      <span>View</span>
+                    </Link>
+                    <Link to={`/dashboard-edit-product/${product.id}`} className="action-btn action-btn--edit" title="Edit product">
+                      <AiOutlineEdit size={18} />
+                      <span>Edit</span>
+                    </Link>
+                    <button 
+                      onClick={() => handleDeleteProduct(product.id)} 
+                      className="action-btn action-btn--delete"
+                      title="Delete product"
+                    >
+                      <AiOutlineDelete size={18} />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )
     }
     </>

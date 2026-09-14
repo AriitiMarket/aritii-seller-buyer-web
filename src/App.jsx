@@ -21,10 +21,21 @@ import {
   SellerCouponsPage,
   SellerSettingsPage
 } from './seller/index.js'
-import HomePage from './pages/marketplace/HomePage.jsx'
+import HomePage from './pages/home/HomePage.jsx'
 import NotFound from './pages/marketplace/NotFound.jsx'
 import ShopsPage from './pages/marketplace/ShopsPage.jsx'
 import ShopDetailsPage from './pages/marketplace/ShopDetailsPage.jsx'
+// NEW IMPORTS - Explore Pages
+import ProductsMarketplace from './pages/marketplace/explore/ProductsMarketplace.jsx'
+import ShopsMarketplace from './pages/marketplace/explore/ShopsMarketplace.jsx'
+import CategoriesMarketplace from './pages/marketplace/explore/CategoriesMarketplace.jsx'
+import EventsMarketplace from './pages/marketplace/explore/EventsMarketplace.jsx'
+// NEW IMPORTS - Detail Pages
+import ProductDetailPage from './pages/marketplace/details/ProductDetailPage.jsx'
+import ShopDetailPage from './pages/marketplace/details/ShopDetailPage.jsx'
+// NEW IMPORTS - Info Pages
+import AboutPlatform from './pages/marketplace/info/AboutPlatform.jsx'
+import HowItWorks from './pages/marketplace/info/HowItWorks.jsx'
 import './App.css'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -51,6 +62,7 @@ import { getAllShops, getAllCategories } from './store/redux/actions/shop.js'
 import SellerAuthRoute from './routes/SellerAuthRoute.jsx'
 import SellerStatusRoute from './routes/SellerStatusRoute.jsx'
 import ProtectedRoute from './routes/ProtectedRoute.jsx'
+import HomeRoute from './routes/HomeRoute.jsx'
 
 // Boot-once guard so catalog + auth/account fetches happen exactly once per page
 // load, not on every mount. In dev, React StrictMode (double-effects) and Vite
@@ -82,12 +94,10 @@ const App = () => {
     <BrowserRouter>
       <ToastContainer position="top-right" />
     <Routes>
-      {/* After successful login, check seller status and redirect accordingly */}
-      <Route path='/' element={
-        <ProtectedRoute>
-          <SellerStatusRoute />
-        </ProtectedRoute>
-      } />
+      {/* Home route: 
+          - Unauthenticated users see the marketplace
+          - Authenticated users are redirected based on seller status */}
+      <Route path='/' element={<HomeRoute />} />
       
       <Route path='/login' element={<LoginPage />} />
       <Route path='/sign-up' element={<SignUpPage />} />
@@ -99,6 +109,20 @@ const App = () => {
       <Route path="/best-selling" element={<BestSellingPage/>} />
       <Route path="/events" element={<EventsPage/>} />
       <Route path="/faq" element={<FAQpage/>} />
+      
+      {/* NEW MARKETPLACE EXPLORE PAGES */}
+      <Route path="/explore/products" element={<ProductsMarketplace/>} />
+      <Route path="/explore/shops" element={<ShopsMarketplace/>} />
+      <Route path="/explore/categories" element={<CategoriesMarketplace/>} />
+      <Route path="/explore/events" element={<EventsMarketplace/>} />
+      
+      {/* NEW DETAIL PAGES */}
+      <Route path="/product/:id" element={<ProductDetailPage/>} />
+      <Route path="/shop/:id" element={<ShopDetailPage/>} />
+      
+      {/* NEW INFO PAGES */}
+      <Route path="/about-platform" element={<AboutPlatform/>} />
+      <Route path="/how-it-works" element={<HowItWorks/>} />
       <Route path="/shops" element={<ShopsPage/>} />
       <Route path="/shops/:id" element={<ShopDetailsPage/>} />
       <Route path='/product/:name' element={<ProductsDetailPage/>} />

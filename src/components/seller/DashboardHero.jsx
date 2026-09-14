@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { getAllProductsShop } from '../../store/redux/actions/product';
 import { getAllOrdersOfShop } from '../../store/redux/actions/order';
 import { getAllEventsShop } from '../../store/redux/actions/event';
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { DataGrid } from "@mui/x-data-grid";
+import { MdShoppingBag, MdInventory2, MdEventNote } from "react-icons/md";
+import { BiCreditCard } from "react-icons/bi";
 
 const DashboardHero = () => {
   const dispatch = useDispatch();
@@ -34,176 +34,192 @@ const DashboardHero = () => {
 
   const recentOrders = ShopOrders ? [...ShopOrders].slice(0, 5) : [];
 
-  const columns = [
-    {
-      field: "id",
-      headerName: "Order ID",
-      minWidth: 150,
-      flex: 0.7,
-      renderCell: (params) => (
-        <span className="font-mono text-sm">#{params.value?.slice(0, 8)}</span>
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 120,
-      flex: 0.6,
-      renderCell: (params) => (
-        <span
-          className={`px-2 py-1 rounded text-xs font-semibold ${
-            params.value === "Delivered"
-              ? "bg-brand-primary text-white"
-              : "bg-gray-100 text-gray-700 border border-gray-300"
-          }`}
-        >
-          {params.value}
-        </span>
-      ),
-    },
-    {
-      field: "items",
-      headerName: "Items",
-      type: "number",
-      minWidth: 80,
-      flex: 0.4,
-    },
-    {
-      field: "total",
-      headerName: "Total",
-      minWidth: 120,
-      flex: 0.6,
-    },
-    {
-      field: "action",
-      headerName: "",
-      minWidth: 80,
-      flex: 0.3,
-      sortable: false,
-      renderCell: (params) => (
-        <Link to={`/order/${params.id}`}>
-          <AiOutlineArrowRight size={18} className="text-brand-muted hover:text-brand-primary" />
-        </Link>
-      ),
-    },
-  ];
-
-  const rows = recentOrders.map((order) => ({
-    id: order._id,
-    status: order.status,
-    items: order.cart?.length ?? 0,
-    total: "US$ " + order.totalPrice,
-  }));
-
   return (
-    <div className="w-full p-6 bg-brand-cream min-h-screen">
+    <div className="w-full p-6 bg-gray-50 min-h-screen space-y-6">
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-brand-charcoal tracking-tight">
+      {/* Welcome Section */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Welcome back, {seller?.name}
         </h1>
-        <p className="text-sm text-brand-muted mt-1">
-          Here's what's happening with your shop on Aritii Market today.
+        <p className="text-sm text-gray-600">
+          Manage your shop, track orders, and monitor your storefront performance.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 800px:grid-cols-4 gap-4 mb-10">
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
+          icon={BiCreditCard}
           label="Total Revenue"
-          value={`$${totalRevenue}`}
-          sub="From delivered orders"
+          value={`ETB ${Number(totalRevenue).toLocaleString()}`}
+          color="bg-green-50 text-green-700"
+          iconColor="text-green-600"
         />
         <StatCard
+          icon={MdShoppingBag}
           label="Total Orders"
           value={totalOrders}
-          sub="All time"
+          color="bg-blue-50 text-blue-700"
+          iconColor="text-blue-600"
         />
         <StatCard
+          icon={MdInventory2}
           label="Products"
           value={totalProducts}
-          sub="Listed in your shop"
+          color="bg-yellow-50 text-yellow-700"
+          iconColor="text-yellow-600"
         />
         <StatCard
+          icon={MdEventNote}
           label="Events"
           value={totalEvents}
-          sub="Active events"
+          color="bg-purple-50 text-purple-700"
+          iconColor="text-purple-600"
         />
       </div>
 
-      <div className="mb-10">
-        <h2 className="text-sm font-semibold text-brand-muted uppercase tracking-widest mb-3">
-          Quick Actions
-        </h2>
-        <div className="flex flex-wrap gap-3">
-          <QuickLink to="/dashboard-create-product" label="+ New Product" />
-          <QuickLink to="/dashboard-create-event" label="+ New Event" />
-          <QuickLink to="/dashboard-coupons" label="+ New Coupon" />
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <h2 className="text-base font-bold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <QuickActionButton 
+            to="/dashboard-create-product" 
+            label="Create Product" 
+            bgColor="bg-green-100 hover:bg-green-200"
+            textColor="text-green-700"
+            icon="📦"
+          />
+          <QuickActionButton 
+            to="/dashboard-create-event" 
+            label="Create Event" 
+            bgColor="bg-purple-100 hover:bg-purple-200"
+            textColor="text-purple-700"
+            icon="🎉"
+          />
+          <QuickActionButton 
+            to="/dashboard-coupons" 
+            label="Create Coupon" 
+            bgColor="bg-yellow-100 hover:bg-yellow-200"
+            textColor="text-yellow-700"
+            icon="🏷️"
+          />
         </div>
       </div>
 
-      <div className="bg-white border border-brand rounded-md">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-brand">
-          <h2 className="text-base font-semibold text-brand-charcoal">Recent Orders</h2>
+      {/* Recent Orders Section */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-gray-900">Recent Orders</h2>
           <Link
             to="/dashboard-orders"
-            className="text-sm text-brand-muted hover:text-brand-primary flex items-center gap-1"
+            className="text-sm text-green-600 hover:text-green-700 font-semibold underline"
           >
-            View all <AiOutlineArrowRight size={14} />
+            View all orders
           </Link>
         </div>
 
-        {rows.length === 0 ? (
-          <div className="px-5 py-10 text-center text-brand-muted text-sm">
-            No orders yet. Share your shop link to get started.
+        {recentOrders.length === 0 ? (
+          <div className="text-center py-10">
+            <MdShoppingBag className="text-5xl text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-600 text-sm mb-2">You have no orders yet.</p>
+            <p className="text-gray-500 text-xs">Share your shop link to start receiving orders.</p>
           </div>
         ) : (
-          <div className="p-2">
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pageSize={5}
-              disableSelectionOnClick
-              autoHeight
-              sx={{
-                border: "none",
-                "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: "#FDF6EC",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: "#6B7280",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                },
-                "& .MuiDataGrid-cell": {
-                  borderBottom: "1px solid #f0f0f0",
-                  fontSize: "14px",
-                },
-                "& .MuiDataGrid-row:hover": {
-                  backgroundColor: "#FDF6EC",
-                },
-              }}
-            />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-200 bg-gray-50">
+                <tr className="text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  <th className="px-4 py-3">Order ID</th>
+                  <th className="px-4 py-3">Items</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order._id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                    <td className="px-4 py-3">
+                      <Link 
+                        to={`/order/${order._id}`}
+                        className="font-semibold text-gray-900 hover:text-green-600"
+                      >
+                        #{order._id?.slice(-8)}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {order.cart?.length ?? 0} item{(order.cart?.length ?? 0) !== 1 ? 's' : ''}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        order.status === 'succeeded' || order.status === 'delivered'
+                          ? 'bg-green-100 text-green-700'
+                          : order.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : order.status === 'cancelled'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || 'Pending'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                      ETB {Number(order.totalPrice || 0).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
+
+      {/* Shop Performance Section */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <h2 className="text-base font-bold text-gray-900 mb-4">Shop Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-xs text-blue-600 font-semibold uppercase mb-1">Active Products</p>
+            <p className="text-2xl font-bold text-blue-900">{totalProducts}</p>
+            <p className="text-xs text-blue-600 mt-1">Ready to sell</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <p className="text-xs text-purple-600 font-semibold uppercase mb-1">Active Events</p>
+            <p className="text-2xl font-bold text-purple-900">{totalEvents}</p>
+            <p className="text-xs text-purple-600 mt-1">Running promotions</p>
+          </div>
+          <div className="p-4 bg-green-50 rounded-lg">
+            <p className="text-xs text-green-600 font-semibold uppercase mb-1">Total Customers</p>
+            <p className="text-2xl font-bold text-green-900">{recentOrders.length > 0 ? recentOrders.length : 0}</p>
+            <p className="text-xs text-green-600 mt-1">Recent orders</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };
 
-
-const StatCard = ({ label, value, sub }) => (
-  <div className="bg-white border border-brand rounded-md px-5 py-4">
-    <p className="text-xs text-brand-muted uppercase tracking-widest mb-1">{label}</p>
-    <p className="text-3xl font-bold text-brand-primary leading-none">{value}</p>
-    <p className="text-xs text-brand-muted mt-2">{sub}</p>
+const StatCard = ({ icon: Icon, label, value, color, iconColor }) => (
+  <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 hover:shadow-md transition">
+    <div className="flex items-start justify-between mb-3">
+      <div>
+        <p className="text-xs font-semibold text-gray-600 uppercase mb-2">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+      </div>
+      <div className={`p-2 rounded-lg ${color}`}>
+        <Icon className={`text-xl ${iconColor}`} />
+      </div>
+    </div>
   </div>
 );
 
-const QuickLink = ({ to, label }) => (
+const QuickActionButton = ({ to, label, bgColor, textColor, icon }) => (
   <Link
     to={to}
-    className="px-4 py-2 border border-brand-primary text-sm font-medium text-brand-primary rounded hover:bg-brand-primary hover:text-white transition-colors duration-150"
+    className={`px-4 py-3 rounded-lg ${bgColor} ${textColor} text-sm font-semibold text-center transition flex items-center justify-center gap-2`}
   >
+    <span>{icon}</span>
     {label}
   </Link>
 );

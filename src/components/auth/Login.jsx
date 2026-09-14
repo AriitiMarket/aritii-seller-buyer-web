@@ -1,205 +1,178 @@
 import React, { useState } from 'react'
-import {AiOutlineEyeInvisible,AiOutlineEye} from "react-icons/ai"
+import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai"
+import { MdOutlineEmail } from "react-icons/md"
 import { Link } from 'react-router-dom'
-import { useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import api from '../../services/api'
-import { AuthLogin } from '../../assets'
 import Store from '../../store/redux/store'
-import { loadUser, loadSeller } from '../../store/redux/actions/user'
 
 const Login = () => {
-
-    const[email,setEmail]=useState('')
-    const[password,setPassword]=useState('')
-    const[visible,setVisible]=useState(false)
-    const navigate=useNavigate();
-
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [visible, setVisible] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setLoading(true)
 
-        // ONE Aritii account, ONE session (single `token` cookie).
         try {
-            const res = await api.post('/user/login-user', { email, password });
-            const user = res?.data?.user || null;
-            
+            const res = await api.post('/user/login-user', { email, password })
+            const user = res?.data?.user || null
+
             if (!user) {
-                toast.error("Login failed. No user data returned.");
-                return;
+                toast.error("Login failed. No user data returned.")
+                setLoading(false)
+                return
             }
 
-            // Update Redux state immediately with the returned user
             Store.dispatch({
                 type: "LoadUserSuccess",
                 payload: user,
-            });
+            })
 
-            toast.success("Login successful!");
-            
-            // Now determine redirect based on seller status
+            toast.success("Login successful!")
+
             if (user.sellerStatus === 'APPROVED') {
-                navigate("/business/dashboard");
+                navigate("/business/dashboard")
             } else {
-                navigate("/marketplace");
+                navigate("/")
             }
         } catch (e) {
-            toast.error("Login failed. Please check your email and password.");
-            return;
+            toast.error("Login failed. Please check your email and password.")
+        } finally {
+            setLoading(false)
         }
     }
 
     return (
-        <div className='min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-brand-cream'>
+        <div className='min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-gray-100'>
+            <div className='w-full max-w-md'>
+                {/* Header */}
+                <div className='text-center mb-8'>
+                    <Link to="/">
+                        <img
+                            src="/aritii-logo.svg"
+                            alt="Aritii Market"
+                            className="h-12 w-auto mx-auto mb-6"
+                        />
+                    </Link>
+                    <h1 className='text-4xl font-bold text-gray-900 mb-2'>Welcome back</h1>
+                    <p className="text-base text-gray-600">
+                        Sign in to your Aritii account
+                    </p>
+                </div>
 
-            <div className='w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 items-center'>
-
-            <div className="hidden lg:flex justify-center">
-                <img
-                    src={AuthLogin}
-                    alt="Welcome to Aritii Market"
-                    className="w-full max-w-[480px] h-auto object-contain"
-                    loading="lazy"
-                />
-            </div>
-
-            <div>
-
-            <div className='sm:mx-auto sm:w-full sm:max-w-md text-center'>
-
-                <Link to="/">
-                  <img
-                    src="/aritii-logo.svg"
-                    alt="Aritii Market"
-                    className="h-[56px] w-auto object-contain mx-auto mb-4"
-                  />
-                </Link>
-
-                <h2 className='mt-2 text-center text-3xl font-extrabold text-brand-primary'>
-                    Welcome to Aritii Market
-                </h2>
-                <p className="mt-2 text-brand-muted">
-                    Sign in to your account — customers and sellers use the same login.
-                </p>
-
-            </div>
-
-
-
-            <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
-                <div className='bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-brand'>
-
-
-                    <form onSubmit={handleSubmit} className='space-y-6' action='#' >
-
-
-
+                {/* Form Card */}
+                <div className='bg-white rounded-2xl shadow-lg p-8 border border-gray-100'>
+                    <form onSubmit={handleSubmit} className='space-y-6'>
+                        {/* Email Field */}
                         <div>
-                            <label htmlFor='email' className='block text-sm font-medium text-brand-charcoal'>
+                            <label htmlFor='email' className='block text-sm font-semibold text-gray-700 mb-2'>
                                 Email address
                             </label>
-
-                            <div className="mt-1">
-                                <input type="email" name="email" autoComplete='email' required value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:border-brand-primary sm:text-sm'/>
+                            <div className="relative">
+                                <MdOutlineEmail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+                                <input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    autoComplete='email'
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition'
+                                />
                             </div>
                         </div>
 
-
-
-
-
+                        {/* Password Field */}
                         <div>
-                            <label htmlFor='password' className='block text-sm font-medium text-brand-charcoal'>
+                            <label htmlFor='password' className='block text-sm font-semibold text-gray-700 mb-2'>
                                 Password
                             </label>
-
-                            <div className="mt-1 relative">
-                                <input type={visible? "text" : "password"}
-                                 name="password" autoComplete='current-password' required value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:border-brand-primary sm:text-sm'/>
-
-
-                               {visible ? (
-                                <AiOutlineEye
-                                 className="absolute right-2 top-2 cursor-pointer"
-                                 size={25}
-                                 onClick={() => setVisible(false)}
+                            <div className="relative">
+                                <input
+                                    type={visible ? "text" : "password"}
+                                    name="password"
+                                    id="password"
+                                    autoComplete='current-password'
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition'
                                 />
-                                 ) : (
-                                 <AiOutlineEyeInvisible
-                                  className="absolute right-2 top-2 cursor-pointer"
-                                 size={25}
-                                 onClick={() => setVisible(true)}
-                                 />
-                              )}
-                            </div>
-
-
-
-                        </div>
-
-
-
-
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-
-                                <input type="checkbox" name='remember-me' id='remember-me'
-                                className='h-4 w-4 text-brand-primary border-gray-600 rounded'
-                                />
-
-                                <label htmlFor="remember-me"
-                                className='ml-2 block text-sm text-brand-charcoal'
+                                <button
+                                    type="button"
+                                    onClick={() => setVisible(!visible)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
-                                    Remember me
-                                </label>
-
+                                    {visible ? (
+                                        <AiOutlineEye size={20} />
+                                    ) : (
+                                        <AiOutlineEyeInvisible size={20} />
+                                    )}
+                                </button>
                             </div>
-
-                            <a href=".forgot-password" className="text-sm text-brand-primary">
-                                Forgot your password?
-                            </a>
-
-
                         </div>
 
-
-                        <div className='flex justify-center'>
-                            <button type='submit'
-                            className='bg-brand-primary w-80 text-white px-4 py-2 rounded-md hover:bg-brand-primary/90 focus:outline-none font-semibold'
-                            >
-                                Sign in
-                            </button>
+                        {/* Remember & Forgot */}
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    name='remember-me'
+                                    id='remember-me'
+                                    className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500'
+                                />
+                                <span className='ml-2 text-sm text-gray-700'>Remember me</span>
+                            </label>
+                            <Link to="/forgot-password" className="text-sm font-semibold text-green-600 hover:text-green-700">
+                                Forgot password?
+                            </Link>
                         </div>
 
+                        {/* Sign In Button */}
+                        <button
+                            type='submit'
+                            disabled={loading}
+                            className='w-full bg-green-700 hover:bg-green-800 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center'
+                        >
+                            {loading ? 'Signing in...' : 'Sign in'}
+                        </button>
 
-
-                        <div className='flex justify-start w-full'>
-                              <h4 className="text-brand-charcoal">Don't have an account?</h4>
-                              <Link to="/sign-up" className="ml-2 text-sm text-brand-primary hover:underline font-medium" >
-                                Create your Aritii Account
-                              </Link>
+                        {/* Divider */}
+                        <div className='relative my-6'>
+                            <div className='absolute inset-0 flex items-center'>
+                                <div className='w-full border-t border-gray-200'></div>
+                            </div>
+                            <div className='relative flex justify-center text-sm'>
+                                <span className='px-2 bg-white text-gray-500'>Or continue with</span>
+                            </div>
                         </div>
 
-                        <div className='mt-6 flex items-center justify-center w-full border-t border-brand-border pt-3'>
-                          <span className="text-sm text-brand-muted">Want to sell on Aritii?</span>
-                          <Link to="/sell" className="ml-2 text-sm text-brand-primary hover:underline font-semibold">
-                            Start Selling
-                          </Link>
-                        </div>
-
+                        {/* Sign Up Link */}
+                        <p className="text-center text-gray-600">
+                            Don't have an account?{' '}
+                            <Link to="/sign-up" className="font-semibold text-green-600 hover:text-green-700">
+                                Create account
+                            </Link>
+                        </p>
                     </form>
+                </div>
 
+                {/* Footer Links */}
+                <div className='mt-6 text-center'>
+                    <p className="text-sm text-gray-600 mb-4">Want to sell on Aritii?</p>
+                    <Link to="/sell" className="inline-flex items-center gap-2 font-semibold text-green-700 hover:text-green-800">
+                        Start selling →
+                    </Link>
                 </div>
             </div>
-
-            </div>
-
-            </div>
-
         </div>
     )
 }

@@ -2,12 +2,11 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { getAllEventsShop, deleteEvent } from '../../store/redux/actions/event.js';
-import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
 import { AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Loader from '../common/Loader.jsx';
 import { toast } from 'react-toastify';
+import './AllEvents.css';
 
 
 const AllEvents = () => {
@@ -23,80 +22,39 @@ const AllEvents = () => {
     }
   }, [dispatch, seller]);
 
+
+
   const handleDelete = (id) => {
     dispatch(deleteEvent(id));
   }
 
-  const columns = [
-    { field: "id", headerName: "Product Id", minWidth: 150, flex: 0.7 },
-    {
-      field: "name",
-      headerName: "Name",
-      minWidth: 180,
-      flex: 1.4,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      minWidth: 100,
-      flex: 0.6,
-    },
-    {
-      field: "Stock",
-      headerName: "Stock",
-      type: "number",
-      minWidth: 80,
-      flex: 0.5,
-    },
+  // Helper function to determine event status
+  const getEventStatus = (event) => {
+    const now = new Date();
+    const startDate = new Date(event.startDate);
+    const endDate = new Date(event.endDate);
+    
+    if (now < startDate) return 'upcoming';
+    if (now > endDate) return 'ended';
+    return 'active';
+  };
 
-    {
-      field: "sold",
-      headerName: "Sold out",
-      type: "number",
-      minWidth: 130,
-      flex: 0.6,
-    },
-    {
-      field: "Preview",
-      flex: 0.8,
-      minWidth: 100,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        const d = params.row.name;
-        const product_name = d.replace(/\s+/g, "-");
-        return (
-          <>
-            <Link to={`/product/${product_name}`}>
-              <Button>
-                <AiOutlineEye size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
-    },
-    {
-      field: "Delete",
-      flex: 0.8,
-      minWidth: 120,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Button
-            onClick={() => handleDelete(params.id)}
-            >
-              <AiOutlineDelete size={20} />
-            </Button>
-          </>
-        );
-      },
-    },
-  ];
+  // Helper function to get event status badge class
+  const getEventStatusBadgeClass = (event) => {
+    const status = getEventStatus(event);
+    if (status === 'active') return 'event-badge event-badge--active';
+    if (status === 'upcoming') return 'event-badge event-badge--upcoming';
+    return 'event-badge event-badge--ended';
+  };
+
+  // Helper function to format date
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
 
   const row = [];
 
@@ -105,9 +63,12 @@ const AllEvents = () => {
       row.push({
         id: item._id,
         name: item.name,
-        price: "US$ " + item.discountPrice,
-        Stock: item.stock,
+        price: item.discountPrice,
+        stock: item.stock,
         sold: item.sold_out,
+        startDate: item.startDate,
+        endDate: item.endDate,
+        ...item
       });
     });
 
@@ -116,14 +77,70 @@ const AllEvents = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="w-full mx-8 pt-1 mt-10 bg-white">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={10}
-            disableSelectionOnClick
-            autoHeight
-          />
+        <div className="events-container">
+          <div className="events-header">
+            <h2>Shop Events</h2>
+            <p className="events-count">{row.length} event{row.length !== 1 ? 's' : ''}</p>
+          </div>
+
+          {row.length === 0 ? (
+            <div className="events-empty">
+              <p>No events found</p>
+            </div>
+          ) : (
+            <div className="events-grid">
+              {row.map((event) => (
+                <div key={event.id} className="event-card">
+                  <div className="event-card-header">
+                    <h3 className="event-name">{event.name}</h3>
+                    <span className={getEventStatusBadgeClass(event)}>
+                      {getEventStatus(event).toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="event-card-body">
+                    <div className="event-info-row">
+                      <span className="info-label">Price:</span>
+                      <span className="info-value">US ${event.price}</span>
+                    </div>
+                    <div className="event-info-row">
+                      <span className="info-label">Stock:</span>
+                      <span className="info-value">{event.stock} units</span>
+                    </div>
+                    <div className="event-info-row">
+                      <span className="info-label">Sold:</span>
+                      <span className="info-value">{event.sold || 0} units</span>
+                    </div>
+                    <div className="event-dates">
+                      <div className="date-item">
+                        <span className="date-label">Starts:</span>
+                        <span className="date-value">{formatDate(event.startDate)}</span>
+                      </div>
+                      <div className="date-item">
+                        <span className="date-label">Ends:</span>
+                        <span className="date-value">{formatDate(event.endDate)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="event-card-footer">
+                    <Link to={`/product/${event.name.replace(/\s+/g, "-")}`} className="action-btn action-btn--view" title="View event">
+                      <AiOutlineEye size={18} />
+                      <span>View</span>
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(event.id)} 
+                      className="action-btn action-btn--delete"
+                      title="Delete event"
+                    >
+                      <AiOutlineDelete size={18} />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </>

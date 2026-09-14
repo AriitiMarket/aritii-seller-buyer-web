@@ -124,42 +124,54 @@ const Checkout = () => {
   console.log(discountAmount );
 
   return (
-    <div className="w-full flex flex-col items-center py-8">
-      <div className="w-[90%] 1000px:w-[70%] block 800px:flex">
-        <div className="w-full 800px:w-[65%]">
-          <ShippingInfo
-            user={user}
-            country={country}
-            setCountry={setCountry}
-            city={city}
-            setCity={setCity}
-            userInfo={userInfo}
-            setUserInfo={setUserInfo}
-            address1={address1}
-            setAddress1={setAddress1}
-            address2={address2}
-            setAddress2={setAddress2}
-            zipCode={zipCode}
-            setZipCode={setZipCode}
-          />
+    <div className="w-full flex flex-col items-center py-8 px-4">
+      <div className="w-full max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Shipping Form */}
+          <div className="lg:col-span-2">
+            <ShippingInfo
+              user={user}
+              country={country}
+              setCountry={setCountry}
+              city={city}
+              setCity={setCity}
+              userInfo={userInfo}
+              setUserInfo={setUserInfo}
+              address1={address1}
+              setAddress1={setAddress1}
+              address2={address2}
+              setAddress2={setAddress2}
+              zipCode={zipCode}
+              setZipCode={setZipCode}
+            />
+          </div>
+
+          {/* Order Summary */}
+          <div>
+            <CartData
+              handleSubmit={handleSubmit}
+              totalPrice={totalPrice}
+              shipping={shipping}
+              subTotalPrice={subTotalPrice}
+              couponCode={couponCode}
+              setCouponCode={setCouponCode}
+              discountAmount={discountAmount}
+            />
+          </div>
         </div>
-        <div className="w-full 800px:w-[35%] 800px:mt-0 mt-8">
-          <CartData
-            handleSubmit={handleSubmit}
-            totalPrice={totalPrice}
-            shipping={shipping}
-            subTotalPrice={subTotalPrice}
-            couponCode={couponCode}
-            setCouponCode={setCouponCode}
-            discountAmount ={discountAmount }
-          />
+
+        {/* Proceed Button */}
+        <div className="mt-8 flex justify-end">
+          <button
+            onClick={paymentSubmit}
+            className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition flex items-center gap-2"
+          >
+            Proceed to Payment
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
         </div>
-      </div>
-      <div
-        className={`${styles.button} w-[150px] 800px:w-[280px] mt-10`}
-        onClick={paymentSubmit}
-      >
-        <h5 className="text-white">Go to Payment</h5>
       </div>
     </div>
   );
@@ -181,64 +193,67 @@ const ShippingInfo = ({
   setZipCode,
 }) => {
   return (
-    <div className="w-full 800px:w-[95%] bg-white rounded-md p-5 pb-8">
-      <h5 className="text-[18px] font-[500]">Shipping Address</h5>
-      <br />
-      <form>
-        <div className="w-full flex pb-3">
-          <div className="w-[50%]">
-            <label className="block pb-2">Full Name</label>
+    <div className="w-full 800px:w-[95%] bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <h5 className="text-lg font-bold text-gray-900 mb-6">Shipping Address</h5>
+      <form className="space-y-4">
+        {/* Name and Email */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
             <input
               type="text"
               value={user && user.name}
               required
-              className={`${styles.input} !w-[95%]`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              disabled
             />
           </div>
-          <div className="w-[50%]">
-            <label className="block pb-2">Email Address</label>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
             <input
               type="email"
               value={user && user.email}
               required
-              className={`${styles.input}`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              disabled
             />
           </div>
         </div>
 
-        <div className="w-full flex pb-3">
-          <div className="w-[50%]">
-            <label className="block pb-2">Phone Number</label>
+        {/* Phone and Zip */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
             <input
               type="number"
               required
               value={user && user.phoneNumber}
-              className={`${styles.input} !w-[95%]`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              disabled
             />
           </div>
-          <div className="w-[50%]">
-            <label className="block pb-2">Zip Code</label>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Zip Code</label>
             <input
               type="number"
               value={zipCode}
               onChange={(e) => setZipCode(e.target.value)}
               required
-              className={`${styles.input}`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
             />
           </div>
         </div>
 
-        <div className="w-full flex pb-3">
-          <div className="w-[50%]">
-            <label className="block pb-2">Country</label>
+        {/* Country and City */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
             <select
-              className="w-[95%] border h-[40px] rounded-[5px]"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
             >
-              <option className="block pb-2" value="">
-                Choose your country
-              </option>
+              <option value="">Choose your country</option>
               {Country &&
                 Country.getAllCountries().map((item) => (
                   <option key={item.isoCode} value={item.isoCode}>
@@ -247,16 +262,14 @@ const ShippingInfo = ({
                 ))}
             </select>
           </div>
-          <div className="w-[50%]">
-            <label className="block pb-2">City</label>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">City/State</label>
             <select
-              className="w-[95%] border h-[40px] rounded-[5px]"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
               value={city}
               onChange={(e) => setCity(e.target.value)}
             >
-              <option className="block pb-2" value="">
-                Choose your City
-              </option>
+              <option value="">Choose your city</option>
               {State &&
                 State.getStatesOfCountry(country).map((item) => (
                   <option key={item.isoCode} value={item.isoCode}>
@@ -267,47 +280,51 @@ const ShippingInfo = ({
           </div>
         </div>
 
-        <div className="w-full flex pb-3">
-          <div className="w-[50%]">
-            <label className="block pb-2">Address1</label>
+        {/* Addresses */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Address Line 1</label>
             <input
-              type="address"
+              type="text"
               required
               value={address1}
               onChange={(e) => setAddress1(e.target.value)}
-              className={`${styles.input} !w-[95%]`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              placeholder="Street address"
             />
           </div>
-          <div className="w-[50%]">
-            <label className="block pb-2">Address2</label>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Address Line 2</label>
             <input
-              type="address"
+              type="text"
               value={address2}
               onChange={(e) => setAddress2(e.target.value)}
               required
-              className={`${styles.input}`}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              placeholder="Apartment, suite, etc."
             />
           </div>
         </div>
-
-        <div></div>
       </form>
-      <h5
-        className="text-[18px] cursor-pointer inline-block"
-        onClick={() => setUserInfo(!userInfo)}
-      >
-        Choose From saved address
-      </h5>
-      {userInfo && (
-        <div>
-          {user &&
-            user.addresses.map((item, index) => (
-              <div className="w-full flex mt-1">
+
+      {/* Saved Addresses */}
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={() => setUserInfo(!userInfo)}
+          className="text-sm font-semibold text-green-600 hover:text-green-700"
+        >
+          {userInfo ? "Hide saved addresses" : "Use saved address"}
+        </button>
+        {userInfo && user?.addresses && user.addresses.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {user.addresses.map((item, index) => (
+              <label key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
-                  type="checkbox"
-                  className="mr-3"
-                  value={item.addressType}
-                  onClick={() =>
+                  type="radio"
+                  name="saved-address"
+                  className="w-4 h-4 text-green-600"
+                  onChange={() =>
                     setAddress1(item.address1) ||
                     setAddress2(item.address2) ||
                     setZipCode(item.zipCode) ||
@@ -315,11 +332,15 @@ const ShippingInfo = ({
                     setCity(item.city)
                   }
                 />
-                <h2>{item.addressType}</h2>
-              </div>
+                <div className="ml-3">
+                  <p className="text-sm font-semibold text-gray-900">{item.addressType}</p>
+                  <p className="text-xs text-gray-600">{item.address1}, {item.city}</p>
+                </div>
+              </label>
             ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -331,43 +352,57 @@ const CartData = ({
   subTotalPrice,
   couponCode,
   setCouponCode,
-  discountAmount ,
+  discountAmount,
 }) => {
   return (
-    <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
-      <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">subtotal:</h3>
-        <h5 className="text-[18px] font-[600]">${subTotalPrice}</h5>
+    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
+      
+      {/* Price Breakdown */}
+      <div className="space-y-3 pb-4 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Subtotal</span>
+          <span className="text-sm font-semibold text-gray-900">${Number(subTotalPrice).toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Shipping</span>
+          <span className="text-sm font-semibold text-gray-900">${Number(shipping).toFixed(2)}</span>
+        </div>
+        {discountAmount && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Discount</span>
+            <span className="text-sm font-semibold text-green-600">-${Number(discountAmount).toFixed(2)}</span>
+          </div>
+        )}
       </div>
-      <br />
-      <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">shipping:</h3>
-        <h5 className="text-[18px] font-[600]">${shipping.toFixed(2)}</h5>
+
+      {/* Total */}
+      <div className="flex justify-between items-center mt-4 mb-6">
+        <span className="text-base font-bold text-gray-900">Total</span>
+        <span className="text-2xl font-bold text-green-600">${Number(totalPrice).toFixed(2)}</span>
       </div>
-      <br />
-      <div className="flex justify-between border-b pb-3">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">Discount:</h3>
-        <h5 className="text-[18px] font-[600]">
-          - {discountAmount  ? "$" + discountAmount .toString() : null}
-        </h5>
-      </div>
-      <h5 className="text-[18px] font-[600] text-end pt-3">${totalPrice}</h5>
-      <br />
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className={`${styles.input} h-[40px] pl-2`}
-          placeholder="Coupoun code"
-          value={couponCode}
-          onChange={(e) => setCouponCode(e.target.value)}
-          required
-        />
-        <input
-          className={`w-full h-[40px] border border-[#0B6E4F] text-center text-[#0B6E4F] rounded-[3px] mt-8 cursor-pointer`}
-          required
-          value="Apply code"
-          type="submit"
-        />
+
+      {/* Coupon Form */}
+      <form onSubmit={handleSubmit} className="space-y-3 pt-4 border-t border-gray-200">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Coupon Code</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-sm"
+              placeholder="Enter coupon code"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
+            >
+              Apply
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Have a discount code? Enter it here</p>
+        </div>
       </form>
     </div>
   );

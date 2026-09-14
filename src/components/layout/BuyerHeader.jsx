@@ -6,6 +6,7 @@ import { BiMenuAltLeft, BiMessageSquareDetail } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { FiShoppingBag } from "react-icons/fi";
 import { AiOutlineHeart, AiOutlineLogout } from "react-icons/ai";
+import BrandLogo from '../common/BrandLogo';
 
 /**
  * Buyer Dashboard Header — used ONLY inside the buyer's private account area.
@@ -24,29 +25,23 @@ const BuyerHeader = ({ onMenuClick }) => {
   const isAuthed = !!(user && (user.isAuthenticated ?? true));
 
   return (
-    <header className="w-full h-[72px] bg-white shadow sticky top-0 left-0 z-40 flex items-center justify-between px-4 border-b border-brand">
+    <header className="w-full h-[72px] bg-white shadow sticky top-0 left-0 z-40 flex items-center justify-between px-4 border-b border-gray-200">
       {/* Left: mobile menu toggle + logo */}
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Open account menu"
-          className="md:hidden flex items-center justify-center w-[40px] h-[40px] rounded-md bg-brand-primary/10 text-brand-primary"
+          className="md:hidden flex items-center justify-center w-[40px] h-[40px] rounded-md bg-[#052919]/10 text-[#052919]"
         >
           <BiMenuAltLeft size={26} />
         </button>
 
-        <Link to="/my-dashboard">
-          <img
-            src="/aritii-logo.svg"
-            alt="Aritii Market"
-            className="h-[40px] w-auto object-contain"
-          />
-        </Link>
+        <BrandLogo size="sm" showText={false} showTagline={false} linked={true} />
 
         <span className="hidden md:inline-flex items-center gap-1 ml-2">
-          <CgProfile size={20} className="text-brand-primary" />
-          <span className="text-sm font-[500] text-brand-charcoal">My Dashboard</span>
+          <CgProfile size={20} className="text-[#052919]" />
+          <span className="text-sm font-medium text-[#052919]">My Dashboard</span>
         </span>
       </div>
 
@@ -54,7 +49,7 @@ const BuyerHeader = ({ onMenuClick }) => {
       <div className="flex items-center gap-3">
         <Link
           to="/inbox"
-          className="flex items-center justify-center w-[40px] h-[40px] rounded-md bg-brand-primary/10 text-brand-primary"
+          className="flex items-center justify-center w-[40px] h-[40px] rounded-md bg-[#052919]/10 text-[#052919]"
           title="Messages"
         >
           <BiMessageSquareDetail size={22} />
@@ -62,7 +57,7 @@ const BuyerHeader = ({ onMenuClick }) => {
 
         <Link
           to="/my-dashboard/wishlist"
-          className="hidden sm:flex items-center justify-center w-[40px] h-[40px] rounded-md bg-brand-primary/10 text-brand-primary"
+          className="hidden sm:flex items-center justify-center w-[40px] h-[40px] rounded-md bg-[#052919]/10 text-[#052919]"
           title="Wishlist"
         >
           <AiOutlineHeart size={22} />
@@ -70,7 +65,7 @@ const BuyerHeader = ({ onMenuClick }) => {
 
         <Link
           to="/"
-          className="hidden md:inline-flex items-center gap-1 text-sm font-[600] text-brand-primary hover:text-brand-primary/80"
+          className="hidden md:inline-flex items-center gap-1 text-sm font-semibold text-[#052919] hover:text-[#E5A93C]"
           title="Browse Marketplace"
         >
           <FiShoppingBag size={18} />
@@ -87,11 +82,11 @@ const BuyerHeader = ({ onMenuClick }) => {
               data={user}
               fallback="/logo192.png"
               alt={user.name || "Buyer"}
-              className="w-[40px] h-[40px] rounded-full object-cover border-2 border-brand-primary"
+              className="w-[40px] h-[40px] rounded-full object-cover border-2 border-[#E5A93C]"
             />
           </Link>
         ) : (
-          <Link to="/login" className="text-sm font-[600] text-brand-primary">
+          <Link to="/login" className="text-sm font-semibold text-[#052919]">
             Sign in
           </Link>
         )}

@@ -1,0 +1,192 @@
+/* Track Order Component Styling */
+
+.track-order-container {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 32px;
+  margin-bottom: 24px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.track-order-empty {
+  text-align: center;
+}
+
+.track-status-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-icon {
+  font-size: 52px;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.status-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.status-message {
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+/* Status-specific styling */
+.status-processing .status-icon {
+  color: #f59e0b;
+  background: #fef3c7;
+}
+
+.status-processing .status-title {
+  color: #d97706;
+}
+
+.status-shipped .status-icon {
+  color: #3b82f6;
+  background: #dbeafe;
+}
+
+.status-shipped .status-title {
+  color: #1d4ed8;
+}
+
+.status-delivered .status-icon {
+  color: #10b981;
+  background: #d1fae5;
+}
+
+.status-delivered .status-title {
+  color: #047857;
+}
+
+.status-refunding .status-icon {
+  color: #8b5cf6;
+  background: #ede9fe;
+}
+
+.status-refunding .status-title {
+  color: #6d28d9;
+}
+
+.status-refund-success .status-icon {
+  color: #10b981;
+  background: #d1fae5;
+}
+
+.status-refund-success .status-title {
+  color: #047857;
+}
+
+.status-cancelled .status-icon {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.status-cancelled .status-title {
+  color: #dc2626;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .track-order-container {
+    padding: 24px;
+    min-height: 250px;
+  }
+
+  .track-status-card {
+    padding: 24px 20px;
+  }
+
+  .status-icon {
+    font-size: 40px;
+    width: 70px;
+    height: 70px;
+    margin-bottom: 16px;
+  }
+
+  .status-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .status-message {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .track-order-container {
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .track-status-card {
+    padding: 20px 16px;
+  }
+
+  .status-icon {
+    font-size: 36px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 14px;
+  }
+
+  .status-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .status-message {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+}

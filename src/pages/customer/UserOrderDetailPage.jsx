@@ -1,23 +1,25 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from '../../components/layout/Header'
 import Footer from '../../components/layout/Footer'
 import UserOrderDetailComponent from '../../components/profile/UserOrderDetailComponent'
 
-
-
-//THIS IS THE PAGE THAT WILL APPEAR WHEN WE CLICK ORDERS IN /PROFILE PAGE
-//THEN WHEN ORDERS ARE APPEARING AND THERE -> AHEAD OF EACH ORDER
-//SO AFTER CLICKING THAT ARROW THIS PAGE WILL APPEAR AND PROVIDE DETAILS ABOUT THAT PAGE
-
 const UserOrderDetailPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
-    <div>
-    <Header/>
-    <UserOrderDetailComponent/>
-    <Footer/>
-    
-  
-  </div>
+    <div className="w-full min-h-screen bg-gray-50 flex flex-col">
+      <Header />
+      
+      <div className="flex-1">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <UserOrderDetailComponent />
+        </div>
+      </div>
+
+      <Footer />
+    </div>
   )
 }
 

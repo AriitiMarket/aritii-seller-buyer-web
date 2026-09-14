@@ -1,929 +1,730 @@
-import React from 'react'
-import { useSelector } from 'react-redux';
-import api from '../../services/api';
-import { Avatar } from '../common/ImageWithFallback';
-import { AiOutlineCamera } from 'react-icons/ai';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import styles from '../../styles/styles';
-import { Link } from 'react-router-dom';
-import { Button } from "@mui/material";
-import { AiOutlineArrowRight } from 'react-icons/ai';
-import {DataGrid} from "@mui/x-data-grid";
-import { MdTrackChanges } from 'react-icons/md';
-import { Country, State } from "country-state-city";
-import { toast } from 'react-toastify';
-import { updatUserAddress, deleteUserAddress } from '../../store/redux/actions/user.js';
-import { RxCross1 } from 'react-icons/rx';
-import { AiOutlineDelete } from 'react-icons/ai';
-import { updateUserInformation, loadUser } from '../../store/redux/actions/user.js';
-import { useEffect } from 'react';
-import {getAllOrdersOfUser} from '../../store/redux/actions/order.js';
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import api from '../../services/api'
+import { Avatar } from '../common/ImageWithFallback'
+import { AiOutlineCamera, AiOutlineArrowRight, AiOutlineDelete } from 'react-icons/ai'
+import { MdTrackChanges } from 'react-icons/md'
+import { RxCross1 } from 'react-icons/rx'
+import { Country, State } from 'country-state-city'
+import {
+  updatUserAddress,
+  deleteUserAddress,
+  updateUserInformation,
+  loadUser
+} from '../../store/redux/actions/user'
+import { getAllOrdersOfUser } from '../../store/redux/actions/order'
+import './ProfileContent.css'
 
+const ProfileContent = ({ active }) => {
+  const { user } = useSelector((state) => state.user)
+  const { orders } = useSelector((state) => state.order)
+  const dispatch = useDispatch()
 
-const ProfileContent = ({active}) => {
+  const [name, setName] = useState(user?.name || '')
+  const [email, setEmail] = useState(user?.email || '')
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '')
+  const [password, setPassword] = useState('')
 
-  const {user, error, success} = useSelector((state) => state.user);
-
-  console.log(user);
-
-  const [name, setName] = useState(user && user.name);
-  const [email, setEmail] = useState(user && user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
-  const [password, setPassword] = useState("");
-  const [avatar, setAvatar] = useState(null);
-  const dispatch = useDispatch();
-
-
-
-  // Sync user data to local state when user changes or loads
   useEffect(() => {
     if (user) {
-      setName(user.name);
-      setEmail(user.email);
-      setPhoneNumber(user.phoneNumber);
+      setName(user.name)
+      setEmail(user.email)
+      setPhoneNumber(user.phoneNumber)
     }
-  }, [user]);
+  }, [user])
 
-
-
-
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-      dispatch({ type: "clearErrors" });
-    }
-    if (success) {
-      toast.success("Profile updated successfully!");
-      setPassword(""); // Clear password field after successful update
-      dispatch({ type: "clearErrors" });
-    }
-  }, [error, success, dispatch]);
-
-
-
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(updateUserInformation(name, email, phoneNumber, password));
+  const handleProfileSubmit = (e) => {
+    e.preventDefault()
+    dispatch(updateUserInformation(name, email, phoneNumber, password))
+    setPassword('')
   }
-
-
 
   const handleAvatarChange = async (e) => {
-    try{
-      const file=e.target.files[0];
-      setAvatar(file);
+    try {
+      const file = e.target.files[0]
+      if (!file) return
 
-      const formData=new FormData();
-
-      formData.append("image", file);
+      const formData = new FormData()
+      formData.append('image', file)
 
       await api.put('/user/update-avatar', formData, {
-        headers: {
-        "Content-Type": "multipart/form-data",
-      },
+        headers: { 'Content-Type': 'multipart/form-data' }
       })
-      .then((res)=>{
-        toast.success("Avatar updated successfully!");
-        dispatch(loadUser());
-      })
-      .catch(err=>{
-        toast.error(err.response.data.message);
-      })
-    }
-    catch(err){
-      toast.error(err.message);
+      toast.success('Avatar updated successfully!')
+      dispatch(loadUser())
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message)
     }
   }
-
 
   return (
     <div className="w-full">
-      {
- //WHEN ACTIVE IS 1, SHOW THE PROFILE CONTENT AS WE MADE IN PROFILE SIDEBAR THAT ACTIVE ===1 WHEN PROFILE TAB IS OPENED
-        active ===1 && (
-          
-          <>
-           <div className="flex justify-center w-full">
-<div className="relative">
-              <Avatar
-                data={user}
-                fallback="/aritii-logo.svg"
-                className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#F5A623]"
-                alt={user && user.name ? user.name : 'Profile'}
-              />
+      {active === 1 && <ProfileSection user={user} onAvatarChange={handleAvatarChange} onSubmit={handleProfileSubmit} name={name} setName={setName} email={email} setEmail={setEmail} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} password={password} setPassword={setPassword} />}
 
-              <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
-                 
-                  <input
-                    type="file"
-                    className="hidden"
-                    id="avatar"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                  />
-                  <label htmlFor="avatar">
+      {active === 2 && <AllOrders />}
 
-                    <AiOutlineCamera />
-                  </label>
-              </div>
-            </div>
-          </div>
+      {active === 3 && <AllRefundOrders />}
 
+      {active === 5 && <TrackOrder />}
 
+      {active === 6 && <ChangePassword />}
 
-
-                {/* NOW START THE FORM */}
-          <br />
-          <br />
-          <div className="w-full px-5">
-            <form onSubmit={handleSubmit} aria-required={true}>
-              <div className="w-full 800px:flex block pb-3">
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Full Name</label>
-                  <input
-                    type="text"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Email Address</label>
-                  <input
-                    type="text"
-                    className={`${styles.input} !w-[95%] mb-1 800px:mb-0`}
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="w-full 800px:flex block pb-3">
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Phone Number</label>
-                  <input
-                    type="number"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
-
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Enter your password</label>
-                  <input
-                    type="password"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-              <input
-                className={`w-[250px]  h-[40px] border border-[#0B6E4F] text-center text-[#0B6E4F] rounded-[3px] mt-8 cursor-pointer`}
-                required
-                value="Update"
-                type="submit"
-              />
-            </form>
-          </div>
-
-          </>
-        ) 
-      }
-
-
-
-
- {/* WHEN ACTIVE IS 2, SHOW THE ORDERS TAB AS WE MADE IN PROFILE SECTION SIDEBAR THAT WHEN ACTIVE === 2 THEN SHOW ORDERS TAB */}
-
-  {active === 2 && (
-        <div>
-          <AllOrders />   {/* This component is created below*/}
-        </div>
-      )}
-
-
-
-
-  {/* WHEN ACTIVE IS 3, SHOW THE REFUND ORDERS TAB  */}
-      {active === 3 && (
-        <div>
-          <AllRefundOrders />
-        </div>
-      )}
-
-
-
-  {/* Track order */}
-      {active === 5 && (
-        <div>
-          <TrackOrder />
-        </div>
-      )}
-
-
-    {/* change password */}
-      {active === 6 && (
-        <div>
-          <ChangePassword />
-        </div>
-      )}
-
-  {/*  user Address */}
-      {active === 7 && (
-        <div>
-          <Address />
-        </div>
-      )}
-    
-
-  
-
-
-
+      {active === 7 && <Address />}
     </div>
   )
 }
 
+// ============ Profile Section ============
+const ProfileSection = ({
+  user,
+  onAvatarChange,
+  onSubmit,
+  name,
+  setName,
+  email,
+  setEmail,
+  phoneNumber,
+  setPhoneNumber,
+  password,
+  setPassword
+}) => {
+  return (
+    <div className="profile-section">
+      {/* Avatar Section */}
+      <div className="profile-avatar-wrapper">
+        <div className="profile-avatar-container">
+          <Avatar
+            data={user}
+            fallback="/aritii-logo.svg"
+            className="profile-avatar-image"
+            alt={user?.name || 'Profile'}
+          />
+          <div className="profile-avatar-upload">
+            <input
+              type="file"
+              id="avatar"
+              accept="image/*"
+              onChange={onAvatarChange}
+            />
+            <label htmlFor="avatar">
+              <AiOutlineCamera />
+            </label>
+          </div>
+        </div>
+      </div>
 
+      {/* Profile Form */}
+      <form onSubmit={onSubmit} className="profile-form-section">
+        <div className="form-row">
+          <div className="form-group">
+            <label>Full Name</label>
+            <input
+              type="text"
+              className="form-input"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+            />
+          </div>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              className="form-input"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+            />
+          </div>
+        </div>
 
+        <div className="form-row">
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              className="form-input"
+              required
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="Enter your phone number"
+            />
+          </div>
+          <div className="form-group">
+            <label>Password (to confirm changes)</label>
+            <input
+              type="password"
+              className="form-input"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+            />
+          </div>
+        </div>
 
+        <div className="form-actions">
+          <button type="submit" className="btn-primary">
+            Save Changes
+          </button>
+          <button type="reset" className="btn-secondary">
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
 
-
-
-
-
-
-
-
-
-
-
-
+// ============ All Orders ============
 const AllOrders = () => {
-
-
-   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
-  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user)
+  const { orders } = useSelector((state) => state.order)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (user?._id) {
-      dispatch(getAllOrdersOfUser(user._id));
+      dispatch(getAllOrdersOfUser(user._id))
     }
-  }, [dispatch, user?._id]);
+  }, [dispatch, user?._id])
 
+  const getStatusBadgeClass = (status) => {
+    const statusLower = status?.toLowerCase() || ''
+    if (statusLower === 'delivered') return 'status-badge status-badge--delivered'
+    if (statusLower === 'processing' || statusLower === 'pending') return 'status-badge status-badge--processing'
+    if (statusLower === 'shipped') return 'status-badge status-badge--shipped'
+    if (statusLower === 'cancelled') return 'status-badge status-badge--cancelled'
+    return 'status-badge status-badge--default'
+  }
 
-
-
-  const columns = [
-    { field: "id",
-      headerName: "Order ID",
-      minWidth: 150,
-      flex: 0.7 
-    },
-
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 130,
-      flex: 0.7,
-      cellClassName: (params) => {
-        return params.row && params.row.status === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 130,
-      flex: 0.7,
-    },
-
-    {
-      field: "total",
-      headerName: "Total",
-      type: "number",
-      minWidth: 130,
-      flex: 0.8,
-    },
-
-    {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/user/order/${params.id}`}>
-              <button>
-                <AiOutlineArrowRight size={20} />
-              </button>
-            </Link>
-          </>
-        );
-      },
-    },
-  ];
-
-  const row = [];
-
-   orders &&
-    orders.forEach((item) => {
-      row.push({
-        id: item._id,
-        itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
-        status: item.status,
-      });
-    });
+  const rows = orders?.map((item) => ({
+    id: item._id,
+    itemsQty: item.cart?.length || 0,
+    total: `US$ ${item.totalPrice}`,
+    status: item.status
+  })) || []
 
   return (
-    <div className='pl-8 pt-1'>
-       <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={10}
-        disableSelectionOnClick
-        autoHeight
-      />
+    <div className="orders-container">
+      <div className="orders-header">
+        <h2>My Orders</h2>
+        <p className="orders-count">{rows.length} order{rows.length !== 1 ? 's' : ''}</p>
+      </div>
 
+      {rows.length === 0 ? (
+        <div className="orders-empty">
+          <p>No orders yet. Start shopping to see your orders here.</p>
+          <Link to="/products" style={{ marginTop: '16px', display: 'inline-block', color: '#0B6E4F', textDecoration: 'none', fontWeight: 600 }}>
+            Browse Products →
+          </Link>
+        </div>
+      ) : (
+        <div className="orders-table-wrapper">
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((order) => (
+                <tr key={order.id} className="order-row">
+                  <td className="order-id">{order.id}</td>
+                  <td>
+                    <span className={getStatusBadgeClass(order.status)}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="items-qty">{order.itemsQty}</td>
+                  <td className="order-total">{order.total}</td>
+                  <td className="order-action">
+                    <Link to={`/user/order/${order.id}`}>
+                      <button className="view-btn" title="View Order Details">
+                        <AiOutlineArrowRight size={18} />
+                      </button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// ============ All Refund Orders ============
 const AllRefundOrders = () => {
-
-
-   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
-  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user)
+  const { orders } = useSelector((state) => state.order)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, []);
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id))
+    }
+  }, [dispatch, user?._id])
 
-  const eligibleRefundOrders = orders.filter((order) => order.status === "Processing refund");
+  const eligibleRefundOrders = orders?.filter((order) => order.status === 'Processing refund') || []
 
+  const getStatusBadgeClass = (status) => {
+    const statusLower = status?.toLowerCase() || ''
+    if (statusLower === 'processing refund') return 'status-badge status-badge--refund'
+    return 'status-badge status-badge--default'
+  }
 
-  //imagine we have orders in the backend and we are fetching them, but for now we will hardcode them to show how it works, we will replace this with actual orders from backend later on when we have the backend ready
-  // const orders=[
-  //   {
-  //     _id: "123456789",
-  //     orderItems: [
-  //       {
-  //         name: "Iphone 11",
-  //       },
-  //     ],
-  //       totalPrice: 50000,
-  //       orderStatus: "Delivered",
-  //   },
-  // ];
-
-  const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 130,
-      flex: 0.7,
-      cellClassName: (params) => {
-        return params.row && params.row.status === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 130,
-      flex: 0.7,
-    },
-
-    {
-      field: "total",
-      headerName: "Total",
-      type: "number",
-      minWidth: 130,
-      flex: 0.8,
-    },
-
-    {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/order/${params.id}`}>
-              <button>
-                <AiOutlineArrowRight size={20} />
-              </button>
-            </Link>
-          </>
-        );
-      },
-    },
-  ];
-
-  const row = [];
-
-   eligibleRefundOrders &&
-    eligibleRefundOrders.forEach((item) => {
-      row.push({
-        id: item._id,
-        itemsQty: item.cart.length?? 0,
-        total: "US$ " + item.totalPrice,
-        status: item.status,
-      });
-    });
+  const rows = eligibleRefundOrders.map((item) => ({
+    id: item._id,
+    itemsQty: item.cart?.length || 0,
+    total: `US$ ${item.totalPrice}`,
+    status: item.status
+  }))
 
   return (
-    <div className="pl-8 pt-1">
-      <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={10}
-        disableSelectionOnClick
-        autoHeight
-      />
+    <div className="orders-container">
+      <div className="orders-header">
+        <h2>Refund Requests</h2>
+        <p className="orders-count">{rows.length} refund{rows.length !== 1 ? 's' : ''}</p>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="orders-empty">
+          <p>No refund requests. All orders are normal.</p>
+        </div>
+      ) : (
+        <div className="orders-table-wrapper">
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((order) => (
+                <tr key={order.id} className="order-row">
+                  <td className="order-id">{order.id}</td>
+                  <td>
+                    <span className={getStatusBadgeClass(order.status)}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="items-qty">{order.itemsQty}</td>
+                  <td className="order-total">{order.total}</td>
+                  <td className="order-action">
+                    <Link to={`/user/order/${order.id}`}>
+                      <button className="view-btn" title="View Order Details">
+                        <AiOutlineArrowRight size={18} />
+                      </button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
-
-
-
-
-
-
-
+// ============ Track Order ============
 const TrackOrder = () => {
-
-  const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
-  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user)
+  const { orders } = useSelector((state) => state.order)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, []);
-
-  const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 130,
-      flex: 0.7,
-      cellClassName: (params) => {
-        return params.row && params.row.status === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 130,
-      flex: 0.7,
-    },
-    {
-      field: "total",
-      headerName: "Total",
-      type: "number",
-      minWidth: 130,
-      flex: 0.8,
-    },
-    {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/user/track/order/${params.id}`}>
-              <Button>
-                <MdTrackChanges size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
-    },
-  ];
-
-  const row = [];
-
-  orders &&
-    orders.forEach((item) => {
-      row.push({
-        id: item._id,
-        itemsQty: item.cart?.length ?? 0,  // ✅ cart not orderItems
-        total: "US$ " + item.totalPrice,
-        status: item.status,               // ✅ status not orderStatus
-      });
-    });
-
-  return (
-    <div>
-      <div className="pl-8 pt-1">
-        <DataGrid
-          rows={row}
-          columns={columns}
-          pageSize={10}
-          disableSelectionOnClick
-          autoHeight
-        />
-      </div>
-    </div>
-  );
-};
-
-
-
-
-
-const ChangePassword = () => {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-
-
-  const passwordChangeHandler = async (e) => {
-    e.preventDefault();
-
-    await api
-      .put(
-        `/user/update-user-password`,
-        { oldPassword, newPassword, confirmPassword }
-      )
-      .then((res) => {
-        toast.success(res.data.message);
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
-
-
-
-  };
-  return (
-    <div className="w-full px-5">
-      <h1 className="block text-[25px] text-center font-[600] text-[#000000ba] pb-2">
-        Change Password
-      </h1>
-      <div className="w-full">
-        <form
-          aria-required
-          onSubmit={passwordChangeHandler}
-          className="flex flex-col items-center"
-        >
-          <div className=" w-[100%] 800px:w-[50%] mt-5">
-            <label className="block pb-2">Enter your old password</label>
-            <input
-              type="password"
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-            />
-          </div>
-          <div className=" w-[100%] 800px:w-[50%] mt-2">
-            <label className="block pb-2">Enter your new password</label>
-            <input
-              type="password"
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </div>
-          <div className=" w-[100%] 800px:w-[50%] mt-2">
-            <label className="block pb-2">Confirm your new password</label>
-            <input
-              type="password"
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <input
-              className={`w-[95%] h-[40px] border border-[#0B6E4F] text-center text-[#0B6E4F] rounded-[3px] mt-8 cursor-pointer`}
-              required
-              value="Update"
-              type="submit"
-            />
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-
-
-
-
-
-
-
-
-const Address = () => {
-  const [open, setOpen] = useState(false);
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState();
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
-  const [addressType, setAddressType] = useState("");
-  const { user } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-
-  const addressTypeData = [
-    {
-      name: "Default",
-    },
-    {
-      name: "Home",
-    },
-    {
-      name: "Office",
-    },
-  ];
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (addressType === "" || country === "" || city === "") {
-      toast.error("Please fill all the fields!");
-    } else {
-      dispatch(
-        updatUserAddress(
-          country,
-          city,
-          address1,
-          address2,
-          zipCode,
-          addressType
-        )
-      );
-      setOpen(false);
-      setCountry("");
-      setCity("");
-      setAddress1("");
-      setAddress2("");
-      setZipCode(null);
-      setAddressType("");
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id))
     }
-  };
+  }, [dispatch, user?._id])
 
+  const getStatusBadgeClass = (status) => {
+    const statusLower = status?.toLowerCase() || ''
+    if (statusLower === 'delivered') return 'status-badge status-badge--delivered'
+    if (statusLower === 'processing' || statusLower === 'pending') return 'status-badge status-badge--processing'
+    if (statusLower === 'shipped') return 'status-badge status-badge--shipped'
+    if (statusLower === 'cancelled') return 'status-badge status-badge--cancelled'
+    return 'status-badge status-badge--default'
+  }
 
-
-
-
-
-  const handleDelete = (item) => {
-    const id = item._id;
-    dispatch(deleteUserAddress(id));
-    toast.success("Address deleted successfully!");
-  };
-
-
-
-
-
-
+  const rows = orders?.map((item) => ({
+    id: item._id,
+    itemsQty: item.cart?.length || 0,
+    total: `US$ ${item.totalPrice}`,
+    status: item.status
+  })) || []
 
   return (
-    <div className="w-full px-5">
+    <div className="orders-container">
+      <div className="orders-header">
+        <h2>Track Orders</h2>
+        <p className="orders-count">{rows.length} order{rows.length !== 1 ? 's' : ''}</p>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="orders-empty">
+          <p>No orders to track. Place an order to start tracking.</p>
+        </div>
+      ) : (
+        <div className="orders-table-wrapper">
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((order) => (
+                <tr key={order.id} className="order-row">
+                  <td className="order-id">{order.id}</td>
+                  <td>
+                    <span className={getStatusBadgeClass(order.status)}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="items-qty">{order.itemsQty}</td>
+                  <td className="order-total">{order.total}</td>
+                  <td className="order-action">
+                    <Link to={`/user/track/order/${order.id}`}>
+                      <button className="view-btn" title="Track Order">
+                        <MdTrackChanges size={18} />
+                      </button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============ Change Password ============
+const ChangePassword = () => {
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match!')
+      return
+    }
+
+    try {
+      const res = await api.put('/user/update-user-password', {
+        oldPassword,
+        newPassword,
+        confirmPassword
+      })
+      toast.success(res.data.message || 'Password updated successfully!')
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update password')
+    }
+  }
+
+  return (
+    <div className="profile-section">
+      <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1f2937', marginBottom: '24px' }}>
+        Change Password
+      </h2>
+
+      <form onSubmit={handlePasswordChange} className="password-form-wrapper">
+        <div className="form-group">
+          <label>Current Password</label>
+          <input
+            type="password"
+            className="form-input"
+            required
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            placeholder="Enter your current password"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>New Password</label>
+          <input
+            type="password"
+            className="form-input"
+            required
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Enter your new password"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Confirm New Password</label>
+          <input
+            type="password"
+            className="form-input"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm your new password"
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn-primary">
+            Update Password
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setOldPassword('')
+              setNewPassword('')
+              setConfirmPassword('')
+            }}
+            className="btn-secondary"
+          >
+            Clear
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+// ============ Address Manager ============
+const Address = () => {
+  const [open, setOpen] = useState(false)
+  const [country, setCountry] = useState('')
+  const [city, setCity] = useState('')
+  const [zipCode, setZipCode] = useState('')
+  const [address1, setAddress1] = useState('')
+  const [address2, setAddress2] = useState('')
+  const [addressType, setAddressType] = useState('')
+  const { user } = useSelector((state) => state.user)
+  const dispatch = useDispatch()
+
+  const addressTypeData = ['Default', 'Home', 'Office']
+
+  const handleAddressSubmit = (e) => {
+    e.preventDefault()
+
+    if (!addressType || !country || !city || !address1) {
+      toast.error('Please fill all required fields!')
+      return
+    }
+
+    dispatch(
+      updatUserAddress(country, city, address1, address2, zipCode, addressType)
+    )
+    setOpen(false)
+    resetForm()
+    toast.success('Address added successfully!')
+  }
+
+  const resetForm = () => {
+    setCountry('')
+    setCity('')
+    setAddress1('')
+    setAddress2('')
+    setZipCode('')
+    setAddressType('')
+  }
+
+  const handleDeleteAddress = (item) => {
+    dispatch(deleteUserAddress(item._id))
+    toast.success('Address deleted successfully!')
+  }
+
+  return (
+    <div className="address-container">
+      {/* Modal */}
       {open && (
-        <div className="fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center ">
-          <div className="w-[35%] h-[80vh] bg-white rounded shadow relative overflow-y-scroll">
-            <div className="w-full flex justify-end p-3">
-              <RxCross1
-                size={30}
-                className="cursor-pointer"
-                onClick={() => setOpen(false)}
-              />
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Add New Address</h2>
+              <button
+                className="modal-close-btn"
+                onClick={() => {
+                  setOpen(false)
+                  resetForm()
+                }}
+              >
+                <RxCross1 />
+              </button>
             </div>
-            <h1 className="text-center text-[25px] font-Poppins">
-              Add New Address
-            </h1>
-            <div className="w-full">
-              <form aria-required onSubmit={handleSubmit} className="w-full">
-                <div className="w-full block p-4">
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Country</label>
-                    <select
-                      name=""
-                      id=""
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
-                    >
-                      <option value="" className="block border pb-2">
-                        choose your country
+
+            <form onSubmit={handleAddressSubmit}>
+              <div className="modal-body">
+                <div className="modal-form-group">
+                  <label>Country *</label>
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  >
+                    <option value="">Choose your country</option>
+                    {Country?.getAllCountries().map((item) => (
+                      <option key={item.isoCode} value={item.isoCode}>
+                        {item.name}
                       </option>
-                      {Country &&
-                        Country.getAllCountries().map((item) => (
-                          <option
-                            className="block pb-2"
-                            key={item.isoCode}
-                            value={item.isoCode}
-                          >
-                            {item.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                    ))}
+                  </select>
+                </div>
 
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Choose your City</label>
-                    <select
-                      name=""
-                      id=""
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
-                    >
-                      <option value="" className="block border pb-2">
-                        choose your city
+                <div className="modal-form-group">
+                  <label>State/City *</label>
+                  <select
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  >
+                    <option value="">Choose your city</option>
+                    {State?.getStatesOfCountry(country).map((item) => (
+                      <option key={item.isoCode} value={item.isoCode}>
+                        {item.name}
                       </option>
-                      {State &&
-                        State.getStatesOfCountry(country).map((item) => (
-                          <option
-                            className="block pb-2"
-                            key={item.isoCode}
-                            value={item.isoCode}
-                          >
-                            {item.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                    ))}
+                  </select>
+                </div>
 
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Address 1</label>
-                    <input
-                      type="address"
-                      className={`${styles.input}`}
-                      required
-                      value={address1}
-                      onChange={(e) => setAddress1(e.target.value)}
-                    />
-                  </div>
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Address 2</label>
-                    <input
-                      type="address"
-                      className={`${styles.input}`}
-                      required
-                      value={address2}
-                      onChange={(e) => setAddress2(e.target.value)}
-                    />
-                  </div>
+                <div className="modal-form-group">
+                  <label>Address Line 1 *</label>
+                  <input
+                    type="text"
+                    value={address1}
+                    onChange={(e) => setAddress1(e.target.value)}
+                    placeholder="Street address"
+                  />
+                </div>
 
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Zip Code</label>
-                    <input
-                      type="number"
-                      className={`${styles.input}`}
-                      required
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
-                    />
-                  </div>
+                <div className="modal-form-group">
+                  <label>Address Line 2</label>
+                  <input
+                    type="text"
+                    value={address2}
+                    onChange={(e) => setAddress2(e.target.value)}
+                    placeholder="Apartment, suite, etc. (optional)"
+                  />
+                </div>
 
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Address Type</label>
-                    <select
-                      name=""
-                      id=""
-                      value={addressType}
-                      onChange={(e) => setAddressType(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
-                    >
-                      <option value="" className="block border pb-2">
-                        Choose your Address Type
+                <div className="modal-form-group">
+                  <label>Zip/Postal Code *</label>
+                  <input
+                    type="text"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    placeholder="Zip code"
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Address Type *</label>
+                  <select
+                    value={addressType}
+                    onChange={(e) => setAddressType(e.target.value)}
+                  >
+                    <option value="">Choose address type</option>
+                    {addressTypeData.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
                       </option>
-                      {addressTypeData &&
-                        addressTypeData.map((item) => (
-                          <option
-                            className="block pb-2"
-                            key={item.name}
-                            value={item.name}
-                          >
-                            {item.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-                  <div className=" w-full pb-2">
-                    <input
-                      type="submit"
-                      className={`${styles.input} mt-5 cursor-pointer`}
-                      required
-                      readOnly
-                    />
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="modal-btn modal-btn--secondary"
+                  onClick={() => {
+                    setOpen(false)
+                    resetForm()
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="modal-btn modal-btn--primary">
+                  Add Address
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="address-header">
+        <h2>Saved Addresses</h2>
+        <button className="add-address-btn" onClick={() => setOpen(true)}>
+          + Add New Address
+        </button>
+      </div>
+
+      {/* Address List */}
+      {user?.addresses && user.addresses.length > 0 ? (
+        <div style={{ marginTop: '24px' }}>
+          {user.addresses.map((item, index) => (
+            <div key={index} className="address-card">
+              <div className="address-info">
+                <span className="address-type-badge">{item.addressType}</span>
+                <div className="address-details">
+                  <div>{item.address1}</div>
+                  {item.address2 && <div>{item.address2}</div>}
+                  <div>
+                    {item.city} {item.zipCode}
                   </div>
                 </div>
-              </form>
+                <div className="address-phone">
+                  {user?.phoneNumber}
+                </div>
+              </div>
+              <div className="address-actions">
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteAddress(item)}
+                  title="Delete this address"
+                >
+                  <AiOutlineDelete size={18} />
+                </button>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      )}
-      <div className="flex w-full items-center justify-between">
-        <h1 className="text-[25px] font-[600] text-[#000000ba] pb-2">
-          My Addresses
-        </h1>
-        <div
-          className={`${styles.button} !rounded-md`}
-          onClick={() => setOpen(true)}
-        >
-          <span className="text-[#fff]">Add New</span>
-        </div>
-      </div>
-      <br />
-      {user && user.addresses &&
-        user.addresses.map((item, index) => (
-          <div
-            className="w-full bg-white h-min 800px:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10 mb-5"
-            key={index}
+      ) : (
+        <div className="address-empty">
+          <p>No saved addresses yet.</p>
+          <button
+            className="add-address-btn"
+            onClick={() => setOpen(true)}
+            style={{ marginTop: '16px' }}
           >
-            <div className="flex items-center">
-              <h5 className="pl-5 font-[600]">{item.addressType}</h5>
-            </div>
-            <div className="pl-8 flex items-center">
-              <h6 className="text-[12px] 800px:text-[unset]">
-                {item.address1} {item.address2}
-              </h6>
-            </div>
-            <div className="pl-8 flex items-center">
-              <h6 className="text-[12px] 800px:text-[unset]">
-                {user && user.phoneNumber}
-              </h6>
-            </div>
-            <div className="min-w-[10%] flex items-center justify-between pl-8">
-              <AiOutlineDelete
-                size={25}
-                className="cursor-pointer"
-                onClick={() => handleDelete(item)}
-              />
-            </div>
-          </div>
-        ))}
-
-      {user && user.addresses.length === 0 && (
-        <h5 className="text-center pt-8 text-[18px]">
-          You not have any saved address!
-        </h5>
+            Add Your First Address
+          </button>
+        </div>
       )}
     </div>
-  );
-};
-
+  )
+}
 
 export default ProfileContent

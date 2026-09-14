@@ -109,118 +109,125 @@ const updateHandler = async (e) => {
 
 
   return (
-    <div>
-<div className="flex justify-center w-full">
-                    <div className="relative mt-5">
-                      <Avatar
-                        data={seller}
-                        fallback={PlaceholderAvatar}
-                        className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#F5A623]"
-                        alt={seller && seller.name ? seller.name : 'Profile'}
-                      />
-        
-                      <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
-                         
-                          <input
-                            type="file"
-                            className="hidden"
-                            id="avatar"
-                            accept="image/*"
-                            onChange={handleAvatarChange}
-                          />
-                          <label htmlFor="avatar">
-        
-                            <AiOutlineCamera />
-                          </label>
-                      </div>
-                    </div>
-                  </div>
-
-
-
-                 {/* shop info */}
-        <form
-          aria-required={true}
-          className="flex flex-col items-center"
-          onSubmit={updateHandler}
-        >
-          <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Name</label>
-            </div>
-            <input
-              type="text"
-              placeholder="Shop name"
-              value={name ?? ""}
-              onChange={(e) => setName(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
+    <div className="w-full">
+      {/* Shop Avatar Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Shop Avatar</h2>
+        <div className="flex justify-center">
+          <div className="relative">
+            <Avatar
+              data={seller}
+              fallback={PlaceholderAvatar}
+              className="w-[150px] h-[150px] rounded-full object-cover border-4 border-green-600"
+              alt={seller && seller.name ? seller.name : 'Profile'}
             />
-          </div>
-          <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop description</label>
+            <div className="w-[40px] h-[40px] bg-green-600 rounded-full flex items-center justify-center cursor-pointer absolute bottom-0 right-0 text-white hover:bg-green-700 transition">
+              <input
+                type="file"
+                className="hidden"
+                id="avatar"
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
+              <label htmlFor="avatar" className="cursor-pointer flex items-center justify-center w-full h-full">
+                <AiOutlineCamera size={20} />
+              </label>
             </div>
-            <input
-              type="text"
-              placeholder="Enter your shop description"
-              value={description ?? ""}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-            />
           </div>
-          <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Address</label>
-            </div>
-            <input
-              type="text"
-              placeholder="Shop address"
-              value={address ?? ""}
-              onChange={(e) => setAddress(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-            />
-          </div>
+        </div>
+      </div>
 
-          <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Phone Number</label>
+      {/* Shop Information Form */}
+      <form
+        aria-required={true}
+        onSubmit={updateHandler}
+      >
+        {/* Basic Information Card */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <div className="space-y-4">
+            {/* Shop Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Shop Name</label>
+              <input
+                type="text"
+                placeholder="Enter your shop name"
+                value={name ?? ""}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
             </div>
-            <input
-              type="number"
-              placeholder="Phone number"
-              value={phoneNumber ?? ""}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-            />
-          </div>
 
-          <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Zip Code</label>
+            {/* Shop Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Shop Description</label>
+              <input
+                type="text"
+                placeholder="Enter your shop description"
+                value={description ?? ""}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+              />
             </div>
-            <input
-              type="number"
-              placeholder="Zip code"
-              value={zipCode ?? ""}
-              onChange={(e) => setZipcode(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-            />
           </div>
+        </div>
 
-          <div className="w-[100%] cursor-pointer flex items-center flex-col 800px:w-[50%] mt-5 mb-5">
-            <button
-              type="submit"
-              className="bg-brand-primary w-[95%] text-white py-2 rounded-md hover:bg-brand-primary/90 font-semibold"
-            >
-              Update Shop
-            </button>
+        {/* Contact Information Card */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <div className="space-y-4">
+            {/* Shop Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Shop Address</label>
+              <input
+                type="text"
+                placeholder="Enter your shop address"
+                value={address ?? ""}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Shop Phone Number</label>
+              <input
+                type="number"
+                placeholder="Enter your phone number"
+                value={phoneNumber ?? ""}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
+            </div>
+
+            {/* Zip Code */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Shop Zip Code</label>
+              <input
+                type="number"
+                placeholder="Enter your zip code"
+                value={zipCode ?? ""}
+                onChange={(e) => setZipcode(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
+            </div>
           </div>
-        </form>
-        
+        </div>
+
+        {/* Submit Button */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 flex justify-end">
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700 font-semibold transition"
+          >
+            Update Shop
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

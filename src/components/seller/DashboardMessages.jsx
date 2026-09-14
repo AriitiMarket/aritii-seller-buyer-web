@@ -203,29 +203,42 @@ const DashboardMessages = () => {
   }, [messages]);
 
   return (
-    <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
+    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
       {!open && (
         <>
-          <h1 className="text-center text-[30px] py-3 font-Poppins">
-            All Messages
-          </h1>
-          {/* All messages list */}
-          {conversations &&
-            conversations.map((item, index) => (
-              <MessageList
-                data={item}
-                key={index}
-                index={index}
-                setOpen={setOpen}
-                setCurrentChat={setCurrentChat}
-                me={seller._id}
-                setUserData={setUserData}
-                userData={userData}
-                online={onlineCheck(item)}
-                setActiveStatus={setActiveStatus}
-                isLoading={isLoading}
-              />
-            ))}
+          <div className="bg-gradient-to-r from-blue-50 to-blue-25 border-b border-gray-200 px-6 py-4">
+            <h1 className="text-2xl font-Poppins font-bold text-gray-900">Messages</h1>
+            <p className="text-sm text-gray-600 mt-1">View and manage all your conversations</p>
+          </div>
+
+          {/* Message list with responsive scrolling */}
+          <div className="max-h-screen overflow-y-auto">
+            {conversations && conversations.length > 0 ? (
+              <div className="p-2">
+                {conversations.map((item, index) => (
+                  <MessageList
+                    data={item}
+                    key={index}
+                    index={index}
+                    setOpen={setOpen}
+                    setCurrentChat={setCurrentChat}
+                    me={seller._id}
+                    setUserData={setUserData}
+                    userData={userData}
+                    online={onlineCheck(item)}
+                    setActiveStatus={setActiveStatus}
+                    isLoading={isLoading}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="text-6xl mb-4">💬</div>
+                <p className="text-gray-600 font-medium">No messages yet</p>
+                <p className="text-sm text-gray-500 mt-1">Start conversations with buyers to manage inquiries</p>
+              </div>
+            )}
+          </div>
         </>
       )}
 
@@ -282,11 +295,16 @@ const MessageList = ({
     getUser();
   }, [me, data]);
 
+  const isUnread = data?.lastMessageId !== me;
+  const truncateMessage = (msg, len = 50) => msg?.length > len ? msg.substring(0, len) + '...' : msg;
+
   return (
     <div
-      className={`w-full flex p-3 px-3 ${
-        active === index ? "bg-[#00000010]" : "bg-transparent"
-      }  cursor-pointer`}
+      className={`w-full m-3 p-4 rounded-lg border transition-all cursor-pointer ${
+        active === index 
+          ? "bg-blue-50 border-blue-300 shadow-md" 
+          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
+      }`}
       onClick={(e) =>
         setActive(index) ||
         handleClick(data._id) ||
@@ -295,26 +313,52 @@ const MessageList = ({
         setActiveStatus(online)
       }
     >
-      <div className="relative">
-        <img
-          src={resolveImageUrl(user?.avatar?.url) || "/avatar-placeholder.svg"}
-          alt=""
-          className="w-[50px] h-[50px] rounded-full"
-        />
-        {online ? (
-          <div className="w-[12px] h-[12px] bg-green-400 rounded-full absolute top-[2px] right-[2px]" />
-        ) : (
-          <div className="w-[12px] h-[12px] bg-[#c7b9b9] rounded-full absolute top-[2px] right-[2px]" />
-        )}
-      </div>
-      <div className="pl-3">
-        <h1 className="text-[18px]">{user?.name}</h1>
-        <p className="text-[16px] text-[#000c]">
-          {!isLoading && data?.lastMessageId !== user?._id
-            ? "You:"
-            : user?.name ? user.name.split(" ")[0] + ": " : ""}{" "}
-          {data?.lastMessage}
-        </p>
+      <div className="flex items-start gap-4">
+        {/* Avatar with online status */}
+        <div className="relative flex-shrink-0">
+          <img
+            src={resolveImageUrl(user?.avatar?.url) || "/avatar-placeholder.svg"}
+            alt={user?.name}
+            className="w-14 h-14 rounded-full object-cover"
+          />
+          <div className={`w-3 h-3 rounded-full absolute bottom-0 right-0 border-2 border-white ${
+            online ? "bg-green-500" : "bg-gray-400"
+          }`} />
+        </div>
+
+        {/* Message content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-base font-semibold text-gray-900 truncate">{user?.name}</h1>
+            <span className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ml-2 ${
+              online ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+            }`}>
+              {online ? "Active" : "Inactive"}
+            </span>
+          </div>
+          
+          <p className="text-sm text-gray-600 truncate mb-2">
+            <span className="font-medium text-gray-700">
+              {!isLoading && !isUnread ? "You:" : user?.name ? user.name.split(" ")[0] + ": " : ""}
+            </span>
+            {' '}
+            {truncateMessage(data?.lastMessage)}
+          </p>
+
+          {/* Unread indicator */}
+          {isUnread && (
+            <div className="inline-block">
+              <span className="text-xs font-semibold text-white bg-blue-500 px-2 py-1 rounded-full">
+                Unread
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Timestamp */}
+        <div className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+          {data?.updatedAt ? format(new Date(data.updatedAt)) : "Recently"}
+        </div>
       </div>
     </div>
   );
@@ -333,106 +377,136 @@ const SellerInbox = ({
   handleImageUpload,
 }) => {
   return (
-    <div className="w-full min-h-full flex flex-col justify-between">
-      {/* message header */}
-      <div className="w-full flex p-3 items-center justify-between bg-slate-200">
-        <div className="flex">
+    <div className="w-full h-screen flex flex-col">
+      {/* Message header */}
+      <div className="w-full flex p-4 items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        <div className="flex items-center gap-3">
           <img
             src={resolveImageUrl(userData?.avatar?.url) || "/avatar-placeholder.svg"}
-            alt=""
-            className="w-[60px] h-[60px] rounded-full"
+            alt={userData?.name}
+            className="w-12 h-12 rounded-full object-cover"
           />
-          <div className="pl-3">
-            <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
-            <h1>{activeStatus ? "Active Now" : ""}</h1>
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">{userData?.name}</h1>
+            <p className={`text-xs font-medium ${activeStatus ? "text-green-600" : "text-gray-500"}`}>
+              {activeStatus ? "🟢 Active now" : "⚫ Offline"}
+            </p>
           </div>
         </div>
-        <AiOutlineArrowRight
-          size={20}
-          className="cursor-pointer"
+        <button
           onClick={() => setOpen(false)}
-        />
+          className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+          aria-label="Close conversation"
+        >
+          <AiOutlineArrowRight size={24} className="text-gray-600" />
+        </button>
       </div>
 
-      {/* messages */}
-      <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
-        {messages &&
-          messages.map((item, index) => {
-            return (
-              <div
-                className={`flex w-full my-2 ${
-                  item.sender === sellerId ? "justify-end" : "justify-start"
-                }`}
-                ref={scrollRef}
-              >
-                {item.sender !== sellerId && (
-                  <img
-                    src={resolveImageUrl(userData?.avatar?.url) || "/avatar-placeholder.svg"}
-                    className="w-[40px] h-[40px] rounded-full mr-3"
-                    alt=""
-                  />
-                )}
-                {item.images?.url && (
-                  <img
-                    src={resolveImageUrl(item.images.url)}
-                    className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
-                    alt=""
-                  />
-                )}
-                {item.text !== "" && (
-                  <div>
-                    <div
-                      className={`w-max p-2 rounded ${
-                        item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
-                      } text-[#fff] h-min`}
-                    >
-                      <p>{item.text}</p>
-                    </div>
+      {/* Messages container */}
+      <div className="flex-1 px-4 py-4 overflow-y-auto bg-gray-50">
+        {messages && messages.length > 0 ? (
+          <div className="space-y-3">
+            {messages.map((item, index) => {
+              const isSender = item.sender === sellerId;
+              return (
+                <div
+                  key={index}
+                  className={`flex w-full gap-2 ${isSender ? "justify-end" : "justify-start"}`}
+                  ref={scrollRef}
+                >
+                  {!isSender && (
+                    <img
+                      src={resolveImageUrl(userData?.avatar?.url) || "/avatar-placeholder.svg"}
+                      className="w-8 h-8 rounded-full flex-shrink-0 mt-1"
+                      alt={userData?.name}
+                    />
+                  )}
+                  
+                  <div className={`flex flex-col ${isSender ? "items-end" : "items-start"} max-w-xs lg:max-w-md`}>
+                    {/* Image message */}
+                    {item.images?.url && (
+                      <img
+                        src={resolveImageUrl(item.images.url)}
+                        className="w-32 h-32 object-cover rounded-lg mb-2"
+                        alt="message attachment"
+                      />
+                    )}
 
-                    <p className="text-[12px] text-[#000000d3] pt-1">
+                    {/* Text message */}
+                    {item.text !== "" && (
+                      <div className={`px-4 py-2 rounded-lg break-words ${
+                        isSender 
+                          ? "bg-blue-600 text-white rounded-br-none" 
+                          : "bg-white text-gray-900 border border-gray-200 rounded-bl-none"
+                      }`}>
+                        <p className="text-sm">{item.text}</p>
+                      </div>
+                    )}
+
+                    {/* Timestamp */}
+                    <p className={`text-xs mt-1 ${isSender ? "text-gray-600" : "text-gray-500"}`}>
                       {format(item.createdAt)}
                     </p>
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-center">
+            <div>
+              <p className="text-gray-500 text-lg">Start the conversation</p>
+              <p className="text-gray-400 text-sm mt-1">Send a message to begin</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* send message input */}
+      {/* Message input form */}
       <form
-        aria-required={true}
-        className="p-3 relative w-full flex justify-between items-center"
+        className="p-4 border-t border-gray-200 bg-white"
         onSubmit={sendMessageHandler}
       >
-        <div className="w-[30px]">
-          <input
-            type="file"
-            name=""
-            id="image"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
-          <label htmlFor="image">
-            <TfiGallery className="cursor-pointer" size={20} />
-          </label>
-        </div>
-        <div className="w-full">
-          <input
-            type="text"
-            required
-            placeholder="Enter your message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className={`${styles.input}`}
-          />
-          <input type="submit" value="Send" className="hidden" id="send" />
-          <label htmlFor="send">
-            <AiOutlineSend
-              size={20}
-              className="absolute right-4 top-5 cursor-pointer"
+        <div className="flex items-end gap-3">
+          {/* Image upload */}
+          <div className="relative">
+            <input
+              type="file"
+              name="image"
+              id="image"
+              className="hidden"
+              onChange={handleImageUpload}
+              accept="image/*"
             />
-          </label>
+            <label 
+              htmlFor="image"
+              className="block p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+              title="Attach image"
+            >
+              <TfiGallery size={20} className="text-gray-600" />
+            </label>
+          </div>
+
+          {/* Message input */}
+          <div className="flex-1">
+            <input
+              type="text"
+              required
+              placeholder="Type your message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          {/* Send button */}
+          <button
+            type="submit"
+            className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-white"
+            title="Send message"
+          >
+            <AiOutlineSend size={20} />
+          </button>
         </div>
       </form>
     </div>

@@ -3,79 +3,89 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { brandingData } from '../../data/data';
 import { CATEGORY_IMAGES, PlaceholderCategory } from '../../assets';
-import styles from '../../styles/styles';
 
-// Categories are loaded from the backend via GET /category (commerce service
-// -> API Gateway). Each category only shows real fields (title, image).
-// Icons are local brand assets used as visual fallbacks, keyed by category
-// title — they are UI decoration, never business data.
+/**
+ * Categories Component - Modern marketplace category browser
+ * Features:
+ * - Modern green accent styling (#0A4230)
+ * - Responsive grid (2 cols mobile → 6 cols desktop)
+ * - Hover animations and transitions
+ * - Branding section with icons and descriptions
+ * - Fallback images on error
+ */
 const Categories = () => {
   const navigate = useNavigate();
   const { categories, isLoading, error } = useSelector((state) => state.shop);
 
   const iconFor = (category) => {
     const title = (category?.title || "").trim();
-    // Prefer the backend-provided image if present, else the matching local icon.
     const localIcon = CATEGORY_IMAGES[title] || PlaceholderCategory;
     return category?.image || localIcon;
   };
 
   return (
-    <>
-
-      {/* Branding Section */}
-      <div className={`${styles.section} hidden sm:block`}>
-        <div
-          className="branding my-12 flex justify-between w-full bg-brand-primary p-6 rounded-xl shadow-lg text-white"
-        >
-          {brandingData &&
-            brandingData.map((i, index) => (
-              <div className="flex items-start space-x-3" key={index}>
-                <div >{i.icon}</div>
-                <div>
-                  <h3 className="font-semibold text-base md:text-lg">{i.title}</h3>
-                  <p className="text-xs md:text-sm opacity-90">{i.Description}</p>
-                </div>
+    <div className="w-full">
+      {/* Branding Section - Hidden on mobile */}
+      <div className="hidden sm:block max-w-7xl mx-auto px-4 md:px-8 lg:px-12 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {brandingData && brandingData.map((item, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-4 p-5 md:p-6 bg-gradient-to-br from-green-50 to-gray-50 rounded-lg border border-green-100 hover:border-green-300 hover:shadow-md transition-all duration-300 group"
+            >
+              <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 text-green-600 group-hover:text-green-700 transition-colors">
+                {item.icon}
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                  {item.title}
+                </h3>
+                <p className="text-xs md:text-sm text-gray-600 mt-1 leading-snug">
+                  {item.Description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Categories Grid */}
-      <div
-        className={`${styles.section} bg-white p-6 rounded-xl mb-12 shadow-md`}
-        id="categories"
-      >
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-brand-charcoal">
-              Shop by Categories
-            </h2>
-            <p className="text-sm text-brand-muted mt-1">
-              Explore products across trusted market categories
-            </p>
-          </div>
+      {/* Categories Section */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            Shop by Categories
+          </h2>
+          <p className="text-gray-600 text-sm md:text-base">
+            Explore products across trusted market categories
+          </p>
         </div>
 
         {isLoading && categories.length === 0 ? (
-          <div className="text-center py-10 text-brand-muted">Loading categories&hellip;</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse mx-auto mb-3"></div>
+              <p className="text-gray-500 text-sm md:text-base">Loading categories&hellip;</p>
+            </div>
+          </div>
         ) : categories && categories.length !== 0 ? (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((i) => {
-            const handleSubmit = () => {
-              navigate(`/products?category=${encodeURIComponent(i.title)}`);
-            };
-            return (
+          <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-5 md:grid-cols-3 lg:grid-cols-6">
+            {categories.map((category) => {
+              const handleSubmit = () => {
+                navigate(`/products?category=${encodeURIComponent(category.title)}`);
+              };
+
+              return (
                 <div
-                  key={i._id || i.title}
+                  key={category._id || category.title}
                   onClick={handleSubmit}
-                  className="w-full flex flex-col items-center justify-start cursor-pointer bg-white rounded-lg shadow hover:shadow-lg transition border border-gray-100 hover:border-brand-primary group overflow-hidden"
+                  className="flex flex-col items-center justify-start cursor-pointer bg-white rounded-xl border border-gray-200 hover:border-green-400 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
                 >
-                  <div className="w-full h-[110px] overflow-hidden">
+                  {/* Image Container */}
+                  <div className="w-full h-24 md:h-28 lg:h-32 bg-gradient-to-b from-gray-100 to-gray-50 overflow-hidden">
                     <img
-                      src={iconFor(i)}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300"
-                      alt={i.title}
+                      src={iconFor(category)}
+                      className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
+                      alt={category.title}
                       loading="lazy"
                       onError={(e) => {
                         e.target.onerror = null;
@@ -83,20 +93,31 @@ const Categories = () => {
                       }}
                     />
                   </div>
-                  <h5 className="text-sm font-medium text-brand-charcoal group-hover:text-brand-primary text-center my-4 px-2">
-                    {i.title}
-                  </h5>
+                  
+                  {/* Title */}
+                  <div className="w-full px-3 py-3 text-center border-t border-gray-100 group-hover:bg-green-50 transition-colors">
+                    <h5 className="text-xs md:text-sm font-semibold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-2">
+                      {category.title}
+                    </h5>
+                  </div>
                 </div>
               );
             })}
-        </div>
+          </div>
         ) : (
-          <div className="text-center py-10 text-brand-muted">
-            {error ? "Unable to load categories right now." : "No categories available yet."}
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-gray-500 text-sm md:text-base">
+                {error ? "Unable to load categories right now." : "No categories available yet."}
+              </p>
+            </div>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
