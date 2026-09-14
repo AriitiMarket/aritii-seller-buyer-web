@@ -1,7 +1,130 @@
-import api from "../../../services/api";
+/**
+ * Redux User Actions
+ * Uses centralized API services from /services
+ */
+import { authService, addressService, sellerService, shopService } from "../../../services";
 
+/**
+ * Register a new user account
+ * @param {Object} userData - { name, email, password }
+ */
+export const registerUser = (userData) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const user = await authService.register(userData);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: user,
+    });
+    return user;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};
 
+/**
+ * Login user with email and password
+ * @param {string} email - User email
+ * @param {string} password - User password
+ */
+export const loginUser = (email, password) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const user = await authService.login(email, password);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: user,
+    });
+    return user;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};
 
+/**
+ * Login seller with email and password
+ * @param {string} email - Seller email
+ * @param {string} password - Seller password
+ */
+export const loginSeller = (email, password) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const user = await authService.login(email, password);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: user,
+    });
+    return user;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Submit seller application to become a seller
+ * @param {Object} applicationData - { name, description, category, businessType }
+ */
+export const submitSellerApplication = (applicationData) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const application = await sellerService.submitApplication(applicationData);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: { ...application, sellerStatus: 'PENDING' },
+    });
+    return application;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Update user avatar
+ * @param {FormData} formData - FormData with 'image' field
+ */
+export const updateUserAvatar = (formData) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const user = await authService.updateAvatar(formData);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: user,
+    });
+    return user;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};
 
 // load user
 export const loadUser = () => async (dispatch) => {
@@ -9,10 +132,10 @@ export const loadUser = () => async (dispatch) => {
     dispatch({
       type: "LoadUserRequest",
     });
-    const { data } = await api.get('/user/getuser');
+    const user = await authService.getCurrentUser();
     dispatch({
       type: "LoadUserSuccess",
-      payload: data.user,
+      payload: user,
     });
   } catch (error) {
     dispatch({
@@ -27,14 +150,12 @@ export const loadUser = () => async (dispatch) => {
 export const logoutUser = () => async (dispatch) => {
   try {
     dispatch({ type: "LogoutRequest" });
-
-    const { data } = await api.get('/logout');
-
+    const result = await authService.logout();
     dispatch({
       type: "LogoutSuccess",
-      payload: data.message,
+      payload: result.message,
     });
-    return data;
+    return result;
   } catch (error) {
     dispatch({
       type: "LogoutFail",
@@ -61,29 +182,26 @@ export const updatUserAddress =
         type: "updateUserAddressRequest",
       });
 
-      const { data } = await api.put(
-        '/user/update-user-addresses',
-        {
-          country,
-          city,
-          address1,
-          address2,
-          zipCode,
-          addressType,
-        }
-      );
+      const address = await addressService.add({
+        country,
+        city,
+        address1,
+        address2,
+        zipCode,
+        addressType,
+      });
 
       dispatch({
         type: "updateUserAddressSuccess",
         payload: {
           updateAddressSuccessMessage: "User address updated successfully!",
-          user: data.user
+          address: address
         }
       });
     } catch (error) {
       dispatch({
         type: "updateUserAddressFailed",
-        payload: error.response.data.message,
+        payload: error.response?.data?.message || error.message,
       });
     }
   };
@@ -103,21 +221,19 @@ export const deleteUserAddress = (id) => async (dispatch) => {
       type: "deleteUserAddressRequest",
     });
 
-    const { data } = await api.delete(
-      `/user/delete-user-address/${id}`
-    );
+    await addressService.delete(id);
 
     dispatch({
       type: "deleteUserAddressSuccess",
       payload: {
-        successMessage: "User deleted successfully!",
-        user: data.user,
+        successMessage: "Address deleted successfully!",
+        addressId: id,
       },
     });
   } catch (error) {
     dispatch({
       type: "deleteUserAddressFailed",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || error.message,
     });
   }
 };
@@ -131,11 +247,11 @@ export const loadSeller = () => async (dispatch) => {
     dispatch({
       type: "LoadSellerRequest",
     });
-    const { data } = await api.get('/shop/getseller');
-    console.log('[loadSeller] Success:', data);
+    const seller = await authService.getCurrentUser();
+    console.log('[loadSeller] Success:', seller);
     dispatch({
       type: "LoadSellerSuccess",
-      payload: data.seller,
+      payload: seller,
     });
   } catch (error) {
     // Don't spam console with 404 errors - it's expected for non-sellers
@@ -174,14 +290,14 @@ export const logoutSeller = () => async (dispatch) => {
       type: "SellerLogoutRequest",
     });
 
-    const { data } = await api.get('/shop/logout');
+    const result = await authService.logout();
 
     dispatch({
       type: "SellerLogoutSuccess",
-      payload: data.message,
+      payload: result.message,
     });
 
-    return data;
+    return result;
   } catch (error) {
     dispatch({
       type: "SellerLogoutFail",
@@ -203,24 +319,21 @@ export const updateUserInformation =
         type: "updateUserInfoRequest",
       });
 
-      const { data } = await api.put(
-        '/user/update-user-info',
-        {
-          email,
-          password,
-          phoneNumber,
-          name,
-        }
-      );
+      const user = await authService.updateProfile({
+        email,
+        password,
+        phoneNumber,
+        name,
+      });
 
       dispatch({
         type: "updateUserInfoSuccess",
-        payload: data.user,
+        payload: user,
       });
     } catch (error) {
       dispatch({
         type: "updateUserInfoFailed",
-        payload: error.response.data.message,
+        payload: error.response?.data?.message || error.message,
       });
     }
   };
@@ -231,3 +344,28 @@ export const updateUserInformation =
 
 
 
+
+
+/**
+ * Update shop avatar
+ * @param {FormData} formData - FormData with 'image' field
+ */
+export const updateShopAvatar = (formData) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "LoadUserRequest",
+    });
+    const shop = await shopService.updateShopAvatar(formData);
+    dispatch({
+      type: "LoadUserSuccess",
+      payload: shop,
+    });
+    return shop;
+  } catch (error) {
+    dispatch({
+      type: "LoadUserFail",
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  }
+};

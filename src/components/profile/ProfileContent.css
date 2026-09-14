@@ -686,15 +686,73 @@
   box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #6b7280;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Responsive Design - Mobile First */
+@media (max-width: 1024px) {
   .profile-section {
-    padding: 16px;
+    padding: 20px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  .orders-table-wrapper {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .profile-avatar-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .profile-avatar-image {
+    border-width: 2px;
+  }
+
+  .profile-avatar-upload {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-avatar-upload label {
+    font-size: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+
+  .form-actions {
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    padding: 9px 16px;
+    font-size: 13px;
+    min-height: 44px;
   }
 
   .orders-container {
@@ -705,80 +763,438 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    margin-bottom: 16px;
   }
 
-  .orders-table th,
-  .orders-table td {
-    padding: 12px 8px;
+  .orders-header h2 {
+    font-size: 18px;
+  }
+
+  .orders-table-wrapper {
+    border-radius: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .orders-table {
+    min-width: 600px;
+    font-size: 13px;
+  }
+
+  .orders-table th {
+    padding: 10px 8px;
     font-size: 12px;
   }
 
+  .orders-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
   .order-id {
-    font-size: 11px;
+    font-size: 12px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .status-badge {
-    padding: 4px 8px;
+    padding: 5px 10px;
     font-size: 11px;
+    white-space: nowrap;
   }
 
   .view-btn {
-    padding: 6px 10px;
+    padding: 7px 10px;
     font-size: 14px;
+    min-height: 40px;
+    min-width: 40px;
   }
 
   .address-card {
     flex-direction: column;
     gap: 12px;
+    padding: 14px;
+  }
+
+  .address-type-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .address-details {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .address-phone {
+    font-size: 12px;
   }
 
   .address-actions {
     width: 100%;
+    gap: 6px;
   }
 
   .delete-btn {
     flex: 1;
+    padding: 7px 10px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .add-address-btn {
+    padding: 9px 16px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .modal-overlay {
+    padding: 16px;
   }
 
   .modal-content {
     max-width: 90vw;
+    max-height: 85vh;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 16px;
+  }
+
+  .modal-close-btn {
+    font-size: 22px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-form-group {
+    margin-bottom: 14px;
+  }
+
+  .modal-form-group label {
+    font-size: 13px;
+  }
+
+  .modal-form-group input,
+  .modal-form-group select {
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+
+  .modal-footer {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    padding: 9px 16px;
+    font-size: 13px;
+    min-height: 40px;
   }
 }
 
 @media (max-width: 480px) {
   .profile-section {
     padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+  }
+
+  .profile-avatar-wrapper {
+    margin-bottom: 24px;
   }
 
   .profile-avatar-container {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
 
-  .orders-table {
-    font-size: 12px;
+  .profile-avatar-image {
+    border-width: 2px;
   }
 
-  .orders-table th,
-  .orders-table td {
-    padding: 10px 6px;
-  }
-
-  .order-id {
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .profile-avatar-upload {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
   }
 
   .form-row {
+    grid-template-columns: 1fr;
     gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    margin-bottom: 5px;
   }
 
   .form-input {
+    padding: 8px 10px;
     font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    padding: 8px 12px;
+    font-size: 12px;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .orders-container {
+    padding: 12px;
+  }
+
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .orders-header h2 {
+    font-size: 16px;
+  }
+
+  .orders-count {
+    font-size: 12px;
+  }
+
+  .orders-table-wrapper {
+    border-radius: 6px;
+    margin: 0 -12px;
+  }
+
+  .orders-table {
+    min-width: 500px;
+    font-size: 12px;
+  }
+
+  .orders-table thead {
+    background: #f9fafb;
+  }
+
+  .orders-table th {
+    padding: 8px 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .orders-table td {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .order-id {
+    font-size: 11px;
+    max-width: 70px;
+  }
+
+  .items-qty {
+    font-size: 12px;
+  }
+
+  .order-total {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .view-btn {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .order-row {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .address-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .address-type-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .address-details {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .address-phone {
+    font-size: 11px;
+  }
+
+  .address-actions {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .delete-btn {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .add-address-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 44px;
+  }
+
+  .address-empty {
+    padding: 40px 16px;
+  }
+
+  .address-empty p {
+    font-size: 13px;
+  }
+
+  .password-form-wrapper {
+    max-width: 100%;
+  }
+
+  .password-form-group {
+    margin-bottom: 14px;
+  }
+
+  .password-form-group label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .password-form-group input {
+    padding: 8px 10px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .modal-overlay {
+    padding: 12px;
   }
 
   .modal-content {
     max-width: 95vw;
+    max-height: 80vh;
+  }
+
+  .modal-header {
+    padding: 12px;
+  }
+
+  .modal-header h2 {
+    font-size: 15px;
+  }
+
+  .modal-close-btn {
+    font-size: 20px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .modal-form-group {
+    margin-bottom: 12px;
+  }
+
+  .modal-form-group label {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .modal-form-group input,
+  .modal-form-group select {
+    padding: 8px 10px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .modal-footer {
+    padding: 12px;
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .modal-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .modal-btn--primary:focus,
+  .modal-btn--secondary:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 375px) {
+  .profile-section {
+    padding: 10px;
+  }
+
+  .orders-table {
+    min-width: 450px;
+    font-size: 11px;
+  }
+
+  .orders-table th {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .orders-table td {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+
+  .order-id {
+    max-width: 60px;
+    font-size: 10px;
+  }
+
+  .address-card {
+    padding: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    padding: 7px 10px;
+    font-size: 11px;
   }
 }

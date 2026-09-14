@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import api from '../../services/api'
 import Header from '../../components/layout/Header'
 import Footer from '../../components/layout/Footer'
 import Loader from '../../components/common/Loader'
-import { loadSeller } from '../../store/redux/actions/user'
+import { submitSellerApplication, loadSeller } from '../../store/redux/actions/user'
 
 /**
  * Seller Application Center — "Start Selling on Aritii".
@@ -36,14 +35,13 @@ const SellerApplicationPage = () => {
   const [shopName, setShopName] = useState('')
   const [publicPhone, setPublicPhone] = useState('')
   const [status, setStatus] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
 
   const fetchStatus = () => {
-    api.get('/seller-application/me')
-      .then((res) => {
-        const app = res?.data?.application || null
-        setApplication(app)
-        if (app) {
+    dispatch(loadSeller())
+      .then((seller) => {
+        if (seller?.application) {
+          const app = seller.application
+          setApplication(app)
           setStatus(app.status)
           setSellerType(app.sellerType || 'INDIVIDUAL')
           setBusinessName(app.businessInformation?.businessName || '')
@@ -70,22 +68,19 @@ const SellerApplicationPage = () => {
   }, [isAuthenticated])
 
   const submit = (asSubmit) => {
-    setSubmitting(true)
     const body = { submit: asSubmit, sellerType,
       businessInformation: { businessName, businessCategory, description, phone: businessPhone, email: undefined },
       location: { country: 'Ethiopia', city, address: city },
       shopInformation: { shopName, description, category: businessCategory, publicPhone } }
-    api.post('/seller-application', body)
-      .then((res) => {
-        const app = res.data.application
+    
+    dispatch(submitSellerApplication(body))
+      .then((app) => {
         setApplication(app)
         setStatus(app.status)
-        setSubmitting(false)
         toast.success(asSubmit ? 'Application submitted for review!' : 'Draft saved')
       })
       .catch((err) => {
-        setSubmitting(false)
-        toast.error(err?.response?.data?.message || 'Failed to save application')
+        toast.error(err?.message || 'Failed to save application')
       })
   }
 

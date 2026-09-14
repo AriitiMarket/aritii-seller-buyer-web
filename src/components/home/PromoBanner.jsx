@@ -59,15 +59,15 @@ const PromoBanner = () => {
   const items = [...promos, ...promos, ...promos];
 
   return (
-    <div className="relative w-full py-3 bg-black/40 backdrop-blur-sm">
+    <div className="relative w-full py-2 sm:py-3 bg-black/40 backdrop-blur-sm overflow-hidden">
       <div 
-        className="flex gap-3 px-3"
+        className="flex gap-2 sm:gap-3 px-2 sm:px-3"
         style={{ animation: 'scrollPromo 25s linear infinite', width: 'max-content' }}
       >
         {items.map((promo, index) => (
           <div
             key={index}
-            className="flex-shrink-0 relative w-52 md:w-60 h-14 rounded-xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+            className="flex-shrink-0 relative w-40 sm:w-52 md:w-60 h-12 sm:h-14 rounded-lg sm:rounded-xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
             {/* Card Image */}
             <img
@@ -78,11 +78,11 @@ const PromoBanner = () => {
             {/* Card Overlay */}
             <div className={`absolute inset-0 bg-gradient-to-r ${promo.color} group-hover:opacity-90 transition-opacity`}></div>
             {/* Card Content */}
-            <div className="relative z-10 h-full flex items-center gap-3 px-4">
-              <span className="text-xl md:text-2xl group-hover:animate-bounce">{promo.icon}</span>
-              <div>
-                <p className="text-[11px] md:text-xs font-bold text-white leading-tight">{promo.text}</p>
-                <p className="text-[9px] md:text-[10px] text-white/70">{promo.subtext}</p>
+            <div className="relative z-10 h-full flex items-center gap-2 sm:gap-3 px-2 sm:px-4">
+              <span className="text-lg sm:text-xl md:text-2xl flex-shrink-0 group-hover:animate-bounce">{promo.icon}</span>
+              <div className="min-w-0">
+                <p className="text-[9px] sm:text-[11px] md:text-xs font-bold text-white leading-tight truncate">{promo.text}</p>
+                <p className="text-[8px] sm:text-[9px] md:text-[10px] text-white/70 truncate">{promo.subtext}</p>
               </div>
             </div>
           </div>

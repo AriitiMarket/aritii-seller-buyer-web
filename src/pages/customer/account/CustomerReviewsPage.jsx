@@ -148,19 +148,13 @@ const ReviewCard = ({ review }) => {
         </p>
 
         {/* Review Date */}
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-gray-500">
-            {r.date ? new Date(r.date).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            }) : ''}
-          </p>
-          <button className="text-xs text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1">
-            <BiMessage className="text-sm" />
-            Edit Review
-          </button>
-        </div>
+        <p className="text-xs text-gray-500">
+          {r.date ? new Date(r.date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          }) : ''}
+        </p>
       </div>
     </div>
   )

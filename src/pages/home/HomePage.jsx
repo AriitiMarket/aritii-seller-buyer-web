@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from '../../components/layout/Header'
 import TopNotificationBar from '../../components/layout/TopNotificationBar'
+import PromoBanner from '../../components/home/PromoBanner'
 import Hero from '../../components/home/Hero'
 import Categories from '../../components/home/Categories'
 import FeaturedProducts from '../../components/home/FeaturedProducts'
@@ -18,6 +19,7 @@ const HomePage = () => {
     <div className="min-h-screen bg-white">
       <TopNotificationBar />
       <Header />
+      <PromoBanner />
       <Hero />
       <Categories />
       <FeaturedProducts />

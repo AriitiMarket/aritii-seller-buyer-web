@@ -1,5 +1,5 @@
 import React from 'react'
-import api from '../../services/api'
+import { updateShopAvatar } from '../../store/redux/actions/user'
 import { toast } from 'react-toastify'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -53,21 +53,12 @@ const ShopSettings = () => {
 
       formData.append("image", file);
 
-      await api.put('/shop/update-shop-avatar', formData, {
-        headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      })
-      .then((res)=>{
-        toast.success("Avatar updated successfully!");
-        dispatch(loadSeller());
-      })
-      .catch(err=>{
-        toast.error(err.response.data.message);
-      })
+      await dispatch(updateShopAvatar(formData));
+      toast.success("Avatar updated successfully!");
+      dispatch(loadSeller());
     }
     catch(err){
-      toast.error(err.message);
+      toast.error(err?.message || "Failed to update avatar");
     }
   }
 

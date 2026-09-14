@@ -1,30 +1,70 @@
-import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-import Store from '../../../store/redux/store'
-import { getAllOrdersOfUser } from '../../../store/redux/actions/order'
+import { getAllOrdersOfUser, cancelOrder } from '../../../store/redux/actions/order'
 import { MdShoppingBag, MdArrowForward } from 'react-icons/md'
 import { BiPackage } from 'react-icons/bi'
+import { AiOutlineClose } from 'react-icons/ai'
 
 // Buyer Account: My Orders with modern card design
 // Shows ONLY the logged-in buyer's own orders
 const CustomerOrdersPage = () => {
+  const dispatch = useDispatch()
+  const [cancelingId, setCancelingId] = useState(null)
+  const [showCancelReason, setShowCancelReason] = useState(null)
+  const [cancelReason, setCancelReason] = useState('')
   const user = useSelector((state) => state.user?.user)
   const orders = useSelector((state) => state.order?.orders || [])
-  const loading = useSelector((state) => state.order?.loading || false)
+  const loading = useSelector((state) => state.order?.isLoading || false)
+  const error = useSelector((state) => state.order?.error || null)
 
   useEffect(() => {
-    if (user?._id) Store.dispatch(getAllOrdersOfUser(user._id))
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id))
+    }
     // eslint-disable-next-line
-  }, [user?._id])
+  }, [user?._id, dispatch])
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <BiPackage className="text-4xl text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">Loading your orders…</p>
+      <div className="w-full bg-gray-50 min-h-screen py-6 px-4 md:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Orders</h1>
+            <p className="text-sm text-gray-600 mt-1">Track and manage your orders from Aritii Market</p>
+          </div>
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <BiPackage className="text-4xl text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 font-medium">Loading your orders…</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="w-full bg-gray-50 min-h-screen py-6 px-4 md:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Orders</h1>
+            <p className="text-sm text-gray-600 mt-1">Track and manage your orders from Aritii Market</p>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 shadow-sm">
+            <div className="text-center">
+              <p className="text-red-700 font-medium mb-2">Error loading orders</p>
+              <p className="text-red-600 text-sm mb-4">{error}</p>
+              <button 
+                onClick={() => dispatch(getAllOrdersOfUser(user._id))}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -48,6 +88,27 @@ const CustomerOrdersPage = () => {
     if (s.includes('processing')) return '⏳'
     if (s.includes('cancelled')) return '✕'
     return '→'
+  }
+
+  const isCancellable = (status) => {
+    const s = status?.toLowerCase() || ''
+    // Only allow cancellation for pending and processing orders
+    return !s.includes('cancelled') && !s.includes('shipped') && !s.includes('delivered')
+  }
+
+  const handleCancelOrder = async (orderId) => {
+    if (!cancelReason.trim()) {
+      alert('Please provide a reason for cancellation')
+      return
+    }
+    setCancelingId(orderId)
+    try {
+      await dispatch(cancelOrder(orderId, cancelReason))
+      setShowCancelReason(null)
+      setCancelReason('')
+    } finally {
+      setCancelingId(null)
+    }
   }
 
   return (
@@ -110,9 +171,20 @@ const CustomerOrdersPage = () => {
                         {o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <Link to={`/user/order/${o._id}`} className="text-teal-600 hover:text-teal-700 font-semibold flex items-center justify-center gap-1 group">
-                          View <MdArrowForward className="text-sm group-hover:translate-x-1 transition" />
-                        </Link>
+                        <div className="flex items-center justify-center gap-2">
+                          <Link to={`/user/order/${o._id}`} className="text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-1 group">
+                            View <MdArrowForward className="text-sm group-hover:translate-x-1 transition" />
+                          </Link>
+                          {isCancellable(o.orderStatus || o.status) && (
+                            <button
+                              onClick={() => setShowCancelReason(o._id)}
+                              disabled={cancelingId === o._id}
+                              className="text-red-600 hover:text-red-700 font-semibold text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {cancelingId === o._id ? 'Cancelling...' : 'Cancel'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -123,8 +195,7 @@ const CustomerOrdersPage = () => {
             {/* Mobile View - Cards */}
             <div className="md:hidden space-y-3 p-4">
               {orders.map((o, idx) => (
-                <Link key={o._id} to={`/user/order/${o._id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition bg-gray-50">
+                <div key={o._id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition bg-gray-50">
                   <div className="flex items-start justify-between mb-3">
                     <span className="font-mono text-xs font-semibold text-gray-700 bg-white px-2 py-1 rounded border border-gray-200">
                       #{o._id?.slice?.(-8) || idx}
@@ -148,13 +219,70 @@ const CustomerOrdersPage = () => {
                       <span className="text-gray-600">{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</span>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="text-teal-600 font-semibold text-sm flex items-center gap-1">
+                  <div className="mt-3 pt-3 border-t border-gray-200 flex gap-2">
+                    <Link to={`/user/order/${o._id}`} className="flex-1 text-teal-600 font-semibold text-sm flex items-center gap-1">
                       View details <MdArrowForward className="text-sm" />
-                    </div>
+                    </Link>
+                    {isCancellable(o.orderStatus || o.status) && (
+                      <button
+                        onClick={() => setShowCancelReason(o._id)}
+                        disabled={cancelingId === o._id}
+                        className="text-red-600 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {cancelingId === o._id ? 'Cancelling...' : 'Cancel'}
+                      </button>
+                    )}
                   </div>
-                </Link>
+                </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Cancel Order Modal */}
+        {showCancelReason && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Cancel Order</h3>
+                <button
+                  onClick={() => {
+                    setShowCancelReason(null)
+                    setCancelReason('')
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <AiOutlineClose className="text-xl" />
+                </button>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                Please provide a reason for cancellation. Your order will be cancelled and inventory will be released.
+              </p>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Enter cancellation reason..."
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                rows={4}
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowCancelReason(null)
+                    setCancelReason('')
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                >
+                  Keep Order
+                </button>
+                <button
+                  onClick={() => handleCancelOrder(showCancelReason)}
+                  disabled={!cancelReason.trim() || cancelingId}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {cancelingId ? 'Processing...' : 'Confirm Cancel'}
+                </button>
+              </div>
             </div>
           </div>
         )}

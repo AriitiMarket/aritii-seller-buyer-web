@@ -50,7 +50,6 @@ const SellerSidebar = ({ active, onNavigate = () => {} }) => {
 
       <Section title="Store">
         <Item to="/settings" icon={MdOutlineStorefront} label="Store Profile" match={m(11)} onNavigate={onNavigate} />
-        <Item to="/dashboard-store-metrics" icon={HiOutlineChartBar} label="Store Analytics" match={m(12)} onNavigate={onNavigate} />
       </Section>
 
       <Section title="Products">
@@ -60,17 +59,6 @@ const SellerSidebar = ({ active, onNavigate = () => {} }) => {
 
       <Section title="Orders">
         <Item to="/dashboard-order-history" icon={FiShoppingBag} label="Order History" match={m(14)} onNavigate={onNavigate} />
-        <Item to="/dashboard-refunds" icon={HiOutlineReceiptRefund} label="Refunds" match={m(10)} onNavigate={onNavigate} />
-      </Section>
-
-      <Section title="Customer">
-        <Item to="/dashboard-messages" icon={BiMessageSquareDetail} label="Shop Inbox" match={m(8)} onNavigate={onNavigate} />
-      </Section>
-
-      <Section title="Promotions">
-        <Item to="/dashboard-create-event" icon={MdOutlineLocalOffer} label="Create Event" match={m(6)} onNavigate={onNavigate} />
-        <Item to="/dashboard-events" icon={AiOutlineGift} label="All Events" match={m(5)} onNavigate={onNavigate} />
-        <Item to="/dashboard-coupons" icon={AiOutlineGift} label="Discount Codes" match={m(9)} onNavigate={onNavigate} />
       </Section>
 
       <Section title="Account">

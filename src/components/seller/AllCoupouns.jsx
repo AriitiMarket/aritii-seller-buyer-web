@@ -1,88 +1,80 @@
-
-import api from "../../services/api";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { RxCross1 } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from '../common/Loader';
 import { toast } from "react-toastify";
+import { getSellerCoupons, deleteCoupon, createCoupon } from "../../store/redux/actions/coupon";
 import './AllCoupouns.css';
 
 const AllCoupouns = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [coupouns,setCoupouns] = useState([]);
   const [minAmount, setMinAmout] = useState(null);
   const [maxAmount, setMaxAmount] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [value, setValue] = useState(null);
   const { seller } = useSelector((state) => state.seller);
   const { products } = useSelector((state) => state.products);
-
   const dispatch = useDispatch();
 
-  const fetchCoupons = async () => {
-    if (!seller?._id) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const res = await api.get(`/coupon/get-coupon/${seller._id}`);
-
-      setCoupouns(res.data.couponCodes);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load coupon codes");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchCoupons();
-  }, [seller?._id, products]);
+    if (seller?._id) {
+      setLoading(true);
+      dispatch(getSellerCoupons(seller._id))
+        .then((coupons) => {
+          setCoupons(coupons);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    }
+  }, [seller?._id, dispatch]);
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/coupon/delete-coupon/${id}`);
+      await dispatch(deleteCoupon(id));
       toast.success("Coupon code deleted successfully!");
-      await fetchCoupons();
+      setCoupons(coupons.filter(c => c._id !== id));
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to delete coupon code");
+      toast.error(error?.message || "Failed to delete coupon code");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await api
-      .post(
-        `/coupon/create-coupon-code`,
-        {
-          name,
-          minAmount,
-          maxAmount,
-          selectedProducts,
-          selectedProduct: selectedProducts,
-          value,
-          shopId: seller._id,
-        }
-      )
-      .then((res) => {
-       toast.success("Coupon code created successfully!");
-       setOpen(false);
-       setName("");
-       setValue("");
-       setMinAmout(null);
-       setMaxAmount(null);
-       setSelectedProducts(null);
-       fetchCoupons();
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+    try {
+      const couponData = {
+        name,
+        minAmount,
+        maxAmount,
+        selectedProducts,
+        selectedProduct: selectedProducts,
+        value,
+        shopId: seller._id,
+      };
+
+      await dispatch(createCoupon(couponData));
+      toast.success("Coupon code created successfully!");
+      
+      // Refresh coupons list
+      const updatedCoupons = await dispatch(getSellerCoupons(seller._id));
+      setCoupons(updatedCoupons);
+
+      setOpen(false);
+      setName("");
+      setValue("");
+      setMinAmout(null);
+      setMaxAmount(null);
+      setSelectedProducts(null);
+    } catch (error) {
+      toast.error(error?.message || "Failed to create coupon code");
+    }
   };
 
   const columns = [

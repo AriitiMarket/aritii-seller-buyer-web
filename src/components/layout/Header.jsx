@@ -417,7 +417,7 @@ const Header = ({ activeHeading }) => {
               </button>
 
               {/* Logo */}
-              <Link to="/" className="flex-1 flex justify-center items-center gap-1">
+              <Link to="/" className="flex-1 flex justify-center items-center gap-1 hover:opacity-80 transition-opacity">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#052919] to-green-700 flex items-center justify-center border-2 border-[#E5A93C]">
                   <span className="text-white font-bold text-xs">A</span>
                 </div>

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Country, State } from "country-state-city";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import api from '../../services/api';
 import { toast } from "react-toastify";
 import styles from '../../styles/styles';
+import { validateCart } from '../../store/redux/actions/cart';
 
 const Checkout = () => {
   const { user } = useSelector((state) => state.user);

@@ -1,13 +1,16 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { ProductImage } from '../../../components/common/ImageWithFallback'
 import { AiOutlineHeart } from 'react-icons/ai'
 import { MdArrowForward, MdShoppingCart } from 'react-icons/md'
+import { toast } from 'react-toastify'
+import { addTocart } from '../../../store/redux/actions/cart'
 
 // Buyer Account: Wishlist with modern card-based grid
 // Displays saved products in a responsive card layout
 const CustomerWishlistPage = () => {
+  const dispatch = useDispatch()
   const wishlist = useSelector((state) => state.wishlist?.wishlist || [])
 
   if (wishlist.length === 0) {
@@ -56,7 +59,7 @@ const CustomerWishlistPage = () => {
           {wishlist.map((w) => {
             const p = w.product || w
             return (
-              <WishlistCard key={p._id || w._id} product={p} />
+              <WishlistCard key={p._id || w._id} product={p} dispatch={dispatch} />
             )
           })}
         </div>
@@ -65,8 +68,37 @@ const CustomerWishlistPage = () => {
   )
 }
 
-const WishlistCard = ({ product }) => {
+const WishlistCard = ({ product, dispatch }) => {
   const p = product
+
+  const handleAddToCart = async () => {
+    if (!p || !p._id) {
+      toast.error('Invalid product')
+      return
+    }
+
+    if (p.stock <= 0) {
+      toast.error('This product is out of stock')
+      return
+    }
+
+    try {
+      const cartData = {
+        _id: p._id,
+        name: p.name,
+        price: p.discountPrice || p.price,
+        image: p.image || p.images?.[0],
+        shop: p.shop,
+        qty: 1,
+      }
+      
+      await dispatch(addTocart(cartData))
+      toast.success('Added to cart!')
+    } catch (error) {
+      toast.error('Failed to add to cart')
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition group h-full flex flex-col">
       {/* Product Image Container */}
@@ -141,10 +173,11 @@ const WishlistCard = ({ product }) => {
             <span className="sm:hidden">View</span>
           </Link>
           <button 
-            onClick={() => alert('Add to cart functionality')}
-            className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition border border-red-200 hover:border-red-300 shadow-sm hover:shadow-md"
+            onClick={handleAddToCart}
+            disabled={p.stock <= 0}
+            className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition border border-red-200 hover:border-red-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Cart
+            {p.stock > 0 ? 'Add Cart' : 'Out of Stock'}
           </button>
         </div>
       </div>

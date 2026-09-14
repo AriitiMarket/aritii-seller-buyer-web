@@ -1,16 +1,19 @@
-import api from "../../../services/api";
+import { catalogService, sellerService } from "../../../services";
 
-// create event
+/**
+ * Create a new event for a shop
+ * Uses centralized sellerService method
+ */
 export const createevent = (data) => async (dispatch) => {
   try {
     dispatch({
       type: "eventCreateRequest",
     });
 
-    const { data: responseData } = await api.post('/event/create-event', data);
+    const event = await sellerService.createEvent(data);
     dispatch({
       type: "eventCreateSuccess",
-      payload: responseData.event,
+      payload: event,
     });
   } catch (error) {
     dispatch({
@@ -20,17 +23,20 @@ export const createevent = (data) => async (dispatch) => {
   }
 };
 
-// get all events of a shop
+/**
+ * Get all events for a specific shop
+ * Uses centralized sellerService method
+ */
 export const getAllEventsShop = (id) => async (dispatch) => {
   try {
     dispatch({
       type: "getAlleventsShopRequest",
     });
 
-    const { data } = await api.get(`/event/get-all-events/${id}`);
+    const events = await sellerService.getShopEvents(id);
     dispatch({
       type: "getAlleventsShopSuccess",
-      payload: data.events,
+      payload: events,
     });
   } catch (error) {
     dispatch({
@@ -40,20 +46,21 @@ export const getAllEventsShop = (id) => async (dispatch) => {
   }
 };
 
-// delete event of a shop
+/**
+ * Delete an event from a shop
+ * Uses centralized sellerService method
+ */
 export const deleteEvent = (id) => async (dispatch) => {
   try {
     dispatch({
       type: "deleteeventRequest",
     });
 
-    const { data } = await api.delete(
-      `/event/delete-shop-event/${id}`
-    );
+    const message = await sellerService.deleteEvent(id);
 
     dispatch({
       type: "deleteeventSuccess",
-      payload: data.message,
+      payload: message,
     });
   } catch (error) {
     dispatch({
@@ -63,19 +70,20 @@ export const deleteEvent = (id) => async (dispatch) => {
   }
 };
 
-
-
-// get all events
+/**
+ * Get all events across all shops (marketplace-wide)
+ * Uses centralized catalogService method
+ */
 export const getAllEvents = () => async (dispatch) => {
   try {
     dispatch({
       type: "getAlleventsRequest",
     });
 
-    const { data } = await api.get('/event/get-all-events');
+    const events = await catalogService.getEvents();
     dispatch({
       type: "getAlleventsSuccess",
-      payload: data.events,
+      payload: events,
     });
   } catch (error) {
     dispatch({

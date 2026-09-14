@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import styles from '../../styles/styles';
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import api from '../../services/api';
 import { toast } from "react-toastify";
 import { clearCart } from "../../store/redux/actions/cart";
 
@@ -34,15 +33,33 @@ const Payment = () => {
       type: "Cash On Delivery",
     };
 
-    await api
-    .post('/order/create-order', order)
-    .then((res) => {
-      navigate("/order/success");
+    try {
+      // Note: For payment, would need createOrder Redux action
+      // For now, using direct order object for this demo
+      // TODO: Create orderService.createOrder() and Redux action for Phase 4 continuation
+      const res = await fetch('/api/order/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(order),
+      });
+      
+      if (!res.ok) throw new Error('Order creation failed');
+      
+      const data = await res.json();
+      const orderId = data?.order?._id || 
+                      data?.orders?.[0]?._id || 
+                      data?._id;
+      
+      navigate(`/order/success?orderId=${orderId}`);
       toast.success("Order successful!");
       localStorage.setItem("cartItems", JSON.stringify([]));
       localStorage.setItem("latestOrder", JSON.stringify([]));
       dispatch(clearCart());
-    });
+    } catch (error) {
+      toast.error(error?.message || "Failed to create order");
+    }
   };
 
   return (

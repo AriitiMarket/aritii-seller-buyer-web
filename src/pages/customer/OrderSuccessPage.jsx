@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiCheckCircle, FiArrowRight, FiHelpCircle } from "react-icons/fi";
 import Footer from '../../components/layout/Footer';
 import Header from '../../components/layout/Header';
@@ -18,6 +18,8 @@ const OrderSuccessPage = () => {
 
 const Success = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('orderId') || 'N/A';
 
   return (
     <div className="w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -42,7 +44,7 @@ const Success = () => {
             Your order has been confirmed. You'll receive a detailed confirmation email shortly with all the order information.
           </p>
 
-          {/* Order Info Card */}
+          {/* Order Info Card - WITH REAL ORDER ID */}
           <div className="bg-green-50 rounded-lg p-6 mb-8 border border-green-200">
             <div className="flex items-center justify-center gap-2 mb-3">
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
@@ -51,7 +53,7 @@ const Success = () => {
               <h3 className="text-lg font-semibold text-green-900">Order Confirmed</h3>
             </div>
             <p className="text-sm text-green-700 mb-2">
-              <span className="font-semibold">Order ID:</span> #{Math.random().toString(36).substr(2, 9).toUpperCase()}
+              <span className="font-semibold">Order ID:</span> #{orderId}
             </p>
             <p className="text-sm text-green-700">
               A confirmation email has been sent to your registered email address.

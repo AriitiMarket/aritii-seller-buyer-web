@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Avatar } from '../../../components/common/ImageWithFallback'
 import { AiOutlineCamera } from 'react-icons/ai'
-import api from '../../../services/api'
 import { toast } from 'react-toastify'
-import { loadUser, updateUserInformation } from '../../../store/redux/actions/user'
+import { loadUser, updateUserInformation, updateUserAvatar } from '../../../store/redux/actions/user'
 import { MdEdit } from 'react-icons/md'
 
 // Buyer Account: Profile - Modern card-based profile editor
 const CustomerProfilePage = () => {
-  const { user } = useSelector((state) => state.user)
+  const { user, loading } = useSelector((state) => state.user)
   const dispatch = useDispatch()
   
   const [name, setName] = useState(user?.name || '')
@@ -17,7 +16,6 @@ const CustomerProfilePage = () => {
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '')
   const [password, setPassword] = useState('')
   const [isEditing, setIsEditing] = useState(false)
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -29,23 +27,16 @@ const CustomerProfilePage = () => {
 
   const handleAvatarChange = async (e) => {
     try {
-      setLoading(true)
       const file = e.target.files[0]
       if (!file) return
 
       const formData = new FormData()
       formData.append('image', file)
 
-      await api.put('/user/update-avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      
+      await dispatch(updateUserAvatar(formData))
       toast.success('Avatar updated successfully!')
-      dispatch(loadUser())
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update avatar')
-    } finally {
-      setLoading(false)
+      toast.error(err?.message || 'Failed to update avatar')
     }
   }
 
@@ -55,13 +46,14 @@ const CustomerProfilePage = () => {
       toast.error('Please fill in all fields')
       return
     }
-    setLoading(true)
     dispatch(updateUserInformation(name, email, phoneNumber, password))
-      .finally(() => {
-        setLoading(false)
+      .then(() => {
         setIsEditing(false)
         setPassword('')
         toast.success('Profile updated successfully!')
+      })
+      .catch((err) => {
+        toast.error(err?.message || 'Failed to update profile')
       })
   }
 
@@ -86,7 +78,7 @@ const CustomerProfilePage = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <label htmlFor="avatar" className="absolute bottom-0 right-0 bg-teal-600 text-white p-2 rounded-full cursor-pointer hover:bg-teal-700 transition shadow-lg">
+              <label htmlFor="avatar" className="absolute bottom-0 right-0 bg-teal-600 text-white p-2 rounded-full cursor-pointer hover:bg-teal-700 transition shadow-lg disabled:cursor-not-allowed disabled:opacity-50" style={{ pointerEvents: loading ? 'none' : 'auto', opacity: loading ? 0.5 : 1 }}>
                 <AiOutlineCamera className="text-lg" />
                 <input
                   type="file"

@@ -1,35 +1,37 @@
 import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai"
 import { MdOutlineEmail } from "react-icons/md"
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import api from '../../services/api'
+import { registerUser } from '../../store/redux/actions/user'
 import { RxAvatar } from "react-icons/rx"
 
 const SignUp = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const { loading } = useSelector((state) => state.user)
 
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [visible, setVisible] = useState(false)
     const [avatar, setAvatar] = useState(null)
-    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setLoading(true)
 
-        const newForm = new FormData()
-        newForm.append("file", avatar)
-        newForm.append("name", name)
-        newForm.append("email", email)
-        newForm.append("password", password)
+        const formData = new FormData()
+        if (avatar) {
+            formData.append("file", avatar)
+        }
+        formData.append("name", name)
+        formData.append("email", email)
+        formData.append("password", password)
 
         try {
-            const res = await api.post('/user/create-user', newForm)
-            console.log(res.data)
+            await dispatch(registerUser(formData))
             navigate("/login")
             toast.success("Registration successful! Please log in.")
 
@@ -38,10 +40,7 @@ const SignUp = () => {
             setPassword('')
             setAvatar(null)
         } catch (error) {
-            console.log(error)
-            toast.error(error.response?.data?.message || "Registration failed. Please try again.")
-        } finally {
-            setLoading(false)
+            toast.error(error?.message || "Registration failed. Please try again.")
         }
     }
 

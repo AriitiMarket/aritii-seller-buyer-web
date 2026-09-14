@@ -86,13 +86,21 @@ export const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 updateUserAddressLoading: true,
+                addressError: null,
             };
 
         case "updateUserAddressSuccess":
             return {
                 ...state,
                 updateUserAddressLoading: false,
-                user: action.payload.user,
+                user: {
+                    ...state.user,
+                    addresses: [
+                        ...(state.user?.addresses || []),
+                        action.payload.address
+                    ]
+                },
+                addressSuccessMessage: action.payload.updateAddressSuccessMessage,
                 success: true,
             };
 
@@ -100,7 +108,7 @@ export const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 updateUserAddressLoading: false,
-                error: action.payload,
+                addressError: action.payload,
             };
 
 
@@ -116,13 +124,20 @@ export const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 deleteUserAddressLoading: true,
+                addressError: null,
             };
 
         case "deleteUserAddressSuccess":
             return {
                 ...state,
                 deleteUserAddressLoading: false,
-                user: action.payload.user,
+                user: {
+                    ...state.user,
+                    addresses: (state.user?.addresses || []).filter(
+                        addr => addr._id !== action.payload.addressId
+                    )
+                },
+                addressSuccessMessage: action.payload.successMessage,
                 success: true,
             };
 
@@ -130,7 +145,7 @@ export const userReducer = (state = initialState, action) => {
             return{
                 ...state,
                 deleteUserAddressLoading: false,
-                error: action.payload.message,
+                addressError: action.payload,
             }
         
 

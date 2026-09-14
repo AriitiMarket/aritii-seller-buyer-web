@@ -42,6 +42,22 @@ export const orderReducer = createReducer(initialState, (builder) => {
             state.error=action.payload;
         })
 
+        .addCase("cancelOrderRequest", (state) => {
+            state.isLoading = true;
+        })
+        .addCase("cancelOrderSuccess", (state, action) => {
+            state.isLoading = false;
+            // Update the order in the orders array
+            const index = state.orders.findIndex(o => o._id === action.payload._id);
+            if (index !== -1) {
+              state.orders[index] = action.payload;
+            }
+        })
+        .addCase("cancelOrderFailed", (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload;
+        })
+
         .addCase("clearError", (state) => {
             state.error = null;
         });

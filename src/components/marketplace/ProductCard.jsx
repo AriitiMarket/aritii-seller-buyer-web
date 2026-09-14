@@ -95,7 +95,7 @@ const ProductCard = ({ data }) => {
 
 
   const d = data?.name || '';
-  const product_name = d.replace(/\s+/g, '-'); // replace spaces with '-'
+  const productId = data?._id || ''; // Use _id for routing to match backend
   const shopName = data?.shop?.name || 'Unknown shop';
   const shopId = data?.shop?._id || '';
   const displayPrice = data?.price ?? data?.discountPrice ?? data?.discount_price ?? 0;
@@ -107,7 +107,7 @@ const ProductCard = ({ data }) => {
     <div className="w-full h-[370px] bg-white rounded-lg border-2 shadow-sm p-3 relative cursor-pointer">
         <div className="flex justify-end"></div>
 
-        <Link to={`/product/${product_name}`}>
+        <Link to={`/product/${productId}`}>
           <ProductImage data={data}
           className='w-full h-[170px] object-contain'
           alt={d} />
@@ -127,7 +127,7 @@ const ProductCard = ({ data }) => {
 
 
         {/* name of the product */}
-        <Link to={`/product/${product_name}`}>
+        <Link to={`/product/${productId}`}>
          <h4 className='pb-3 font-[500]'>
             {d.length > 40 ? d.slice(0, 40) + "..." : d}
          </h4>

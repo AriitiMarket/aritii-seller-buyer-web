@@ -1,6 +1,5 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import api from '../../services/api'
 import { Avatar } from '../common/ImageWithFallback'
 import { Link, useNavigate } from 'react-router-dom'
 import styles from '../../styles/styles.js'
@@ -23,13 +22,18 @@ const ShopInfo = ({isOwner}) => {
     useEffect(() => {
     if (!id) return;
 
-        api.get(`/shop/get-shop-info/${id}`).then((res) => {
-          console.log(res);
-          console.log("Fetched shop info:", res.data.shop);
-            setData(res.data.shop);
-        }).catch((error) => {
-            console.error("Error fetching shop info:", error);
+    // TODO: Create getShopInfo Redux action using shopService.getById(id)
+    // For now, placeholder - implement in next phase
+    import('../../services').then(({ shopService }) => {
+      shopService.getById(id)
+        .then((shop) => {
+          console.log("Fetched shop info:", shop);
+          setData(shop);
+        })
+        .catch((error) => {
+          console.error("Error fetching shop info:", error);
         });
+    });
   }, [id]);
 
 
@@ -46,7 +50,7 @@ const ShopInfo = ({isOwner}) => {
           navigate('/');
           toast.success(res?.message || 'Log out successful!');
         } catch (error) {
-          toast.error(error.response?.data?.message || error.message || 'Logout failed');
+          toast.error(error?.message || 'Logout failed');
         }
     }
     

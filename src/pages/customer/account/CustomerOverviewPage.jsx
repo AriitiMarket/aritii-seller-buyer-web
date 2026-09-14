@@ -1,26 +1,29 @@
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Avatar, ProductImage } from '../../../components/common/ImageWithFallback'
 import { getAllOrdersOfUser } from '../../../store/redux/actions/order'
-import Store from '../../../store/redux/store'
 import { MdShoppingBag, MdArrowForward, MdFavoriteBorder, MdLocationOn, MdTrendingUp } from 'react-icons/md'
 import { BiPackage, BiStore } from 'react-icons/bi'
 
 // Buyer Dashboard — the customer's own overview.
 // Modern card-based design with responsive layout
 const CustomerOverviewPage = () => {
+  const dispatch = useDispatch()
   const user = useSelector((state) => state.user?.user)
   const { isSeller } = useSelector((state) => state.seller)
   const orders = useSelector((state) => state.order?.orders || [])
+  const isLoading = useSelector((state) => state.order?.isLoading || false)
+  const error = useSelector((state) => state.order?.error || null)
   const wishlist = useSelector((state) => state.wishlist?.wishlist || [])
   const addresses = user?.addresses || []
   const allProducts = useSelector((state) => state.product?.allProducts || [])
 
   useEffect(() => {
-    if (user?._id) Store.dispatch(getAllOrdersOfUser(user._id))
-    // eslint-disable-next-line
-  }, [user?._id])
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id))
+    }
+  }, [user?._id, dispatch])
 
   const totalSpent = orders.reduce((sum, o) => sum + Number(o.totalPrice || 0), 0)
   const recentOrders = orders.slice(0, 5)
@@ -122,10 +125,30 @@ const CustomerOverviewPage = () => {
             <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
             {totalSpent > 0 && <p className="text-xs text-gray-600 mt-1">Total value: <span className="font-semibold text-teal-600">{Number(totalSpent).toLocaleString()} ETB</span></p>}
           </div>
-          <Link to="/my-dashboard/orders" className="text-sm font-semibold text-teal-600 hover:text-teal-700">View all →</Link>
+          {!isLoading && orders.length > 0 && (
+            <Link to="/my-dashboard/orders" className="text-sm font-semibold text-teal-600 hover:text-teal-700">View all →</Link>
+          )}
         </div>
 
-        {recentOrders.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-10">
+            <div className="inline-block">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+            </div>
+            <p className="text-gray-600 text-sm mt-4">Loading your orders...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10">
+            <div className="mb-3 text-red-600 text-xl">⚠️</div>
+            <p className="text-red-600 text-sm mb-4">{error}</p>
+            <button
+              onClick={() => dispatch(getAllOrdersOfUser(user._id))}
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700 transition"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : recentOrders.length === 0 ? (
           <div className="text-center py-10">
             <MdShoppingBag className="text-5xl text-gray-300 mx-auto mb-3" />
             <p className="text-gray-600 text-sm mb-4">You have not placed any orders yet.</p>

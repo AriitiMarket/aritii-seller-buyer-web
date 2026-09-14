@@ -1,45 +1,37 @@
 import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {AiOutlineEyeInvisible,AiOutlineEye} from "react-icons/ai"
 import { Link } from 'react-router-dom'
 import { useNavigate} from 'react-router-dom'
 import { toast } from 'react-toastify'
-import api from '../../services/api'
+import { loginSeller, loadSeller } from '../../store/redux/actions/user'
 import { AuthSellerLogin } from '../../assets'
-import Store from '../../store/redux/store'
-import { loadSeller } from '../../store/redux/actions/user'
 
 const ShopLogin = () => {
 
-    const[email,setEmail]=useState('')
-    const[password,setPassword]=useState('')
-    const[visible,setVisible]=useState(false)
-    const navigate=useNavigate();
-
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [visible, setVisible] = useState(false)
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const { loading, user } = useSelector((state) => state.user)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        // Unified ONE-account login (single `token` cookie). This page is a
-        // convenience alias to the seller entry; it authenticates through the
-        // same customer endpoint and routes the user by their role, exactly
-        // like the main /login form.
         try {
-            const res = await api.post('/user/login-user', { email, password });
-            const user = res?.data?.user || null;
-            await Store.dispatch(loadUser());
-            if (user && (user.role === 'SELLER' || user.shopId)) {
-                // Await the auth-state load so isSeller is populated BEFORE we
-                // route the seller into their own dashboard (avoids a race where
-                // SellerAuthRoute would bounce them back to /login).
-                await Store.dispatch(loadSeller());
-                toast.success("Welcome back!");
-                navigate("/dashboard");
+            const loginResult = await dispatch(loginSeller(email, password))
+            
+            if (loginResult && (loginResult.role === 'SELLER' || loginResult.shopId)) {
+                await dispatch(loadSeller())
+                toast.success("Welcome back!")
+                navigate("/dashboard")
             } else {
-                toast.success("Login successful!");
-                navigate("/my-dashboard");
+                toast.success("Login successful!")
+                navigate("/my-dashboard")
             }
         } catch (error) {
-            toast.error("Login failed. Please check your email and password.");
+            toast.error(error?.message || "Login failed. Please check your email and password.")
         }
     }
 

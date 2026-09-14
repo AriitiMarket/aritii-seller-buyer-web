@@ -1,7 +1,8 @@
-import api from "../../../services/api";
-
-
-
+/**
+ * Redux Product Actions
+ * Uses centralized API services from /services
+ */
+import { productService } from "../../../services";
 
 //create product action
 export const createProduct = (formData) => async (dispatch) => {
@@ -10,19 +11,18 @@ export const createProduct = (formData) => async (dispatch) => {
             type:"productCreateRequest"
         })
 
-        const {data}=await api.post('/product/create-product',formData)
-
+        const product = await productService.create(formData)
         
         dispatch({
             type:"productCreateSuccess",
-            payload:data.product
+            payload: product
         })
 
     }
     catch(error){
         dispatch({
             type:"productCreateFailed",
-            payload:error.response.data.message
+            payload:error.response?.data?.message || error.message
         })
     }
 
@@ -44,14 +44,12 @@ export const getAllProductsShop = (id) => async (dispatch) => {
             type:"getAllProductsShopRequest"
         })
 
-        const {data}=await api.get(`/product/get-all-products-shop/${id}`)
-        console.log('getAllProductsShop response:', data) //isko print kr k dekha data aa rha . and is main 2 cheezen aa rhi theen products: phir aik object jis main prdoucts the and success:true 
-                                                          //and basically ye dono cheezen hum ne jo /get-all-products-shop/id wala jo route bnaya hai na product k controller main wo ja k dekho .. 
-                                                          // jb wo successful hota hai to jo prdoucts find kiye hon wo returen kr rha hai and and success:true
+        const products = await productService.getByShop(id)
+        console.log('getAllProductsShop response:', products)
+        
         dispatch({
             type:"getAllProductsShopSuccess",
-            payload:data.products  //upar se jo data hum ne get kiya axios ki request kr k phir jo humen products receive hue wo hum ne payload main dal diye
-                                //and phir jo getAllProductsShopSuccess wala jo reducer hai wo is payload ko state main dal dega and phir hum useSelector k zariye us state ko access kr sakte hain
+            payload: products
         })
     }
     catch(error){
@@ -76,15 +74,14 @@ export const deleteProduct=(id)=> async(dispatch)=>{
             type:"deleteProductRequest"
         })
 
-        const {data}=await api.delete(`/product/delete-shop-product/${id}`)
+        await productService.delete(id)
         dispatch({
             type:"deleteProductSuccess",
             payload:{
-                message:data.message,
+                message:"Product deleted successfully",
                 id,
             }
         })
-        return data
     }
     catch(error){
         dispatch({
@@ -103,10 +100,10 @@ export const getAllProducts = () => async (dispatch) => {
             type: "getAllProductsRequest",
         });
 
-        const { data } = await api.get('/product/get-all-products');
+        const products = await productService.getAll();
         dispatch({
             type: "getAllProductsSuccess",
-            payload: data.products,
+            payload: products,
         });
     } catch (error) {
         dispatch({
@@ -129,9 +126,9 @@ export const getAllProducts = () => async (dispatch) => {
 export const getProductDetail = (id) => async (dispatch) => {
   try {
     dispatch({ type: 'productDetailRequest' });
-    const { data } = await api.get(`/product/get-product/${id}`);
-    dispatch({ type: 'productDetailSuccess', payload: data.product });
-    return data.product;
+    const product = await productService.getById(id);
+    dispatch({ type: 'productDetailSuccess', payload: product });
+    return product;
   } catch (error) {
     dispatch({ type: 'productDetailFailed', payload: error.response?.data?.message || error.message });
     throw error;
@@ -142,9 +139,9 @@ export const getProductDetail = (id) => async (dispatch) => {
 export const updateProduct = (id, formData) => async (dispatch) => {
   try {
     dispatch({ type: 'productUpdateRequest' });
-    const { data } = await api.put(`/product/update-product/${id}`, formData);
-    dispatch({ type: 'productUpdateSuccess', payload: data.product });
-    return data.product;
+    const product = await productService.update(id, formData);
+    dispatch({ type: 'productUpdateSuccess', payload: product });
+    return product;
   } catch (error) {
     dispatch({ type: 'productUpdateFailed', payload: error.response?.data?.message || error.message });
     throw error;

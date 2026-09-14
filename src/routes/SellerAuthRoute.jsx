@@ -4,28 +4,49 @@ import { useEffect, useRef } from "react";
 import Loader from '../components/common/Loader';
 import { loadSeller } from '../store/redux/actions/user';
 
+/**
+ * SellerAuthRoute - Protects seller-only routes
+ * 
+ * Route access requires:
+ * 1. User is authenticated (isAuthenticated = true)
+ * 2. User has APPROVED seller status (sellerStatus === 'APPROVED')
+ * 3. Seller data has been loaded from backend
+ * 
+ * Redirects:
+ * - Not authenticated → /login (via ProtectedRoute parent)
+ * - Authenticated but not approved seller → /marketplace
+ * - Loading seller data → Show Loader
+ */
 const SellerAuthRoute = ({ children }) => {
   const dispatch = useDispatch();
   const { isLoading, isSeller, seller } = useSelector((state) => state.seller);
-  const { user } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const sellerLoadAttemptedRef = useRef(false);
 
-  // Only load seller data if user is actually approved as a seller
-  // Check sellerStatus from backend user object (APPROVED, PENDING, REJECTED, or null)
+  // Only load seller data if:
+  // 1. User is authenticated
+  // 2. User has APPROVED seller status from backend
+  // 3. Haven't already attempted to load seller data
   useEffect(() => {
-    if (user && user.sellerStatus === 'APPROVED' && !isSeller && !sellerLoadAttemptedRef.current) {
+    if (
+      isAuthenticated &&
+      user?.sellerStatus === 'APPROVED' &&
+      !isSeller &&
+      !sellerLoadAttemptedRef.current
+    ) {
       sellerLoadAttemptedRef.current = true;
       dispatch(loadSeller());
     }
-  }, [user, isSeller, dispatch]);
+  }, [user, isSeller, isAuthenticated, dispatch]);
 
   // Show loader while fetching seller data
   if (isLoading === true) {
     return <Loader />;
   }
 
-  // Only approved sellers with loaded seller data can access this route
-  if (!isSeller) {
+  // Double-check: User must be authenticated, approved, and have isSeller flag
+  // This prevents accessing seller routes if Redux out of sync with backend
+  if (!isAuthenticated || user?.sellerStatus !== 'APPROVED' || !isSeller) {
     return <Navigate to="/marketplace" replace />;
   }
 

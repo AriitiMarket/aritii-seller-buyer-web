@@ -1,49 +1,36 @@
 import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai"
 import { MdOutlineEmail } from "react-icons/md"
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import api from '../../services/api'
-import Store from '../../store/redux/store'
+import { loginUser } from '../../store/redux/actions/user'
 
 const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [visible, setVisible] = useState(false)
-    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const { loading, user, error } = useSelector((state) => state.user)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setLoading(true)
 
         try {
-            const res = await api.post('/user/login-user', { email, password })
-            const user = res?.data?.user || null
-
-            if (!user) {
-                toast.error("Login failed. No user data returned.")
-                setLoading(false)
-                return
-            }
-
-            Store.dispatch({
-                type: "LoadUserSuccess",
-                payload: user,
-            })
-
+            const loginResult = await dispatch(loginUser(email, password))
+            
             toast.success("Login successful!")
 
-            if (user.sellerStatus === 'APPROVED') {
+            // Navigate based on seller status
+            if (loginResult?.sellerStatus === 'APPROVED') {
                 navigate("/business/dashboard")
             } else {
                 navigate("/")
             }
-        } catch (e) {
-            toast.error("Login failed. Please check your email and password.")
-        } finally {
-            setLoading(false)
+        } catch (err) {
+            toast.error(err?.message || "Login failed. Please check your email and password.")
         }
     }
 
@@ -81,10 +68,11 @@ const Login = () => {
                                     id="email"
                                     autoComplete='email'
                                     required
+                                    disabled={loading}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="you@example.com"
-                                    className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition'
+                                    className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition disabled:bg-gray-50 disabled:cursor-not-allowed'
                                 />
                             </div>
                         </div>
@@ -101,15 +89,17 @@ const Login = () => {
                                     id="password"
                                     autoComplete='current-password'
                                     required
+                                    disabled={loading}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition'
+                                    className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition disabled:bg-gray-50 disabled:cursor-not-allowed'
                                 />
                                 <button
                                     type="button"
+                                    disabled={loading}
                                     onClick={() => setVisible(!visible)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                                 >
                                     {visible ? (
                                         <AiOutlineEye size={20} />
@@ -127,7 +117,8 @@ const Login = () => {
                                     type="checkbox"
                                     name='remember-me'
                                     id='remember-me'
-                                    className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500'
+                                    disabled={loading}
+                                    className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed'
                                 />
                                 <span className='ml-2 text-sm text-gray-700'>Remember me</span>
                             </label>

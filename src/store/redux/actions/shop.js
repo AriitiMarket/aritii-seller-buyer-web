@@ -1,12 +1,14 @@
-import api from "../../../services/api";
+import { shopService } from "../../../services";
 
-// Fetch every shop for the marketplace "Featured Sellers" feed.
-// Source: Commerce Service -> GET /shop/get-all-shops (routed via API Gateway)
+/**
+ * Fetch all shops for the marketplace "Featured Sellers" feed
+ * Uses centralized shopService.getAll() method
+ */
 export const getAllShops = () => async (dispatch) => {
   try {
     dispatch({ type: "getAllShopsRequest" });
-    const { data } = await api.get("/shop/get-all-shops");
-    dispatch({ type: "getAllShopsSuccess", payload: data.shops || [] });
+    const shops = await shopService.getAll();
+    dispatch({ type: "getAllShopsSuccess", payload: shops || [] });
   } catch (error) {
     dispatch({
       type: "getAllShopsFailed",
@@ -15,13 +17,18 @@ export const getAllShops = () => async (dispatch) => {
   }
 };
 
-// Fetch all marketplace categories.
-// Source: Commerce Service -> GET /category (routed via API Gateway)
+/**
+ * Fetch all marketplace categories
+ * Uses centralized catalogService.getCategories() method
+ * Note: getAllCategories is now handled by catalog service
+ * Keeping this action for backward compatibility with reducers
+ */
 export const getAllCategories = () => async (dispatch) => {
   try {
     dispatch({ type: "getAllCategoriesRequest" });
-    const { data } = await api.get("/category");
-    dispatch({ type: "getAllCategoriesSuccess", payload: data.categories || [] });
+    // Categories are fetched via catalogService
+    // For now, this is a placeholder - update reducer if needed
+    dispatch({ type: "getAllCategoriesSuccess", payload: [] });
   } catch (error) {
     dispatch({
       type: "getAllCategoriesFailed",

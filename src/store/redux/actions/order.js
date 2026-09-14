@@ -1,61 +1,71 @@
-import api from "../../../services/api";
-
-
-
-
-
+/**
+ * Redux Order Actions
+ * Uses centralized API services from /services
+ */
+import { orderService } from "../../../services";
 
 //get all orders of a user
 export const getAllOrdersOfUser = (userId) => async (dispatch) => {
-try{
-
+  try {
     dispatch({
-        type: "getAllOrdersUserRequest"
+      type: "getAllOrdersUserRequest"
     })
 
-    const { data } = await api.get(`/order/get-all-orders/user/${userId}`);
+    const orders = await orderService.getBuyerOrders(userId);
     
     dispatch({
-        type:"getAllOrdersUserSuccess",
-        payload:data.orders
+      type: "getAllOrdersUserSuccess",
+      payload: orders
     })
-}
-catch(err){
+  }
+  catch (err) {
     dispatch({
-        type:"getAllOrdersUserFailed",
-        payload:err.response.data.message
+      type: "getAllOrdersUserFailed",
+      payload: err.response?.data?.message || err.message
     })
+  }
 }
-
-}
-
-
-
-
-
-
-
 
 //get all orders of a shop
 export const getAllOrdersOfShop = (sellerId) => async (dispatch) => {
-try{
-
+  try {
     dispatch({
-        type: "getAllOrdersShopRequest"
+      type: "getAllOrdersShopRequest"
     })
 
-    const { data } = await api.get(`/order/get-all-orders/seller/${sellerId}`);
+    const orders = await orderService.getSellerOrders(sellerId);
     
     dispatch({
-        type:"getAllOrdersShopSuccess",
-        payload:data.orders
+      type: "getAllOrdersShopSuccess",
+      payload: orders
     })
-}
-catch(err){
+  }
+  catch (err) {
     dispatch({
-        type:"getAllOrdersShopFailed",
-        payload:err.response.data.message
+      type: "getAllOrdersShopFailed",
+      payload: err.response?.data?.message || err.message
     })
+  }
 }
 
+//cancel an order (buyer)
+export const cancelOrder = (orderId, reason) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "cancelOrderRequest"
+    })
+
+    const order = await orderService.cancelOrder(orderId, reason);
+    
+    dispatch({
+      type: "cancelOrderSuccess",
+      payload: order
+    })
+  }
+  catch (err) {
+    dispatch({
+      type: "cancelOrderFailed",
+      payload: err.response?.data?.message || err.message
+    })
+  }
 }
