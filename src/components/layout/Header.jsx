@@ -3,9 +3,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
 import {
-  AiOutlineHeart,
   AiOutlineSearch,
-  AiOutlineShoppingCart,
   AiOutlineLogout,
 } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -15,8 +13,6 @@ import DropDown from './DropDown';
 import Navbar from './Navbar';
 import BrandLogo from '../common/BrandLogo';
 import { resolveImageUrl, getAvatarImage } from '../../utils/image';
-import Cart from '../cart/cart';
-import Wishlist from '../wishlist/wishlist';
 import { logoutUser, logoutSeller } from '../../store/redux/actions/user';
 import { toast } from 'react-toastify';
 
@@ -41,8 +37,6 @@ const Header = ({ activeHeading }) => {
   const [searchData, setSearchData] = useState([]);
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
-  const [openCart, setOpenCart] = useState(false);
-  const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [openExplore, setOpenExplore] = useState(false);
@@ -302,67 +296,9 @@ const Header = ({ activeHeading }) => {
                 )}
               </div>
 
-              {/* Wishlist & Cart Icons */}
-              <div className="flex items-center gap-2 lg:gap-4">
-                
-                {/* Wishlist */}
-                <div
-                  className="relative cursor-pointer group"
-                  onClick={() => setOpenWishlist(true)}
-                  title="Wishlist"
-                >
-                  <div className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <AiOutlineHeart size={24} className="text-gray-700 group-hover:text-[#E5A93C]" />
-                    {wishlist && wishlist.length > 0 && (
-                      <span className="absolute -right-1 -top-1 w-5 h-5 rounded-full bg-[#C8522C] text-white text-xs font-bold flex items-center justify-center shadow-md">
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Shopping Cart */}
-                <div
-                  className="relative cursor-pointer group"
-                  onClick={() => setOpenCart(true)}
-                  title="Shopping Cart"
-                >
-                  <div className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <AiOutlineShoppingCart size={24} className="text-gray-700 group-hover:text-[#E5A93C]" />
-                    {cart && cart.length > 0 && (
-                      <span className="absolute -right-1 -top-1 w-5 h-5 rounded-full bg-[#C8522C] text-white text-xs font-bold flex items-center justify-center shadow-md">
-                        {cart.length}
-                      </span>
-                    )}
-                  </div>
-                  {cart && cart.length > 0 && (
-                    <div className="absolute bottom-full right-0 mb-2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                      {cartTotal.toFixed(2)} ETB
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Account */}
+              {/* Account Only */}
               <div className="flex items-center gap-2 lg:gap-3 border-l border-gray-200 pl-3 lg:pl-4">
-                {isSeller ? (
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center gap-2 px-2 lg:px-3 py-2 bg-white border border-gray-200 rounded-full hover:shadow-md transition-all group"
-                  >
-                    <img
-                      src={avatarSrc}
-                      onError={(e) => {
-                        if (e.currentTarget.src === "/logo192.png") return;
-                        e.currentTarget.onError = null;
-                        e.currentTarget.src = "/logo192.png";
-                      }}
-                      className="w-8 h-8 rounded-full object-cover border-2 border-[#E5A93C]"
-                      alt="Seller"
-                    />
-                    <span className="text-sm font-semibold text-gray-900 hidden lg:inline">Seller</span>
-                  </Link>
-                ) : isAuthenticated ? (
+                {isAuthenticated ? (
                   <Link
                     to="/my-dashboard"
                     className="flex items-center gap-2 px-2 lg:px-3 py-2 bg-white border border-gray-200 rounded-full hover:shadow-md transition-all group"
@@ -424,33 +360,8 @@ const Header = ({ activeHeading }) => {
                 <span className="text-sm font-bold text-[#052919]">Aritii</span>
               </Link>
 
-              {/* Wishlist & Cart */}
+              {/* Wishlist & Cart - REMOVED */}
               <div className="flex items-center gap-1">
-                {/* Wishlist */}
-                <button
-                  className="relative flex items-center justify-center w-9 h-9 hover:bg-gray-100 rounded-lg transition-colors"
-                  onClick={() => setOpenWishlist(true)}
-                >
-                  <AiOutlineHeart size={20} className="text-[#052919]" />
-                  {wishlist && wishlist.length > 0 && (
-                    <span className="absolute -right-1 -top-1 w-4 h-4 rounded-full bg-[#C8522C] text-white text-xs font-bold flex items-center justify-center">
-                      {wishlist.length}
-                    </span>
-                  )}
-                </button>
-
-                {/* Cart */}
-                <button
-                  className="relative flex items-center justify-center w-9 h-9 hover:bg-gray-100 rounded-lg transition-colors"
-                  onClick={() => setOpenCart(true)}
-                >
-                  <AiOutlineShoppingCart size={20} className="text-[#052919]" />
-                  {cart && cart.length > 0 && (
-                    <span className="absolute -right-1 -top-1 w-4 h-4 rounded-full bg-[#C8522C] text-white text-xs font-bold flex items-center justify-center">
-                      {cart.length}
-                    </span>
-                  )}
-                </button>
               </div>
             </div>
 
@@ -613,10 +524,10 @@ const Header = ({ activeHeading }) => {
           </div>
 
           {/* Cart Popup */}
-          {openCart && <Cart setOpenCart={setOpenCart} />}
+          {/* Removed - users now go to /checkout */}
 
           {/* Wishlist Popup */}
-          {openWishlist && <Wishlist setOpenWishlist={setOpenWishlist} />}
+          {/* Removed - users now go to /my-dashboard/wishlist */}
         </>
       )}
     </>

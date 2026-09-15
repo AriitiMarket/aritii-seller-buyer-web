@@ -84,21 +84,21 @@ const DashboardHero = () => {
         <h2 className="text-base font-bold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <QuickActionButton 
-            to="/dashboard-create-product" 
+            to="/my-dashboard/business/products/create" 
             label="Create Product" 
             bgColor="bg-green-100 hover:bg-green-200"
             textColor="text-green-700"
             icon="📦"
           />
           <QuickActionButton 
-            to="/dashboard-create-event" 
+            to="/my-dashboard/business/products/create" 
             label="Create Event" 
             bgColor="bg-purple-100 hover:bg-purple-200"
             textColor="text-purple-700"
             icon="🎉"
           />
           <QuickActionButton 
-            to="/dashboard-coupons" 
+            to="/my-dashboard/business/products/create" 
             label="Create Coupon" 
             bgColor="bg-yellow-100 hover:bg-yellow-200"
             textColor="text-yellow-700"
@@ -112,7 +112,7 @@ const DashboardHero = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-bold text-gray-900">Recent Orders</h2>
           <Link
-            to="/dashboard-orders"
+            to="/my-dashboard/business/orders"
             className="text-sm text-green-600 hover:text-green-700 font-semibold underline"
           >
             View all orders

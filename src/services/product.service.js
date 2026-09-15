@@ -23,8 +23,19 @@ export const productService = {
     const url = params ? `/product/get-all-products?${params}` : "/product/get-all-products";
     const { data } = await api.get(url);
     const products = data.products || [];
-    cache.set(cacheKey, products, 10 * 60 * 1000);
+    cache.set(cacheKey, products, 2 * 60 * 1000);
     return products;
+  },
+
+  /**
+   * Force refresh products (bypass cache)
+   * @param {Object} options - { page, limit } (optional)
+   * @returns {Promise} - Array of products
+   */
+  async getAllFresh(options = {}) {
+    const cacheKey = `products:all:${JSON.stringify(options)}`;
+    cache.delete(cacheKey);
+    return this.getAll(options);
   },
 
   /**

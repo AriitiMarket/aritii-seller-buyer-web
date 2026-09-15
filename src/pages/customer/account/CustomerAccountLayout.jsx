@@ -6,15 +6,13 @@ import CustomerAccountSidebar from './CustomerAccountSidebar'
 const drawerWidth = 'w-[60%] sm:w-[50%] md:w-[40%] lg:w-[264px]'
 
 /**
- * Buyer-only account layout — the customer's private dashboard.
+ * Unified dashboard layout — one account, one dashboard.
  *
- * This is intentionally SEPARATE from the public marketplace layout:
- *  - Uses a dedicated BuyerHeader (no marketplace search/categories/cart).
- *  - Purchases sidebar is a persistent fixed column on desktop and a
- *    slide-out drawer (opened via the mobile hamburger) on small screens.
- *  - No large public marketplace footer; only a tiny account footer.
- *
- * Auth is enforced by wrapping this layout in ProtectedRoute (customer login).
+ * All users (buyers and approved sellers) share this layout:
+ *  - Uses a dedicated BuyerHeader (minimal, focused).
+ *  - Sidebar shows buyer features for all users, plus "MY BUSINESS"
+ *    section for approved sellers.
+ *  - Auth is enforced by wrapping this layout in ProtectedRoute.
  */
 const CustomerAccountLayout = () => {
   const location = useLocation()
@@ -36,11 +34,11 @@ const CustomerAccountLayout = () => {
               aria-hidden="true"
             />
             <div
-              className={`fixed top-[72px] bottom-0 left-0 z-[46] ${drawerWidth} bg-white overflow-y-auto transition-transform lg:hidden`}
+              className={`fixed top-[60px] bottom-0 left-0 z-[46] ${drawerWidth} bg-white overflow-y-auto transition-transform lg:hidden`}
               role="dialog"
               aria-label="Account menu"
             >
-              <div className="overflow-y-auto max-h-[calc(100vh-72px)]">
+              <div className="overflow-y-auto max-h-[calc(100vh-60px)]">
                 <CustomerAccountSidebar activePath={location.pathname} onClose={closeMenu} />
               </div>
             </div>

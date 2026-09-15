@@ -34,7 +34,7 @@ const CreateProduct = () => {
       toast.error(error);
     }
     if (success) {
-      navigate("/dashboard");
+      navigate("/my-dashboard/business/products");
     }
   }, [dispatch, error, success]);
 

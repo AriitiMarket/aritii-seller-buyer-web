@@ -1,0 +1,68 @@
+import React, { useState } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+import BuyerHeader from '../../../components/layout/BuyerHeader'
+import CustomerAccountSidebar from './CustomerAccountSidebar'
+
+const drawerWidth = 'w-[60%] sm:w-[50%] md:w-[40%] lg:w-[264px]'
+
+/**
+ * Unified dashboard layout — one account, one dashboard.
+ *
+ * All users (buyers and approved sellers) share this layout:
+ *  - Uses a dedicated BuyerHeader (minimal, focused).
+ *  - Sidebar shows buyer features for all users, plus "MY BUSINESS"
+ *    section for approved sellers.
+ *  - Auth is enforced by wrapping this layout in ProtectedRoute.
+ */
+const CustomerAccountLayout = () => {
+  const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const closeMenu = () => setMenuOpen(false)
+
+  return (
+    <div className="flex flex-col min-h-screen bg-[#FDF6EC]">
+      <BuyerHeader onMenuClick={() => setMenuOpen(!menuOpen)} />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Mobile drawer overlay */}
+        {menuOpen ? (
+          <>
+            <div
+              className="fixed inset-0 z-[45] bg-black/40 lg:hidden"
+              onClick={closeMenu}
+              aria-hidden="true"
+            />
+            <div
+              className={`fixed top-[60px] bottom-0 left-0 z-[46] ${drawerWidth} bg-white overflow-y-auto transition-transform lg:hidden`}
+              role="dialog"
+              aria-label="Account menu"
+            >
+              <div className="overflow-y-auto max-h-[calc(100vh-60px)]">
+                <CustomerAccountSidebar activePath={location.pathname} onClose={closeMenu} />
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {/* Desktop persistent sidebar */}
+        <aside className="hidden lg:flex lg:flex-col w-[264px] bg-white shadow-sm rounded-[12px] m-4 sticky top-[88px] max-h-[calc(100vh-104px)] overflow-y-auto flex-shrink-0">
+          <CustomerAccountSidebar activePath={location.pathname} />
+        </aside>
+
+        <main className="flex-1 min-w-0 overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6" data-testid="buyer-account-content">
+          <Outlet />
+        </main>
+      </div>
+
+      {/* Minimal account footer — NOT the large public marketplace footer */}
+      <footer className="py-3 px-4 text-center text-xs sm:text-sm text-brand-muted border-t border-brand bg-white">
+        <span>© Aritii Market.</span>{' '}
+        <a className="hover:underline" href="/">Privacy</a> ·{' '}
+        <a className="hover:underline" href="/faq">Help &amp; Support</a>
+      </footer>
+    </div>
+  )
+}
+
+export default CustomerAccountLayout

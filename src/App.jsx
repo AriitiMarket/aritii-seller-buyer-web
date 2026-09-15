@@ -1,6 +1,51 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
-import {LoginPage,SignUpPage, BestSellingPage, EventsPage, FAQpage, ProductsDetailPage, ShopLoginPage,  CreateShopPage, CheckoutPage, PaymentPage, OrderSuccessPage, UserOrderDetailPage, TrackOrderPage, UserInbox} from './routes/Routes.js'
+// Auth Pages
+import {LoginPage, SignUpPage, CreateShopPage, ShopLoginPage} from './routes/Routes.js'
+
+// Public Marketplace
+import {HomePage, NotFound} from './pages/public/index.js'
+
+// Common Marketplace Pages
+import {
+  BestSellingPage,
+  EventsPage,
+  FAQpage,
+  ProductsDetailPage,
+  ProductsPage,
+  ShopsPage,
+  ProductDetailPage,
+  ShopDetailsPage,
+  ShopDetailPage,
+  AboutPlatform,
+  HowItWorks,
+  ProductsMarketplace,
+  ShopsMarketplace,
+  CategoriesMarketplace,
+  EventsMarketplace,
+} from './pages/common/index.js'
+
+// Buyer Pages
+import {
+  CheckoutPage,
+  PaymentPage,
+  OrderSuccessPage,
+  UserOrderDetailPage,
+  TrackOrderPage,
+  UserInbox,
+  CustomerAccountLayout,
+  CustomerOverviewPage,
+  CustomerProfilePage,
+  CustomerOrdersPage,
+  CustomerAddressesPage,
+  CustomerWishlistPage,
+  CustomerReviewsPage,
+  CustomerSettingsPage,
+  DashboardProductsBrowse,
+  DashboardShopsBrowse,
+} from './pages/buyer/index.js'
+
+// Seller Pages
 import {
   SellerDashboardPage,
   SellerStoreProfilePage,
@@ -19,43 +64,27 @@ import {
   SellerCreateEventPage,
   SellerEventsPage,
   SellerCouponsPage,
-  SellerSettingsPage
-} from './seller/index.js'
-import HomePage from './pages/home/HomePage.jsx'
-import NotFound from './pages/marketplace/NotFound.jsx'
-import ShopsPage from './pages/marketplace/ShopsPage.jsx'
-import ShopDetailsPage from './pages/marketplace/ShopDetailsPage.jsx'
-// NEW IMPORTS - Explore Pages
-import ProductsMarketplace from './pages/marketplace/explore/ProductsMarketplace.jsx'
-import ShopsMarketplace from './pages/marketplace/explore/ShopsMarketplace.jsx'
-import CategoriesMarketplace from './pages/marketplace/explore/CategoriesMarketplace.jsx'
-import EventsMarketplace from './pages/marketplace/explore/EventsMarketplace.jsx'
-// NEW IMPORTS - Detail Pages
-import ProductDetailPage from './pages/marketplace/details/ProductDetailPage.jsx'
-import ShopDetailPage from './pages/marketplace/details/ShopDetailPage.jsx'
-// NEW IMPORTS - Info Pages
-import AboutPlatform from './pages/marketplace/info/AboutPlatform.jsx'
-import HowItWorks from './pages/marketplace/info/HowItWorks.jsx'
+  SellerSettingsPage,
+  ShopHomePage,
+  SellerApplicationPage,
+} from './pages/seller/index.js'
+
+// Business Account Pages (within unified dashboard)
+import {
+  BusinessProductsPage,
+  BusinessOrdersPage,
+  BusinessCreateProductPage,
+  BusinessInventoryPage,
+  BusinessAnalyticsPage,
+} from './pages/customer/account/index.js'
+
 import './App.css'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Store from './store/redux/store.js'
 import { loadUser } from './store/redux/actions/user.js'
-import ProductsPage from './pages/marketplace/ProductsPage.jsx'
 import { useSelector } from 'react-redux'
 import { loadSeller } from './store/redux/actions/user.js'
-import {
-  CustomerAccountLayout,
-  CustomerOverviewPage,
-  CustomerProfilePage,
-  CustomerOrdersPage,
-  CustomerAddressesPage,
-  CustomerWishlistPage,
-  CustomerReviewsPage,
-  CustomerSettingsPage,
-} from './pages/customer/account/index.js'
-import ShopHomePage from './pages/seller/ShopHomePage.jsx'
-import SellerApplicationPage from './pages/seller/SellerApplicationPage.jsx'
 import { getAllProducts } from './store/redux/actions/product.js'
 import { getAllEvents } from './store/redux/actions/event.js'
 import { getAllShops, getAllCategories } from './store/redux/actions/shop.js'
@@ -195,7 +224,7 @@ const App = () => {
 
 
 
-{/* ===== BUYER ACCOUNT (own dashboard, separate from seller) ===== */}
+{/* ===== UNIFIED DASHBOARD — one account, one dashboard ===== */}
         <Route
           path="/my-dashboard"
           element={
@@ -211,6 +240,17 @@ const App = () => {
           <Route path="wishlist" element={<CustomerWishlistPage />} />
           <Route path="reviews" element={<CustomerReviewsPage />} />
           <Route path="settings" element={<CustomerSettingsPage />} />
+
+          {/* Browse marketplace within dashboard layout (with sidebar) */}
+          <Route path="marketplace" element={<DashboardProductsBrowse />} />
+          <Route path="shops" element={<DashboardShopsBrowse />} />
+
+          {/* MY BUSINESS — seller-only features, shown in sidebar after approval */}
+          <Route path="business/products" element={<BusinessProductsPage />} />
+          <Route path="business/products/create" element={<BusinessCreateProductPage />} />
+          <Route path="business/orders" element={<BusinessOrdersPage />} />
+          <Route path="business/inventory" element={<BusinessInventoryPage />} />
+          <Route path="business/analytics" element={<BusinessAnalyticsPage />} />
         </Route>
 
 {/* ===== BUSINESS DASHBOARD (seller-only, after approval) ===== */}

@@ -33,7 +33,7 @@ const OrderDetails = () => {
       )
       .then((res) => {
         toast.success("Order updated!");
-        navigate("/dashboard-orders");
+        navigate("/my-dashboard/business/orders");
       })
       .catch((error) => {
         toast.error(error.response.data.message);

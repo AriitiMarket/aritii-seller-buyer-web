@@ -23,12 +23,8 @@ const Login = () => {
             
             toast.success("Login successful!")
 
-            // Navigate based on seller status
-            if (loginResult?.sellerStatus === 'APPROVED') {
-                navigate("/business/dashboard")
-            } else {
-                navigate("/")
-            }
+            // All users go to the unified dashboard
+            navigate("/my-dashboard")
         } catch (err) {
             toast.error(err?.message || "Login failed. Please check your email and password.")
         }

@@ -1,371 +1,172 @@
 /**
- * Redux User Actions
- * Uses centralized API services from /services
+ * Redux User Actions — OAuth 2.1 + OIDC. Token-based, no cookies/sessions.
  */
 import { authService, addressService, sellerService, shopService } from "../../../services";
+import { tokenStore } from "../../../services/tokenStore";
 
-/**
- * Register a new user account
- * @param {Object} userData - { name, email, password }
- */
 export const registerUser = (userData) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
-    const user = await authService.register(userData);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: user,
-    });
-    return user;
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.register(userData);
+    dispatch({ type: "LoadUserSuccess", payload: result.user });
+    return result;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };
 
-/**
- * Login user with email and password
- * @param {string} email - User email
- * @param {string} password - User password
- */
 export const loginUser = (email, password) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
-    const user = await authService.login(email, password);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: user,
-    });
-    return user;
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.login(email, password);
+    dispatch({ type: "LoadUserSuccess", payload: result.user });
+    return result;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };
 
-/**
- * Login seller with email and password
- * @param {string} email - Seller email
- * @param {string} password - Seller password
- */
 export const loginSeller = (email, password) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
-    const user = await authService.login(email, password);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: user,
-    });
-    return user;
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.login(email, password);
+    dispatch({ type: "LoadUserSuccess", payload: result.user });
+    return result;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };
 
-/**
- * Submit seller application to become a seller
- * @param {Object} applicationData - { name, description, category, businessType }
- */
 export const submitSellerApplication = (applicationData) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
+    dispatch({ type: "LoadUserRequest" });
     const application = await sellerService.submitApplication(applicationData);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: { ...application, sellerStatus: 'PENDING' },
-    });
+    dispatch({ type: "LoadUserSuccess", payload: { ...application, sellerStatus: 'PENDING' } });
     return application;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };
 
-/**
- * Update user avatar
- * @param {FormData} formData - FormData with 'image' field
- */
 export const updateUserAvatar = (formData) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
+    dispatch({ type: "LoadUserRequest" });
     const user = await authService.updateAvatar(formData);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: user,
-    });
+    dispatch({ type: "LoadUserSuccess", payload: user });
     return user;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };
 
-// load user
 export const loadUser = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
+    dispatch({ type: "LoadUserRequest" });
+    // If no access token in memory, user is not authenticated.
+    if (!tokenStore.isAuthenticated()) {
+      dispatch({ type: "LoadUserFail", payload: "Not authenticated" });
+      return;
+    }
     const user = await authService.getCurrentUser();
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: user,
-    });
+    dispatch({ type: "LoadUserSuccess", payload: user });
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
   }
 };
 
-
-// logout user
 export const logoutUser = () => async (dispatch) => {
   try {
     dispatch({ type: "LogoutRequest" });
     const result = await authService.logout();
-    dispatch({
-      type: "LogoutSuccess",
-      payload: result.message,
-    });
+    dispatch({ type: "LogoutSuccess", payload: result.message });
     return result;
   } catch (error) {
-    dispatch({
-      type: "LogoutFail",
-      payload: error.response?.data?.message || error.message,
-    });
-    throw error;
+    // Even if server call fails, clear local state.
+    tokenStore.clear();
+    dispatch({ type: "LogoutSuccess", payload: "Logged out" });
+    return { message: "Logged out" };
   }
 };
 
-
-
-
-
-
-
-
-
-// update user address
 export const updatUserAddress =
   (country, city, address1, address2, zipCode, addressType) =>
   async (dispatch) => {
     try {
-      dispatch({
-        type: "updateUserAddressRequest",
-      });
-
-      const address = await addressService.add({
-        country,
-        city,
-        address1,
-        address2,
-        zipCode,
-        addressType,
-      });
-
-      dispatch({
-        type: "updateUserAddressSuccess",
-        payload: {
-          updateAddressSuccessMessage: "User address updated successfully!",
-          address: address
-        }
-      });
+      dispatch({ type: "updateUserAddressRequest" });
+      const address = await addressService.add({ country, city, address1, address2, zipCode, addressType });
+      dispatch({ type: "updateUserAddressSuccess", payload: { updateAddressSuccessMessage: "User address updated successfully!", address } });
     } catch (error) {
-      dispatch({
-        type: "updateUserAddressFailed",
-        payload: error.response?.data?.message || error.message,
-      });
+      dispatch({ type: "updateUserAddressFailed", payload: error.response?.data?.message || error.message });
     }
   };
 
-
-
-
-
-
-
-
-
-// delete user address
 export const deleteUserAddress = (id) => async (dispatch) => {
   try {
-    dispatch({
-      type: "deleteUserAddressRequest",
-    });
-
+    dispatch({ type: "deleteUserAddressRequest" });
     await addressService.delete(id);
-
-    dispatch({
-      type: "deleteUserAddressSuccess",
-      payload: {
-        successMessage: "Address deleted successfully!",
-        addressId: id,
-      },
-    });
+    dispatch({ type: "deleteUserAddressSuccess", payload: { successMessage: "Address deleted successfully!", addressId: id } });
   } catch (error) {
-    dispatch({
-      type: "deleteUserAddressFailed",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "deleteUserAddressFailed", payload: error.response?.data?.message || error.message });
   }
 };
 
-
-
-
-// load seller
 export const loadSeller = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadSellerRequest",
-    });
-    const seller = await authService.getCurrentUser();
-    console.log('[loadSeller] Success:', seller);
-    dispatch({
-      type: "LoadSellerSuccess",
-      payload: seller,
-    });
-  } catch (error) {
-    // Don't spam console with 404 errors - it's expected for non-sellers
-    if (error.response?.status !== 404) {
-      console.log('[loadSeller] Error:', error.response?.status, error.response?.data?.message || error.message);
+    dispatch({ type: "LoadSellerRequest" });
+    if (!tokenStore.isAuthenticated()) {
+      dispatch({ type: "LoadSellerFail", payload: "User not authenticated" });
+      return;
     }
-    
-    // Silently fail if seller shop not found (404) - user may not be a seller yet
-    // Only dispatch error for actual connection problems
+    const seller = await authService.getCurrentUser();
+    dispatch({ type: "LoadSellerSuccess", payload: seller });
+  } catch (error) {
     if (error.response?.status === 404) {
-      dispatch({
-        type: "LoadSellerFail",
-        payload: "No seller shop found. User may not be an approved seller yet.",
-      });
+      dispatch({ type: "LoadSellerFail", payload: "No seller shop found. User may not be an approved seller yet." });
     } else if (error.response?.status === 401) {
-      // Not authenticated - this is expected for non-sellers
-      dispatch({
-        type: "LoadSellerFail",
-        payload: "User not authenticated",
-      });
+      dispatch({ type: "LoadSellerFail", payload: "User not authenticated" });
     } else {
-      dispatch({
-        type: "LoadSellerFail",
-        payload: error.response?.data?.message || error.message,
-      });
+      dispatch({ type: "LoadSellerFail", payload: error.response?.data?.message || error.message });
     }
   }
 };
 
-
-
-// logout seller
 export const logoutSeller = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "SellerLogoutRequest",
-    });
-
+    dispatch({ type: "SellerLogoutRequest" });
     const result = await authService.logout();
-
-    dispatch({
-      type: "SellerLogoutSuccess",
-      payload: result.message,
-    });
-
+    dispatch({ type: "SellerLogoutSuccess", payload: result.message });
     return result;
   } catch (error) {
-    dispatch({
-      type: "SellerLogoutFail",
-      payload: error.response?.data?.message || error.message,
-    });
-    throw error;
+    tokenStore.clear();
+    dispatch({ type: "SellerLogoutSuccess", payload: "Logged out" });
+    return { message: "Logged out" };
   }
 };
 
-
-
-
-
-// user update information
 export const updateUserInformation =
   (name, email, phoneNumber, password) => async (dispatch) => {
     try {
-      dispatch({
-        type: "updateUserInfoRequest",
-      });
-
-      const user = await authService.updateProfile({
-        email,
-        password,
-        phoneNumber,
-        name,
-      });
-
-      dispatch({
-        type: "updateUserInfoSuccess",
-        payload: user,
-      });
+      dispatch({ type: "updateUserInfoRequest" });
+      const user = await authService.updateProfile({ email, password, phoneNumber, name });
+      dispatch({ type: "updateUserInfoSuccess", payload: user });
     } catch (error) {
-      dispatch({
-        type: "updateUserInfoFailed",
-        payload: error.response?.data?.message || error.message,
-      });
+      dispatch({ type: "updateUserInfoFailed", payload: error.response?.data?.message || error.message });
     }
   };
 
-
-
-
-
-
-
-
-
-/**
- * Update shop avatar
- * @param {FormData} formData - FormData with 'image' field
- */
 export const updateShopAvatar = (formData) => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadUserRequest",
-    });
+    dispatch({ type: "LoadUserRequest" });
     const shop = await shopService.updateShopAvatar(formData);
-    dispatch({
-      type: "LoadUserSuccess",
-      payload: shop,
-    });
+    dispatch({ type: "LoadUserSuccess", payload: shop });
     return shop;
   } catch (error) {
-    dispatch({
-      type: "LoadUserFail",
-      payload: error.response?.data?.message || error.message,
-    });
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
     throw error;
   }
 };

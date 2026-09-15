@@ -1,10 +1,17 @@
 import React from 'react'
-import SellerProductDetailsPage from '../../pages/seller/SellerProductDetailsPage.jsx'
 
 /**
- * Modular product detail page (seller). Composes the existing, backend-backed
- * product detail view (gallery, pricing, stock, shop, edit + marketplace links).
+ * Modular product detail page (seller). Displays product details for sellers.
+ * This is a wrapper that can be extended with seller-specific features.
  */
-const SellerProductDetailPage = () => <SellerProductDetailsPage />
+const SellerProductDetailPage = () => {
+  // TODO: Implement seller product detail view if needed
+  // For now, this page can be used to route to specific product detail views
+  return (
+    <div className="p-4">
+      <p>Seller Product Detail Page</p>
+    </div>
+  )
+}
 
 export default SellerProductDetailPage

@@ -1,74 +1,67 @@
 import api from "./api";
+import { tokenStore } from "./tokenStore";
 
 /**
- * Authentication Service
- * Handles user registration, login, logout, and profile management
- * All requests go through the API Gateway to Identity Service
+ * Authentication Service — OAuth 2.1 + OIDC.
+ * All tokens stored in memory via tokenStore. No cookies.
  */
-
 export const authService = {
-  /**
-   * Register a new user
-   * @param {Object} userData - { name, email, password, phoneNumber, role }
-   * @returns {Promise} - User object and JWT token
-   */
   async register(userData) {
     const { data } = await api.post("/user/create-user", userData);
-    return data;
+    const result = data.data || data;
+    // Store tokens from response.
+    if (result.access_token) {
+      tokenStore.setTokens({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+        id_token: result.id_token,
+      });
+    }
+    if (result.user) tokenStore.setUser(result.user);
+    return result;
   },
 
-  /**
-   * Login user with email and password
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise} - User object and JWT token
-   */
   async login(email, password) {
-    const { data } = await api.post("/user/login-user", {
-      email,
-      password,
-    });
-    return data;
+    const { data } = await api.post("/user/login-user", { email, password });
+    const result = data.data || data;
+    if (result.access_token) {
+      tokenStore.setTokens({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+        id_token: result.id_token,
+      });
+    }
+    if (result.user) tokenStore.setUser(result.user);
+    return result;
   },
 
-  /**
-   * Get current authenticated user's profile
-   * @returns {Promise} - User profile object
-   */
   async getCurrentUser() {
     const { data } = await api.get("/user/getuser");
-    return data.user || null;
+    const user = (data.data || data).user || data.user;
+    if (user) tokenStore.setUser(user);
+    return user || null;
   },
 
-  /**
-   * Logout current user
-   * @returns {Promise}
-   */
   async logout() {
-    const { data } = await api.post("/user/logout");
-    return data;
+    const refreshToken = tokenStore.getRefreshToken();
+    try {
+      const { data } = await api.post("/user/logout", { refresh_token: refreshToken });
+      return data;
+    } finally {
+      tokenStore.clear();
+    }
   },
 
-  /**
-   * Update user profile information
-   * @param {Object} userData - { name, email, phoneNumber, password }
-   * @returns {Promise} - Updated user object
-   */
   async updateProfile(userData) {
     const { data } = await api.put("/user/update-user-info", userData);
-    return data.user || null;
+    return (data.data || data).user || data.user || null;
   },
 
-  /**
-   * Upload or update user avatar
-   * @param {FormData} formData - FormData with 'image' field
-   * @returns {Promise} - Updated user object with new avatar URL
-   */
   async updateAvatar(formData) {
     const { data } = await api.put("/user/update-avatar", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return data.user || null;
+    return (data.data || data).user || data.user || null;
   },
 };
 
