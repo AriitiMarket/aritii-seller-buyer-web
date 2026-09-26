@@ -1,5 +1,0 @@
-export { default as BusinessProductsPage } from './BusinessProductsPage'
-export { default as BusinessOrdersPage } from './BusinessOrdersPage'
-export { default as BusinessCreateProductPage } from './BusinessCreateProductPage'
-export { default as BusinessInventoryPage } from './BusinessInventoryPage'
-export { default as BusinessAnalyticsPage } from './BusinessAnalyticsPage'

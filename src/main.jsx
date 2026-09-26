@@ -1,16 +1,18 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import {Provider} from 'react-redux';
-import Store from './store/redux/store';
-import './index.css';
+import App from '@/App';
+import '@/styles/globals.css';
 
+/**
+ * Application entry point.
+ *
+ * main.jsx  → App.jsx  → routes/AppRoutes.jsx  → <Domain>Routes.jsx
+ * Store/context providers are composed in App.jsx.
+ */
 const container = document.getElementById('root');
-const root = createRoot(container);
-root.render(
+
+createRoot(container).render(
   <React.StrictMode>
-    <Provider store={Store}>
-      <App />
-    </Provider>
+    <App />
   </React.StrictMode>
 );

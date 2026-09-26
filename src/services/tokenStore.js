@@ -1,11 +1,35 @@
-// Token store — in-memory token management. No cookies, no localStorage.
-// Access token: in memory only (never persisted).
-// Refresh token: managed by the client, sent in request body (never in cookies).
+// Access tokens stay in memory. Session storage retains the rotating refresh
+// token across a page reload without sharing it between browser tabs.
+const STORAGE_KEY = 'aritii.auth';
 let _accessToken = null;
 let _refreshToken = null;
 let _idToken = null;
 let _user = null;
 let _refreshPromise = null;
+
+function readStoredTokens() {
+  try {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistRefreshToken() {
+  try {
+    if (_refreshToken) {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ refresh_token: _refreshToken }));
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  } catch {
+    // Storage may be unavailable in privacy-restricted browsers.
+  }
+}
+
+const storedTokens = typeof window !== 'undefined' ? readStoredTokens() : {};
+_refreshToken = storedTokens.refresh_token || null;
 
 export const tokenStore = {
   getAccessToken() { return _accessToken; },
@@ -17,6 +41,7 @@ export const tokenStore = {
     if (access_token) _accessToken = access_token;
     if (refresh_token) _refreshToken = refresh_token;
     if (id_token) _idToken = id_token;
+    persistRefreshToken();
   },
 
   setUser(user) { _user = user; },
@@ -26,6 +51,7 @@ export const tokenStore = {
     _refreshToken = null;
     _idToken = null;
     _user = null;
+    persistRefreshToken();
   },
 
   isAuthenticated() { return !!_accessToken; },
@@ -42,10 +68,17 @@ export async function refreshAccessToken() {
   _refreshPromise = (async () => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      // OAuth 2.1 refresh: rotated at the token endpoint with the
+      // refresh_token grant. Returns a NEW refresh token (rotation) — the
+      // previous one is invalidated server-side.
+      const response = await fetch(`${API_BASE_URL}/auth/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: _refreshToken }),
+        body: JSON.stringify({
+          grant_type: 'refresh_token',
+          refresh_token: _refreshToken,
+          client_id: 'aritii-eshop',
+        }),
       });
 
       if (!response.ok) {

@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: #d3d3d3;
+  border-radius: 7px;
+}
+
+@layer components {
+  /* Typography classes */
+  .heading-1 {
+    @apply text-[30px] leading-[40px] font-bold;
+  }
+  .heading-2 {
+    @apply text-[22px] leading-[40px] font-bold;
+  }
+  .heading-3 {
+    @apply text-[20px] leading-[36px] font-bold;
+  }
+  .heading-4 {
+    @apply text-[18px] leading-[32px] font-bold;
+  }
+  .heading-5 {
+    @apply text-[16px] leading-[28px] font-bold;
+  }
+  .heading-6 {
+    @apply text-[14px] leading-[24px] font-bold;
+  }
+  .heading-7 {
+    @apply text-[12px] leading-[20px] font-bold;
+  }
+  .card-h1 {
+    @apply text-[15px] leading-[20px] font-bold tracking-[0.03em];
+  }
+  .card-h2 {
+    @apply text-[13px] leading-[20px] font-normal tracking-[0.03em];
+  }
+  .card-h3 {
+    @apply text-[11px] leading-[20px] font-normal tracking-[0.03em];
+  }
+
+  /* Layout classes */
+  .screen-container {
+    @apply flex flex-col h-[90dvh] overflow-y-auto;
+  }
+  .layout-top-container {
+    @apply sticky z-[997] top-0 left-0 w-full border-b-[0.2px] border-black/10;
+  }
+  .layout-main-container {
+    @apply flex;
+  }
+  .layout-main {
+    @apply w-full relative;
+  }
+  .padding-container {
+    @apply w-full px-4 md:px-6 lg:px-12 xl:px-20 2xl:px-[80px];
+  }
+}
+
+.dark body, .dark #root {
+  background-color: #111827;
+  color: #fff;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}

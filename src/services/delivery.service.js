@@ -1,0 +1,149 @@
+import api from '@/services/api';
+
+/**
+ * Delivery Service — the Delivery domain's data access.
+ *
+ * Delivery is INDEPENDENT of Buyer and Business (see docs/DELIVERY.md). It must
+ * support more than one provider:
+ *   - ARITII    → Aritii's own riders
+ *   - EXTERNAL  → an external delivery provider
+ *
+ * Every path below is a REAL route of the Delivery Service, mounted under
+ * `/delivery/...` (services/delivery-service/src/app/routes/app.js) and reached
+ * through the gateway's `/delivery` prefix:
+ *
+ *   /delivery/request    requests (what a seller/buyer asks to be shipped)
+ *   /delivery/delivery   shipments + their status
+ *   /delivery/assignment courier assignments (+ accept/reject)
+ *   /delivery/tracking   location history per shipment
+ *   /delivery/partner    courier partners (availability)
+ *
+ * The previous version of this file called invented paths
+ * (`/delivery/get-assignments`, `/delivery/get-orders`, `/delivery/dashboard`)
+ * that no service implements. Reads now report `supported: false` only when the
+ * domain genuinely answers 404/501, and nothing here fabricates delivery data.
+ */
+const NOT_AVAILABLE = (error) =>
+  error?.response?.status === 404 || error?.response?.status === 501;
+
+export const deliveryService = {
+  /** Delivery assignments (paged). Filters: status, partnerId, page, limit. */
+  async getAssignments(params = {}) {
+    try {
+      const { data } = await api.get('/delivery/assignment', { params });
+      const assignments = data?.assignments || [];
+      return { assignments, count: data?.count ?? assignments.length, supported: true };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { assignments: [], count: 0, supported: false };
+      throw error;
+    }
+  },
+
+  /** One assignment. */
+  async getAssignment(assignmentId) {
+    const { data } = await api.get(`/delivery/assignment/${assignmentId}`);
+    return data?.assignment || null;
+  },
+
+  /**
+   * Accept or reject an assignment. The backend contract is `accepted: boolean`
+   * (the old `{ provider }` body was ignored, so the courier's answer never
+   * reached the assignment).
+   */
+  async respondToAssignment(assignmentId, accepted, reason = '') {
+    const { data } = await api.post(`/delivery/assignment/${assignmentId}/respond`, {
+      accepted: Boolean(accepted),
+      reason,
+    });
+    return data?.assignment || null;
+  },
+
+  /** Shipments — the delivery queue. Filters: status, sellerId, buyerId, partnerId. */
+  async getDeliveries(params = {}) {
+    try {
+      const { data } = await api.get('/delivery/delivery', { params });
+      const deliveries = data?.deliveries || [];
+      return {
+        deliveries,
+        count: data?.count ?? deliveries.length,
+        total: data?.total ?? deliveries.length,
+        totalPages: data?.totalPages ?? 1,
+        supported: true,
+      };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { deliveries: [], count: 0, total: 0, totalPages: 0, supported: false };
+      throw error;
+    }
+  },
+
+  /** One shipment by its delivery id. */
+  async getDelivery(deliveryId) {
+    const { data } = await api.get(`/delivery/delivery/${deliveryId}`);
+    return data?.delivery || null;
+  },
+
+  /**
+   * The shipment for ONE marketplace order. Server-side this is the delivery
+   * service's own record keyed by `orderId` — Commerce exposes the same link on
+   * the ORDER ↔ DELIVERY bridge (see services/order.service.js
+   * `getOrderDelivery`), which is what order screens should prefer.
+   */
+  async getDeliveryByOrder(orderId) {
+    try {
+      const { data } = await api.get(`/delivery/delivery/order/${orderId}`);
+      return { delivery: data?.delivery || null, supported: true };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { delivery: null, supported: false };
+      throw error;
+    }
+  },
+
+  /** Delivery requests. Filters: sellerId, buyerId, page, limit. */
+  async getRequests(params = {}) {
+    try {
+      const { data } = await api.get('/delivery/request', { params });
+      const requests = data?.requests || [];
+      return { requests, count: data?.count ?? requests.length, supported: true };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { requests: [], count: 0, supported: false };
+      throw error;
+    }
+  },
+
+  /** One delivery request. */
+  async getRequest(requestId) {
+    const { data } = await api.get(`/delivery/request/${requestId}`);
+    return data?.request || null;
+  },
+
+  /** Ask the Delivery Service whether an address is serviceable. */
+  async validateAddress(payload) {
+    const { data } = await api.post('/delivery/request/validate-address', payload);
+    return data;
+  },
+
+  /** Location history for a shipment (tracking points). */
+  async getTracking(deliveryId) {
+    try {
+      const { data } = await api.get(`/delivery/tracking/${deliveryId}`);
+      return { events: data?.events || data?.tracking || [], supported: true };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { events: [], supported: false };
+      throw error;
+    }
+  },
+
+  /** The most recent known position of a shipment. */
+  async getLatestLocation(deliveryId) {
+    const { data } = await api.get(`/delivery/tracking/${deliveryId}/latest`);
+    return data?.location || data?.tracking || null;
+  },
+
+  /** A courier (partner) toggles their own availability. */
+  async setOnline(partnerId, online) {
+    const { data } = await api.put(`/delivery/partner/${partnerId}/online`, { online: Boolean(online) });
+    return data?.partner || data;
+  },
+};
+
+export default deliveryService;

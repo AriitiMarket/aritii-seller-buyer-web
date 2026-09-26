@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { resolveImageUrl, getFirstImage, getAvatarImage } from "../../utils/image";
-import { PlaceholderProduct, PlaceholderShop, PlaceholderAvatar } from "../../assets";
+import { resolveImageUrl, getFirstImage, getAvatarImage } from "@/shared/utils/image";
+import { PlaceholderProduct, PlaceholderShop, PlaceholderAvatar } from "@/assets";
 
 // Absolute last-resort 1x1 transparent pixel (data URI) so an <img> with no
 // usable image NEVER emits `src=""` (which triggers a React network warning).
@@ -65,10 +65,14 @@ const ShopImage = ({ data, fallback = PlaceholderShop, ...rest }) => {
   return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
 };
 
-/** Person/seller/customer avatar. */
-const Avatar = ({ data, url, fallback = PlaceholderAvatar, ...rest }) => {
-  const src = (url && resolveImageUrl(url)) || getAvatarImage(data) || fallback;
-  return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
+/** Person/seller/customer avatar. Accepts external URLs or storage keys. */
+const Avatar = ({ data, url, src, fallback = PlaceholderAvatar, ...rest }) => {
+  const resolved =
+    (src && resolveImageUrl(src)) ||
+    (url && resolveImageUrl(url)) ||
+    getAvatarImage(data) ||
+    fallback;
+  return <ImageWithFallback src={resolved} fallback={fallback} {...rest} />;
 };
 
 /** Category image with per-category fallback. */

@@ -11,8 +11,7 @@ const Ratings = ({ rating }) => {
         <AiFillStar
           key={i}
           size={20}
-          color="#f6b100"
-          className="mr-2 cursor-pointer"
+          className="text-yellow-400 mr-0.5 cursor-pointer"
         />
       );
     } else if (i === Math.ceil(rating) && !Number.isInteger(rating)) {
@@ -20,8 +19,7 @@ const Ratings = ({ rating }) => {
         <BsStarHalf
           key={i}
           size={17}
-          color="#f6ba00"
-          className="mr-2 cursor-pointer"
+          className="text-yellow-400 mr-0.5 cursor-pointer"
         />
       );
     } else {
@@ -29,13 +27,12 @@ const Ratings = ({ rating }) => {
         <AiOutlineStar
           key={i}
           size={20}
-          color="#f6ba00"
-          className="mr-2 cursor-pointer"
+          className="text-yellow-400 mr-0.5 cursor-pointer"
         />
       );
     }
   }
-  return <div className="flex"> {stars}</div>;
+  return <div className="flex">{stars}</div>;
 };
 
 export default Ratings;

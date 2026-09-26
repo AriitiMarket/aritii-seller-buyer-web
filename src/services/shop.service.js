@@ -1,5 +1,5 @@
-import api from "./api";
-import cache from "./cache";
+import api, { publicApi } from "@/services/api";
+import cache from "@/services/cache";
 
 /**
  * Shop Service
@@ -9,7 +9,40 @@ import cache from "./cache";
 
 export const shopService = {
   /**
-   * Get all shops for marketplace browsing
+   * Get all shops — public endpoint (limited fields, no auth required)
+   * @returns {Promise} - Array of shop objects with limited fields
+   */
+  async getPublicAll() {
+    const cacheKey = "shops:public:all";
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    const { data } = await publicApi.get("/shop/public/all?limit=100", { skipAuth: true });
+    const shops = data.shops || [];
+    cache.set(cacheKey, shops, 15 * 60 * 1000);
+    return shops;
+  },
+
+  /**
+   * Get a single shop — public endpoint (limited fields, no auth required)
+   * @param {string} shopId - Shop ID
+   * @returns {Promise} - Shop object with limited fields
+   */
+  async getPublicById(shopId) {
+    const cacheKey = `shop:public:${shopId}`;
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    const { data } = await publicApi.get(`/shop/public/${shopId}`, { skipAuth: true });
+    const shop = data.shop || null;
+    cache.set(cacheKey, shop, 20 * 60 * 1000);
+    return shop;
+  },
+
+  /**
+   * Get all shops for marketplace browsing (authenticated — full fields)
    * @returns {Promise} - Array of shop objects
    */
   async getAll() {
@@ -45,20 +78,65 @@ export const shopService = {
   },
 
   /**
-   * Get current authenticated seller's shop
-   * @returns {Promise} - Shop object for the seller
+   * Get current authenticated seller's shop.
+   * The backend answers 200 with `seller: null` for an authenticated account
+   * that owns no shop (buyer, or a seller who has not created one yet), so a
+   * missing shop is a normal empty state — never an error.
+   * @returns {Promise<Object|null>} Shop object for the seller, or null
    */
-  async getByOwner() {
-    const { data } = await api.get("/shop/getseller");
-    return data.seller || null;
+  /**
+   * Open ANOTHER shop under the same business account (multi-shop sellers).
+   *
+   * Ownership always comes from the verified token. The backend enforces the
+   * seller-type rules: an INDIVIDUAL seller is limited to one shop, and every
+   * ADDITIONAL shop must name a shop category (type 'business') so the stores
+   * are browsable separately.
+   *
+   * @param {FormData} formData - name, email, address, phoneNumber, category,
+   *   description and the avatar under the `file` key (required by the API)
+   * @returns {Promise<Object|null>} the created shop (status PENDING_APPROVAL)
+   */
+  async createShop(formData) {
+    const { data } = await api.post('/shop/create-shop', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data?.shop || null;
   },
 
   /**
-   * Update shop avatar/logo
-   * @param {FormData} formData - FormData with 'image' field
-   * @returns {Promise} - Updated shop object
+   * Get EVERY shop of the authenticated business.
+   *
+   * Returns an ARRAY — a business may own several shops. The response also
+   * carries `seller` (the primary shop) for older single-shop callers.
+   * @returns {Promise<Array>} shops owned by the caller (possibly empty)
    */
-  async updateShopAvatar(formData) {
+  async getByOwner() {
+    const { data } = await api.get("/shop/getseller");
+    if (Array.isArray(data.shops)) return data.shops;
+    return data.seller ? [data.seller] : [];
+  },
+
+  /**
+   * Owner: update one of the business's shops.
+   *
+   * `shopId` names the target. It is required when the business owns more than
+   * one shop — the backend rejects an ambiguous write instead of guessing
+   * (which is how a request could previously land on the wrong shop).
+   * @param {string} shopId - shop to update
+   * @param {Object} shopData - editable profile fields
+   */
+  async updateShopInfo(shopId, shopData) {
+    const { data } = await api.put('/shop/update-shop-info', { ...shopData, shopId });
+    return data?.shop || data;
+  },
+
+  /**
+   * Owner: replace one shop's logo.
+   * @param {string} shopId - shop to update
+   * @param {FormData} formData - FormData with the `image` file
+   */
+  async updateShopAvatar(shopId, formData) {
+    if (shopId) formData.append('shopId', shopId);
     const { data } = await api.put("/shop/update-shop-avatar", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });

@@ -1,0 +1,8 @@
+:root {
+  --primary-color:#75d04b; --primary-light:#f3ffee; --primary-dark:#5ac12f;
+  --primary-hover:#68c73e; --primary-pressed:#56b02f;
+  --primary-focus:rgba(117,208,75,0.32); --primary-disabled:#b9e8a3;
+  --secondary-color:#75d04b;
+  --foreground-rgb:0,0,0; --background-start-rgb:255,255,255; --background-end-rgb:255,255,255;
+}
+.dark { --foreground-rgb:255,255,255; --background-start-rgb:17,24,39; --background-end-rgb:17,24,39; }

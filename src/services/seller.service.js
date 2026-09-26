@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/services/api";
 
 /**
  * Seller Service
@@ -20,12 +20,15 @@ export const sellerService = {
   },
 
   /**
-   * Get seller application status (admin only)
-   * @returns {Promise} - Array of applications
+   * Get seller application status for the signed-in applicant.
+   *
+   * GET /seller-application is the ADMIN reviewer list (authorize('ADMIN'));
+   * the applicant-facing route is GET /seller-application/me.
+   * @returns {Promise} - The caller's own application, or null
    */
-  async getApplications() {
-    const { data } = await api.get("/seller-application");
-    return data.applications || [];
+  async getMyApplication() {
+    const { data } = await api.get("/seller-application/me");
+    return data.application || null;
   },
 
   /**
@@ -40,25 +43,9 @@ export const sellerService = {
     return data.seller || null;
   },
 
-  /**
-   * Get seller's shop info
-   * @param {string} shopId - Shop ID
-   * @returns {Promise} - Shop object with details
-   */
-  async getShopInfo(shopId) {
-    const { data } = await api.get(`/shop/get-shop-info/${shopId}`);
-    return data.shop || null;
-  },
-
-  /**
-   * Update seller's shop information
-   * @param {Object} shopData - { name, description, phone, email }
-   * @returns {Promise} - Updated shop object
-   */
-  async updateShopInfo(shopData) {
-    const { data } = await api.put("/shop/update-shop-info", shopData);
-    return data.shop || null;
-  },
+  // Shop read/write lives in `shop.service` only (getById / updateShopInfo /
+  // updateShopAvatar / getByOwner) — duplicate endpoints here drifted from the
+  // multi-shop contract (missing required `shopId`).
 
   /**
    * Create a new event for seller's shop

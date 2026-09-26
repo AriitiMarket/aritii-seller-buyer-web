@@ -1,17 +1,21 @@
-import api from "./api";
+import api from "@/services/api";
 
 /**
  * Catalog Service
- * Handles category, event, and coupon management for marketplace
+ * Handles category and event management for marketplace
+ * Coupons removed from MVP - separate module
  */
 
 export const catalogService = {
   /**
-   * Get all product categories
+   * Get active categories for ONE type. Screens must always name a type —
+   * the type-less endpoint mixed product and business categories together,
+   * which is how business chips ended up on the products strip.
+   * @param {string} type - 'product' | 'business' | 'shop' | 'event'
    * @returns {Promise} - Array of category objects
    */
-  async getCategories() {
-    const { data } = await api.get("/category/get-all-categories");
+  async getCategoriesByType(type) {
+    const { data } = await api.get(`/category/active/${type}`);
     return data.categories || [];
   },
 
@@ -22,48 +26,6 @@ export const catalogService = {
   async getEvents() {
     const { data } = await api.get("/event/get-all-events");
     return data.events || [];
-  },
-
-  /**
-   * Get coupon discount value
-   * @param {string} couponCode - Coupon code to validate
-   * @returns {Promise} - Coupon object with discount value or null if invalid
-   */
-  async getCoupon(couponCode) {
-    const { data } = await api.get(
-      `/coupon/get-coupon-value/${couponCode}`
-    );
-    return data.couponCode || null;
-  },
-
-  /**
-   * Get all coupons for a seller
-   * @param {string} sellerId - Seller ID
-   * @returns {Promise} - Array of coupon objects
-   */
-  async getSellerCoupons(sellerId) {
-    const { data } = await api.get(`/coupon/get-coupon/${sellerId}`);
-    return data.couponCodes || [];
-  },
-
-  /**
-   * Create a new coupon for seller
-   * @param {Object} couponData - Coupon details
-   * @returns {Promise} - Created coupon object
-   */
-  async createCoupon(couponData) {
-    const { data } = await api.post("/coupon/create-coupon", couponData);
-    return data.couponCode || null;
-  },
-
-  /**
-   * Delete a coupon
-   * @param {string} couponId - Coupon ID to delete
-   * @returns {Promise} - Success message
-   */
-  async deleteCoupon(couponId) {
-    const { data } = await api.delete(`/coupon/delete-coupon/${couponId}`);
-    return data.message || "Coupon deleted";
   },
 };
 

@@ -1,8 +1,0 @@
-<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="400" height="400" fill="#FDF6EC"/>
-  <circle cx="200" cy="200" r="120" fill="#E5E7EB"/>
-  <path d="M200 120C200 160 180 180 150 190C120 200 130 230 160 240C150 250 150 270 170 280C170 300 200 300 200 290C200 300 230 300 230 280C250 270 250 250 240 240C270 230 280 200 250 190C220 180 200 160 200 120Z" fill="#0B6E4F"/>
-  <circle cx="160" cy="185" r="10" fill="#F5A623"/>
-  <circle cx="240" cy="185" r="10" fill="#F5A623"/>
-  <text x="200" y="350" font-family="Poppins, Arial, sans-serif" font-size="18" font-weight="600" fill="#6B7280" text-anchor="middle">Aritii Market Category</text>
-</svg>

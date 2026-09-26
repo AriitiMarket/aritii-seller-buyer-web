@@ -1,34 +1,47 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,js,jsx}"],
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
-    fontFamily: {
-      Roboto: ["Roboto", "sans-serif"],
-      Poppins: ["Poppins", "sans-serif"],
-    },
     extend: {
       colors: {
         brand: {
-          primary: "#0B6E4F",
-          "green-dark": "#0B5A3F",
-          "green": "#16A34A",
-          accent: "#F5A623",
-          gold: "#D4AF37",
-          secondary: "#C0392B",
-          cream: "#FDF6EC",
-          charcoal: "#1F2937",
-          muted: "#6B7280",
-          border: "#E5E7EB",
-        },
+          primary: '#75d04b',
+          'primary-light': '#f3ffee',
+          'primary-dark': '#5ac12f',
+          'primary-hover': '#68c73e',
+          'primary-pressed': '#56b02f',
+          'primary-disabled': '#b9e8a3',
+          'secondary-border': '#111827',
+          dark: '#141414'
+        }
       },
-      screens: {
-        "1000px": "1050px",
-        "1100px": "1110px",
-        "800px": "800px",
-        "1300px": "1300px",
-        "400px": "400px",
+      fontFamily: {
+        inter: ['Inter', 'sans-serif']
       },
-    },
+      width: {
+        'custom-button': '110px',
+        'app-bar-search': '408px'
+      },
+      height: {
+        'custom-button': '45px'
+      },
+      fontSize: {
+        'heading-1': '20px',
+        'heading-2': '36px',
+        'card-h1': '16px'
+      },
+      scale: {
+        '102': '1.02'
+      },
+      container: {
+        center: true,
+        padding: '2rem',
+        screens: { '2xl': '1400px' }
+      }
+    }
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')
+  ],
 }
