@@ -1,3 +1,4 @@
+import { DeliveryAvailability } from "../../shared/components/DeliveryAvailability";
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useCallback } from 'react';
@@ -240,6 +241,8 @@ const ProductDetail = ({ data, basePath = '' }) => {
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                   {data.description}
                 </p>
+
+                <DeliveryAvailability shopId={data?.shopId} productId={data?._id} />
 
                 {isAuthenticated ? (
                   <>

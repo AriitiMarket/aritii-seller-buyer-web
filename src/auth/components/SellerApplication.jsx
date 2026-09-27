@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import PublicHeader from '@/public/components/PublicHeader'
-import PublicFooter from '@/shared/components/Footer'
-import Loader from '@/components/common/Loading'
+import PublicLayout from '@/public/layout/PublicLayout'
 import { submitSellerApplication, loadSeller } from '@/store/slices/userThunks'
 import { catalogService } from '@/services'
 
@@ -18,11 +16,14 @@ import { catalogService } from '@/services'
  * - Rejected → Not Approved + Apply Again
  * - Approved → redirect to dashboard
  */
+const StatusCard = ({ children }) => (
+  <div className="max-w-xl mx-auto px-4 py-16 text-center">{children}</div>
+)
+
 const SellerApplicationPage = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { isAuthenticated, user, loading } = useSelector((s) => s.user)
-  const { isSeller, seller, isLoading: sellerLoading } = useSelector((s) => s.seller)
+  const { isAuthenticated, user } = useSelector((s) => s.user)
+  const { isSeller, seller } = useSelector((s) => s.seller)
 
   const [showForm, setShowForm] = useState(false)
   const [sellerType, setSellerType] = useState('INDIVIDUAL')
@@ -37,8 +38,12 @@ const SellerApplicationPage = () => {
   const [formError, setFormError] = useState('')
   const [businessCategories, setBusinessCategories] = useState([])
 
-  const application = seller?.application
-  const status = application?.status
+  // The seller slice only ever holds an *approved* seller, so a pending/rejected
+  // applicant must read their application from the identity record that
+  // `submitSellerApplication` stores on the user - otherwise the page falls back
+  // to the "not applied" intro the moment they submit (looks unresponsive).
+  const application = seller?.application || user?.application
+  const status = application?.status || user?.sellerStatus
 
   useEffect(() => {
     if (isAuthenticated && (user?.role === 'SELLER' || user?.shopId)) {
@@ -52,48 +57,49 @@ const SellerApplicationPage = () => {
       .catch(() => setBusinessCategories([]))
   }, [])
 
-  // Approved sellers → redirect to dashboard
-  if (isSeller && seller) {
+  // Approved sellers → dashboard. The status check keeps an approved applicant on
+  // this screen even if the shop lookup has not resolved yet (the seller slice is
+  // populated by an API call that can be slow), so they never see the "apply"
+  // intro again.
+  const isApprovedSeller = (isSeller && seller)
+    || status === 'APPROVED'
+    || status === 'APPROVED_SELLER'
+  if (isApprovedSeller) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-        <PublicHeader />
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
+      <PublicLayout>
+        <StatusCard>
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">✓</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">You're an Approved Seller</h1>
           <p className="mt-3 text-gray-500 dark:text-gray-400">Your business features are now available in your dashboard.</p>
           <Link to="/business" className="mt-8 inline-flex px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white font-[600]">Open Seller Dashboard</Link>
-        </div>
-        <PublicFooter />
-      </div>
+        </StatusCard>
+      </PublicLayout>
     )
   }
 
   // Not logged in
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-        <PublicHeader />
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
+      <PublicLayout>
+        <StatusCard>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sell on Aritii</h1>
           <p className="mt-3 text-gray-500 dark:text-gray-400">Sign in to start your seller application.</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/login" state={{ from: '/become-a-seller' }} className="px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white text-white font-[600]">Sign in</Link>
             <Link to="/sign-up" state={{ from: '/become-a-seller' }} className="px-6 py-3 rounded-md border border-[#75d04b] font-semibold text-[#75d04b] hover:text-[#5ac12f] font-[600]">Create Account</Link>
           </div>
-        </div>
-        <PublicFooter />
-      </div>
+        </StatusCard>
+      </PublicLayout>
     )
   }
 
   // Pending review
   if (status === 'PENDING_REVIEW') {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-        <PublicHeader />
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
+      <PublicLayout>
+        <StatusCard>
           <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">⏳</span>
           </div>
@@ -113,18 +119,16 @@ const SellerApplicationPage = () => {
               </div>
             </div>
           )}
-        </div>
-        <PublicFooter />
-      </div>
+        </StatusCard>
+      </PublicLayout>
     )
   }
 
   // Rejected
   if (status === 'REJECTED') {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-        <PublicHeader />
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
+      <PublicLayout>
+        <StatusCard>
           <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">✕</span>
           </div>
@@ -135,18 +139,16 @@ const SellerApplicationPage = () => {
             <button onClick={() => setShowForm(true)} className="px-6 py-3 rounded-md border border-[#75d04b] font-semibold text-[#75d04b] hover:text-[#5ac12f] font-[600]">View Details</button>
             <button onClick={() => setShowForm(true)} className="px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white text-white font-[600]">Apply Again</button>
           </div>
-        </div>
-        <PublicFooter />
-      </div>
+        </StatusCard>
+      </PublicLayout>
     )
   }
 
   // Not applied or drafting — show intro or form
   if (!showForm) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-        <PublicHeader />
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
+      <PublicLayout>
+        <StatusCard>
           <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">🏪</span>
           </div>
@@ -156,9 +158,8 @@ const SellerApplicationPage = () => {
             <button onClick={() => setShowForm(true)} className="px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white text-white font-[600]">Start Now</button>
             <Link to="/my-dashboard" className="px-6 py-3 rounded-md border border-gray-300 text-gray-700 font-[600]">Maybe Later</Link>
           </div>
-        </div>
-        <PublicFooter />
-      </div>
+        </StatusCard>
+      </PublicLayout>
     )
   }
 
@@ -180,6 +181,7 @@ const SellerApplicationPage = () => {
       const app = await dispatch(submitSellerApplication(body))
       toast.success(asSubmit ? 'Application submitted for review!' : 'Draft saved')
       if (asSubmit) setShowForm(false)
+      return app
     } catch (err) {
       const message = err?.response?.data?.errors?.join(', ') || err?.response?.data?.message || err?.message || 'Failed to save'
       setFormError(message)
@@ -190,8 +192,7 @@ const SellerApplicationPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-      <PublicHeader />
+    <PublicLayout>
       <div className="max-w-2xl mx-auto px-4 py-10">
         <button onClick={() => setShowForm(false)} className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f] hover:underline mb-4">← Back</button>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Become a Seller on Aritii</h1>
@@ -227,6 +228,12 @@ const SellerApplicationPage = () => {
             <input placeholder="Public phone" value={publicPhone} onChange={(e) => setPublicPhone(e.target.value)} className="border border-gray-200 dark:border-gray-700 rounded-md p-3" />
           </div>
 
+          {formError && (
+            <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {formError}
+            </p>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button onClick={() => submit(false)} disabled={submitting} className="px-6 py-3 rounded-md border border-[#75d04b] font-semibold text-[#75d04b] hover:text-[#5ac12f] font-[600] disabled:opacity-50">Save Draft</button>
             <button onClick={() => submit(true)} disabled={submitting} className="px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white text-white font-[600] disabled:opacity-50">{submitting ? 'Submitting...' : 'Submit for Review'}</button>
@@ -234,8 +241,7 @@ const SellerApplicationPage = () => {
           <p className="text-xs text-gray-500 dark:text-gray-400 pt-2">An administrator approves your shop before you can publish products.</p>
         </div>
       </div>
-      <PublicFooter />
-    </div>
+    </PublicLayout>
   )
 }
 

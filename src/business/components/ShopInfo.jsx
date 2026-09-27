@@ -1,3 +1,4 @@
+import { DeliveryAvailability } from '@/shared/components/DeliveryAvailability';
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Avatar } from '@/components/common/ImageWithFallback'
@@ -128,6 +129,9 @@ const ShopInfo = ({ isOwner, shopId }) => {
           </div>
         ) : null}
 
+        <div className="px-3 py-1">
+          <DeliveryAvailability shopId={shop._id} />
+        </div>
         <div className="p-3">
           <h5 className="font-[600]">Total Products</h5>
           <h4 className="text-[#000000a6]"> {shop.productCount ?? products?.length ?? 0} </h4>
