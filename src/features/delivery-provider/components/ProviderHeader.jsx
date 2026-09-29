@@ -72,7 +72,7 @@ const ProviderHeader = ({ onMenuClick }) => {
   const breadcrumb = getBreadcrumb();
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
+    <header className="sticky top-0 z-40 bg-[#20305C] border-b border-white/15 shadow-sm flex-shrink-0 text-white">
       <div className="h-16 px-3 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Side */}
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
@@ -81,40 +81,40 @@ const ProviderHeader = ({ onMenuClick }) => {
             type="button"
             onClick={onMenuClick}
             aria-label="Open provider menu"
-            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-white/90 hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
           >
             <BiMenuAltRight size={24} />
           </button>
 
           {/* Logo */}
           <Link to="/provider" className="flex items-center gap-2 shrink-0">
-            <BrandLogo className="h-8 w-auto" linked={false} />
+            <BrandLogo size="sm" showText={false} showTagline={false} linked={false} tone="light" />
             <span className="hidden sm:inline-flex text-sm font-semibold text-[#75d04b]">
-              Provider Portal
+              Delivery Provider
             </span>
           </Link>
 
           {/* Breadcrumb */}
           <nav className="hidden md:flex items-center gap-2 text-sm min-w-0">
-            <Link to="/provider" className="text-gray-500 hover:text-gray-900">
+            <Link to="/provider" className="text-white/65 hover:text-white">
               Home
             </Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-900 font-medium truncate">{breadcrumb.title}</span>
+            <span className="text-white/40">/</span>
+            <span className="text-white font-medium truncate">{breadcrumb.title}</span>
           </nav>
         </div>
 
         {/* Right Side */}
         <div className="flex items-center gap-2 lg:gap-4">
           {/* Search */}
-          <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center border border-gray-200 rounded-lg px-3 bg-gray-50 h-9 focus-within:ring-2 focus-within:ring-[#75d04b] focus-within:border-transparent">
-            <AiOutlineSearch className="text-gray-400" size={18} />
+          <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center border border-white/20 rounded-lg px-3 bg-white/10 h-9 focus-within:ring-2 focus-within:ring-[#75d04b] focus-within:border-transparent">
+            <AiOutlineSearch className="text-white/60" size={18} />
             <input
               type="text"
               placeholder="Search deliveries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent text-sm focus:outline-none px-2 w-40 xl:w-48"
+              className="bg-transparent text-sm text-white placeholder:text-white/45 focus:outline-none px-2 w-40 xl:w-48"
               aria-label="Search deliveries"
             />
           </form>
@@ -125,8 +125,8 @@ const ProviderHeader = ({ onMenuClick }) => {
             aria-label={isAvailable ? "Set unavailable" : "Set available"}
             className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border transition ${
               isAvailable 
-                ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100' 
-                : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100'
+                ? 'border-[#75d04b]/50 bg-[#75d04b]/15 text-[#a3ed83] hover:bg-[#75d04b]/25' 
+                : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
             }`}
             title={isAvailable ? "You're available for deliveries" : "You're currently unavailable"}
           >
@@ -138,7 +138,7 @@ const ProviderHeader = ({ onMenuClick }) => {
           <Link
             to="/provider/warnings"
             aria-label="Notifications"
-            className="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition text-gray-600"
+            className="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
           >
             <MdNotifications size={22} />
           </Link>
@@ -146,20 +146,20 @@ const ProviderHeader = ({ onMenuClick }) => {
           {/* Help */}
           <button
             aria-label="Help"
-            className="hidden lg:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition text-gray-600"
+            className="hidden lg:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
           >
             <MdHelpOutline size={22} />
           </button>
 
           {/* Provider identity */}
           <div
-            className="hidden sm:flex flex-col items-end justify-center px-3 py-1.5 border-l border-gray-200 ml-1"
+            className="hidden sm:flex flex-col items-end justify-center px-3 py-1.5 border-l border-white/20 ml-1"
             aria-label="Provider identity"
           >
-            <p className="text-sm font-semibold text-gray-900 truncate max-w-[160px] lg:max-w-[220px]">
+            <p className="text-sm font-semibold text-white truncate max-w-[160px] lg:max-w-[220px]">
               {providerName}
             </p>
-            <span className="flex items-center gap-1 text-xs text-gray-500">
+            <span className="flex items-center gap-1 text-xs text-white/65">
               <FiCheckCircle className="text-[#75d04b]" size={12} />
               Verified Provider
             </span>
@@ -167,23 +167,23 @@ const ProviderHeader = ({ onMenuClick }) => {
 
           {/* Mobile-only compact branding */}
           <div className="sm:hidden flex flex-col items-end">
-            <p className="text-xs font-semibold text-gray-900 truncate max-w-[80px]">
+            <p className="text-xs font-semibold text-white truncate max-w-[80px]">
               {providerName}
             </p>
-            <span className="flex items-center gap-0.5 text-[10px] text-gray-500">
+            <span className="flex items-center gap-0.5 text-[10px] text-white/65">
               <FiCheckCircle className="text-[#75d04b]" size={10} />
               Verified
             </span>
           </div>
 
           {/* Role chooser — lets a provider who is also a seller (or buyer) switch */}
-          <RoleSwitcher />
+          <RoleSwitcher tone="light" />
 
           {/* Logout */}
           <button
             onClick={handleLogout}
             aria-label="Log out"
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-red-50 transition text-red-600"
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition text-red-300 hover:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
             title="Log out"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
