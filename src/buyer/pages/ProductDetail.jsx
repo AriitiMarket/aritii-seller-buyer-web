@@ -90,7 +90,7 @@ const ProductDetailsPage = () => {
             action={
               <Link
                 to="/products"
-                className="inline-block px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition"
+                className="inline-block px-5 py-2.5 bg-[#20305C] hover:bg-[#2C3F6E] text-white rounded-xl font-semibold transition-colors"
               >
                 Back to products
               </Link>

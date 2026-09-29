@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency, formatDateTime } from '@/shared/utils/format';
+import { normalizeActorRole } from '@/shared/utils/actorWorkspaces';
 import {
   OFFER_STATUS_COLORS,
   OFFER_STATUS_LABELS,
@@ -26,7 +27,7 @@ const OfferCard = ({ offer, highlighted = false, compact = false }) => {
   if (!offer) return null;
   const status = String(offer.status || '').toUpperCase();
   const diff = offerDiff(offer);
-  const party = offer.createdByRole === 'CUSTOMER' ? 'Buyer counter' : 'Seller offer';
+  const party = normalizeActorRole(offer.createdByRole) === 'BUYER' ? 'Buyer counter' : 'Seller offer';
   const tone = highlighted
     ? 'border-brand-primary bg-brand-primary-light/40'
     : status === 'ACCEPTED'

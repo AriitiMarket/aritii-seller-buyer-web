@@ -5,36 +5,45 @@ import { MdOutlineEmail } from "react-icons/md"
 import { Link, useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { loginUser, loadSeller } from '@/store/slices/userThunks'
-import Store from '@/store'
+import { loginUser } from '@/store/slices/userThunks'
+import { authService } from '@/services'
 import { LOGO } from '@/assets'
 
 const Login = () => {
-    const [email, setEmail] = useState('')
+    const [identifier, setIdentifier] = useState('')
     const [password, setPassword] = useState('')
     const [visible, setVisible] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()
     const dispatch = useDispatch()
-    const { loading, user, error } = useSelector((state) => state.user)
+    const { loading } = useSelector((state) => state.user)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         try {
-            await dispatch(loginUser(email, password))
-
+            const result = await dispatch(loginUser(identifier.trim(), password))
             toast.success("Login successful!")
 
-            // Seller capability already resolved inside loginUser thunk
-            const isSeller = Store.getState()?.seller?.isSeller
-            // Guards (SellerRegistrationGuard, ProtectedRoute) stash where the
-            // visitor was heading — e.g. /seller-registration. Honour it so a
-            // "Sell on Ariiti" click doesn't dump them on the dashboard.
+            // Preserve the public entry path so an existing account can
+            // continue the Buyer, Seller, or Delivery Provider action they chose.
             const from = location.state?.from
-            navigate(from && from !== '/login' ? from : (isSeller ? "/business" : "/my-dashboard"))
+            if (from && from !== '/login') {
+                navigate(from, { replace: true })
+                return
+            }
+            // Identity resolves the account's actual role. A pending seller or
+            // provider is directed to their application status by that role.
+            const destination = await authService.loginDestination(result.loginRole)
+            navigate(destination, { replace: true })
         } catch (err) {
-            toast.error(err?.message || "Login failed. Please check your email and password.")
+            const data = err?.response?.data
+            const status = err?.response?.status
+            if (status === 403 || data?.error === 'role_mismatch') {
+                toast.error(data?.message || 'These credentials do not match an account with access.')
+            } else {
+                toast.error(data?.message || err?.message || "Login failed. Please check your email or phone and password.")
+            }
         }
     }
 
@@ -52,7 +61,7 @@ const Login = () => {
                     </Link>
                     <h1 className='text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-2'>Welcome back</h1>
                     <p className="text-base text-gray-600">
-                        Sign in to your Aritii account
+                        One shared Login for Buyers, Sellers, and Delivery Providers.
                     </p>
                 </div>
 
@@ -61,21 +70,21 @@ const Login = () => {
                     <form onSubmit={handleSubmit} className='space-y-6'>
                         {/* Email Field */}
                         <div>
-                            <label htmlFor='email' className='block text-sm font-semibold text-gray-700 mb-2'>
-                                Email address
+                            <label htmlFor='login-identifier' className='block text-sm font-semibold text-gray-700 mb-2'>
+                                Email or phone number
                             </label>
                             <div className="relative">
                                 <MdOutlineEmail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
                                 <input
-                                    type="email"
-                                    name="email"
-                                    id="email"
-                                    autoComplete='email'
+                                    type="text"
+                                    name="identifier"
+                                    id="login-identifier"
+                                    autoComplete='username'
                                     required
                                     disabled={loading}
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="you@example.com"
+                                    value={identifier}
+                                    onChange={(e) => setIdentifier(e.target.value)}
+                                    placeholder="you@example.com or +251…"
                                     className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 dark:bg-gray-800 dark:border-gray-700 dark:text-white transition disabled:bg-gray-50 disabled:cursor-not-allowed'
                                 />
                             </div>
@@ -140,21 +149,11 @@ const Login = () => {
                             {loading ? 'Signing in...' : 'Sign in'}
                         </button>
 
-                        {/* Divider */}
-                        <div className='relative my-6'>
-                            <div className='absolute inset-0 flex items-center'>
-                                <div className='w-full border-t border-gray-200'></div>
-                            </div>
-                            <div className='relative flex justify-center text-sm'>
-                                <span className='px-2 bg-white text-gray-500'>Or continue with</span>
-                            </div>
-                        </div>
-
                         {/* Sign Up Link */}
                         <p className="text-center text-gray-600">
-                            Don't have an account?{' '}
-                            <Link to={{ pathname: '/sign-up', state: location.state }} className="font-semibold font-semibold text-[#75d04b] hover:text-[#5ac12f]">
-                                Create account
+                            Need an account?{' '}
+                            <Link to={{ pathname: getRegistrationPath(location.state?.from), state: location.state }} className="font-semibold text-[#75d04b] hover:text-[#5ac12f]">
+                                {getRegistrationLabel(location.state?.from)}
                             </Link>
                         </p>
                     </form>
@@ -165,6 +164,18 @@ const Login = () => {
             </div>
         </div>
     )
+}
+
+function getRegistrationPath(from = '') {
+    if (from.startsWith('/seller') || from.startsWith('/become-a-seller') || from.startsWith('/sell')) return '/seller-sign-up'
+    if (from.startsWith('/provider') || from.startsWith('/delivery') || from.startsWith('/become-provider')) return '/delivery-sign-up'
+    return '/sign-up'
+}
+
+function getRegistrationLabel(from = '') {
+    if (getRegistrationPath(from) === '/seller-sign-up') return 'Start a Seller Application'
+    if (getRegistrationPath(from) === '/delivery-sign-up') return 'Apply as a Delivery Provider'
+    return 'Create a Buyer Account'
 }
 
 export default Login

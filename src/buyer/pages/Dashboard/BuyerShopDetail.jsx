@@ -43,8 +43,8 @@ const BuyerShopDetail = () => {
   if (loading) {
     return (
       <div className="py-20 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#75d04b] mx-auto mb-4"></div>
-        <p className="text-gray-500 text-sm">Loading shop…</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#20305C] mx-auto mb-4"></div>
+        <p className="text-[#667085] text-sm">Loading shop…</p>
       </div>
     );
   }
@@ -52,11 +52,11 @@ const BuyerShopDetail = () => {
   if (error || !shop) {
     return (
       <div className="py-20 text-center">
-        <h2 className="text-2xl font-semibold text-gray-900">Shop not found</h2>
-        <p className="text-gray-500 mt-2">{error || 'This shop is not available on Aritii Market.'}</p>
+        <h2 className="text-2xl font-semibold text-[#171A21]">Shop not found</h2>
+        <p className="text-[#667085] mt-2">{error || 'This shop is not available on Aritii Market.'}</p>
         <Link
           to="/my-dashboard/shops"
-          className="mt-6 inline-block px-6 py-3 bg-[#75d04b] text-white rounded-lg font-medium"
+          className="mt-6 inline-block px-6 py-3 bg-[#20305C] text-white rounded-lg font-medium"
         >
           Back to Shops
         </Link>
@@ -84,7 +84,7 @@ const BuyerShopDetail = () => {
     <div className="space-y-6">
       <Link
         to="/my-dashboard/shops"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#75d04b] transition"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#667085] hover:text-[#20305C] transition"
       >
         <MdArrowBack size={18} />
         Back to Shops
@@ -92,9 +92,9 @@ const BuyerShopDetail = () => {
 
       {/* Shop Header */}
       <div className="-mx-4 md:-mx-8 lg:-mx-12">
-        <div className="w-full h-[140px] md:h-[200px] bg-gradient-to-r from-[#75d04b] to-[#5ac12f] overflow-hidden relative" />
+        <div className="w-full h-[140px] md:h-[200px] bg-gradient-to-br from-[#20305c] via-[#20305c] to-[#141414] overflow-hidden relative" />
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-wrap md:flex-nowrap items-center gap-5 mt-[-60px]">
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6 flex flex-wrap md:flex-nowrap items-center gap-5 mt-[-60px]">
             <ShopImage
               data={{ avatar: { url: shop.avatar?.url }, image: shop.avatar?.url, image_Url: shop.avatar?.url }}
               fallback={PlaceholderAvatar}
@@ -102,17 +102,17 @@ const BuyerShopDetail = () => {
               alt={name}
             />
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">{name}</h1>
               <div className="flex items-center mt-1">
                 <Ratings rating={rating} />
-                <span className="text-sm text-gray-500 ml-1">
+                <span className="text-sm text-[#667085] ml-1">
                   {ratingCount ? `(${ratingCount})` : 'No reviews yet'}
                 </span>
               </div>
-              <p className="text-gray-500 mt-1">
+              <p className="text-[#667085] mt-1">
                 {description || `Official ${name} shop on Aritii Market.`}
               </p>
-              <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-700">
+              <div className="flex flex-wrap gap-3 mt-3 text-sm text-[#171A21]">
                 {location && (
                   <span className="inline-flex items-center gap-1">
                     📍 {location}
@@ -134,7 +134,7 @@ const BuyerShopDetail = () => {
 
       {/* Products */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-[#171A21] mb-4">
           Products from {name}
         </h2>
         {products.length > 0 ? (
@@ -148,9 +148,9 @@ const BuyerShopDetail = () => {
             <div className="space-y-8">
               {ordered.map((cat) => (
                 <div key={cat}>
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-[#171A21] flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
                     {cat}
-                    <span className="text-xs text-gray-500 ml-1">({groups[cat].length})</span>
+                    <span className="text-xs text-[#667085] ml-1">({groups[cat].length})</span>
                   </h3>
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                     {groups[cat].map((p, i) => (
@@ -162,7 +162,7 @@ const BuyerShopDetail = () => {
             </div>
           )
         ) : (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-[#667085]">
             No products available from this shop yet.
           </div>
         )}

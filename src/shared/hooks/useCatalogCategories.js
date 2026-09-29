@@ -2,6 +2,8 @@ import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '@/store/slices/shopThunks';
 
+const EMPTY_CATEGORIES = Object.freeze([]);
+
 /**
  * useCatalogCategories - the single way screens read categories.
  *
@@ -17,7 +19,7 @@ import { getAllCategories } from '@/store/slices/shopThunks';
 export function useCatalogCategories({ auto = true, type = 'product' } = {}) {
   const dispatch = useDispatch();
 
-  const categories = useSelector((state) => state.shop?.categoriesByType?.[type] ?? []);
+  const categories = useSelector((state) => state.shop?.categoriesByType?.[type] ?? EMPTY_CATEGORIES);
   const fetching = useSelector((state) => Boolean(state.shop?.categoriesLoadingByType?.[type]));
   const loaded = useSelector((state) => Boolean(state.shop?.categoriesLoadedByType?.[type]));
   const error = useSelector((state) => state.shop?.categoriesErrorByType?.[type] ?? null);

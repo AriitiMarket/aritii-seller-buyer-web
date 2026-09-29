@@ -44,7 +44,7 @@ const DashboardHero = () => {
   const totalProducts = shopProducts?.length || 0;
   const totalEvents = events?.length || 0;
 
-  const uniqueCustomers = new Set(ShopOrders?.map(o => o.userId || o.user?._id || o.customerId).filter(Boolean)).size;
+  const uniqueCustomers = new Set(ShopOrders?.map(o => o.userId || o.user?._id || o.buyerId).filter(Boolean)).size;
   const pendingOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.PROCESSING).length || 0;
   const completedOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED).length || 0;
   const cancelledOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.CANCELLED).length || 0;

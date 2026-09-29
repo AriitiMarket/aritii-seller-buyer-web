@@ -10,7 +10,6 @@ export { userReducer } from '@/store/slices/userSlice';
 export {
   registerUser,
   loginUser,
-  loginSeller,
   loadUser,
   logoutUser,
   loadSeller,

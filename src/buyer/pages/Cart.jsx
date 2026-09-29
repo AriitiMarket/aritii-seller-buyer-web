@@ -37,7 +37,10 @@ const BuyerCartPage = () => {
   if (isLoading && cart.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#75d04b]"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#20305C] mx-auto mb-4"></div>
+          <p className="text-[#667085] text-sm">Loading your cart...</p>
+        </div>
       </div>
     );
   }
@@ -50,7 +53,7 @@ const BuyerCartPage = () => {
         action={
           <Link
             to="/my-dashboard/marketplace"
-            className="inline-block px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition"
+            className="inline-block px-5 py-2.5 bg-[#20305C] text-white rounded-lg font-semibold hover:bg-[#2C3F6E] transition"
           >
             Browse products
           </Link>
@@ -60,99 +63,104 @@ const BuyerCartPage = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-Poppins font-semibold">Cart</h1>
-          <p className="text-sm text-brand-muted">{cart.length} item(s) in your cart</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Shopping Cart</h1>
+          <p className="text-sm text-[#667085] mt-1">{cart.length} item{cart.length !== 1 ? 's' : ''} in your cart</p>
         </div>
-        <button
-          onClick={() => dispatch(clearCart())}
-          className="text-sm text-gray-500 hover:text-red-600 transition"
-        >
-          Clear cart
-        </button>
+        {cart.length > 0 && (
+          <button
+            onClick={() => dispatch(clearCart())}
+            className="text-sm text-[#667085] hover:text-red-600 transition font-medium"
+          >
+            Clear cart
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm divide-y divide-gray-100">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E5E7EB] shadow-sm divide-y divide-gray-100">
           {cart.map((item) => {
             const qty = Number(item.quantity) || 1;
             const unit = Number(item.price || item.discountPrice || 0);
             const stock = Number(item.stock) || Infinity;
+            const shopName = typeof item.shop === 'string' ? item.shop : item.shop?.name || item.shopName || 'Shop';
+
             return (
-              <div key={item.productId || item._id} className="p-4 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+              <div key={item.productId || item._id} className="p-4 flex items-center gap-4 hover:bg-[#F7F8FA] transition">
+                <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   <ProductImage data={item} className="w-full h-full object-cover" />
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 line-clamp-1">{item.name}</p>
-                  <p className="text-xs text-gray-500">{item.category || 'Product'}</p>
-                  <p className="text-sm font-semibold text-gray-900 mt-1">{money(unit)}</p>
+                  <p className="font-medium text-[#171A21] line-clamp-1">{item.name}</p>
+                  <p className="text-xs text-[#667085] mt-0.5">{shopName}</p>
+                  <p className="text-sm font-semibold text-[#171A21] mt-1">{money(unit)}</p>
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => setQty(item, qty - 1)}
                     disabled={qty <= 1}
-                    className="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                    className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#667085] hover:bg-gray-100 disabled:opacity-40 transition"
                     aria-label="Decrease quantity"
                   >
-                    <FiMinus size={12} />
+                    <FiMinus size={14} />
                   </button>
-                  <span className="w-9 text-center text-sm font-semibold">{qty}</span>
+                  <span className="w-10 text-center text-sm font-semibold">{qty}</span>
                   <button
                     onClick={() => setQty(item, qty + 1)}
                     disabled={qty >= stock}
-                    className="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                    className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#667085] hover:bg-gray-100 disabled:opacity-40 transition"
                     aria-label="Increase quantity"
                   >
-                    <FiPlus size={12} />
+                    <FiPlus size={14} />
                   </button>
                 </div>
 
                 <div className="w-24 text-right shrink-0">
-                  <p className="font-semibold text-gray-900">{money(unit * qty)}</p>
+                  <p className="font-semibold text-[#171A21]">{money(unit * qty)}</p>
                 </div>
 
                 <button
                   onClick={() => dispatch(removeFromCart({ productId: item.productId || item._id }))}
-                  className="p-1.5 text-gray-400 hover:text-red-600 shrink-0"
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0 transition"
                   aria-label={`Remove ${item.name}`}
+                  title="Remove item"
                 >
-                  <FiTrash2 size={16} />
+                  <FiTrash2 size={18} />
                 </button>
               </div>
             );
           })}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 h-fit">
-          <h2 className="text-base font-bold text-gray-900 mb-4">Order summary</h2>
-          <div className="space-y-2 text-sm">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-5 h-fit sticky top-20">
+          <h2 className="text-base font-bold text-[#171A21] mb-4">Order summary</h2>
+          <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
-              <span className="font-semibold text-gray-900">{money(subtotal)}</span>
+              <span className="text-[#667085]">Subtotal</span>
+              <span className="font-semibold text-[#171A21]">{money(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Shipping (3%)</span>
-              <span className="font-semibold text-gray-900">{money(shipping)}</span>
+              <span className="text-[#667085]">Shipping (3%)</span>
+              <span className="font-semibold text-[#171A21]">{money(shipping)}</span>
             </div>
           </div>
-          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-            <span className="font-bold text-gray-900">Total</span>
-            <span className="text-xl font-bold text-brand-primary">{money(total)}</span>
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#E5E7EB]">
+            <span className="font-bold text-[#171A21]">Total</span>
+            <span className="text-xl font-bold text-[#20305C]">{money(total)}</span>
           </div>
           <button
             onClick={() => navigate('/checkout')}
-            className="mt-5 w-full px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition"
+            className="mt-5 w-full px-5 py-3 bg-[#20305C] text-white rounded-xl font-semibold hover:bg-[#2C3F6E] transition shadow-sm"
           >
             Proceed to checkout
           </button>
           <Link
             to="/my-dashboard/marketplace"
-            className="mt-2 block w-full text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition"
+            className="mt-3 block w-full text-center px-5 py-3 border border-[#E5E7EB] text-[#171A21] rounded-xl text-sm font-semibold hover:bg-[#F7F8FA] transition"
           >
             Continue shopping
           </Link>

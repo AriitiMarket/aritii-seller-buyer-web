@@ -53,7 +53,7 @@ const Breadcrumbs = ({ items }) => {
                   {crumb.label}
                 </span>
               ) : (
-                <Link to={crumb.to || '#'} className="hover:text-[#75d04b] truncate inline-block max-w-[150px] align-bottom">
+                <Link to={crumb.to || '#'} className="hover:text-[#20305C] truncate inline-block max-w-[150px] align-bottom">
                   {crumb.label}
                 </Link>
               )}

@@ -88,7 +88,7 @@ const UserOrderDetailComponent = () => {
     <div className="order-detail-container">
       {/* Header */}
       <div className="order-detail-header">
-        <BsFillBagFill size={28} color="#0B6E4F" />
+        <BsFillBagFill size={28} color="#20305C" />
         <h1>Order Details</h1>
       </div>
 
@@ -186,7 +186,14 @@ const UserOrderDetailComponent = () => {
           <h4>Payment Information</h4>
           <p>
             Status:{' '}
-            <strong style={{ color: '#0B6E4F' }}>
+            <strong style={{ color: (() => {
+              const s = String(data?.paymentStatus || data?.paymentInfo?.status || 'Not Paid').toUpperCase();
+              if (/NOT PAID|UNPAID/.test(s)) return '#B54708'; // amber — payment outstanding
+              if (/FAIL|CANCEL|DECLIN|REFUND/.test(s)) return '#D92D20'; // red — negative outcome
+              if (/PAID|SUCCESS|COMPLETE/.test(s)) return '#16A34A'; // green — settled
+              if (/PENDING|PROCESSING/.test(s)) return '#B54708'; // amber — in flight
+              return '#667085'; // secondary text — unknown/neutral
+            })() }}>
               {data?.paymentStatus
                 || (data?.paymentInfo?.status
                   ? String(data.paymentInfo.status).toUpperCase()

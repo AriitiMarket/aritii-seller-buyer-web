@@ -34,7 +34,7 @@ const Reports = () => {
     const succeededOrders = ShopOrders.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED);
     const totalRevenue = succeededOrders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
     const totalOrders = succeededOrders.length;
-    const uniqueCustomers = new Set(succeededOrders.map(o => o.customerId || o.userId).filter(Boolean)).size;
+    const uniqueCustomers = new Set(succeededOrders.map(o => o.buyerId || o.userId).filter(Boolean)).size;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
     // Sales by month

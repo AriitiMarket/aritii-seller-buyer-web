@@ -14,9 +14,9 @@ import CategoryIcon from './CategoryIcon';
  *
  * Every variant reads the active value from `?category=`, so links, chips and
  * sidebar rows can never disagree about what is selected. The vertical
- * sidebar list lives in `@/public/components/CategorySidebar` (it owns the
+ * sidebar list lives in `@/public/marketplace/components/CategorySidebar` (it owns the
  * collapse-to-icon-rail behaviour); on <1024px the public catalog uses
- * `@/public/components/CategorySheet` (trigger + bottom sheet) instead.
+ * `@/public/marketplace/components/CategorySheet` (trigger + bottom sheet) instead.
  */
 
 /* ------------------------------------------------------------------ */
@@ -82,8 +82,8 @@ function Rail({ categories, basePath, allLabel, counts, showIcon = true, limit =
   const itemClass = (isActive) =>
     `flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs md:text-sm font-semibold border transition-colors whitespace-nowrap ${
       isActive
-        ? 'bg-[#75d04b] text-white border-[#75d04b] shadow-sm'
-        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-[#75d04b]/40 hover:text-[#75d04b]'
+        ? 'bg-[#20305C] text-white border-[#20305C] shadow-sm'
+        : 'bg-white dark:bg-gray-800 text-[#667085] dark:text-gray-300 border-[#E5E7EB] dark:border-gray-700 hover:border-[#20305C]/40 hover:text-[#20305C]'
     }`;
 
   return (
@@ -122,7 +122,7 @@ function Rail({ categories, basePath, allLabel, counts, showIcon = true, limit =
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
-          className={`${itemClass(false)} border-dashed text-[#75d04b] border-[#75d04b]/50 hover:bg-[#f3ffee] dark:hover:bg-gray-800`}
+          className={`${itemClass(false)} border-dashed text-[#20305C] border-[#20305C]/50 hover:bg-[#E9ECF5] dark:hover:bg-gray-800`}
         >
           {expanded ? 'Show less' : `More (+${hiddenCount})`}
         </button>
@@ -153,8 +153,8 @@ function Grid({ categories, basePath, counts, showIcon = true, selected }) {
             aria-current={isActive ? 'page' : undefined}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
               isActive
-                ? 'bg-[#f3ffee] dark:bg-[#75d04b]/15 border-[#75d04b]/40 text-[#75d04b]'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#75d04b] hover:text-[#75d04b] hover:bg-[#f3ffee]'
+                ? 'bg-[#E9ECF5] dark:bg-[#20305C]/15 border-[#20305C]/40 text-[#20305C]'
+                : 'bg-white dark:bg-gray-800 border-[#E5E7EB] dark:border-gray-700 text-[#171A21] dark:text-gray-300 hover:border-[#20305C] hover:text-[#20305C] hover:bg-[#E9ECF5]'
             }`}
           >
             {showIcon && <CategoryIcon title={name} size={18} />}

@@ -6,6 +6,10 @@ let _refreshToken = null;
 let _idToken = null;
 let _user = null;
 let _refreshPromise = null;
+// The role the visitor signed in AS (BUYER / SELLER / PROVIDER). Persisted with
+// the refresh token so a page reload still lands a pending seller/provider back
+// on their application screen instead of the buyer dashboard.
+let _loginRole = null;
 
 function readStoredTokens() {
   try {
@@ -19,7 +23,10 @@ function readStoredTokens() {
 function persistRefreshToken() {
   try {
     if (_refreshToken) {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ refresh_token: _refreshToken }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        refresh_token: _refreshToken,
+        login_role: _loginRole || null,
+      }));
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
     }
@@ -30,12 +37,14 @@ function persistRefreshToken() {
 
 const storedTokens = typeof window !== 'undefined' ? readStoredTokens() : {};
 _refreshToken = storedTokens.refresh_token || null;
+_loginRole = storedTokens.login_role || null;
 
 export const tokenStore = {
   getAccessToken() { return _accessToken; },
   getRefreshToken() { return _refreshToken; },
   getIdToken() { return _idToken; },
   getUser() { return _user; },
+  getLoginRole() { return _loginRole; },
 
   setTokens({ access_token, refresh_token, id_token }) {
     if (access_token) _accessToken = access_token;
@@ -46,11 +55,18 @@ export const tokenStore = {
 
   setUser(user) { _user = user; },
 
+  /** Remember which role this session signed in as. */
+  setLoginRole(role) {
+    _loginRole = role ? String(role).toUpperCase() : null;
+    persistRefreshToken();
+  },
+
   clear() {
     _accessToken = null;
     _refreshToken = null;
     _idToken = null;
     _user = null;
+    _loginRole = null;
     persistRefreshToken();
   },
 

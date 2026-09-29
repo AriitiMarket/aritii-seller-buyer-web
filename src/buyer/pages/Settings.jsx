@@ -14,13 +14,13 @@ const BuyerSettingsPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your account and preferences</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Settings</h1>
+        <p className="text-sm text-[#667085] mt-1">Manage your account and preferences</p>
       </div>
 
       <div className="max-w-2xl space-y-4">
         {/* Settings Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-100">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden divide-y divide-gray-100">
           <SettingsNavItem
             icon={MdPerson}
             label="Personal Account"
@@ -67,23 +67,23 @@ const BuyerSettingsPage = () => {
 const SettingsNavItem = ({ icon: Icon, label, description, active, onClick, badge }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-4 px-5 py-4 text-left transition hover:bg-gray-50 ${
-      active ? 'bg-[#f9fdf6]' : ''
+    className={`w-full flex items-center gap-4 px-5 py-4 text-left transition hover:bg-[#F7F8FA] ${
+      active ? 'bg-[#F7F8FA]' : ''
     }`}
   >
-    <div className={`p-2.5 rounded-xl ${active ? 'bg-[#f3ffee]' : 'bg-gray-100'}`}>
-      <Icon className={`text-lg ${active ? 'text-[#75d04b]' : 'text-gray-500'}`} />
+    <div className={`p-2.5 rounded-xl ${active ? 'bg-[#E9ECF5]' : 'bg-gray-100'}`}>
+      <Icon className={`text-lg ${active ? 'text-[#20305C]' : 'text-[#667085]'}`} />
     </div>
     <div className="flex-1">
       <div className="flex items-center gap-2">
-        <span className={`font-semibold text-sm ${active ? 'text-[#75d04b]' : 'text-gray-900'}`}>{label}</span>
+        <span className={`font-semibold text-sm ${active ? 'text-[#20305C]' : 'text-[#171A21]'}`}>{label}</span>
         {badge && (
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700">{badge}</span>
         )}
       </div>
-      <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+      <p className="text-xs text-[#667085] mt-0.5">{description}</p>
     </div>
-    <MdChevronRight className={`text-lg ${active ? 'text-[#75d04b]' : 'text-gray-300'}`} />
+    <MdChevronRight className={`text-lg ${active ? 'text-[#20305C]' : 'text-gray-300'}`} />
   </button>
 )
 
@@ -104,35 +104,35 @@ const AccountSection = ({ user }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-base font-bold text-gray-900">Personal Account</h2>
+        <h2 className="text-base font-bold text-[#171A21]">Personal Account</h2>
         {!editing && (
-          <button onClick={() => setEditing(true)} className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f] transition">
+          <button onClick={() => setEditing(true)} className="text-sm font-semibold text-[#20305C] hover:text-[#2C3F6E] transition">
             Edit
           </button>
         )}
       </div>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Full Name</label>
           <input value={name} onChange={(e) => setName(e.target.value)} disabled={!editing}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm disabled:bg-gray-50 focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 transition" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm disabled:bg-[#F7F8FA] focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20 transition" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Email</label>
           <input value={email} onChange={(e) => setEmail(e.target.value)} disabled={!editing} type="email"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm disabled:bg-gray-50 focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 transition" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm disabled:bg-[#F7F8FA] focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20 transition" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Phone</label>
           <input value={phone} onChange={(e) => setPhone(e.target.value)} disabled={!editing}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm disabled:bg-gray-50 focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 transition" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm disabled:bg-[#F7F8FA] focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20 transition" />
         </div>
         {editing && (
           <div className="flex gap-3 pt-2">
-            <button onClick={handleSave} className="px-5 py-2.5 bg-[#75d04b] text-white rounded-xl text-sm font-semibold hover:bg-[#5ac12f] transition">Save Changes</button>
-            <button onClick={() => setEditing(false)} className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Cancel</button>
+            <button onClick={handleSave} className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition">Save Changes</button>
+            <button onClick={() => setEditing(false)} className="px-5 py-2.5 border border-[#E5E7EB] text-[#171A21] rounded-xl text-sm font-semibold hover:bg-[#F7F8FA] transition">Cancel</button>
           </div>
         )}
       </div>
@@ -146,28 +146,28 @@ const BusinessSection = ({ seller }) => {
   const businessCategory = seller?.businessInformation?.businessCategory || ''
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-base font-bold text-gray-900">Business Profile</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Your seller business information</p>
+          <h2 className="text-base font-bold text-[#171A21]">Business Profile</h2>
+          <p className="text-xs text-[#667085] mt-0.5">Your seller business information</p>
         </div>
         <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Approved Seller</span>
       </div>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Shop Name</label>
-            <div className="px-4 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-900">{shopName || '—'}</div>
+            <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Shop Name</label>
+            <div className="px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm bg-[#F7F8FA] text-[#171A21]">{shopName || '—'}</div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
-            <div className="px-4 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-900">{businessCategory || '—'}</div>
+            <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Category</label>
+            <div className="px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm bg-[#F7F8FA] text-[#171A21]">{businessCategory || '—'}</div>
           </div>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-          <div className="px-4 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-900 min-h-[80px]">{shopDescription || '—'}</div>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Description</label>
+          <div className="px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm bg-[#F7F8FA] text-[#171A21] min-h-[80px]">{shopDescription || '—'}</div>
         </div>
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
           <p className="text-xs text-blue-700">
@@ -182,20 +182,20 @@ const BusinessSection = ({ seller }) => {
 }
 
 const NotificationsSection = () => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <h2 className="text-base font-bold text-gray-900 mb-5">Notifications</h2>
+  <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
+    <h2 className="text-base font-bold text-[#171A21] mb-5">Notifications</h2>
     <div className="space-y-1">
       {[
         { label: 'Order updates', desc: 'Receive notifications about your orders', default: true },
         { label: 'Promotions', desc: 'Get notified about sales and deals', default: false },
         { label: 'New products', desc: 'Alerts when new products match your interests', default: false },
       ].map((item) => (
-        <label key={item.label} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition cursor-pointer">
+        <label key={item.label} className="flex items-center justify-between p-3 rounded-xl hover:bg-[#F7F8FA] transition cursor-pointer">
           <div>
-            <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-            <p className="text-xs text-gray-500">{item.desc}</p>
+            <p className="text-sm font-semibold text-[#171A21]">{item.label}</p>
+            <p className="text-xs text-[#667085]">{item.desc}</p>
           </div>
-          <input type="checkbox" defaultChecked={item.default} className="w-4 h-4 text-[#75d04b] rounded border-gray-300 focus:ring-[#75d04b]" />
+          <input type="checkbox" defaultChecked={item.default} className="w-4 h-4 text-[#20305C] rounded border-[#E5E7EB] focus:ring-[#20305C]" />
         </label>
       ))}
     </div>
@@ -227,29 +227,29 @@ const SecuritySection = () => {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-base font-bold text-gray-900 mb-5">Security</h2>
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
+      <h2 className="text-base font-bold text-[#171A21] mb-5">Security</h2>
       <form onSubmit={handlePasswordChange} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Current Password</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Current Password</label>
           <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">New Password</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">New Password</label>
           <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20" />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm New Password</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-1.5">Confirm New Password</label>
           <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20" />
+            className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl text-sm focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/20" />
           {confirmPassword && newPassword && confirmPassword !== newPassword && (
             <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
           )}
         </div>
         <button type="submit" disabled={loading}
-          className="px-5 py-2.5 bg-[#75d04b] text-white rounded-xl text-sm font-semibold hover:bg-[#5ac12f] transition disabled:opacity-50">
+          className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition disabled:opacity-50">
           {loading ? 'Updating...' : 'Update Password'}
         </button>
       </form>

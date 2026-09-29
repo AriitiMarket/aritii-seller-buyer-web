@@ -3,35 +3,43 @@ import SignUp from '@/auth/components/SignUp'
 import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import Store from '@/store'
-import { loadSeller } from '@/store/slices/userThunks'
+import { authService } from '@/services'
+import { tokenStore } from '@/services/tokenStore'
+import Loading from '@/components/common/Loading'
 
-const SignUpPage = () => {
+const NEXT_STEP = {
+  BUYER: '/my-dashboard',
+  SELLER: '/seller-registration',
+  PROVIDER: '/provider-application',
+};
+
+const SignUpPage = ({ registrationType = 'BUYER' }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user);
+  const from = location.state?.from;
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const redirect = async () => {
-        if (user?.role === 'SELLER') {
-          await Store.dispatch(loadSeller());
-        }
-        const isSeller = Store.getState()?.seller?.isSeller;
-        // Preserve the intended destination (e.g. /seller-registration) when the
-        // visitor was bounced here by a guard.
-        const from = location.state?.from;
-        navigate(from && from !== '/sign-up' ? from : (isSeller ? "/business" : "/my-dashboard"), { replace: true });
-      };
-      redirect();
-    }
-  }, [isAuthenticated, user, navigate]);
+    if (!isAuthenticated) return;
+    let active = true;
+    const redirect = async () => {
+      // Continue into the entry path the visitor selected, or that a route guard
+      // preserved. This keeps Seller and Delivery Provider applications role-specific.
+      if (from && from !== location.pathname) {
+        navigate(from, { replace: true });
+        return;
+      }
+      const destination = registrationType === 'BUYER'
+        ? await authService.loginDestination(tokenStore.getLoginRole())
+        : NEXT_STEP[registrationType] || NEXT_STEP.BUYER;
+      if (active) navigate(destination, { replace: true });
+    };
+    redirect();
+    return () => { active = false; };
+  }, [isAuthenticated, from, location.pathname, navigate, registrationType]);
 
-  return (
-    <div>
-      <SignUp />
-    </div>
-  )
+  if (isAuthenticated) return <Loading />;
+  return <SignUp registrationType={registrationType} />;
 }
 
 export default SignUpPage

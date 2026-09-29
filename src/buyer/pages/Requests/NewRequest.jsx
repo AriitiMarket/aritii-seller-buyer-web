@@ -143,7 +143,7 @@ export default function NewRequestPage() {
         description={shopError || 'The selected seller could not be loaded.'}
         action={
           <Link to="/my-dashboard/requests/new">
-            <Button className="bg-brand-primary text-white">Choose another seller</Button>
+            <Button className="bg-[#20305C] text-white">Choose another seller</Button>
           </Link>
         }
       />
@@ -154,28 +154,28 @@ export default function NewRequestPage() {
   const location = shopLocation(shop);
 
   const fieldClass =
-    'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary';
+    'w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]';
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 pb-28 sm:pb-6">
       <Link
         to="/my-dashboard/requests/new"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-primary-dark"
+        className="inline-flex items-center gap-1.5 text-sm text-[#667085] hover:text-[#2C3F6E]"
       >
         <FiArrowLeft size={14} />
         Select a seller
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Request Product</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-[#171A21]">Request Product</h1>
+        <p className="text-[#667085] mt-1">
           Tell the seller exactly what you need. They will respond with availability and an offer
           inside this request.
         </p>
       </div>
 
       {/* Selected seller */}
-      <div className="bg-white rounded-2xl border border-brand-primary/40 bg-brand-primary-light/40 p-4 flex items-center gap-3">
+      <div className="bg-white rounded-2xl border border-[#20305C]/40 bg-[#E9ECF5]/40 p-4 flex items-center gap-3">
         <ShopImage
           data={{ avatar: { url: shop.avatar?.url }, image: shop.avatar?.url }}
           fallback={PlaceholderAvatar}
@@ -183,10 +183,10 @@ export default function NewRequestPage() {
           alt={`${shop.name} logo`}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
+          <p className="text-[11px] uppercase tracking-wide text-[#667085] font-semibold">
             Requesting from
           </p>
-          <p className="font-semibold text-gray-900 truncate flex items-center gap-2">
+          <p className="font-semibold text-[#171A21] truncate flex items-center gap-2">
             {shop.name}
             {verification && (
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${verification.tone}`}>
@@ -194,11 +194,11 @@ export default function NewRequestPage() {
               </span>
             )}
           </p>
-          {location && <p className="text-xs text-gray-500 truncate">{location}</p>}
+          {location && <p className="text-xs text-[#667085] truncate">{location}</p>}
         </div>
         <Link
           to="/my-dashboard/requests/new"
-          className="text-xs font-semibold text-brand-primary-dark hover:underline whitespace-nowrap"
+          className="text-xs font-semibold text-[#2C3F6E] hover:underline whitespace-nowrap"
         >
           Change
         </Link>
@@ -207,10 +207,10 @@ export default function NewRequestPage() {
       <form
         id="request-product-form"
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-4"
+        className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-4"
       >
         <div>
-          <label htmlFor="request-title" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="request-title" className="block text-sm font-medium text-[#171A21] mb-1">
             Product or requested item <span className="text-red-500">*</span>
           </label>
           <input
@@ -226,7 +226,7 @@ export default function NewRequestPage() {
         </div>
 
         <div>
-          <label htmlFor="request-description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="request-description" className="block text-sm font-medium text-[#171A21] mb-1">
             Description
           </label>
           <textarea
@@ -242,7 +242,7 @@ export default function NewRequestPage() {
 
         <div className="grid sm:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="request-quantity" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="request-quantity" className="block text-sm font-medium text-[#171A21] mb-1">
               Quantity <span className="text-red-500">*</span>
             </label>
             <input
@@ -257,7 +257,7 @@ export default function NewRequestPage() {
             />
           </div>
           <div>
-            <label htmlFor="request-unit" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="request-unit" className="block text-sm font-medium text-[#171A21] mb-1">
               Unit <span className="text-red-500">*</span>
             </label>
             <input
@@ -277,7 +277,7 @@ export default function NewRequestPage() {
             </datalist>
           </div>
           <div>
-            <label htmlFor="request-price" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="request-price" className="block text-sm font-medium text-[#171A21] mb-1">
               Expected / target price (ETB)
             </label>
             <input
@@ -294,12 +294,12 @@ export default function NewRequestPage() {
         </div>
 
         {/* Structured requirements — the seller quotes against these exact rows. */}
-        <fieldset className="border-t border-gray-100 pt-4">
+        <fieldset className="border-t border-[#E5E7EB] pt-4">
           <legend className="sr-only">Structured requirements</legend>
-          <p className="text-sm font-medium text-gray-700 mb-1">
+          <p className="text-sm font-medium text-[#171A21] mb-1">
             Requirements <span className="text-gray-400 font-normal">(optional)</span>
           </p>
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-xs text-[#667085] mb-3">
             Fill what matters — quality, brand, size, colour and packaging travel with the request
             as structured data, not buried in prose.
           </p>
@@ -308,7 +308,7 @@ export default function NewRequestPage() {
               <div key={key}>
                 <label
                   htmlFor={`request-spec-${key}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-[#171A21] mb-1"
                 >
                   {label}
                 </label>
@@ -326,7 +326,7 @@ export default function NewRequestPage() {
         </fieldset>
 
         <div>
-          <label htmlFor="request-requirements" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="request-requirements" className="block text-sm font-medium text-[#171A21] mb-1">
             Other requirements / notes
           </label>
           <textarea
@@ -341,29 +341,29 @@ export default function NewRequestPage() {
         </div>
 
         <div>
-          <span className="block text-sm font-medium text-gray-700 mb-1">
+          <span className="block text-sm font-medium text-[#171A21] mb-1">
             Image / attachment <span className="text-gray-400 font-normal">(optional)</span>
           </span>
           {attachment ? (
-            <div className="flex items-center gap-3 border border-gray-200 rounded-lg p-2.5">
+            <div className="flex items-center gap-3 border border-[#E5E7EB] rounded-lg p-2.5">
               <img
                 src={attachment.url}
                 alt={attachment.name}
-                className="w-14 h-14 rounded-lg object-cover border border-gray-100"
+                className="w-14 h-14 rounded-lg object-cover border border-[#E5E7EB]"
               />
-              <p className="text-sm text-gray-600 flex-1 truncate">{attachment.name}</p>
+              <p className="text-sm text-[#667085] flex-1 truncate">{attachment.name}</p>
               <button
                 type="button"
                 onClick={() => setAttachment(null)}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
+                className="p-1.5 rounded-full hover:bg-gray-100 text-[#667085]"
                 aria-label="Remove attachment"
               >
                 <FiX size={16} />
               </button>
             </div>
           ) : (
-            <label className="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-3 py-3 text-sm text-gray-500 cursor-pointer hover:border-brand-primary transition">
-              <FiImage size={16} className="text-brand-primary" />
+            <label className="flex items-center gap-2 border border-dashed border-[#E5E7EB] rounded-lg px-3 py-3 text-sm text-[#667085] cursor-pointer hover:border-[#20305C] transition">
+              <FiImage size={16} className="text-[#20305C]" />
               Add an image (max 1 MB)
               <input type="file" accept="image/*" className="hidden" onChange={handleAttachment} />
             </label>
@@ -373,12 +373,12 @@ export default function NewRequestPage() {
 
         {/* Desktop submit */}
         <div className="hidden sm:flex items-center gap-3 pt-2">
-          <Button type="submit" disabled={submitting} className="bg-brand-primary text-white">
+          <Button type="submit" disabled={submitting} className="bg-[#20305C] text-white">
             {submitting ? 'Sending…' : 'Send Product Request'}
           </Button>
           <Link
             to="/my-dashboard/requests"
-            className="h-[45px] px-5 inline-flex items-center justify-center rounded-full border border-gray-200 text-gray-700 font-semibold text-sm hover:border-brand-primary transition"
+            className="h-[45px] px-5 inline-flex items-center justify-center rounded-full border border-[#E5E7EB] text-[#171A21] font-semibold text-sm hover:border-[#20305C] transition"
           >
             Cancel
           </Link>
@@ -386,12 +386,12 @@ export default function NewRequestPage() {
       </form>
 
       {/* Mobile sticky action */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-gray-200 p-3">
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#E5E7EB] p-3">
         <Button
           type="submit"
           form="request-product-form"
           disabled={submitting}
-          className="w-full bg-brand-primary text-white"
+          className="w-full bg-[#20305C] text-white"
         >
           {submitting ? 'Sending…' : 'Send Product Request'}
         </Button>

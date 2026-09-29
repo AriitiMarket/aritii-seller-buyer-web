@@ -3,28 +3,32 @@ import Login from '@/auth/components/Login'
 import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import Store from '@/store'
-import { loadSeller } from '@/store/slices/userThunks'
+import { authService } from '@/services'
+import { tokenStore } from '@/services/tokenStore'
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user);
+  const from = location.state?.from;
 
   useEffect(() => {
-    if (isAuthenticated) {
-      // For SELLER role, ensure capability is resolved before redirect
-      const redirect = async () => {
-        if (user?.role === 'SELLER') {
-          await Store.dispatch(loadSeller());
-        }
-        const isSeller = Store.getState()?.seller?.isSeller;
-        const from = location.state?.from;
-        navigate(from && from !== '/login' ? from : (isSeller ? "/business" : "/my-dashboard"), { replace: true });
-      };
-      redirect();
-    }
-  }, [isAuthenticated, user, navigate, location]);
+    if (!isAuthenticated) return;
+    let active = true;
+    const redirect = async () => {
+      // Guards stash where the visitor was heading (e.g. /seller-registration).
+      if (from && from !== '/login') {
+        navigate(from, { replace: true });
+        return;
+      }
+      // Identity resolves the role for this shared Login. A seller/provider
+      // awaiting approval lands on the correct application status page.
+      const destination = await authService.loginDestination(tokenStore.getLoginRole());
+      if (active) navigate(destination, { replace: true });
+    };
+    redirect();
+    return () => { active = false; };
+  }, [isAuthenticated, from, navigate]);
 
   return (
     <div>

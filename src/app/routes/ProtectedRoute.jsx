@@ -14,11 +14,17 @@ import Loading from '@/components/common/Loading';
  *   <Route element={<ProtectedRoute />}> ...nested protected routes... </Route>
  *   <ProtectedRoute require="BUSINESS" />   -> approved business account only
  *   <ProtectedRoute require="BUYER" />      -> non-seller buyers only
- *   <ProtectedRoute require="DELIVERY" />   -> delivery actor only
+ *   <ProtectedRoute require="DELIVERY" />   -> delivery provider only (alias of PROVIDER)
+ *   <ProtectedRoute require="PROVIDER" />   -> delivery provider only
  *
  * `require` values mirror the backend capability model:
- *   AUTHENTICATED (default) | BUYER | BUSINESS | DELIVERY | ADMIN
+ *   AUTHENTICATED (default) | BUYER | BUSINESS | DELIVERY | PROVIDER | ADMIN
  *   (ADMIN belongs to the separate admin application and is never routed here.)
+ *
+ * DELIVERY and PROVIDER are the same actor: the delivery workspace is the
+ * provider workspace, so both gate on the PROVIDER capability. Gating DELIVERY
+ * on the seller capability (as this guard used to) made /delivery unreachable
+ * for providers and wrongly admitted sellers.
  */
 const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => {
   const location = useLocation();
@@ -26,15 +32,16 @@ const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => 
   const { isLoading: sellerLoading, isSeller } = useSelector((state) => state.seller || {});
 
   const needsBusiness = require === 'BUSINESS';
-  const needsDelivery = require === 'DELIVERY';
   const needsBuyer = require === 'BUYER';
+  const needsProvider = require === 'PROVIDER' || require === 'DELIVERY';
 
-  const hasSellerRole = user?.role === 'SELLER';
   const hasSellerCapability = isSeller;
+  const hasProviderCapability =
+    user?.capabilities?.includes('PROVIDER') || user?.role === 'PROVIDER';
 
-  // Wait for auth + (on business/delivery routes) seller capability resolution.
+  // Wait for auth + (on business routes) seller capability resolution.
   // sellerLoading is true ONLY while loadSeller is actively running.
-  if (loading !== false || ((needsBusiness || needsDelivery) && isAuthenticated && sellerLoading)) {
+  if (loading !== false || (needsBusiness && isAuthenticated && sellerLoading)) {
     return <Loading />;
   }
 
@@ -47,9 +54,9 @@ const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => 
     return <Navigate to={redirectTo || '/my-dashboard'} replace />;
   }
 
-  if (needsDelivery && !isSeller) {
-    // Delivery actors are provisioned by the backend; without that capability
-    // there is nothing to show in the delivery workspace.
+  if (needsProvider && !hasProviderCapability) {
+    // The delivery/provider workspace is provisioned by the backend; without the
+    // PROVIDER capability there is nothing to show there.
     return <Navigate to={redirectTo || '/my-dashboard'} replace />;
   }
 

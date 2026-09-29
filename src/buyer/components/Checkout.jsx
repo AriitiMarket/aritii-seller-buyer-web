@@ -63,13 +63,13 @@ const Checkout = () => {
             <div className="flex flex-wrap justify-center gap-3">
               <Link
                 to="/my-dashboard/marketplace"
-                className="inline-block px-5 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition"
+                className="inline-block px-5 py-2.5 bg-[#20305C] text-white rounded-lg font-semibold hover:opacity-90 transition"
               >
                 Browse products
               </Link>
               <Link
                 to="/my-dashboard/cart"
-                className="inline-block px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                className="inline-block px-5 py-2.5 border border-[#E5E7EB] text-[#171A21] rounded-lg font-semibold hover:bg-[#F7F8FA] transition"
               >
                 View cart
               </Link>
@@ -176,7 +176,7 @@ const Checkout = () => {
         <div className="mt-8 flex justify-end">
           <button
             onClick={paymentSubmit}
-            className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition flex items-center gap-2"
+            className="px-8 py-3 bg-[#20305C] hover:bg-[#2C3F6E] text-white font-semibold rounded-lg transition flex items-center gap-2"
           >
             Proceed to Payment
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,44 +197,44 @@ const DeliveryAddress = ({
   setSelectedAddressId,
 }) => {
   return (
-    <div className="w-full lg:w-[95%] bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-      <h5 className="text-lg font-bold text-gray-900 mb-6">Delivery Address</h5>
+    <div className="w-full lg:w-[95%] bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+      <h5 className="text-lg font-bold text-[#171A21] mb-6">Delivery Address</h5>
 
       {/* Customer */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-2">Full Name</label>
           <input
             type="text"
             value={(user && user.name) || ""}
             readOnly
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"
+            className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg bg-[#F7F8FA] text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+          <label className="block text-sm font-semibold text-[#171A21] mb-2">Email</label>
           <input
             type="text"
             value={(user && user.email) || ""}
             readOnly
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"
+            className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg bg-[#F7F8FA] text-sm"
           />
         </div>
       </div>
 
       {/* Saved addresses - the only addresses that carry a delivery sector. */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
+      <div className="mt-6 pt-6 border-t border-[#E5E7EB]">
         <div className="flex items-center justify-between mb-3">
-          <h6 className="text-sm font-semibold text-gray-900">Choose a saved address</h6>
+          <h6 className="text-sm font-semibold text-[#171A21]">Choose a saved address</h6>
           <Link
             to="/my-dashboard/addresses"
-            className="text-xs font-semibold text-green-600 hover:text-green-700"
+            className="text-xs font-semibold text-[#20305C] hover:text-[#2C3F6E]"
           >
             Manage addresses
           </Link>
         </div>
 
-        {loading && <p className="text-sm text-gray-500">Loading your addresses...</p>}
+        {loading && <p className="text-sm text-[#667085]">Loading your addresses...</p>}
 
         {!loading && addresses.length === 0 && (
           <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
@@ -244,7 +244,7 @@ const DeliveryAddress = ({
             </p>
             <Link
               to="/my-dashboard/addresses"
-              className="inline-block mt-3 text-sm font-semibold text-green-600 hover:text-green-700"
+              className="inline-block mt-3 text-sm font-semibold text-[#20305C] hover:text-[#2C3F6E]"
             >
               Add a delivery address
             </Link>
@@ -260,24 +260,24 @@ const DeliveryAddress = ({
                   key={item._id}
                   className={
                     selectable
-                      ? "flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                      ? "flex items-start p-3 border border-[#E5E7EB] rounded-lg hover:bg-[#F7F8FA] cursor-pointer"
                       : "flex items-start p-3 border border-amber-200 bg-amber-50 rounded-lg"
                   }
                 >
                   <input
                     type="radio"
                     name="saved-address"
-                    className="w-4 h-4 text-green-600 mt-1"
+                    className="w-4 h-4 text-[#20305C] mt-1"
                     checked={selectedAddressId === item._id}
                     disabled={!selectable}
                     onChange={() => setSelectedAddressId(item._id)}
                   />
                   <div className="ml-3">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-[#171A21]">
                       {item.addressType || "Address"}
                     </p>
-                    <p className="text-xs text-gray-600">{item.address1}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#667085]">{item.address1}</p>
+                    <p className="text-xs text-[#667085]">
                       {[
                         item.sectorName,
                         item.cityName || item.city,
@@ -287,7 +287,7 @@ const DeliveryAddress = ({
                         .join(", ")}
                     </p>
                     {item.phone && (
-                      <p className="text-xs text-gray-500">Phone: {item.phone}</p>
+                      <p className="text-xs text-[#667085]">Phone: {item.phone}</p>
                     )}
                     {!selectable && (
                       <p className="text-xs text-amber-700 mt-1">
@@ -307,20 +307,20 @@ const DeliveryAddress = ({
 
 const CartData = ({ totalPrice, shipping, subTotalPrice }) => {
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
+    <div className="w-full bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+      <h3 className="text-lg font-bold text-[#171A21] mb-4">Order Summary</h3>
 
       {/* Price Breakdown — ETB, the marketplace currency (matches ProductCard) */}
-      <div className="space-y-3 pb-4 border-b border-gray-200">
+      <div className="space-y-3 pb-4 border-b border-[#E5E7EB]">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Subtotal</span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm text-[#667085]">Subtotal</span>
+          <span className="text-sm font-semibold text-[#171A21]">
             {Number(subTotalPrice).toFixed(2)} ETB
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Shipping</span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm text-[#667085]">Shipping</span>
+          <span className="text-sm font-semibold text-[#171A21]">
             {Number(shipping).toFixed(2)} ETB
           </span>
         </div>
@@ -328,8 +328,8 @@ const CartData = ({ totalPrice, shipping, subTotalPrice }) => {
 
       {/* Total */}
       <div className="flex justify-between items-center mt-4">
-        <span className="text-base font-bold text-gray-900">Total</span>
-        <span className="text-2xl font-bold text-green-600">
+        <span className="text-base font-bold text-[#171A21]">Total</span>
+        <span className="text-2xl font-bold text-[#20305C]">
           {Number(totalPrice).toFixed(2)} ETB
         </span>
       </div>

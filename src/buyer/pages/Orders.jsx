@@ -11,8 +11,8 @@ import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus'
 import { getDeliveryStatus } from '@/shared/utils/deliveryStatus'
 
 const ORDER_FILTERS = [
-  { key: 'all', label: 'All orders' },
-  { key: 'in_progress', label: 'In progress' },
+  { key: 'all', label: 'All Orders' },
+  { key: 'in_progress', label: 'In Progress' },
   { key: 'delivered', label: 'Delivered' },
   { key: 'cancelled', label: 'Cancelled' },
 ]
@@ -110,22 +110,22 @@ const BuyerOrdersPage = () => {
       delivered: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', icon: '✅' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', icon: '❌' },
       completed: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', icon: '✅' },
-      failed: { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200', icon: '⚠️' },
+      failed: { bg: 'bg-gray-100', text: 'text-[#171A21]', border: 'border-[#E5E7EB]', icon: '⚠️' },
       // Backend order state machine (orders/constants/orderStatuses.js)
       'refund requested': { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200', icon: '↩️' },
       'refund approved': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', icon: '↩️' },
       'refund success': { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', icon: '↩️' },
       'refund rejected': { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', icon: '⛔' },
     }
-    return config[s] || { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200', icon: '📦' }
+    return config[s] || { bg: 'bg-gray-100', text: 'text-[#171A21]', border: 'border-[#E5E7EB]', icon: '📦' }
   }
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My orders</h1>
-        <p className="text-sm text-gray-500 mt-1">Track purchases, review details, and order your favourites again.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">My Orders</h1>
+        <p className="text-sm text-[#667085] mt-1">Track purchases, review details, and order your favorites again.</p>
       </div>
 
       {/* Search + Filters */}
@@ -138,8 +138,8 @@ const BuyerOrdersPage = () => {
               onClick={() => setActiveFilter(f.key)}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition border ${
                 activeFilter === f.key
-                  ? 'bg-[#75d04b] text-white border-[#75d04b]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'bg-[#20305C] text-white border-[#20305C]'
+                  : 'bg-white text-[#667085] border-[#E5E7EB] hover:border-[#E5E7EB]'
               }`}
             >
               {f.label} <span className="ml-1 opacity-80">{filterCounts[f.key]}</span>
@@ -155,7 +155,7 @@ const BuyerOrdersPage = () => {
             placeholder="Search your orders"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#75d04b] focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C] focus:border-transparent"
           />
         </div>
       </div>
@@ -163,34 +163,34 @@ const BuyerOrdersPage = () => {
       {/* Orders List */}
       {loading ? (
         <div className="text-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#75d04b] mx-auto"></div>
-          <p className="text-gray-500 text-sm mt-4">Loading your orders...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#20305C] mx-auto"></div>
+          <p className="text-[#667085] text-sm mt-4">Loading your orders...</p>
         </div>
       ) : error ? (
         <div className="text-center py-16">
           <p className="text-red-600 text-sm mb-4">{error}</p>
           <button
             onClick={() => userId && dispatch(getAllOrdersOfUser(userId))}
-            className="px-5 py-2.5 bg-[#75d04b] text-white rounded-xl text-sm font-semibold hover:bg-[#5ac12f]"
+            className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E]"
           >
             Try Again
           </button>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
+        <div className="text-center py-16 bg-white rounded-2xl border border-[#E5E7EB]">
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <MdShoppingBag className="text-3xl text-gray-300" />
           </div>
-          <p className="text-gray-600 font-medium mb-1">
+          <p className="text-[#667085] font-medium mb-1">
             {searchQuery ? 'No orders match your search' : activeFilter !== 'all' ? 'No orders in this category' : 'No orders yet'}
           </p>
-          <p className="text-gray-500 text-sm mb-5">
+          <p className="text-[#667085] text-sm mb-5">
             {searchQuery ? 'Try different keywords' : 'Start shopping to see your orders here'}
           </p>
           {!searchQuery && (
             <Link
               to="/my-dashboard/marketplace"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#75d04b] text-white rounded-xl text-sm font-semibold hover:bg-[#5ac12f] transition"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
             >
               Start Shopping
             </Link>
@@ -207,39 +207,41 @@ const BuyerOrdersPage = () => {
             return (
               <div
                 key={order._id}
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-all"
+                className="bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden hover:shadow-md transition-all"
               >
                 {/* Order Header */}
-                <div className="bg-gradient-to-r from-[#f7fdf3] to-[#f3ffee] px-5 py-3.5 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+                <div className="bg-gradient-to-r from-[#F7F8FA] to-[#E9ECF5] px-5 py-3.5 border-b border-[#E5E7EB] flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-4 flex-wrap">
-                    <span className="font-bold text-gray-900 text-sm">Order #{orderIdShort}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="font-bold text-[#171A21] text-sm">Order #{orderIdShort}</span>
+                    <span className="text-xs text-[#667085]">
                       Placed {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                     </span>
-                    <span className="text-xs text-gray-500">
-                      Total <span className="font-bold text-gray-900">{Number(order.totalPrice || 0).toLocaleString()} ETB</span>
+                    <span className="text-xs text-[#667085]">
+                      Total <span className="font-bold text-[#171A21]">{Number(order.totalPrice || 0).toLocaleString()} ETB</span>
                     </span>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(order.orderStatus || order.status).bg} ${getStatusBadge(order.orderStatus || order.status).text} ${getStatusBadge(order.orderStatus || order.status).border}`}>
-                    <span>{getStatusBadge(order.orderStatus || order.status).icon}</span>
-                    {statusConfig.label}
-                  </span>
-                  {/* Shipment progress comes from the ORDER ↔ DELIVERY bridge
-                      (attached to every row by the backend). Absent means the
-                      order was never handed to a courier — show nothing rather
-                      than a fabricated state. */}
-                  {order.deliveryStatus ? (
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getDeliveryStatus(order.deliveryStatus).tone}`}>
-                      <MdLocalShipping size={14} />
-                      {getDeliveryStatus(order.deliveryStatus).label}
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(order.orderStatus || order.status).bg} ${getStatusBadge(order.orderStatus || order.status).text} ${getStatusBadge(order.orderStatus || order.status).border}`}>
+                      <span>{getStatusBadge(order.orderStatus || order.status).icon}</span>
+                      {statusConfig.label}
                     </span>
-                  ) : null}
+                    {/* Shipment progress comes from the ORDER ↔ DELIVERY bridge
+                        (attached to every row by the backend). Absent means the
+                        order was never handed to a courier — show nothing rather
+                        than a fabricated state. */}
+                    {order.deliveryStatus ? (
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getDeliveryStatus(order.deliveryStatus).tone}`}>
+                        <MdLocalShipping size={14} />
+                        {getDeliveryStatus(order.deliveryStatus).label}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 {/* Order Items */}
                 <div className="p-5">
                   {items.length === 0 ? (
-                    <p className="text-sm text-gray-500">No items in this order</p>
+                    <p className="text-sm text-[#667085]">No items in this order</p>
                   ) : (
                     <div className="space-y-4">
                       {items.slice(0, 2).map((item, idx) => {
@@ -256,38 +258,38 @@ const BuyerOrdersPage = () => {
                             <ProductImage data={item} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm text-gray-900 line-clamp-1">
+                            <p className="font-semibold text-sm text-[#171A21] line-clamp-1">
                               {item.name}{qty > 1 ? ` × ${qty}` : ''}
                             </p>
                             {shopName && (
-                              <p className="text-xs text-gray-500 mt-0.5">Sold by {shopName}</p>
+                              <p className="text-xs text-[#667085] mt-0.5">Sold by {shopName}</p>
                             )}
                           </div>
-                          <div className="text-sm font-semibold text-gray-900 shrink-0">
+                          <div className="text-sm font-semibold text-[#171A21] shrink-0">
                             {lineTotal.toLocaleString()} ETB
                           </div>
                         </div>
                         )
                       })}
                       {items.length > 2 && (
-                        <p className="text-xs text-gray-500">+ {items.length - 2} more item{items.length - 2 > 1 ? 's' : ''}</p>
+                        <p className="text-xs text-[#667085]">+ {items.length - 2} more item{items.length - 2 > 1 ? 's' : ''}</p>
                       )}
                     </div>
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-3 mt-5 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-3 mt-5 pt-4 border-t border-[#E5E7EB]">
                     {isTrackable(order.orderStatus || order.status) && (
                       <Link
                         to={`/user/track/order/${order._id}`}
-                        className="px-5 py-2.5 bg-[#75d04b] text-white rounded-xl text-sm font-semibold hover:bg-[#5ac12f] transition"
+                        className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
                       >
                         Track order
                       </Link>
                     )}
                     <Link
                       to={`/user/order/${order._id}`}
-                      className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition"
+                      className="px-5 py-2.5 bg-white text-[#171A21] border border-[#E5E7EB] rounded-xl text-sm font-semibold hover:bg-[#F7F8FA] transition"
                     >
                       View details
                     </Link>
@@ -301,7 +303,7 @@ const BuyerOrdersPage = () => {
                       </button>
                     )}
                     {normalizeStatus(order.orderStatus || order.status) === ORDER_STATUSES.DELIVERED && (
-                      <button className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+                      <button className="px-5 py-2.5 bg-white text-[#171A21] border border-[#E5E7EB] rounded-xl text-sm font-semibold hover:bg-[#F7F8FA] transition">
                         Buy again
                       </button>
                     )}
@@ -318,26 +320,26 @@ const BuyerOrdersPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Cancel Order</h3>
+              <h3 className="text-lg font-bold text-[#171A21]">Cancel Order</h3>
               <button
                 onClick={() => { setShowCancelReason(null); setCancelReason('') }}
                 className="p-1 rounded-lg hover:bg-gray-100 transition"
               >
-                <AiOutlineClose size={20} className="text-gray-500" />
+                <AiOutlineClose size={20} className="text-[#667085]" />
               </button>
             </div>
-            <p className="text-gray-500 text-sm mb-4">Please provide a reason for cancellation.</p>
+            <p className="text-[#667085] text-sm mb-4">Please provide a reason for cancellation.</p>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
               placeholder="Cancellation reason..."
-              className="w-full border border-gray-200 rounded-xl p-3 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#75d04b] focus:border-transparent resize-none"
+              className="w-full border border-[#E5E7EB] rounded-xl p-3 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#20305C] focus:border-transparent resize-none"
               rows={3}
             />
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowCancelReason(null); setCancelReason('') }}
-                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
+                className="flex-1 px-4 py-2.5 border border-[#E5E7EB] text-[#171A21] rounded-xl font-semibold hover:bg-[#F7F8FA] transition"
               >
                 Keep Order
               </button>

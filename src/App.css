@@ -35,6 +35,103 @@ textarea {
   outline-offset: 2px;
 }
 
+@keyframes public-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes public-hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes public-hero-banner-motion {
+  0%, 100% { transform: scale(1.02) translate3d(0, 0, 0); }
+  50% { transform: scale(1.08) translate3d(-0.6%, -0.4%, 0); }
+}
+
+@keyframes public-hero-banner-mobile-motion {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.hero-entrance {
+  animation: public-hero-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-entrance-delay-1 { animation-delay: 120ms; }
+.hero-entrance-delay-2 { animation-delay: 240ms; }
+
+.hero-image-float {
+  animation: public-hero-float 6s ease-in-out 800ms infinite;
+}
+
+.hero-banner-motion {
+  animation: public-hero-banner-motion 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (max-width: 639px) {
+  .hero-banner-motion {
+    animation-name: public-hero-banner-mobile-motion;
+  }
+}
+
+.home-page-scroll {
+  position: relative;
+  isolation: isolate;
+}
+
+@keyframes home-section-art-drift {
+  from { background-position: 46% 48%; transform: scale(1.01); }
+  to { background-position: 54% 52%; transform: scale(1.06); }
+}
+
+.home-brand-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.home-brand-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--home-brand-art);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  animation: home-section-art-drift 34s ease-in-out infinite alternate;
+}
+
+.home-brand-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-brand-section--commerce { --home-brand-art: url("./assets/images/section-backgrounds/commerce.svg"); }
+.home-brand-section--flow { --home-brand-art: url("./assets/images/section-backgrounds/delivery-flow.svg"); }
+.home-brand-section--community { --home-brand-art: url("./assets/images/section-backgrounds/community.svg"); }
+.home-brand-section--trust { --home-brand-art: url("./assets/images/section-backgrounds/trust-network.svg"); }
+.home-brand-section--products { --home-brand-art: url("./assets/images/section-backgrounds/product-orbit.svg"); }
+
+.hero-flow-chip {
+  animation: public-hero-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-flow-chip-1 { animation-delay: 450ms; }
+.hero-flow-chip-2 { animation-delay: 600ms; }
+.hero-flow-chip-3 { animation-delay: 750ms; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

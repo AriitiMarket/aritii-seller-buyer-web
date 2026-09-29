@@ -6,6 +6,6 @@ export default function SellerRegistrationGuard() {
   const location = useLocation();
   const { loading, isAuthenticated } = useSelector((state) => state.user || {});
   if (loading) return <Loading />;
-  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!isAuthenticated) return <Navigate to="/seller-sign-up" replace state={{ from: location.pathname }} />;
   return <Outlet />;
 }

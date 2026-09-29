@@ -5,6 +5,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Aritii commerce design system — buyer content pages.
+        // (Header/Sidebar keep their own hardcoded branding and never use these.)
+        market: {
+          bg: '#F7F8FA',       // page background
+          card: '#FFFFFF',     // cards / content surfaces
+          ink: '#171A21',      // primary text
+          muted: '#667085',    // secondary text
+          line: '#E5E7EB',     // borders
+          brand: '#20305C',    // brand actions & buttons
+          'brand-hover': '#2C3F6E',
+          'brand-press': '#182647',
+          'brand-soft': '#E9ECF5', // soft brand backgrounds
+        },
         brand: {
           primary: '#75d04b',
           'primary-light': '#f3ffee',

@@ -164,7 +164,7 @@ const BusinessRequestsPage = () => {
   }, []);
 
   const loadBuyerProfile = useCallback(async (request) => {
-    const buyerId = request?.buyer?.id || request?.customerId;
+    const buyerId = request?.buyer?.id || request?.buyerId;
     if (!buyerId) {
       setBuyerProfile(null);
       return;

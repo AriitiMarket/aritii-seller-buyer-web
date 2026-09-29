@@ -5,6 +5,7 @@ import SellerApplicationSummary from '@/seller-registration/components/SellerApp
 import useSellerRegistration from '@/seller-registration/hooks/useSellerRegistration';
 import sellerRegistrationApi from '@/seller-registration/api/sellerRegistrationApi';
 import shopService from '@/services/shop.service';
+import { useRoleAccess } from '@/hooks/useRoleAccess';
 
 export default function SellerApplicationStatusPage() {
   const { application, loading, error } = useSellerRegistration();
@@ -12,6 +13,9 @@ export default function SellerApplicationStatusPage() {
   const [storeCount, setStoreCount] = useState(null);
   const [discarding, setDiscarding] = useState(false);
   const [discardError, setDiscardError] = useState('');
+  
+  // Check role access status from Identity Service
+  const roleAccess = useRoleAccess('SELLER');
 
   // A seller who already operates shops (approved application, or shops
   // provisioned another way) is left with an abandoned DRAFT that shows up
@@ -32,7 +36,7 @@ export default function SellerApplicationStatusPage() {
     };
   }, []);
 
-  if (loading) return <main className="mx-auto max-w-3xl p-8">Loading application...</main>;
+  if (loading || roleAccess.loading) return <main className="mx-auto max-w-3xl p-8">Loading application...</main>;
   if (error) return <main className="mx-auto max-w-3xl p-8 text-red-600">{error}</main>;
 
   const reason = application.review?.informationRequestReason || application.review?.rejectionReason;
@@ -52,6 +56,9 @@ export default function SellerApplicationStatusPage() {
     }
   };
 
+  // Show role access status if different from application status
+  const showRoleStatus = roleAccess.status && roleAccess.status !== 'ACTIVE' && roleAccess.status !== application.status;
+
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow sm:p-10">
@@ -59,8 +66,23 @@ export default function SellerApplicationStatusPage() {
           <h1 className="text-3xl font-bold">Seller Application</h1>
           <SellerStatusBadge status={application.status || 'DRAFT'} />
         </div>
+        
+        {/* Role Access Status */}
+        {showRoleStatus && (
+          <div className={`mt-4 rounded-lg border p-4 ${
+            roleAccess.status === 'PENDING' ? 'border-blue-200 bg-blue-50' :
+            roleAccess.status === 'REJECTED' ? 'border-red-200 bg-red-50' :
+            roleAccess.status === 'SUSPENDED' ? 'border-yellow-200 bg-yellow-50' :
+            'border-gray-200 bg-gray-50'
+          }`}>
+            <p className="text-sm">
+              <strong>Account Status:</strong> {roleAccess.message}
+            </p>
+          </div>
+        )}
+
         <p className="mt-4 text-gray-600">
-          {application.status === 'PENDING_REVIEW' && 'Your seller application is under review.'}
+          {application.status === 'PENDING_REVIEW' && 'Pending Approval — your seller application is under review.'}
           {application.status === 'MORE_INFORMATION_REQUIRED' && 'Additional information is required before review can continue.'}
           {application.status === 'REJECTED' && 'Your application was rejected. You may update and resubmit it.'}
           {application.status === 'APPROVED' && 'Your seller application has been approved.'}
@@ -101,6 +123,21 @@ export default function SellerApplicationStatusPage() {
           <Link to="/seller-registration" className="mt-8 inline-flex rounded bg-[#75d04b] px-5 py-2 text-white">
             {application.status === 'DRAFT' ? 'Continue Registration' : 'Update and Resubmit'}
           </Link>
+        )}
+        
+        {/* If role is approved but application not synced, provide link to dashboard */}
+        {roleAccess.allowed && application.status !== 'APPROVED' && (
+          <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-4">
+            <p className="text-sm text-green-900">
+              <strong>Your seller role is active!</strong> You can access the seller dashboard even if this application status hasn't updated yet.
+            </p>
+            <Link
+              to="/business"
+              className="mt-3 inline-flex rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+            >
+              Go to Seller Dashboard
+            </Link>
+          </div>
         )}
       </div>
     </main>

@@ -48,7 +48,7 @@ const BuyerSidebar = ({ onClose, collapsed = false, onToggleCollapse }) => {
 
   return (
     <aside
-      className={`flex flex-col h-full bg-white border-r border-gray-100 transition-all duration-300 ease-in-out ${collapsed ? 'w-[68px]' : 'w-[240px]'}`}
+      className={`flex flex-col h-full bg-[#141414] text-white border-r border-white/15 transition-all duration-300 ease-in-out ${collapsed ? 'w-[68px]' : 'w-[240px]'}`}
       aria-label="Buyer navigation"
     >
       {/* Nav items */}
@@ -56,8 +56,8 @@ const BuyerSidebar = ({ onClose, collapsed = false, onToggleCollapse }) => {
         {BUYER_SIDEBAR.map((it, index) => {
           if (it.section) {
             if (collapsed) return null;
-            return (
-              <p key={`sec-${index}`} className="px-3 pt-4 pb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+              return (
+              <p key={`sec-${index}`} className="px-3 pt-4 pb-1.5 text-[10px] font-bold text-white/55 uppercase tracking-wider">
                 {it.section}
               </p>
             );
@@ -80,8 +80,8 @@ const BuyerSidebar = ({ onClose, collapsed = false, onToggleCollapse }) => {
                   collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'
                 } ${
                   isActive
-                    ? 'bg-[#f3ffee] text-[#75d04b]'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-white/15 text-white shadow-sm border-l-2 border-[#75d04b]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white border-l-2 border-transparent'
                 }`
               }
             >
@@ -102,22 +102,22 @@ const BuyerSidebar = ({ onClose, collapsed = false, onToggleCollapse }) => {
 
       {/* User card */}
       {!collapsed && user && (
-        <div className="border-t border-gray-100 p-3 flex-shrink-0">
+        <div className="border-t border-white/15 p-3 flex-shrink-0">
           <div className="flex items-center gap-2.5 px-1 py-1 rounded-lg">
             <Avatar data={user} fallback={PlaceholderAvatar} alt={user.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-gray-900 truncate">{user.name || 'Account'}</p>
-              <p className="text-[10px] text-gray-500 truncate">{user.email || 'Buyer'}</p>
+              <p className="text-xs font-semibold text-white truncate">{user.name || 'Account'}</p>
+              <p className="text-[10px] text-white/60 truncate">{user.email || 'Buyer'}</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Collapse toggle + Logout */}
-      <div className="border-t border-gray-100 p-2 flex-shrink-0 space-y-0.5">
+      <div className="border-t border-white/15 p-2 flex-shrink-0 space-y-0.5">
         <button
           onClick={logoutHandler}
-          className={`flex items-center gap-3 rounded-lg w-full text-gray-500 hover:text-red-600 hover:bg-red-50 font-medium transition ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
+          className={`flex items-center gap-3 rounded-lg w-full text-red-100 hover:text-white hover:bg-red-500/20 font-medium transition-all duration-200 ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
           aria-label="Log out"
         >
           <MdLogout className="text-[18px] flex-shrink-0" />
@@ -127,7 +127,7 @@ const BuyerSidebar = ({ onClose, collapsed = false, onToggleCollapse }) => {
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className={`flex items-center gap-3 rounded-lg w-full text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
+            className={`flex items-center gap-3 rounded-lg w-full text-white/65 hover:text-white hover:bg-white/10 transition-all duration-200 ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={collapsed ? 'Expand' : 'Collapse'}
           >

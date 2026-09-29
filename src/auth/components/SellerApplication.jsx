@@ -88,7 +88,7 @@ const SellerApplicationPage = () => {
           <p className="mt-3 text-gray-500 dark:text-gray-400">Sign in to start your seller application.</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/login" state={{ from: '/become-a-seller' }} className="px-6 py-3 rounded-md bg-[#75d04b] hover:brightness-95 text-white text-white font-[600]">Sign in</Link>
-            <Link to="/sign-up" state={{ from: '/become-a-seller' }} className="px-6 py-3 rounded-md border border-[#75d04b] font-semibold text-[#75d04b] hover:text-[#5ac12f] font-[600]">Create Account</Link>
+            <Link to="/seller-sign-up" state={{ from: '/seller-registration' }} className="px-6 py-3 rounded-md border border-[#75d04b] font-semibold text-[#75d04b] hover:text-[#5ac12f] font-[600]">Create Seller Account</Link>
           </div>
         </StatusCard>
       </PublicLayout>

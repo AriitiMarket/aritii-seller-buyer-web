@@ -47,7 +47,7 @@ const ShopDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="py-24 text-center text-brand-muted">
+      <div className="py-24 text-center text-[#667085]">
         Loading shop…
       </div>
     );
@@ -56,9 +56,9 @@ const ShopDetailsPage = () => {
   if (error || !shop) {
     return (
       <div className="py-24 text-center">
-        <h2 className="text-2xl font-semibold text-brand-charcoal">Shop not found</h2>
-        <p className="text-brand-muted mt-2">{error || "This shop is not available on Aritii Market."}</p>
-        <Link to="/shops" className="mt-6 inline-block px-6 py-3 bg-brand-primary text-white rounded-lg font-medium">
+        <h2 className="text-2xl font-semibold text-[#171A21]">Shop not found</h2>
+        <p className="text-[#667085] mt-2">{error || "This shop is not available on Aritii Market."}</p>
+        <Link to="/shops" className="mt-6 inline-block px-6 py-3 bg-[#20305C] hover:bg-[#2C3F6E] text-white rounded-xl font-semibold transition-colors">
           Back to Shops
         </Link>
       </div>
@@ -80,9 +80,9 @@ const ShopDetailsPage = () => {
       
       {/* Shop Header */}
       <div className="-mx-4 md:-mx-8 lg:-mx-12">
-        <div className="w-full h-32 md:h-48 bg-gradient-to-r from-[#75d04b] to-[#5ac12f] overflow-hidden relative" />
+        <div className="w-full h-32 md:h-48 bg-gradient-to-r from-[#20305C] to-[#2C3F6E] overflow-hidden relative" />
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 mt-[-60px] md:mt-[-80px]">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-[#E5E7EB] dark:border-gray-700 shadow-lg p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 mt-[-60px] md:mt-[-80px]">
             <ShopImage
               data={{ avatar: { url: shop.avatar?.url }, image: shop.avatar?.url, image_Url: shop.avatar?.url }}
               fallback={PlaceholderAvatar}
@@ -90,17 +90,17 @@ const ShopDetailsPage = () => {
               alt={name}
             />
             <div className="flex-1 min-w-0 text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#171A21] dark:text-white">{name}</h1>
               <div className="flex items-center justify-center md:justify-start mt-2 gap-2">
                 <Ratings rating={rating} />
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-[#667085] dark:text-gray-400">
                   {ratingCount ? `(${ratingCount} reviews)` : "No reviews yet"}
                 </span>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+              <p className="text-[#667085] dark:text-gray-400 mt-2 line-clamp-2">
                 {description || `Official ${name} shop on Aritii Market.`}
               </p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4 text-sm text-gray-700 dark:text-gray-300">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4 text-sm text-[#171A21] dark:text-gray-300">
                 {isAuthenticated && location && (
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-base">📍</span>
@@ -127,11 +127,11 @@ const ShopDetailsPage = () => {
       {/* Products Section */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-xl md:text-2xl font-bold text-[#171A21] dark:text-white">
             Products from {name}
           </h2>
           {products.length > 0 && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-[#667085] dark:text-gray-400">
               {products.length} product{products.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -139,12 +139,12 @@ const ShopDetailsPage = () => {
         {products.length > 0 ? (
           <GroupedProducts products={products} isAuthenticated={isAuthenticated} />
         ) : (
-          <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-xl">
+          <div className="text-center py-16 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-2xl">
             <div className="text-4xl mb-4">📦</div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-semibold text-[#171A21] dark:text-white mb-2">
               No products yet
             </h3>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-[#667085] dark:text-gray-400">
               This shop hasn't added any products yet.
             </p>
           </div>
@@ -175,9 +175,9 @@ const GroupedProducts = ({ products, isAuthenticated }) => {
     <div className="space-y-8">
       {ordered.map((cat) => (
         <div key={cat}>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+          <h3 className="text-lg font-semibold text-[#171A21] dark:text-white flex items-center gap-2 border-b border-[#E5E7EB] dark:border-gray-700 pb-2">
             {cat}
-            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">({groups[cat].length})</span>
+            <span className="text-xs text-[#667085] dark:text-gray-400 ml-1">({groups[cat].length})</span>
           </h3>
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {groups[cat].map((p, i) => <ProductCard data={p} key={p._id || i} variant={variant} />)}

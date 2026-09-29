@@ -13,7 +13,6 @@ const LoginPage = lazy(() => import('@/auth/pages/LoginPage'));
 const SignUpPage = lazy(() => import('@/auth/pages/SignUpPage'));
 const ShopLoginPage = lazy(() => import('@/auth/components/ShopLoginPage'));
 const CreateShopPage = lazy(() => import('@/auth/pages/CreateShopPage'));
-const SellerApplicationPage = lazy(() => import('@/auth/components/SellerApplication'));
 const SellerRegistrationPage = lazy(() => import('@/seller-registration/pages/SellerRegistrationPage'));
 const SellerApplicationStatusPage = lazy(() => import('@/seller-registration/pages/SellerApplicationStatusPage'));
 
@@ -21,11 +20,12 @@ export const AuthRoutes = () => (
   <>
     <Route path="/login" element={<LoginPage />} />
     <Route path="/sign-up" element={<SignUpPage />} />
+    <Route path="/seller-sign-up" element={<SignUpPage registrationType="SELLER" />} />
+    <Route path="/delivery-sign-up" element={<SignUpPage registrationType="PROVIDER" />} />
     <Route path="/shop-login" element={<ShopLoginPage />} />
     <Route path="/create-shop" element={<CreateShopPage />} />
-    <Route path="/become-a-seller" element={<SellerApplicationPage />} />
-    {/* Public legacy alias for the same application form. */}
-    <Route path="/sell" element={<SellerApplicationPage />} />
+    <Route path="/become-a-seller" element={<SignUpPage registrationType="SELLER" />} />
+    <Route path="/sell" element={<SignUpPage registrationType="SELLER" />} />
     <Route element={<SellerRegistrationGuard />}>
       <Route path="/seller-registration" element={<SellerRegistrationPage />} />
       <Route path="/seller-registration/status" element={<SellerApplicationStatusPage />} />

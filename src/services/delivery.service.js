@@ -16,7 +16,7 @@ import api from '@/services/api';
  *   /delivery/delivery   shipments + their status
  *   /delivery/assignment courier assignments (+ accept/reject)
  *   /delivery/tracking   location history per shipment
- *   /delivery/partner    courier partners (availability)
+ *   /delivery/provider   delivery providers (availability)
  *
  * The previous version of this file called invented paths
  * (`/delivery/get-assignments`, `/delivery/get-orders`, `/delivery/dashboard`)
@@ -27,7 +27,7 @@ const NOT_AVAILABLE = (error) =>
   error?.response?.status === 404 || error?.response?.status === 501;
 
 export const deliveryService = {
-  /** Delivery assignments (paged). Filters: status, partnerId, page, limit. */
+  /** Delivery assignments (paged). Filters: status, providerId, page, limit. */
   async getAssignments(params = {}) {
     try {
       const { data } = await api.get('/delivery/assignment', { params });
@@ -58,7 +58,7 @@ export const deliveryService = {
     return data?.assignment || null;
   },
 
-  /** Shipments — the delivery queue. Filters: status, sellerId, buyerId, partnerId. */
+  /** Shipments — the delivery queue. Filters: status, sellerId, buyerId, providerId. */
   async getDeliveries(params = {}) {
     try {
       const { data } = await api.get('/delivery/delivery', { params });
@@ -139,10 +139,41 @@ export const deliveryService = {
     return data?.location || data?.tracking || null;
   },
 
-  /** A courier (partner) toggles their own availability. */
-  async setOnline(partnerId, online) {
-    const { data } = await api.put(`/delivery/partner/${partnerId}/online`, { online: Boolean(online) });
-    return data?.partner || data;
+  /** A delivery provider toggles their own availability. */
+  async setOnline(providerId, online) {
+    const { data } = await api.put(`/delivery/provider/${providerId}/online`, { online: Boolean(online) });
+    return data?.provider || data?.partner || data;
+  },
+
+  /** Rider's grouped dispatch assignments and state transitions. */
+  async getMyDispatchBatches(params = {}) {
+    const { data } = await api.get('/delivery/dispatch/mine', { params });
+    return data || {};
+  },
+  async getMyDispatchBatch(batchId) {
+    const { data } = await api.get('/delivery/dispatch/mine');
+    const batches = data?.assignments || [];
+    return batches.find((batch) => String(batch._id) === String(batchId)) || null;
+  },
+  async respondToDispatchBatch(batchId, accepted, reason = '') {
+    const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/respond`, { accepted, reason });
+    return data?.assignment || null;
+  },
+  async startDispatchPickup(batchId) {
+    const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/pickup/start`);
+    return data?.assignment || null;
+  },
+  async confirmDispatchPickup(batchId, sellerId) {
+    const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/pickup/${sellerId}/confirm`);
+    return data?.assignment || null;
+  },
+  async startDispatchTransit(batchId) {
+    const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/transit/start`);
+    return data?.assignment || null;
+  },
+  async confirmDispatchDelivery(batchId, orderId, proof = {}) {
+    const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/orders/${encodeURIComponent(orderId)}/deliver`, proof);
+    return data?.assignment || null;
   },
 };
 

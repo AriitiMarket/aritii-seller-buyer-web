@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="280" viewBox="0 0 360 280">
-  <defs><linearGradient id="es" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDF6EC"/><stop offset="1" stop-color="#F1E8DC"/></linearGradient></defs>
-  <rect width="360" height="280" rx="40" fill="url(#es)"/>
-  <circle cx="180" cy="112" r="64" fill="#FFFFFF"/>
-  <g transform="translate(180,112)"><g fill="none" stroke="#0B6E4F" stroke-width="6" stroke-linecap="round"><rect x="-28" y="-30" width="56" height="60" rx="8"/><path d="M-16 -30 v-6 a16 16 0 0 1 32 0 v6"/><path d="M-12 0 h24 M-12 12 h24 M-12 24 h12"/></g></g>
-  <text x="180" y="222" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="20" fill="#1F2937">No orders yet</text>
-  <text x="180" y="248" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="500" font-size="13" fill="#6B7280">Your purchases will appear here</text>
-</svg>

@@ -105,13 +105,13 @@ export default function BuyerRequestsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Product Requests</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[#171A21]">Product Requests</h1>
+          <p className="text-[#667085] mt-1">
             Request a product, negotiate an offer with the seller, then create the order when you agree.
           </p>
         </div>
         <Link to="/my-dashboard/requests/new" className="shrink-0">
-          <Button className="bg-brand-primary text-white flex items-center gap-2">
+          <Button className="bg-[#20305C] text-white flex items-center gap-2">
             <FiPlus size={16} />
             Request Product
           </Button>
@@ -119,7 +119,7 @@ export default function BuyerRequestsPage() {
       </div>
 
       {/* Stages */}
-      <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
+      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-3 sm:p-4">
         <RequestTabs tabs={BUYER_TABS} counts={counts} active={activeTab} onChange={setActiveTab} />
       </div>
 
@@ -135,7 +135,7 @@ export default function BuyerRequestsPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search requests, products or sellers…"
             aria-label="Search requests"
-            className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#E5E7EB] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#20305C]"
           />
         </div>
         <div className="flex gap-3">
@@ -143,7 +143,7 @@ export default function BuyerRequestsPage() {
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
             aria-label="Filter by status"
-            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#20305C]"
           >
             {STATUS_FILTER_OPTIONS.map((option) => (
               <option key={option.id || 'any'} value={option.id}>
@@ -155,7 +155,7 @@ export default function BuyerRequestsPage() {
             value={dateFilter}
             onChange={(event) => setDateFilter(event.target.value)}
             aria-label="Filter by date"
-            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#20305C]"
           >
             {DATE_FILTERS.map((option) => (
               <option key={option.id} value={option.id}>
@@ -186,7 +186,7 @@ export default function BuyerRequestsPage() {
           action={
             requests.length === 0 ? (
               <Link to="/my-dashboard/requests/new">
-                <Button className="bg-brand-primary text-white flex items-center gap-2">
+                <Button className="bg-[#20305C] text-white flex items-center gap-2">
                   <FiPlus size={16} />
                   Request Product
                 </Button>
@@ -206,20 +206,20 @@ export default function BuyerRequestsPage() {
             return (
               <article
                 key={request._id}
-                className="bg-white border border-gray-100 rounded-xl p-4 sm:p-5 hover:border-brand-primary transition"
+                className="bg-white border border-[#E5E7EB] rounded-xl p-4 sm:p-5 hover:border-[#20305C] transition"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-semibold text-brand-primary-dark bg-brand-primary-light px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-semibold text-[#2C3F6E] bg-[#E9ECF5] px-2 py-0.5 rounded-full">
                         {requestCode(request._id)}
                       </span>
-                      <h2 className="font-semibold text-gray-900 flex items-center gap-2 truncate">
-                        <FiPackage className="text-brand-primary flex-shrink-0" size={16} />
+                      <h2 className="font-semibold text-[#171A21] flex items-center gap-2 truncate">
+                        <FiPackage className="text-[#20305C] flex-shrink-0" size={16} />
                         <span className="truncate">{request.title || request.subject}</span>
                       </h2>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="text-xs text-[#667085] mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="flex items-center gap-1">
                         <FiClock size={12} />
                         {formatDateTime(request.updatedAt || request.createdAt)}
@@ -231,16 +231,16 @@ export default function BuyerRequestsPage() {
                       {request.shopId ? 'Addressed to a seller' : 'Open to all sellers'}
                     </p>
                     {request.details ? (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">{request.details}</p>
+                      <p className="text-sm text-[#667085] mt-2 line-clamp-2">{request.details}</p>
                     ) : null}
                   </div>
                   <RequestStatusBadge status={status} className="self-start" />
                 </div>
 
                 {offer ? (
-                  <p className="text-sm text-gray-700 mt-3 bg-gray-50 rounded-lg px-3 py-2">
+                  <p className="text-sm text-[#171A21] mt-3 bg-[#F7F8FA] rounded-lg px-3 py-2">
                     Seller offer: {offer.quantity} &times; {formatCurrency(offer.unitPrice)} ={' '}
-                    <span className="font-semibold text-brand-primary-dark">
+                    <span className="font-semibold text-[#2C3F6E]">
                       {formatCurrency(offerTotal(offer))}
                     </span>
                   </p>
@@ -248,7 +248,7 @@ export default function BuyerRequestsPage() {
 
                 <div className="flex flex-wrap items-center gap-2 mt-4">
                   <Link to={`/my-dashboard/requests/${request._id}`}>
-                    <Button className="bg-brand-primary text-white flex items-center gap-2">
+                    <Button className="bg-[#20305C] text-white flex items-center gap-2">
                       {OPEN_STATUSES.includes(status) ? 'Continue' : 'Open'}
                       <FiArrowRight size={14} />
                     </Button>
@@ -267,7 +267,7 @@ export default function BuyerRequestsPage() {
                   {status === 'CONVERTED' && request.orderId ? (
                     <Link
                       to={`/user/order/${request.orderId}`}
-                      className="h-[45px] min-w-[110px] px-5 inline-flex items-center justify-center bg-white border border-gray-200 rounded-full text-gray-700 font-semibold text-sm hover:border-brand-primary transition"
+                      className="h-[45px] min-w-[110px] px-5 inline-flex items-center justify-center bg-white border border-[#E5E7EB] rounded-full text-[#171A21] font-semibold text-sm hover:border-[#20305C] transition"
                     >
                       View Order
                     </Link>

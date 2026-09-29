@@ -13,10 +13,10 @@ const CreateShopPage = () => {
   const { isAuthenticated } = useSelector((state) => state.user)
 
   useEffect(() => {
-    navigate(isAuthenticated ? "/become-a-seller" : "/sign-up", { replace: true })
+    navigate(isAuthenticated ? "/seller-registration" : "/seller-sign-up", { replace: true })
   }, [isAuthenticated])
 
   return null
 }
 
-export default CreateShopPage
+export default CreateShopPage

@@ -9,9 +9,18 @@
 | Route | Page | Layout | Header | Sidebar | Auth | Auth Guard |
 |---|---|---|---|---|---|---|
 | / | HomePage (via HomeRoute) | PublicLayout | PublicHeader | None | No | None |
+| /marketplace | MarketplaceLandingPage | PublicLayout | PublicHeader | None | No | None |
+| /sell-on-aritii | SellOnAritiiPage | PublicLayout | PublicHeader | None | No | None |
+| /delivery | DeliveryExperiencePage (public explainer only — no delivery data) | PublicLayout | PublicHeader | None | No | None |
 | /about | AboutPlatform | PublicLayout | PublicHeader | None | No | None |
 | /how-it-works | HowItWorks | PublicLayout | PublicHeader | None | No | None |
 | /faq | FAQpage | PublicLayout | PublicHeader | None | No | None |
+
+The three public experiences hand off as follows:
+
+- Homepage → `/marketplace` → `/products`, `/shops`, `/product/:id` → buyer order flow
+- Homepage → `/sell-on-aritii` → `/become-a-seller` → seller portal (`/business`)
+- Homepage → `/delivery` → `/sign-up` (delivery capability provisioned by the backend; the protected `/delivery` workspace is not mounted in this frontend yet)
 
 ---
 

@@ -26,7 +26,7 @@ const BusinessLayout = ({ flushFooter = false }) => {
   const closeMobileDrawer = () => setMobileDrawerOpen(false);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-[#F7F8FA]">
       <SkipToContent />
 
       {/* Header — fixed row, does not scroll away */}
@@ -49,7 +49,7 @@ const BusinessLayout = ({ flushFooter = false }) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 min-w-0 min-h-0 overflow-y-auto px-4 py-6 lg:px-6 lg:py-6 outline-none"
+          className="seller-content-enter flex-1 min-w-0 min-h-0 overflow-y-auto px-4 py-6 lg:px-6 lg:py-6 outline-none"
           data-testid="business-content"
         >
           <Outlet />

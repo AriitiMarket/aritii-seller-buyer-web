@@ -8,17 +8,18 @@
 
 /**
  * BUYER_SIDEBAR — grouped sections for the modern sidebar.
- * Sections: Browse, My Activity, Account.
+ * Sections: Overview, Shopping, My Activity, Account.
  */
 export const BUYER_SIDEBAR = [
-  { section: 'BROWSE' },
-  { label: 'Overview', to: '/my-dashboard', icon: 'MdDashboard', end: true },
+  { section: 'OVERVIEW' },
+  { label: 'Dashboard', to: '/my-dashboard', icon: 'MdDashboard', end: true },
+  { section: 'SHOPPING' },
   { label: 'Products', to: '/my-dashboard/marketplace', icon: 'MdShoppingBag' },
   { label: 'Shops', to: '/my-dashboard/shops', icon: 'MdStorefront' },
-  { section: 'MY ACTIVITY' },
   { label: 'Cart', to: '/my-dashboard/cart', icon: 'MdShoppingCart', badge: 'cart' },
+  { section: 'MY ACTIVITY' },
   { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt', badge: 'orders' },
-  { label: 'Saved items', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder', badge: 'wishlist' },
+  { label: 'Saved Items', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder', badge: 'wishlist' },
   { label: 'Reviews', to: '/my-dashboard/reviews', icon: 'MdRateReview' },
   { label: 'Product Requests', to: '/my-dashboard/requests', icon: 'MdHelpOutline' },
   { section: 'ACCOUNT' },
@@ -36,15 +37,6 @@ export const BUYER_BOTTOM_NAV = [
   { label: 'Shops', to: '/my-dashboard/shops', icon: 'MdStorefront' },
   { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt' },
   { label: 'More', to: null, icon: 'MdMoreHoriz', action: 'openDrawer' },
-];
-
-export const BUYER_ACCOUNT_TABS = [
-  { label: 'Overview', to: '/my-dashboard', end: true },
-  { label: 'Orders', to: '/my-dashboard/orders' },
-  { label: 'Saved items', to: '/my-dashboard/wishlist' },
-  { label: 'Addresses', to: '/my-dashboard/addresses' },
-  { label: 'Reviews', to: '/my-dashboard/reviews' },
-  { label: 'Settings', to: '/my-dashboard/settings' },
 ];
 
 export const BUYER_PROFILE_DROPDOWN = [

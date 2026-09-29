@@ -18,6 +18,7 @@ export default function ProfileMenu({
   isSeller = false,
   onLogout,
   menuId = 'profile-menu',
+  tone = 'default',
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef(null);
@@ -74,21 +75,21 @@ export default function ProfileMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={menuId}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition"
+        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 ${tone === 'light' ? 'text-white hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/50' : 'hover:bg-gray-100'}`}
       >
         {user ? (
           <Avatar data={user} fallback={fallback} alt={user.name}
-            className="w-9 h-9 rounded-full object-cover border-2 border-[#75d04b]" />
+            className={`w-9 h-9 rounded-full object-cover border-2 ${tone === 'light' ? 'border-white/70' : 'border-[#75d04b]'}`} />
         ) : (
           <div className="w-9 h-9 rounded-full bg-[#f3ffee] flex items-center justify-center">
             <span className="text-[#75d04b] text-sm font-bold">?</span>
           </div>
         )}
         <div className="hidden xl:block text-left">
-          <p className="text-sm font-semibold text-gray-900 leading-tight line-clamp-1">{user?.name || 'Account'}</p>
-          <p className="text-[11px] text-gray-500">{isSeller ? 'Seller' : 'Buyer'}</p>
+          <p className={`text-sm font-semibold ${tone === 'light' ? 'text-white' : 'text-gray-900'} leading-tight line-clamp-1`}>{user?.name || 'Account'}</p>
+          <p className={`text-[11px] ${tone === 'light' ? 'text-white/70' : 'text-gray-500'}`}>{isSeller ? 'Seller' : 'Buyer'}</p>
         </div>
-        <IoIosArrowDown size={14} className={`text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <IoIosArrowDown size={14} className={`transition-transform ${tone === 'light' ? 'text-white/80' : 'text-gray-500'} ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (

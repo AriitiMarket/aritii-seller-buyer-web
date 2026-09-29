@@ -107,9 +107,9 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const shopPath = basePath ? `${basePath}/shops/${shopId}` : `/shops/${shopId}`;
 
   return (
-    <article className="group w-full bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+    <article className="group w-full bg-white dark:bg-gray-900 dark:border-gray-700 rounded-2xl border border-[#E5E7EB] shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
       {/* Image Container */}
-      <div className="relative w-full aspect-square bg-gray-50 dark:bg-gray-700 overflow-hidden">
+      <div className="relative w-full aspect-square bg-white dark:bg-gray-900 overflow-hidden">
         <Link to={productPath} className="block w-full h-full">
           <ProductImage 
             data={data}
@@ -133,7 +133,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
             ) : (
               <button
                 type="button"
-                className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b] transition-colors"
+                className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[#171A21] hover:bg-[#F7F8FA] dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20305C] transition-colors"
                 onClick={() => addToWishlistHandler(data)}
                 aria-label={`Add ${d || 'product'} to wishlist`}
               >
@@ -142,7 +142,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
             )}
             <Link
               to={productPath}
-              className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b] transition-colors"
+              className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[#171A21] hover:bg-[#F7F8FA] dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20305C] transition-colors"
               aria-label={`View ${d || 'product'} details`}
             >
               <AiOutlineEye size={18} />
@@ -166,7 +166,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
             className={`absolute bottom-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 transition-colors ${
               availableUnits < 1
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-[#75d04b] text-white hover:bg-[#5ac12f] focus-visible:ring-[#75d04b]'
+                : 'bg-[#20305C] text-white hover:bg-[#2C3F6E] focus-visible:ring-[#20305C]'
             }`}
             onClick={() => AddToCartHandler(data._id)}
             aria-label={availableUnits < 1 ? `${d || 'product'} is out of stock` : `Add ${d || 'product'} to cart`}
@@ -180,7 +180,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
       <div className="p-4 flex-1 flex flex-col">
         {/* Shop Name */}
         <Link to={shopPath} className="mb-1">
-          <h5 className={`${styles.shop_name} text-xs text-gray-500 dark:text-gray-400 hover:text-[#75d04b] transition-colors`}>
+          <h5 className={`${styles.shop_name} text-xs text-[#667085] dark:text-gray-400 hover:text-[#20305C] transition-colors`}>
             {shopName}
           </h5> 
         </Link>
@@ -213,7 +213,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
                 <span className="text-xs text-gray-400 line-through">
                   {data.originalPrice} ETB
                 </span>
-                <span className="text-xs text-[#75d04b] font-semibold">
+                <span className="text-xs text-[#20305C] font-semibold">
                   {Math.round(((data.originalPrice - displayPrice) / data.originalPrice) * 100)}% off
                 </span>
               </div>
@@ -224,8 +224,8 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
         {/* Best Seller Badge */}
         {soldCount > 10 && (
           <div className="mt-2">
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#75d04b]/10 text-[#75d04b] text-xs font-semibold rounded-full">
-              <span className="w-1.5 h-1.5 bg-[#75d04b] rounded-full"></span>
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#20305C]/10 text-[#20305C] text-xs font-semibold rounded-full">
+              <span className="w-1.5 h-1.5 bg-[#20305C] rounded-full"></span>
               Best Seller
             </span>
           </div>

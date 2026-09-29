@@ -1,6 +1,7 @@
 import api from '@/services/api';
 import { tokenStore } from '@/services/tokenStore';
 import { createPkcePair, discardPkce } from '@/services/pkce';
+import { normalizeActorRole, workspaceForLogin } from '@/shared/utils/actorWorkspaces';
 
 /**
  * Authentication Service — OAuth 2.1 Authorization Code Flow + PKCE (S256).
@@ -15,6 +16,45 @@ import { createPkcePair, discardPkce } from '@/services/pkce';
  */
 
 const CLIENT_ID = 'aritii-eshop';
+
+// The three role-specific registration paths the Identity Service exposes.
+const REGISTRATION_ROLES = ['BUYER', 'SELLER', 'PROVIDER'];
+
+/**
+ * Is this payload a FormData instance?
+ *
+ * The registration form always submits FormData (so an optional avatar can ride
+ * along), and FormData exposes its entries through `.get()` — never through
+ * plain properties. Reading `payload.registrationType` off a FormData silently
+ * yields `undefined`, which is how every seller/provider sign-up ended up on the
+ * plain buyer endpoint.
+ */
+function isFormDataPayload(value) {
+  return typeof FormData !== 'undefined' && value instanceof FormData;
+}
+
+/** Read `registrationType` from either a FormData or a plain object. */
+function readRegistrationType(userData) {
+  const raw = isFormDataPayload(userData) ? userData.get('registrationType') : userData?.registrationType;
+  const role = String(raw || 'BUYER').trim().toUpperCase();
+  return REGISTRATION_ROLES.includes(role) ? role : 'BUYER';
+}
+
+/**
+ * POST a registration payload.
+ *
+ * The shared axios client defaults to `Content-Type: application/json`, and
+ * axios v1 turns a FormData body into JSON whenever that header is present —
+ * which silently drops a File value (a serialized File is `{}`). Sending
+ * FormData explicitly as `multipart/form-data` lets the browser set the real
+ * boundary, so the avatar is actually uploaded.
+ */
+function postRegistration(path, payload) {
+  if (isFormDataPayload(payload)) {
+    return api.post(path, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+  }
+  return api.post(path, payload);
+}
 
 async function exchangeCodeForTokens(code, codeVerifier) {
   const { data } = await api.post('/auth/token', {
@@ -43,7 +83,7 @@ export const authService = {
   async register(userData) {
     const pkce = await createPkcePair();
     let payload;
-    if (typeof FormData !== 'undefined' && userData instanceof FormData) {
+    if (isFormDataPayload(userData)) {
       payload = userData;
       payload.append('code_challenge', pkce.codeChallenge);
       payload.append('code_challenge_method', pkce.codeChallengeMethod);
@@ -59,19 +99,65 @@ export const authService = {
       };
     }
 
-    const { data } = await api.post('/auth/register', payload);
+    const { data } = await postRegistration('/auth/register', payload);
     const issued = data.data || data;
     if (!issued.code) throw new Error('Authorization code not issued');
 
     const tokens = await exchangeCodeForTokens(issued.code, pkce.codeVerifier);
     discardPkce(pkce);
     if (issued.user) tokenStore.setUser(issued.user);
-    return { ...tokens, user: issued.user };
+    // The account registered AS the buyer role; remember it so the guards route
+    // this session to the buyer workspace.
+    tokenStore.setLoginRole('BUYER');
+    return { ...tokens, user: issued.user, registrationType: 'BUYER' };
   },
 
   /**
-   * Log in with email + password through the authorization endpoint.
-   * @param {string} email
+   * Register with a specific role (BUYER, SELLER, PROVIDER), then complete PKCE exchange.
+   * For SELLER and PROVIDER, creates a PENDING membership requiring admin approval.
+   * @param {Object|FormData} userData - registration payload including registrationType
+   */
+  async registerWithRole(userData) {
+    const pkce = await createPkcePair();
+    // Works for both a plain object and the FormData the sign-up form submits.
+    const registrationType = readRegistrationType(userData);
+
+    let payload;
+    if (isFormDataPayload(userData)) {
+      payload = userData;
+      payload.append('code_challenge', pkce.codeChallenge);
+      payload.append('code_challenge_method', pkce.codeChallengeMethod);
+      payload.append('client_id', CLIENT_ID);
+      payload.append('state', pkce.state);
+    } else {
+      payload = {
+        ...userData,
+        code_challenge: pkce.codeChallenge,
+        code_challenge_method: pkce.codeChallengeMethod,
+        client_id: CLIENT_ID,
+        state: pkce.state,
+      };
+    }
+
+    const { data } = await postRegistration(`/auth/register/${registrationType}`, payload);
+    const issued = data.data || data;
+    if (!issued.code) throw new Error('Authorization code not issued');
+
+    const tokens = await exchangeCodeForTokens(issued.code, pkce.codeVerifier);
+    discardPkce(pkce);
+    if (issued.user) tokenStore.setUser(issued.user);
+    // The account registered AS this role; remember it so the guards route this
+    // session to the matching workspace (or application screen) rather than
+    // assuming buyer.
+    tokenStore.setLoginRole(registrationType);
+    return { ...tokens, user: issued.user, registrationType, message: issued.message };
+  },
+
+  /**
+   * Log in with email or phone + password through the shared authorization
+   * endpoint. Identity resolves the account's role and access.
+   *
+   * @param {string} emailOrPhone
    * @param {string} password
    */
   async login(email, password) {
@@ -89,13 +175,38 @@ export const authService = {
 
     const tokens = await exchangeCodeForTokens(issued.code, pkce.codeVerifier);
     discardPkce(pkce);
+    // Remember the chosen role for this session (used by the route guards).
+    const loginRole = issued.login_role || 'BUYER';
+    tokenStore.setLoginRole(loginRole);
     // Populate the user profile from the freshly issued access token.
     try {
       await this.getCurrentUser();
     } catch (err) {
       /* profile fetch is best-effort; tokens are already stored */
     }
-    return tokens;
+    return { ...tokens, loginRole };
+  },
+
+  /**
+   * Where a session that signed in as `role` should land.
+   *
+   * Read from Identity's role-status so a seller/provider whose membership is
+   * still awaiting approval lands on their application screen rather than a
+   * portal the backend would refuse.
+   */
+  async loginDestination(role) {
+    // normalizeActorRole folds a stored legacy `login_role` (CUSTOMER) onto BUYER.
+    const requested = normalizeActorRole(role || tokenStore.getLoginRole()) || 'BUYER';
+    if (requested === 'BUYER') return workspaceForLogin('BUYER');
+    let status = null;
+    try {
+      const { data } = await api.get(`/auth/role-status/${requested}`);
+      const result = data.data || data;
+      status = result.status || null;
+    } catch (err) {
+      /* fall through to the role's default (application) destination */
+    }
+    return workspaceForLogin(requested, status);
   },
 
   async getCurrentUser() {
@@ -103,6 +214,22 @@ export const authService = {
     const user = (data.data || data).user || data.user;
     if (user) tokenStore.setUser(user);
     return user || null;
+  },
+
+  /**
+   * Switch which actor role this session acts as.
+   *
+   * One account can hold several roles (buyer + seller + provider). The server
+   * re-mints the access token with the chosen role; the rotating refresh token is
+   * deliberately kept, and the choice is persisted server-side so it survives
+   * rotation. Only roles the account already holds are accepted.
+   */
+  async switchRole(role) {
+    const { data } = await api.post('/auth/switch-role', { role });
+    const result = data.data || data;
+    if (!result.access_token) throw new Error('Role switch failed');
+    tokenStore.setTokens({ access_token: result.access_token });
+    return result;
   },
 
   async logout() {

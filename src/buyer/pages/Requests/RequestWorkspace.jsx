@@ -364,7 +364,7 @@ export default function RequestWorkspacePage() {
         description="This request may have been removed."
         action={
           <Link to="/my-dashboard/requests">
-            <Button className="bg-brand-primary text-white">Back to Product Requests</Button>
+            <Button className="bg-[#20305C] text-white">Back to Product Requests</Button>
           </Link>
         }
       />
@@ -375,7 +375,7 @@ export default function RequestWorkspacePage() {
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {activeOffer && isActive && (
         <>
-          <Button onClick={handleAcceptOffer} className="bg-green-600 hover:bg-green-700 text-white">
+          <Button onClick={handleAcceptOffer} className="bg-[#20305C] hover:bg-[#2C3F6E] text-white">
             <FiCheckCircle className="w-4 h-4 mr-2" />
             Accept Offer
           </Button>
@@ -392,7 +392,7 @@ export default function RequestWorkspacePage() {
       {isAgreed && !confirmed && (
         <Button
           onClick={() => setActiveTab('agreement')}
-          className="bg-brand-primary text-white"
+          className="bg-[#20305C] text-white"
         >
           Review &amp; Confirm Agreement
         </Button>
@@ -401,14 +401,14 @@ export default function RequestWorkspacePage() {
         <Button
           onClick={() => handleConvertToOrder()}
           disabled={converting}
-          className="bg-green-600 hover:bg-green-700 text-white"
+          className="bg-[#20305C] hover:bg-[#2C3F6E] text-white"
         >
           {converting ? 'Creating Order…' : 'Create Order'}
         </Button>
       )}
       {isConverted && request.orderId && (
         <Link to={`/user/order/${request.orderId}`}>
-          <Button className="bg-brand-primary text-white">View Order</Button>
+          <Button className="bg-[#20305C] text-white">View Order</Button>
         </Link>
       )}
       {canCancel && !isConverted && (
@@ -427,7 +427,7 @@ export default function RequestWorkspacePage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <header className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
+      <header className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Link
@@ -435,16 +435,16 @@ export default function RequestWorkspacePage() {
               className="p-2 hover:bg-gray-100 rounded-lg transition"
               title="Back to Product Requests"
             >
-              <FiArrowLeft className="w-5 h-5 text-gray-600" />
+              <FiArrowLeft className="w-5 h-5 text-[#667085]" />
             </Link>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg font-bold text-gray-900">
+                <h1 className="text-lg font-bold text-[#171A21]">
                   Request {requestCode(request._id)}
                 </h1>
                 <RequestStatusBadge status={status} />
               </div>
-              <p className="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-xs text-[#667085] mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="flex items-center gap-1">
                   <FiClock size={12} />
                   Created {formatDateTime(request.createdAt)}
@@ -456,7 +456,7 @@ export default function RequestWorkspacePage() {
           <div className="sm:hidden">{renderPrimaryActions()}</div>
         </div>
 
-        <div className="hidden sm:block mt-4 pt-4 border-t border-gray-100">
+        <div className="hidden sm:block mt-4 pt-4 border-t border-[#E5E7EB]">
           {renderPrimaryActions()}
         </div>
       </header>
@@ -469,7 +469,7 @@ export default function RequestWorkspacePage() {
             setActiveTab('discussion');
             setNewMessageCount(0);
           }}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-hover transition"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#20305C] text-white text-sm font-semibold hover:bg-[#2C3F6E] transition"
         >
           <FiMessageSquare size={16} />
           {newMessageCount} new message{newMessageCount > 1 ? 's' : ''} — open chat
@@ -477,7 +477,7 @@ export default function RequestWorkspacePage() {
       )}
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-100 p-3">
+      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-3">
         <RequestTabs
           tabs={WORKSPACE_TABS}
           active={activeTab}
@@ -520,7 +520,7 @@ export default function RequestWorkspacePage() {
                 request.shopId ? (
                   <Link
                     to={`/my-dashboard/shops/${request.shopId}`}
-                    className="text-sm font-semibold text-brand-primary-dark hover:underline"
+                    className="text-sm font-semibold text-[#2C3F6E] hover:underline"
                   >
                     View shop profile
                   </Link>
@@ -532,8 +532,8 @@ export default function RequestWorkspacePage() {
           {isActive && !activeOffer && (
             <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
               <FiClock className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-              <p className="font-semibold text-gray-900">Waiting for the seller</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="font-semibold text-[#171A21]">Waiting for the seller</p>
+              <p className="text-sm text-[#667085] mt-1">
                 The seller has not made an offer yet. Keep the conversation going in the Discussion tab.
               </p>
             </div>
@@ -541,14 +541,14 @@ export default function RequestWorkspacePage() {
           {isAgreed && !confirmed && (
             <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
               <FiClock className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-              <p className="font-semibold text-gray-900">Offer accepted — confirm the agreement</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="font-semibold text-[#171A21]">Offer accepted — confirm the agreement</p>
+              <p className="text-sm text-[#667085] mt-1">
                 Both sides must confirm the final terms before the order can be created.
               </p>
               <div className="mt-3 flex justify-center">
                 <Button
                   onClick={() => setActiveTab('agreement')}
-                  className="bg-brand-primary text-white"
+                  className="bg-[#20305C] text-white"
                 >
                   Go to Agreement
                 </Button>
@@ -558,15 +558,15 @@ export default function RequestWorkspacePage() {
           {isAgreed && confirmed && (
             <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center">
               <FiCheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="font-semibold text-gray-900">Agreement confirmed</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="font-semibold text-[#171A21]">Agreement confirmed</p>
+              <p className="text-sm text-[#667085] mt-1">
                 Create the order to continue with payment and delivery. No cart needed.
               </p>
               <div className="mt-3 flex justify-center">
                 <Button
                   onClick={() => handleConvertToOrder()}
                   disabled={converting}
-                  className="bg-brand-primary text-white"
+                  className="bg-[#20305C] text-white"
                 >
                   {converting ? 'Creating Order…' : 'Create Order'}
                 </Button>
@@ -574,17 +574,17 @@ export default function RequestWorkspacePage() {
             </div>
           )}
           {isConverted && (
-            <div className="rounded-xl border border-brand-primary/40 bg-brand-primary-light/50 p-4 text-center">
-              <FiCheckCircle className="w-8 h-8 text-brand-primary mx-auto mb-2" />
-              <p className="font-semibold text-gray-900">Order created</p>
-              <p className="text-sm text-gray-600 mt-1">
+            <div className="rounded-xl border border-green-300 bg-green-50 p-4 text-center">
+              <FiCheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <p className="font-semibold text-[#171A21]">Order created</p>
+              <p className="text-sm text-[#667085] mt-1">
                 Order{' '}
                 {request.orderId ? `#${String(request.orderId).slice(-6).toUpperCase()}` : ''} is
                 now in Orders — payment and logistics follow from there.
               </p>
               <div className="mt-3 flex justify-center">
                 <Link to={request.orderId ? `/user/order/${request.orderId}` : '/my-dashboard/orders'}>
-                  <Button className="bg-brand-primary text-white">View Order</Button>
+                  <Button className="bg-[#20305C] text-white">View Order</Button>
                 </Link>
               </div>
             </div>
@@ -592,41 +592,41 @@ export default function RequestWorkspacePage() {
           {['DECLINED', 'CANCELLED', 'EXPIRED'].includes(status) && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
               <FiXCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-              <p className="font-semibold text-gray-900 capitalize">Request {status.toLowerCase()}</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="font-semibold text-[#171A21] capitalize">Request {status.toLowerCase()}</p>
+              <p className="text-sm text-[#667085] mt-1">
                 This request is closed. Start a new one any time from Product Requests.
               </p>
             </div>
           )}
 
           {/* Request details live in Overview — the brief is never a tab away. */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-5">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-              <FiFileText size={16} className="text-brand-primary" />
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-5">
+            <h2 className="font-semibold text-[#171A21] flex items-center gap-2">
+              <FiFileText size={16} className="text-[#20305C]" />
               Request details
             </h2>
             <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-gray-500">Requested product</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-[#667085]">Requested product</p>
+                <p className="text-sm font-medium text-[#171A21]">
                   {request.productName || request.title || request.subject}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Quantity</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-[#667085]">Quantity</p>
+                <p className="text-sm font-medium text-[#171A21]">
                   {quantityLabel(request.quantity, requestUnit)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Expected / target price</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-[#667085]">Expected / target price</p>
+                <p className="text-sm font-medium text-[#171A21]">
                   {request.targetPrice != null ? formatCurrency(request.targetPrice) : 'Not specified'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Created</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-[#667085]">Created</p>
+                <p className="text-sm font-medium text-[#171A21]">
                   {formatDateTime(request.createdAt)}
                 </p>
               </div>
@@ -634,12 +634,12 @@ export default function RequestWorkspacePage() {
 
             {specs.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1.5">Structured requirements</p>
+                <p className="text-xs text-[#667085] mb-1.5">Structured requirements</p>
                 <ul className="flex flex-wrap gap-2">
                   {specs.map((entry) => (
                     <li
                       key={entry.key}
-                      className="text-xs rounded-full bg-brand-primary-light text-brand-primary-dark px-2.5 py-1"
+                      className="text-xs rounded-full bg-[#E9ECF5] text-[#2C3F6E] px-2.5 py-1"
                     >
                       <span className="font-semibold">{entry.label}:</span> {entry.value}
                     </li>
@@ -649,8 +649,8 @@ export default function RequestWorkspacePage() {
             )}
 
             <div>
-              <p className="text-xs text-gray-500 mb-1">Description & requirements</p>
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              <p className="text-xs text-[#667085] mb-1">Description & requirements</p>
+              <p className="text-sm text-[#171A21] whitespace-pre-wrap">
                 {request.details || 'No description provided.'}
               </p>
             </div>
@@ -659,16 +659,16 @@ export default function RequestWorkspacePage() {
               <AttachmentGallery urls={attachmentUrls} />
             )}
 
-            <div className="pt-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-gray-500">
+            <div className="pt-4 border-t border-[#E5E7EB] flex flex-wrap gap-4 text-xs text-[#667085]">
               <span>
-                Request code: <span className="font-semibold text-gray-700">{requestCode(request._id)}</span>
+                Request code: <span className="font-semibold text-[#171A21]">{requestCode(request._id)}</span>
               </span>
               <span>
                 Status:{' '}
-                <span className="font-semibold text-gray-700 capitalize">{status.toLowerCase()}</span>
+                <span className="font-semibold text-[#171A21] capitalize">{status.toLowerCase()}</span>
               </span>
               <span>
-                Last updated: <span className="font-semibold text-gray-700">{formatDateTime(request.updatedAt)}</span>
+                Last updated: <span className="font-semibold text-[#171A21]">{formatDateTime(request.updatedAt)}</span>
               </span>
             </div>
           </div>
@@ -679,12 +679,12 @@ export default function RequestWorkspacePage() {
       {activeTab === 'discussion' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
-            <h2 className="font-semibold text-gray-900">Discussion</h2>
+            <h2 className="font-semibold text-[#171A21]">Discussion</h2>
             <span className="text-xs text-gray-400">Chat happens inside this request</span>
           </div>
           <DiscussionThread
             messages={messages}
-            currentUserId={request.customerId || user?.id || user?._id}
+            currentUserId={request.buyerId || user?.id || user?._id}
             draft={draft}
             onDraftChange={setDraft}
             onSend={handleSendMessage}
@@ -702,9 +702,9 @@ export default function RequestWorkspacePage() {
       {activeTab === 'offers' && (
         <div className="space-y-4">
           {(activeOffer || acceptedOffer) && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-4">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <FiTag size={16} className="text-brand-primary" />
+            <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-4">
+              <h2 className="font-semibold text-[#171A21] flex items-center gap-2">
+                <FiTag size={16} className="text-[#20305C]" />
                 {acceptedOffer && !activeOffer ? 'Agreed offer' : 'Current offer'}
               </h2>
               <OfferCard offer={activeOffer || acceptedOffer} highlighted />
@@ -713,7 +713,7 @@ export default function RequestWorkspacePage() {
                   <>
                     <Button
                       onClick={handleAcceptOffer}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-[#20305C] hover:bg-[#2C3F6E] text-white"
                     >
                       <FiCheckCircle className="w-4 h-4 mr-2" />
                       Accept Offer
@@ -732,7 +732,7 @@ export default function RequestWorkspacePage() {
                   <button
                     type="button"
                     onClick={() => setCounterOpen((open) => !open)}
-                    className="h-[45px] px-5 inline-flex items-center justify-center gap-2 bg-white border border-brand-primary/40 rounded-full text-brand-primary-dark font-semibold text-sm hover:bg-brand-primary-light transition"
+                    className="h-[45px] px-5 inline-flex items-center justify-center gap-2 bg-white border border-[#20305C]/40 rounded-full text-[#2C3F6E] font-semibold text-sm hover:bg-[#E9ECF5] transition"
                   >
                     <FiTag className="w-4 h-4" />
                     {counterOpen ? 'Close counter form' : 'Send counter-offer'}
@@ -740,7 +740,7 @@ export default function RequestWorkspacePage() {
                 )}
               </div>
               {isAgreed && !confirmed && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#667085]">
                   The offer is accepted — confirm the agreement in the Agreement tab to finalise.
                 </p>
               )}
@@ -751,17 +751,17 @@ export default function RequestWorkspacePage() {
           {counterOpen && isActive && !confirmed && (
             <form
               onSubmit={handleCounterOffer}
-              className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-4"
+              className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-4"
             >
               <div>
-                <h3 className="font-semibold text-gray-900">Counter-offer</h3>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <h3 className="font-semibold text-[#171A21]">Counter-offer</h3>
+                <p className="text-xs text-[#667085] mt-0.5">
                   Propose your own quantity, unit and price — the seller sees exactly what changed.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-4">
                 <label className="block">
-                  <span className="text-xs text-gray-500">Quantity</span>
+                  <span className="text-xs text-[#667085]">Quantity</span>
                   <input
                     type="number"
                     min="1"
@@ -769,21 +769,21 @@ export default function RequestWorkspacePage() {
                     required
                     value={counter.quantity}
                     onChange={(e) => setCounter((c) => ({ ...c, quantity: e.target.value }))}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    className="mt-1 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]"
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gray-500">Unit</span>
+                  <span className="text-xs text-[#667085]">Unit</span>
                   <input
                     type="text"
                     value={counter.unit}
                     placeholder={requestUnit}
                     onChange={(e) => setCounter((c) => ({ ...c, unit: e.target.value }))}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    className="mt-1 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]"
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gray-500">Unit price</span>
+                  <span className="text-xs text-[#667085]">Unit price</span>
                   <input
                     type="number"
                     min="0"
@@ -791,38 +791,38 @@ export default function RequestWorkspacePage() {
                     required
                     value={counter.unitPrice}
                     onChange={(e) => setCounter((c) => ({ ...c, unitPrice: e.target.value }))}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    className="mt-1 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]"
                   />
                 </label>
                 <div>
-                  <span className="text-xs text-gray-500">Total</span>
-                  <p className="mt-1 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-900">
+                  <span className="text-xs text-[#667085]">Total</span>
+                  <p className="mt-1 rounded-lg bg-[#F7F8FA] border border-[#E5E7EB] px-3 py-2 text-sm font-semibold text-[#171A21]">
                     {counterTotal != null ? formatCurrency(counterTotal) : '—'}
                   </p>
                 </div>
               </div>
               <label className="block">
-                <span className="text-xs text-gray-500">Note (optional)</span>
+                <span className="text-xs text-[#667085]">Note (optional)</span>
                 <textarea
                   rows={2}
                   value={counter.note}
                   onChange={(e) => setCounter((c) => ({ ...c, note: e.target.value }))}
                   placeholder="Explain your counter in one line…"
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                  className="mt-1 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]"
                 />
               </label>
               <div className="flex gap-3">
                 <Button
                   type="submit"
                   disabled={counterSaving}
-                  className="bg-brand-primary text-white"
+                  className="bg-[#20305C] text-white"
                 >
                   {counterSaving ? 'Sending…' : 'Send counter-offer'}
                 </Button>
                 <Button
                   type="button"
                   onClick={() => setCounterOpen(false)}
-                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="bg-white border border-[#E5E7EB] text-[#171A21] hover:bg-[#F7F8FA]"
                 >
                   Cancel
                 </Button>
@@ -830,10 +830,10 @@ export default function RequestWorkspacePage() {
             </form>
           )}
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-3">
-            <h3 className="font-semibold text-gray-900">Offer history</h3>
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-3">
+            <h3 className="font-semibold text-[#171A21]">Offer history</h3>
             {(request.offers || []).length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[#667085]">
                 No offer yet. The seller will send pricing here once they review your request.
               </p>
             ) : (
@@ -856,10 +856,10 @@ export default function RequestWorkspacePage() {
       {/* Agreement — structured final terms + both-side confirmation */}
       {activeTab === 'agreement' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 space-y-5">
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-5">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <FiFileText size={16} className="text-brand-primary" />
+              <h2 className="font-semibold text-[#171A21] flex items-center gap-2">
+                <FiFileText size={16} className="text-[#20305C]" />
                 Final agreement
               </h2>
               {confirmed && (
@@ -875,8 +875,8 @@ export default function RequestWorkspacePage() {
                 return (
                   <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
                     <FiClock className="w-7 h-7 text-yellow-500 mx-auto mb-2" />
-                    <p className="font-semibold text-gray-900">No terms to confirm yet</p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="font-semibold text-[#171A21]">No terms to confirm yet</p>
+                    <p className="text-sm text-[#667085] mt-1">
                       Once the seller sends an offer (or you counter), both sides confirm it here
                       before an order can be created.
                     </p>
@@ -886,48 +886,48 @@ export default function RequestWorkspacePage() {
               const total = offerTotal(terms) ?? terms.totalPrice;
               return (
                 <>
-                  <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4">
                     <div>
-                      <p className="text-xs text-gray-500">Product</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-[#667085]">Product</p>
+                      <p className="text-sm font-medium text-[#171A21]">
                         {terms.productName || request.productName || request.title}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Quantity</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-[#667085]">Quantity</p>
+                      <p className="text-sm font-medium text-[#171A21]">
                         {quantityLabel(terms.quantity, terms.unit || requestUnit)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Unit price</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-[#667085]">Unit price</p>
+                      <p className="text-sm font-medium text-[#171A21]">
                         {formatCurrency(terms.unitPrice)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Total</p>
-                      <p className="text-sm font-semibold text-brand-primary-dark">
+                      <p className="text-xs text-[#667085]">Total</p>
+                      <p className="text-sm font-semibold text-[#2C3F6E]">
                         {formatCurrency(total)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Status</p>
-                      <p className="text-sm font-medium text-gray-900 capitalize">
+                      <p className="text-xs text-[#667085]">Status</p>
+                      <p className="text-sm font-medium text-[#171A21] capitalize">
                         {String(status).toLowerCase()}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Last updated</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-[#667085]">Last updated</p>
+                      <p className="text-sm font-medium text-[#171A21]">
                         {formatDateTime(request.updatedAt)}
                       </p>
                     </div>
                   </div>
 
                   {agreement.note ? (
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                      <span className="font-medium text-gray-800">Note: </span>
+                    <p className="text-sm text-[#667085] whitespace-pre-wrap">
+                      <span className="font-medium text-[#171A21]">Note: </span>
                       {agreement.note}
                     </p>
                   ) : null}
@@ -943,16 +943,16 @@ export default function RequestWorkspacePage() {
                         className={`rounded-xl border p-3.5 flex items-center gap-3 ${
                           row.done
                             ? 'border-green-200 bg-green-50'
-                            : 'border-gray-200 bg-white'
+                            : 'border-[#E5E7EB] bg-white'
                         }`}
                       >
                         <FiCheckCircle
                           size={20}
-                          className={row.done ? 'text-green-600' : 'text-gray-300'}
+                          className={row.done ? 'text-[#20305C]' : 'text-gray-300'}
                         />
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{row.side}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm font-semibold text-[#171A21]">{row.side}</p>
+                          <p className="text-xs text-[#667085]">
                             {row.done
                               ? `Confirmed ${formatDateTime(row.at)}`
                               : 'Not confirmed yet'}
@@ -968,7 +968,7 @@ export default function RequestWorkspacePage() {
                         <Button
                           onClick={handleConfirmAgreement}
                           disabled={confirming}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-[#20305C] hover:bg-[#2C3F6E] text-white"
                         >
                           {confirming
                             ? 'Confirming…'
@@ -977,7 +977,7 @@ export default function RequestWorkspacePage() {
                             : 'Confirm Agreement'}
                         </Button>
                       ) : (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-[#667085]">
                           {agreement.buyerConfirmedAt
                             ? 'You already confirmed — waiting for the seller.'
                             : 'Waiting for the other side of the negotiation.'}
@@ -988,9 +988,9 @@ export default function RequestWorkspacePage() {
 
                   {confirmed && (
                     <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center">
-                      <FiCheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                      <p className="font-semibold text-gray-900">Agreement confirmed</p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <FiCheckCircle className="w-8 h-8 text-[#20305C] mx-auto mb-2" />
+                      <p className="font-semibold text-[#171A21]">Agreement confirmed</p>
+                      <p className="text-sm text-[#667085] mt-1">
                         Both sides signed off — create the order to continue with payment and
                         delivery.
                       </p>
@@ -998,7 +998,7 @@ export default function RequestWorkspacePage() {
                         <Button
                           onClick={() => handleConvertToOrder()}
                           disabled={converting}
-                          className="bg-brand-primary text-white"
+                          className="bg-[#20305C] text-white"
                         >
                           {converting ? 'Creating Order…' : 'Create Order'}
                         </Button>
@@ -1014,8 +1014,8 @@ export default function RequestWorkspacePage() {
 
       {/* Activity */}
       {activeTab === 'activity' && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Activity</h2>
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6">
+          <h2 className="font-semibold text-[#171A21] mb-4">Activity</h2>
           <ActivityTimeline request={request} />
         </div>
       )}
@@ -1026,22 +1026,22 @@ export default function RequestWorkspacePage() {
         title="Choose a delivery address"
         onClose={() => setShowAddressPicker(false)}
       >
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-[#667085] mb-4">
           The order created from this agreement will be shipped to the address you choose.
         </p>
 
         {loadingAddresses ? (
-          <p className="text-sm text-gray-500 py-6 text-center">Loading your addresses…</p>
+          <p className="text-sm text-[#667085] py-6 text-center">Loading your addresses…</p>
         ) : addresses.length === 0 ? (
           <div className="text-center py-6">
             <FiMapPin className="w-10 h-10 mx-auto text-gray-300 mb-3" />
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-[#667085] mb-4">
               You have no saved delivery addresses yet. An address with a delivery sector and
               contact phone is required to ship the order.
             </p>
             <Link
               to="/my-dashboard/addresses"
-              className="inline-block px-5 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-hover transition"
+              className="inline-block px-5 py-2 rounded-lg bg-[#20305C] text-white text-sm font-semibold hover:bg-[#2C3F6E] transition"
             >
               Add a delivery address
             </Link>
@@ -1055,8 +1055,8 @@ export default function RequestWorkspacePage() {
                   key={address._id}
                   className={`flex items-start gap-3 border rounded-lg p-3 cursor-pointer transition ${
                     selectedAddressId === address._id
-                      ? 'border-brand-primary bg-brand-primary-light/50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-[#20305C] bg-[#E9ECF5]/50'
+                      : 'border-[#E5E7EB] hover:border-[#E5E7EB]'
                   } ${usable ? '' : 'opacity-60'}`}
                 >
                   <input
@@ -1068,15 +1068,15 @@ export default function RequestWorkspacePage() {
                     onChange={() => setSelectedAddressId(address._id)}
                   />
                   <span className="flex-1 text-sm">
-                    <span className="block font-medium text-gray-900">
+                    <span className="block font-medium text-[#171A21]">
                       {[address.address1, address.address2].filter(Boolean).join(', ') || 'Address'}
                     </span>
-                    <span className="block text-gray-500">
+                    <span className="block text-[#667085]">
                       {[address.cityName || address.city, address.regionName || address.country]
                         .filter(Boolean)
                         .join(', ')}
                     </span>
-                    <span className="block text-gray-500">{address.phone || 'No phone'}</span>
+                    <span className="block text-[#667085]">{address.phone || 'No phone'}</span>
                     {!usable && (
                       <span className="block text-xs text-red-600 mt-1">
                         Missing delivery sector or phone — update it on the Addresses page.
@@ -1089,17 +1089,17 @@ export default function RequestWorkspacePage() {
           </div>
         )}
 
-        <div className="flex gap-3 mt-5 pt-4 border-t border-gray-100">
+        <div className="flex gap-3 mt-5 pt-4 border-t border-[#E5E7EB]">
           <Button
             onClick={() => setShowAddressPicker(false)}
-            className="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="flex-1 bg-white border border-[#E5E7EB] text-[#171A21] hover:bg-[#F7F8FA]"
           >
             Cancel
           </Button>
           <Button
             onClick={confirmConvert}
             disabled={converting || loadingAddresses || !selectedAddressId}
-            className="flex-1 bg-brand-primary text-white"
+            className="flex-1 bg-[#20305C] text-white"
           >
             {converting ? 'Creating Order…' : 'Create Order'}
           </Button>

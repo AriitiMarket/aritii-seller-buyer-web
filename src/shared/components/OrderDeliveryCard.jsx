@@ -95,7 +95,7 @@ export default function OrderDeliveryCard({
       )}
 
       {!state.loading && !state.error && !view.linked && (
-        <div className="mt-4 rounded-lg bg-gray-50 border border-gray-100 p-4">
+        <div className="mt-4 rounded-lg bg-[#F7F8FA] border border-[#E5E7EB] p-4">
           <p className="text-sm text-gray-700">{explainNoDelivery(orderStatus)}</p>
           <p className="mt-1 text-xs text-gray-500">
             Nothing is booked with a courier for this order yet.

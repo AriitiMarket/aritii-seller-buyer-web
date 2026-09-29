@@ -103,7 +103,7 @@ const BusinessStoreMetricsPage = () => {
 
   const totalStockUnits = shopProducts.reduce((s, p) => s + (Number(p.stock) || 0), 0)
   const completedOrders = succeeded.length
-  const uniqueCustomers = new Set(ShopOrders.map(o => o.customerId || o.userId).filter(Boolean)).size
+  const uniqueCustomers = new Set(ShopOrders.map(o => o.buyerId || o.userId).filter(Boolean)).size
 
   return (
     <>

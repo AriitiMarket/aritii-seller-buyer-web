@@ -10,14 +10,14 @@ const CheckOutSteps = ({active}) => {
                        <span className={`${styles.cart_button_text}`}>1.Shipping</span>
                 </div>
                 <div className={`${
-                    active > 1 ? "w-[30px] lg:w-[70px] h-[4px] !bg-[#0B6E4F]"
-                    : "w-[30px] lg:w-[70px] h-[4px] !bg-[#D1FAE5]"
+                    active > 1 ? "w-[30px] lg:w-[70px] h-[4px] !bg-[#20305C]"
+                    : "w-[30px] lg:w-[70px] h-[4px] !bg-[#E9ECF5]"
                 }`} />
                </div>
 
                <div className={`${styles.noramlFlex}`}>
-                <div className={`${active > 1 ? `${styles.cart_button}` : `${styles.cart_button} !bg-[#D1FAE5]`}`}>
-                    <span className={`${active > 1 ? `${styles.cart_button_text}` : `${styles.cart_button_text} !text-[#0B6E4F]`}`}>
+                <div className={`${active > 1 ? `${styles.cart_button}` : `${styles.cart_button} !bg-[#E9ECF5]`}`}>
+                    <span className={`${active > 1 ? `${styles.cart_button_text}` : `${styles.cart_button_text} !text-[#20305C]`}`}>
                         2.Payment
                     </span>
                 </div>
@@ -25,11 +25,11 @@ const CheckOutSteps = ({active}) => {
 
                <div className={`${styles.noramlFlex}`}>
                <div className={`${
-                    active > 3 ? "w-[30px] lg:w-[70px] h-[4px] !bg-[#0B6E4F]"
-                    : "w-[30px] lg:w-[70px] h-[4px] !bg-[#D1FAE5]"
+                    active > 3 ? "w-[30px] lg:w-[70px] h-[4px] !bg-[#20305C]"
+                    : "w-[30px] lg:w-[70px] h-[4px] !bg-[#E9ECF5]"
                 }`} />
-                <div className={`${active > 2 ? `${styles.cart_button}` : `${styles.cart_button} !bg-[#D1FAE5]`}`}>
-                    <span className={`${active > 2 ? `${styles.cart_button_text}` : `${styles.cart_button_text} !text-[#0B6E4F]`}`}>
+                <div className={`${active > 2 ? `${styles.cart_button}` : `${styles.cart_button} !bg-[#E9ECF5]`}`}>
+                    <span className={`${active > 2 ? `${styles.cart_button_text}` : `${styles.cart_button_text} !text-[#20305C]`}`}>
                         3.Success
                     </span>
                 </div>

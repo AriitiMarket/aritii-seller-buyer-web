@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { formatDate, formatCurrency, initials } from '@/shared/utils/format';
 import { resolveImageUrl } from '@/shared/utils/image';
+import { normalizeActorRole } from '@/shared/utils/actorWorkspaces';
 import { SPEC_LABELS, offerTotal } from '../constants';
 import ImageLightbox from './ImageLightbox';
 import { FiChevronDown, FiChevronUp, FiImage, FiMessageSquare, FiCornerUpLeft, FiSend, FiX, FiZoomIn } from 'react-icons/fi';
@@ -95,7 +96,7 @@ const CardBody = ({ message }) => {
 
   if (type === 'offer' || type === 'counter') {
     const offer = payload.offer || {};
-    const side = offer.createdByRole === 'CUSTOMER' ? 'Buyer counter-offer' : 'Seller offer';
+    const side = normalizeActorRole(offer.createdByRole) === 'BUYER' ? 'Buyer counter-offer' : 'Seller offer';
     return (
       <>
         <p className="text-[11px] font-semibold text-brand-primary-dark">{side}</p>

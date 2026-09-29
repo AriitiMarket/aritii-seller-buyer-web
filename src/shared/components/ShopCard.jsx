@@ -35,10 +35,10 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
   const shopPath = basePath ? `${basePath}/shops/${id}` : `/shops/${id}`;
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+    <div className="w-full bg-white dark:bg-gray-900 rounded-2xl border border-[#E5E7EB] dark:border-gray-700 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden">
       <Link to={shopPath} className="block h-full" aria-label={`Visit ${name} shop`}>
         {/* Shop Header with Image */}
-        <div className="relative h-24 bg-gradient-to-br from-[#75d04b]/10 to-[#5ac12f]/10 flex items-center justify-center">
+        <div className="relative h-24 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center">
           <div className="absolute top-4 left-1/2 -translate-x-1/2">
             <ShopImage
               data={{ avatar: { url: data.avatar?.url }, image: data.avatar?.url, image_Url: data.avatar?.url }}
@@ -50,7 +50,7 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
           {/* Verified Badge */}
           {data.isVerified || data.verified && (
             <div className="absolute top-2 right-2">
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#75d04b] text-white text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#20305C] text-white text-xs font-semibold rounded-full">
                 ✓ Verified
               </span>
             </div>
@@ -99,7 +99,7 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
 
           {/* Visit Shop Button */}
           <div className="mt-4">
-            <span className="block w-full text-center py-2.5 px-4 bg-[#75d04b] hover:bg-[#5ac12f] text-white text-sm font-semibold rounded-lg transition-colors">
+            <span className="block w-full text-center py-2.5 px-4 bg-[#20305C] hover:bg-[#2C3F6E] text-white text-sm font-semibold rounded-lg transition-colors">
               Visit Shop →
             </span>
           </div>

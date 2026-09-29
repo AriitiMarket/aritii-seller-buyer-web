@@ -166,7 +166,7 @@ export function describeDelivery(delivery) {
     isFinal: isDeliveryFinal(delivery.status),
     reference: deliveryReference(delivery),
     // The courier's own id is what support asks for; shortened for display.
-    courierReference: delivery.partnerId ? `#${String(delivery.partnerId).slice(-8)}` : '',
+    courierReference: delivery.providerId ? `#${String(delivery.providerId).slice(-8)}` : '',
     lastUpdate: delivery.statusUpdatedAt || delivery.updatedAt || null,
     note: delivery.note || '',
     pickup: formatDeliveryAddress(delivery.pickupAddress),

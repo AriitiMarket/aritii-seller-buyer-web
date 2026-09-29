@@ -29,7 +29,7 @@ const SellerSidebar = ({ onClose, className = '' }) => {
 
   return (
     <aside
-      className={`relative flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 ${
+      className={`relative flex flex-col h-full bg-[#141414] text-white border-r border-white/15 transition-all duration-300 ${
         isCollapsed ? 'w-20' : 'w-64'
       } ${className}`}
       aria-label="Business navigation"
@@ -37,7 +37,7 @@ const SellerSidebar = ({ onClose, className = '' }) => {
       {/* Collapse Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3 top-6 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition z-10"
+        className="absolute -right-3 top-6 w-6 h-6 bg-[#141414] text-white border border-white/30 rounded-full flex items-center justify-center shadow-sm hover:bg-[#20305c] hover:border-[#75d04b] hover:shadow-[0_0_0_4px_rgba(117,208,75,0.12)] hover:scale-110 active:scale-95 transition-all duration-200 z-10"
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? <FiChevronRight size={14} /> : <FiChevronLeft size={14} />}
@@ -45,10 +45,10 @@ const SellerSidebar = ({ onClose, className = '' }) => {
 
       {/* Shop switcher — one business may own multiple shops */}
       {!isCollapsed && shops.length > 0 && (
-        <div className="px-3 pb-3 border-b border-gray-200">
+        <div className="px-3 pb-3 border-b border-white/15">
           <label
             htmlFor="sidebar-shop-switcher"
-            className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-gray-500"
+            className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-white/60"
           >
             Active shop
           </label>
@@ -77,12 +77,12 @@ const SellerSidebar = ({ onClose, className = '' }) => {
       <div className="flex-1 min-h-0 space-y-1 px-3 py-6 overflow-y-auto">
         {SELLER_SIDEBAR.map((item, index) => {
           if (item.type === 'separator') {
-            return <div key={index} className="border-t border-gray-200 my-3" />;
+            return <div key={index} className="border-t border-white/15 my-3" />;
           }
 
           if (item.section) {
             return (
-              <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-2 mb-2 mt-4">
+              <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-white/55 px-2 mb-2 mt-4">
                 {isCollapsed ? '' : item.section}
               </p>
             );
@@ -96,7 +96,7 @@ const SellerSidebar = ({ onClose, className = '' }) => {
                   logoutHandler();
                   onClose?.();
                 }}
-                className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold border border-red-200 transition text-sm w-full text-left"
+                className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-500/15 text-red-100 hover:bg-red-500/25 hover:translate-x-0.5 font-semibold border border-red-300/20 transition-all duration-200 text-sm w-full text-left"
                 aria-label="Log out"
               >
                 {(() => {
@@ -117,10 +117,10 @@ const SellerSidebar = ({ onClose, className = '' }) => {
               to={item.to}
               end={item.end}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-sm relative group ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 hover:translate-x-0.5 text-sm relative group ${
                 isActive
-                  ? 'bg-brand-primary-light text-brand-primary-dark font-semibold border border-brand-primary'
-                  : 'text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-200'
+                  ? 'bg-white/15 text-white font-semibold border-l-2 border-[#75d04b]'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white border-l-2 border-transparent'
               }`}
               title={isCollapsed ? item.label : undefined}
             >

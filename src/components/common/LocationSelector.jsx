@@ -127,7 +127,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
   }, [emitSelection]);
 
   const selectClass =
-    'w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#75d04b] focus:ring-1 focus:ring-[#75d04b] text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-[#75d04b] transition-all duration-200';
+    'w-full px-3 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#20305C] focus:ring-1 focus:ring-[#20305C] text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-[#20305C] transition-all duration-200';
 
   return (
     <div className={`space-y-4 ${className}`}>

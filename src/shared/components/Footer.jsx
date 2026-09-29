@@ -28,11 +28,11 @@ const Footer = () => {
   return (
     <div className="bg-[#141414] text-white">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
           
           {/* Brand Column */}
-          <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <div className="mb-4">
               <BrandLogo size="sm" showText={true} showTagline={false} linked={false} />
             </div>
@@ -81,15 +81,15 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column COMPANY */}
+          {/* Column EXPERIENCES */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 text-[#75d04b]">Company</h4>
+            <h4 className="font-semibold text-sm mb-4 text-[#75d04b]">Experiences</h4>
             <ul className="space-y-2">
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/marketplace">Marketplace</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/sell-on-aritii">Sell on Aritii</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery">Delivery Services</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/how-it-works">How It Works</Link></li>
               <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/about">About Us</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/faq">Help Center</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/contact">Contact Us</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/careers">Careers</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/blog">Blog</Link></li>
             </ul>
           </div>
 
@@ -97,11 +97,33 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-sm mb-4 text-[#75d04b]">For Sellers</h4>
             <ul className="space-y-2">
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/become-a-seller">Sell on Ariiti</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/seller-fees">Seller Fees</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/seller-resources">Seller Resources</Link></li>
-              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/sign-up">Register as Seller</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/seller-sign-up">Become a Seller</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/seller-sign-up">Register as Seller</Link></li>
               <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/business">Seller Dashboard</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/sell-on-aritii">Sell on Aritii</Link></li>
+            </ul>
+          </div>
+
+          {/* Column DELIVERY */}
+          <div>
+            <h4 className="font-semibold text-sm mb-4 text-[#75d04b]">Delivery</h4>
+            <ul className="space-y-2">
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery">Delivery Services</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery#how-it-works">How It Works</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery#providers">For Providers</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery-sign-up">Join as a Delivery Provider</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/delivery#tracking">Delivery Tracking</Link></li>
+            </ul>
+          </div>
+
+          {/* Column SUPPORT */}
+          <div>
+            <h4 className="font-semibold text-sm mb-4 text-[#75d04b]">Support</h4>
+            <ul className="space-y-2">
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/login">Shared Login</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/how-it-works">How It Works</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/about">About Us</Link></li>
+              <li><Link className="text-gray-400 hover:text-white text-sm transition-colors" to="/faq">FAQ</Link></li>
             </ul>
           </div>
         </div>

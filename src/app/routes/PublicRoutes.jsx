@@ -6,28 +6,40 @@ import PublicCatalogLayout from '@/public/layout/PublicCatalogLayout';
  * PUBLIC WEBSITE routes - no authentication required.
  *
  * Public pages present curated content and explain the platform.
+ *
+ * The three public experiences:
+ *   /marketplace     → shopping-focused entry into the catalog (/products, /shops)
+ *   /sell-on-aritii  → seller marketing/onboarding (→ /become-a-seller)
+ *   /delivery        → delivery ecosystem explanation (public only, no ops data)
+ *
  * Catalog browsing pages (Products, Categories, Shops, Deals, etc.)
  * are also public and wrapped in PublicCatalogLayout.
  */
-const HomePage = lazy(() => import('@/public/pages/Home'));
-const AboutPage = lazy(() => import('@/public/pages/About'));
-const HowItWorksPage = lazy(() => import('@/public/pages/HowItWorks'));
-const FAQPage = lazy(() => import('@/public/pages/FAQ'));
-const PublicEventsPage = lazy(() => import('@/public/pages/Events'));
+const HomePage = lazy(() => import('@/public/platform/pages/Home'));
+const AboutPage = lazy(() => import('@/public/platform/pages/About'));
+const HowItWorksPage = lazy(() => import('@/public/platform/pages/HowItWorks'));
+const FAQPage = lazy(() => import('@/public/platform/pages/FAQ'));
+const PublicEventsPage = lazy(() => import('@/public/platform/pages/Events'));
+const MarketplaceLandingPage = lazy(() => import('@/public/marketplace/pages/Marketplace'));
+const SellOnAritiiPage = lazy(() => import('@/public/sell/pages/SellOnAritii'));
+const DeliveryExperiencePage = lazy(() => import('@/public/delivery/pages/Delivery'));
 
-const ProductsPage = lazy(() => import('@/public/pages/Products'));
+const ProductsPage = lazy(() => import('@/public/marketplace/pages/Products'));
 const ProductDetailsPage = lazy(() => import('@/buyer/pages/ProductDetail'));
-const CategoriesPage = lazy(() => import('@/public/pages/Categories'));
-const ShopsPage = lazy(() => import('@/public/pages/Shops'));
+const CategoriesPage = lazy(() => import('@/public/marketplace/pages/Categories'));
+const ShopsPage = lazy(() => import('@/public/marketplace/pages/Shops'));
 const ShopDetailsPage = lazy(() => import('@/buyer/pages/ShopDetail'));
-const DealsPage = lazy(() => import('@/public/pages/Deals'));
-const BestSellingPage = lazy(() => import('@/public/pages/BestSelling'));
-const SearchResultsPage = lazy(() => import('@/public/pages/SearchResults'));
+const DealsPage = lazy(() => import('@/public/marketplace/pages/Deals'));
+const BestSellingPage = lazy(() => import('@/public/marketplace/pages/BestSelling'));
+const SearchResultsPage = lazy(() => import('@/public/marketplace/pages/SearchResults'));
 
 export const PublicRoutes = () => (
   <>
     {/* Marketing / informational pages */}
     <Route path="/" element={<HomePage />} />
+    <Route path="/marketplace" element={<MarketplaceLandingPage />} />
+    <Route path="/sell-on-aritii" element={<SellOnAritiiPage />} />
+    <Route path="/delivery" element={<DeliveryExperiencePage />} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/how-it-works" element={<HowItWorksPage />} />
     <Route path="/faq" element={<FAQPage />} />
