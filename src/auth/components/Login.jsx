@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai"
+import { AiOutlineEyeInvisible, AiOutlineEye, AiOutlineArrowRight } from "react-icons/ai"
 import { MdOutlineEmail } from "react-icons/md"
 import { Link, useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
@@ -48,26 +48,55 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-white dark:bg-gray-900">
-            <div className='w-full max-w-[450px]'>
-                {/* Header */}
-                <div className='text-center mb-8'>
-                    <Link to="/">
-                        <img
-                            src={LOGO}
-                            alt="Aritii Market"
-                            className="h-12 w-auto mx-auto mb-6"
-                        />
+        <main className="min-h-screen bg-[#FDF6EC] px-3 py-5 sm:px-5 sm:py-9 lg:px-6 lg:py-12">
+            <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl lg:grid-cols-[0.95fr_1.05fr]">
+                <aside className="relative overflow-hidden bg-[#20305c] p-5 text-white sm:p-8 lg:flex lg:min-h-full lg:flex-col lg:justify-between lg:p-10">
+                    <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full border-[32px] border-white/5" aria-hidden="true" />
+                    <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#75d04b]/10 blur-2xl" aria-hidden="true" />
+                    <Link to="/" className="relative inline-flex w-fit rounded-xl bg-white p-2.5 shadow-sm">
+                        <img src={LOGO} alt="Aritii Market home" className="h-9 w-auto" />
                     </Link>
-                    <h1 className='text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-2'>Welcome back</h1>
-                    <p className="text-base text-gray-600">
-                        One shared Login for Buyers, Sellers, and Delivery Providers.
-                    </p>
-                </div>
 
-                {/* Form Card */}
-                <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 border border-gray-100 dark:border-gray-700'>
-                    <form onSubmit={handleSubmit} className='space-y-6'>
+                    <div className="relative mt-7 lg:mt-12">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90">
+                            <span className="h-2 w-2 rounded-full bg-[#75d04b]" aria-hidden="true" />
+                            Your local marketplace
+                        </span>
+                        <h2 className="mt-4 max-w-lg text-3xl font-extrabold leading-tight sm:text-4xl">
+                            One account. Your place in Aritii.
+                        </h2>
+                        <p className="mt-3 max-w-lg text-sm leading-6 text-white/75 sm:text-base">
+                            Sign in once to continue shopping, manage your business, or deliver with Aritii Market.
+                        </p>
+
+                        <div className="mt-6 flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#75d04b] text-[#20305c] shadow-lg shadow-black/10" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 3 4.5 6v5.5c0 4.4 3.2 7.6 7.5 9.5 4.3-1.9 7.5-5.1 7.5-9.5V6L12 3Z" />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
+                            </span>
+                            <div>
+                                <p className="text-sm font-bold text-white">Secure shared Login</p>
+                                <p className="mt-0.5 text-xs leading-5 text-white/70">Your approved access is linked to your account.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="relative mt-7 text-xs text-white/55 lg:mt-10">Shop local · Grow your business · Deliver with care</p>
+                </aside>
+
+                <section className="p-6 sm:p-10 lg:p-12">
+                    <div className="mb-8">
+                        <span className="mb-3 inline-flex rounded-full bg-[#75d04b]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#4a8f28]">Aritii Market Account</span>
+                        <h1 className="text-3xl font-extrabold text-[#20305c]">Welcome back</h1>
+                        <p className="mt-2 text-sm leading-6 text-gray-600">
+                            Use the same Login for Buyers, Sellers, and Delivery Providers.
+                        </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-100 bg-white sm:p-1">
+                    <form onSubmit={handleSubmit} className='space-y-5'>
                         {/* Email Field */}
                         <div>
                             <label htmlFor='login-identifier' className='block text-sm font-semibold text-gray-700 mb-2'>
@@ -85,7 +114,7 @@ const Login = () => {
                                     value={identifier}
                                     onChange={(e) => setIdentifier(e.target.value)}
                                     placeholder="you@example.com or +251…"
-                                    className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 dark:bg-gray-800 dark:border-gray-700 dark:text-white transition disabled:bg-gray-50 disabled:cursor-not-allowed'
+                                    className='w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 transition disabled:bg-gray-50 disabled:cursor-not-allowed'
                                 />
                             </div>
                         </div>
@@ -106,13 +135,14 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 dark:bg-gray-800 dark:border-gray-700 dark:text-white transition disabled:bg-gray-50 disabled:cursor-not-allowed'
+                                    className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 transition disabled:bg-gray-50 disabled:cursor-not-allowed'
                                 />
                                 <button
                                     type="button"
                                     disabled={loading}
                                     onClick={() => setVisible(!visible)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                                    aria-label={visible ? 'Hide password' : 'Show password'}
+                                    className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b] disabled:cursor-not-allowed"
                                 >
                                     {visible ? (
                                         <AiOutlineEye size={20} />
@@ -131,11 +161,11 @@ const Login = () => {
                                     name='remember-me'
                                     id='remember-me'
                                     disabled={loading}
-                                    className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-[#75d04b]/25 disabled:cursor-not-allowed'
+                                    className='h-4 w-4 rounded border-gray-300 text-[#5ac12f] focus:ring-2 focus:ring-[#75d04b]/25 disabled:cursor-not-allowed'
                                 />
                                 <span className='ml-2 text-sm text-gray-700'>Remember me</span>
                             </label>
-                            <Link to="/forgot-password" className="text-sm font-semibold font-semibold text-[#75d04b] hover:text-[#5ac12f]">
+                            <Link to="/forgot-password" className="text-sm font-semibold text-[#4a8f28] hover:text-[#20305c]">
                                 Forgot password?
                             </Link>
                         </div>
@@ -144,25 +174,24 @@ const Login = () => {
                         <button
                             type='submit'
                             disabled={loading}
-                            className='w-full bg-[#75d04b] hover:brightness-95 text-white font-semibold rounded-full py-3 transition-all duration-200 flex items-center justify-center'
+                            className='flex w-full items-center justify-center gap-2 rounded-full bg-[#75d04b] py-3.5 font-bold text-white transition hover:bg-[#5ac12f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#75d04b]/30 disabled:cursor-wait disabled:opacity-60'
                         >
-                            {loading ? 'Signing in...' : 'Sign in'}
+                            {loading ? 'Signing in…' : <>Sign in <AiOutlineArrowRight aria-hidden="true" /></>}
                         </button>
 
                         {/* Sign Up Link */}
-                        <p className="text-center text-gray-600">
+                        <p className="pt-2 text-center text-sm text-gray-600">
                             Need an account?{' '}
-                            <Link to={{ pathname: getRegistrationPath(location.state?.from), state: location.state }} className="font-semibold text-[#75d04b] hover:text-[#5ac12f]">
+                            <Link to={{ pathname: getRegistrationPath(location.state?.from), state: location.state }} className="font-bold text-[#20305c] underline decoration-[#75d04b] decoration-2 underline-offset-4 hover:text-[#4a8f28]">
                                 {getRegistrationLabel(location.state?.from)}
                             </Link>
                         </p>
                     </form>
-                </div>
-
-                {/* Footer Links */}
-                
+                    </div>
+                    <p className="mt-5 text-center text-xs text-gray-500">Aritii Market uses your account’s approved role to route you to the right workspace.</p>
+                </section>
             </div>
-        </div>
+        </main>
     )
 }
 

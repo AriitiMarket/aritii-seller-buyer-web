@@ -41,10 +41,48 @@ function notifyUnauthorized() {
 
 export function attachRequestInterceptor(client) {
   client.interceptors.request.use(
-    (config) => {
+    async (config) => {
       if (config.skipAuth) return config;
-      const token = tokenStore.getAccessToken();
-      if (token) config.headers.Authorization = `Bearer ${token}`;
+
+      // If we have an access token, use it
+      const accessToken = tokenStore.getAccessToken();
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
+      }
+
+      // No access token but we have a refresh token → wait for refresh to complete
+      // This prevents sending unauthenticated requests that will 401 before refresh finishes
+      const refreshToken = tokenStore.getRefreshToken();
+      if (refreshToken) {
+        // If a refresh is already in progress, wait for it
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          }).then((token) => {
+            config.headers.Authorization = `Bearer ${token}`;
+            return config;
+          });
+        }
+
+        // Start a new refresh and wait for it
+        isRefreshing = true;
+        try {
+          const newToken = await refreshAccessToken();
+          processQueue(null, newToken);
+          config.headers.Authorization = `Bearer ${newToken}`;
+          return config;
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          // Let the request go through without auth - it will 401 and trigger the
+          // response interceptor which handles the final logout/redirect
+          return config;
+        } finally {
+          isRefreshing = false;
+        }
+      }
+
+      // No tokens at all → send as-is (will 401 if protected)
       return config;
     },
     (error) => Promise.reject(error)
@@ -62,7 +100,19 @@ export function attachResponseInterceptor(client) {
         return Promise.reject(error);
       }
 
+      // If the request interceptor already tried to refresh and it failed,
+      // or if we got 401 despite having a token, handle it
       if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        // If we already attempted refresh in the request interceptor and it failed,
+        // the token store is already cleared and we should just notify unauthorized
+        if (!tokenStore.getRefreshToken()) {
+          notifyUnauthorized();
+          return Promise.reject(error);
+        }
+
+        // Otherwise, try refresh once more (as a fallback)
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -72,7 +122,6 @@ export function attachResponseInterceptor(client) {
           });
         }
 
-        originalRequest._retry = true;
         isRefreshing = true;
 
         try {

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MdArrowBack, MdStore, MdLocationOn, MdInventory, MdRoute } from 'react-icons/md';
 import { useProviderBatches } from '../hooks/useProviderBatches';
-import { 
+import { deliveryService } from '@/services/delivery.service';
+import { toast } from 'react-toastify';
+import {
   shortReference,
   formatDeliveryAddress,
   formatDeliveryTime,
@@ -10,7 +12,8 @@ import {
   normalizeDeliveryStatus,
   getDeliveryStatusLabel,
   getDeliveryStatusColor,
-  calculateBatchProgress
+  calculateBatchProgress,
+  apiErrorMessage
 } from '../utils/providerDeliveryHelpers';
 
 /**
@@ -18,7 +21,25 @@ import {
  */
 const BatchDetails = () => {
   const { id } = useParams();
-  const { batch, loading, error, supported, runBatchAction } = useProviderBatches({ routeId: id });
+  const { batch, loading, error, supported, runBatchAction, refetch } = useProviderBatches({ routeId: id });
+  const [responding, setResponding] = useState(false);
+
+  const handleRespond = async (accepted) => {
+    setResponding(true);
+    try {
+      const result = await deliveryService.respondToDispatchBatch(id, accepted);
+      if (result) {
+        toast.success(accepted ? 'Batch accepted' : 'Batch declined');
+        await refetch();
+      } else {
+        toast.error('Failed to respond to batch');
+      }
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Failed to respond to batch'));
+    } finally {
+      setResponding(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -75,7 +96,7 @@ const BatchDetails = () => {
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
           <p className="text-amber-800">
-            {error ? `Could not load this batch: ${error.message || 'Please retry.'}` : 'Batch not found. It may have been removed or you may not have access to it.'}
+            {error ? `Could not load this batch: ${apiErrorMessage(error, 'Please retry.')}` : 'Batch not found. It may have been removed or you may not have access to it.'}
           </p>
         </div>
         <Link
@@ -259,6 +280,24 @@ const BatchDetails = () => {
 
       {/* Action */}
       <div className="flex gap-3">
+        {batchStatus === 'waiting_acceptance' && (
+          <>
+            <button
+              onClick={() => handleRespond(true)}
+              disabled={responding}
+              className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+            >
+              {responding ? 'Accepting...' : 'Accept Batch'}
+            </button>
+            <button
+              onClick={() => handleRespond(false)}
+              disabled={responding}
+              className="flex-1 px-6 py-3 bg-white text-gray-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition disabled:opacity-50"
+            >
+              {responding ? 'Declining...' : 'Decline'}
+            </button>
+          </>
+        )}
         {batchStatus === 'accepted' && <button onClick={() => runBatchAction('startDispatchPickup', batch.id)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Start pickup</button>}
         {batchStatus === 'picking_up' && (batch.pickupPlan || []).filter((stop) => !stop.completed).map((stop) => <button key={stop.sellerId} onClick={() => runBatchAction('confirmDispatchPickup', batch.id, stop.sellerId)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Confirm pickup: {stop.shopName || stop.sellerName}</button>)}
         {batchStatus === 'picked_up' && <button onClick={() => runBatchAction('startDispatchTransit', batch.id)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Start delivery</button>}

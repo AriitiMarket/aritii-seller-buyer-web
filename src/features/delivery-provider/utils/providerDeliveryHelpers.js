@@ -30,7 +30,19 @@ export const BATCH_STATUS = {
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
+  REJECTED: 'REJECTED',
 };
+
+/**
+ * Human-readable message from any error the API layer hands back.
+ *
+ * Axios errors carry the service's real message under
+ * `error.response.data.message` (the `{ success, code, message, errors }`
+ * envelope); `error.message` alone would surface "Request failed with status
+ * code 400" instead of e.g. "PROOF_REQUIRED …".
+ */
+export const apiErrorMessage = (err, fallback = 'Something went wrong. Please try again.') =>
+  err?.response?.data?.message || err?.message || fallback;
 
 /**
  * Get delivery status label using the shared utility
@@ -58,6 +70,7 @@ export const getBatchStatusLabel = (status) => {
     [BATCH_STATUS.IN_PROGRESS]: 'In Progress',
     [BATCH_STATUS.COMPLETED]: 'Completed',
     [BATCH_STATUS.CANCELLED]: 'Cancelled',
+    [BATCH_STATUS.REJECTED]: 'Rejected',
   };
   return labels[status] || status;
 };
@@ -72,26 +85,34 @@ export const getBatchStatusColor = (status) => {
     [BATCH_STATUS.IN_PROGRESS]: 'bg-amber-100 text-amber-700 border-amber-200',
     [BATCH_STATUS.COMPLETED]: 'bg-green-100 text-green-700 border-green-200',
     [BATCH_STATUS.CANCELLED]: 'bg-red-100 text-red-700 border-red-200',
+    [BATCH_STATUS.REJECTED]: 'bg-red-100 text-red-700 border-red-200',
   };
   return colors[status] || 'bg-gray-100 text-gray-700 border-gray-200';
 };
 
 /**
  * Calculate delivery progress percentage based on delivery status
+ * (every status of the Delivery Service state machine).
  */
 export const calculateDeliveryProgress = (status) => {
   const normalized = normalizeDeliveryStatus(status);
   const progressMap = {
     [DELIVERY_STATUSES.PENDING]: 0,
-    [DELIVERY_STATUSES.ASSIGNED]: 10,
+    [DELIVERY_STATUSES.VALIDATED]: 5,
+    [DELIVERY_STATUSES.READY_FOR_PICKUP]: 10,
+    [DELIVERY_STATUSES.ASSIGNED]: 20,
+    [DELIVERY_STATUSES.REASSIGNED]: 20,
     [DELIVERY_STATUSES.PICKUP]: 40,
-    [DELIVERY_STATUSES.IN_TRANSIT]: 70,
+    [DELIVERY_STATUSES.IN_TRANSIT]: 60,
+    [DELIVERY_STATUSES.ARRIVED_AT_HUB]: 75,
+    [DELIVERY_STATUSES.OUT_FOR_DELIVERY]: 90,
     [DELIVERY_STATUSES.DELIVERED]: 100,
     [DELIVERY_STATUSES.FAILED]: 0,
     [DELIVERY_STATUSES.CANCELLED]: 0,
-    [DELIVERY_STATUSES.REASSIGNED]: 0,
+    [DELIVERY_STATUSES.RETURN_REQUESTED]: 0,
+    [DELIVERY_STATUSES.RETURNED]: 0,
   };
-  return progressMap[normalized] || 0;
+  return progressMap[normalized] ?? 0;
 };
 
 /**
@@ -210,6 +231,7 @@ export default {
   isDeliveryFinal,
   formatDeliveryAddress,
   deliveryReference,
+  apiErrorMessage,
   getDeliveryStatusLabel,
   getDeliveryStatusColor,
   getBatchStatusLabel,

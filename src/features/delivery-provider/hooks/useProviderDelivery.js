@@ -7,6 +7,7 @@ import { providerDeliveryApi } from '../services/providerDeliveryApi';
 export const useProviderDelivery = (deliveryId = null, params = {}) => {
   const [delivery, setDelivery] = useState(null);
   const [deliveries, setDeliveries] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [supported, setSupported] = useState(true);
@@ -17,6 +18,7 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
       setError(null);
       const response = await providerDeliveryApi.getProviderDeliveries(params);
       setDeliveries(response.deliveries || []);
+      setTotal(response.total ?? response.deliveries?.length ?? 0);
       setSupported(response.supported !== false);
     } catch (err) {
       setError(err);
@@ -141,6 +143,7 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     delivery,
     deliveries,
     count: deliveries.length,
+    total,
     loading,
     error,
     supported,

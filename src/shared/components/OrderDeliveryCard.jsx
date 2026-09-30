@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { orderService } from '@/services';
+import { deliveryService } from '@/services/delivery.service';
 import { describeDelivery, explainNoDelivery } from '@/shared/utils/deliveryStatus';
 import { formatCurrency, formatDateTime } from '@/shared/utils/format';
 import { BsTruck, BsGeoAlt, BsExclamationCircle, BsArrowRepeat } from 'react-icons/bs';
@@ -9,11 +10,14 @@ import { FiRefreshCw } from 'react-icons/fi';
  * OrderDeliveryCard — the ONE delivery panel for an order, shared by the buyer
  * and the business screens.
  *
- * It reads the ORDER ↔ DELIVERY bridge through `orderService.getOrderDelivery`,
- * which is authorized by the ORDER's ownership server-side, so the same
- * component is correct on a customer receipt, a seller order and an admin
- * order. It never invents a shipment: an order without a delivery record shows
- * why it has none yet.
+ * It prefers the Delivery Service's own order-scoped read
+ * (`GET /delivery/delivery/order/:orderId`), which is authorized by the
+ * ORDER's ownership server-side and carries the enriched shape — the courier's
+ * name, both addresses, the timeline. When that domain answers 404/501 (or has
+ * no record for the order) it falls back to the ORDER ↔ DELIVERY bridge
+ * (`orderService.getOrderDelivery`), so the panel is correct on a customer
+ * receipt, a seller order and an admin order alike. It never invents a
+ * shipment: an order without a delivery record shows why it has none yet.
  *
  * Status vocabulary comes from shared/utils/deliveryStatus.js (the mirror of the
  * Delivery Service state machine) — never from a local map.
@@ -40,8 +44,19 @@ export default function OrderDeliveryCard({
     if (!orderId) return;
     setState((prev) => ({ ...prev, loading: true, error: '' }));
     try {
-      const { delivery } = await orderService.getOrderDelivery(orderId);
-      setState({ loading: false, delivery: delivery || null, error: '' });
+      let delivery = null;
+      try {
+        const res = await deliveryService.getDeliveryByOrder(orderId);
+        delivery = res.delivery || null;
+      } catch {
+        // Delivery domain unreachable — fall through to the commerce bridge.
+        delivery = null;
+      }
+      if (!delivery) {
+        const { delivery: bridgeDelivery } = await orderService.getOrderDelivery(orderId);
+        delivery = bridgeDelivery || null;
+      }
+      setState({ loading: false, delivery, error: '' });
     } catch (err) {
       setState({
         loading: false,
@@ -106,7 +121,7 @@ export default function OrderDeliveryCard({
       {!state.loading && !state.error && view.linked && (
         <div className="mt-5 space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <Row label="Courier" value={view.courierReference || 'Aritii delivery network'} />
+            <Row label="Courier" value={view.courierName || view.courierReference || 'Aritii delivery network'} />
             <Row label="Delivery ref" value={view.reference} />
             <Row label="Last update" value={view.lastUpdate ? formatDateTime(view.lastUpdate) : ''} />
             <Row label="Items" value={view.itemCount ? `${view.itemCount} item${view.itemCount > 1 ? 's' : ''}` : ''} />

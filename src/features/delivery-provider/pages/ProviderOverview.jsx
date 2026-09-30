@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdWorkOutline, MdLocalShipping, MdTrendingUp, MdWifi, MdWifiOff } from 'react-icons/md';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 import { useAvailableWork } from '../hooks/useAvailableWork';
 import { useProviderDelivery } from '../hooks/useProviderDelivery';
-import { useProvider } from '../hooks/useProvider';
-import { DELIVERY_STATUSES, normalizeDeliveryStatus, countByStatus } from '../utils/providerDeliveryHelpers';
+import { useProviderAvailability } from '../hooks/useProviderAvailability';
+import {
+  DELIVERY_STATUSES,
+  normalizeDeliveryStatus,
+  countByStatus,
+  apiErrorMessage,
+} from '../utils/providerDeliveryHelpers';
+
+/** Statuses that mean the rider is currently carrying the delivery. */
+const IN_FLIGHT_STATUSES = [
+  DELIVERY_STATUSES.ASSIGNED,
+  DELIVERY_STATUSES.REASSIGNED,
+  DELIVERY_STATUSES.PICKUP,
+  DELIVERY_STATUSES.IN_TRANSIT,
+  DELIVERY_STATUSES.ARRIVED_AT_HUB,
+  DELIVERY_STATUSES.OUT_FOR_DELIVERY,
+];
 
 /**
  * ProviderOverview - the main dashboard for delivery providers.
@@ -13,12 +30,12 @@ import { DELIVERY_STATUSES, normalizeDeliveryStatus, countByStatus } from '../ut
  * important provider actions. Answers "What do I need to do now?"
  */
 const ProviderOverview = () => {
-  const { isProvider, provider } = useProvider();
-  const [isOnline, setIsOnline] = useState(true);
-  
+  const { user } = useSelector((state) => state.user);
+  const { isOnline, toggling, toggleAvailability } = useProviderAvailability();
+
   // Fetch available work
   const { assignments, count: availableCount, loading: loadingWork, supported: workSupported } = useAvailableWork();
-  
+
   // Fetch provider's deliveries
   const { deliveries, loading: loadingDeliveries, supported: deliveriesSupported } = useProviderDelivery(null, {
     limit: 10,
@@ -26,22 +43,14 @@ const ProviderOverview = () => {
 
   // Calculate stats from real data
   const statusCounts = countByStatus(deliveries);
-  const activeDeliveries = statusCounts[DELIVERY_STATUSES.ASSIGNED] + 
-                         statusCounts[DELIVERY_STATUSES.PICKUP] + 
-                         statusCounts[DELIVERY_STATUSES.IN_TRANSIT] || 0;
+  const activeDeliveries = IN_FLIGHT_STATUSES.reduce(
+    (sum, key) => sum + (statusCounts[key] || 0),
+    0
+  );
   const completedToday = deliveries.filter(d => {
     const status = normalizeDeliveryStatus(d.status);
     return status === DELIVERY_STATUSES.DELIVERED && new Date(d.updatedAt || d.createdAt).toDateString() === new Date().toDateString();
   }).length;
-
-  const toggleAvailability = async () => {
-    if (!provider?.providerId) {
-      console.warn('No provider ID available');
-      return;
-    }
-    // TODO: Call API to update availability
-    setIsOnline(!isOnline);
-  };
 
   return (
     <div className="space-y-6">
@@ -50,14 +59,15 @@ const ProviderOverview = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
           <p className="text-gray-600 mt-1">
-            Welcome back, {provider?.name || 'Provider'}! Here's what's happening today.
+            Welcome back, {user?.name || user?.fullName || 'Provider'}! Here's what's happening today.
           </p>
         </div>
         <button
           onClick={toggleAvailability}
+          disabled={toggling}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-            isOnline 
-              ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100' 
+            isOnline
+              ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
               : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
           }`}
         >

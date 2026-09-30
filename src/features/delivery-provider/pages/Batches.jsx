@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MdLocalShipping, MdOutlineAssignment, MdRoute, MdInventory } from 'react-icons/md';
 import { useProviderBatches } from '../hooks/useProviderBatches';
-import { 
-  BATCH_STATUS, 
-  getBatchStatusLabel, 
-  getBatchStatusColor, 
+import {
+  BATCH_STATUS,
+  getBatchStatusLabel,
+  getBatchStatusColor,
   shortReference,
   formatDeliveryTime,
-  calculateBatchProgress 
+  calculateBatchProgress,
+  apiErrorMessage
 } from '../utils/providerDeliveryHelpers';
 
 /**
@@ -56,7 +57,7 @@ const Batches = () => {
         </p>
       </div>
 
-      {error && <div role="alert" className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800">Could not load or update dispatch batches: {error.message || 'Please retry.'}</div>}
+      {error && <div role="alert" className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800">Could not load or update dispatch batches: {apiErrorMessage(error, 'Please retry.')}</div>}
 
       {batches.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">

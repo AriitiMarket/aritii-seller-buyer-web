@@ -8,6 +8,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logoutUser } from '@/store/slices/userThunks';
 import { FiCheckCircle } from 'react-icons/fi';
 import RoleSwitcher from '@/shared/components/RoleSwitcher';
+import { useProviderAvailability } from '../hooks/useProviderAvailability';
 
 /**
  * ProviderHeader — top bar for the delivery provider workspace.
@@ -22,7 +23,7 @@ const ProviderHeader = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAvailable, setIsAvailable] = useState(true);
+  const { isOnline, toggling, toggleAvailability: toggle } = useProviderAvailability();
 
   const providerName = user?.name || user?.fullName || 'Provider';
 
@@ -44,9 +45,8 @@ const ProviderHeader = ({ onMenuClick }) => {
     }
   };
 
-  const toggleAvailability = () => {
-    setIsAvailable(!isAvailable);
-    // TODO: Update availability via API
+  const handleToggleAvailability = async () => {
+    await toggle();
   };
 
   // Generate breadcrumb from current path
@@ -121,17 +121,18 @@ const ProviderHeader = ({ onMenuClick }) => {
 
           {/* Availability Toggle */}
           <button
-            onClick={toggleAvailability}
-            aria-label={isAvailable ? "Set unavailable" : "Set available"}
+            onClick={handleToggleAvailability}
+            disabled={toggling}
+            aria-label={isOnline ? "Set unavailable" : "Set available"}
             className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border transition ${
-              isAvailable 
-                ? 'border-[#75d04b]/50 bg-[#75d04b]/15 text-[#a3ed83] hover:bg-[#75d04b]/25' 
+              isOnline
+                ? 'border-[#75d04b]/50 bg-[#75d04b]/15 text-[#a3ed83] hover:bg-[#75d04b]/25'
                 : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
             }`}
-            title={isAvailable ? "You're available for deliveries" : "You're currently unavailable"}
+            title={isOnline ? "You're available for deliveries" : "You're currently unavailable"}
           >
-            {isAvailable ? <MdWifi size={18} /> : <MdWifiOff size={18} />}
-            <span className="text-sm font-medium">{isAvailable ? 'Available' : 'Unavailable'}</span>
+            {isOnline ? <MdWifi size={18} /> : <MdWifiOff size={18} />}
+            <span className="text-sm font-medium">{isOnline ? 'Available' : 'Unavailable'}</span>
           </button>
 
           {/* Notifications */}

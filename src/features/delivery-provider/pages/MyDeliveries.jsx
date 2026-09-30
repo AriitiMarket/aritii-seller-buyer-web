@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MdLocalShipping, MdFilterList, MdStore, MdLocationOn, MdInventory, MdRefresh } from 'react-icons/md';
 import { useProviderDelivery } from '../hooks/useProviderDelivery';
 import { 
@@ -18,9 +18,12 @@ import {
  * MyDeliveries - shows provider's active and completed deliveries with filtering.
  */
 const MyDeliveries = () => {
+  const [searchParams] = useSearchParams();
   const [filter, setFilter] = useState('all');
-  const { deliveries, loading, error, supported, refetch } = useProviderDelivery(null, {
+  const search = searchParams.get('search') || '';
+  const { deliveries, total, loading, error, supported, refetch } = useProviderDelivery(null, {
     limit: 50,
+    search,
   });
 
   const statusCounts = countByStatus(deliveries);
@@ -71,7 +74,7 @@ const MyDeliveries = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Deliveries</h1>
           <p className="text-gray-600 mt-1">
-            {deliveries.length} total delivery{deliveries.length !== 1 ? 'ies' : ''}
+            {total} total delivery{total !== 1 ? 'ies' : ''}
           </p>
         </div>
         <button

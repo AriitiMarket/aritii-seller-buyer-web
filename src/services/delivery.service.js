@@ -139,9 +139,16 @@ export const deliveryService = {
     return data?.location || data?.tracking || null;
   },
 
-  /** A delivery provider toggles their own availability. */
+  /**
+   * A delivery provider toggles their own availability.
+   *
+   * The body field is `isOnline` (`PUT /delivery/provider/:id/online`). It used
+   * to be sent as `online`, which the service read as `undefined` — so tapping
+   * "go online" actually took the provider OFFLINE (and made them permanently
+   * ineligible for assignments, since eligibility requires `isOnline`).
+   */
   async setOnline(providerId, online) {
-    const { data } = await api.put(`/delivery/provider/${providerId}/online`, { online: Boolean(online) });
+    const { data } = await api.put(`/delivery/provider/${providerId}/online`, { isOnline: Boolean(online) });
     return data?.provider || data?.partner || data;
   },
 
@@ -151,9 +158,13 @@ export const deliveryService = {
     return data || {};
   },
   async getMyDispatchBatch(batchId) {
-    const { data } = await api.get('/delivery/dispatch/mine');
-    const batches = data?.assignments || [];
-    return batches.find((batch) => String(batch._id) === String(batchId)) || null;
+    try {
+      const { data } = await api.get(`/delivery/dispatch/batches/${batchId}`);
+      return data?.assignment || null;
+    } catch (err) {
+      if (err?.response?.status === 404) return null;
+      throw err;
+    }
   },
   async respondToDispatchBatch(batchId, accepted, reason = '') {
     const { data } = await api.post(`/delivery/dispatch/batches/${batchId}/respond`, { accepted, reason });

@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MdArrowBack, MdStore, MdLocationOn, MdCheck, MdCamera, MdAttachMoney, MdPhone, MdLocalShipping } from 'react-icons/md';
 import { useProviderDelivery } from '../hooks/useProviderDelivery';
-import { 
-  DELIVERY_STATUSES, 
-  normalizeDeliveryStatus, 
-  getDeliveryStatusLabel, 
-  getDeliveryStatusColor, 
-  formatDeliveryAddress, 
+import { deliveryService } from '@/services/delivery.service';
+import {
+  DELIVERY_STATUSES,
+  normalizeDeliveryStatus,
+  getDeliveryStatusLabel,
+  getDeliveryStatusColor,
+  formatDeliveryAddress,
   shortReference,
   formatDeliveryTime,
   formatCurrency,
   formatPhoneNumber,
-  calculateDeliveryProgress
+  calculateDeliveryProgress,
+  apiErrorMessage
 } from '../utils/providerDeliveryHelpers';
 import { toast } from 'react-toastify';
 
@@ -22,15 +24,39 @@ import { toast } from 'react-toastify';
  */
 const ActiveDelivery = () => {
   const { id } = useParams();
-  const { delivery, loading, error, supported, updateStatus, uploadProof, confirmCod, getTracking } = useProviderDelivery(id);
+  const { delivery, loading, error, supported, updateStatus, confirmCod, getTracking } = useProviderDelivery(id);
   const [updating, setUpdating] = useState(false);
-  const [showProofUpload, setShowProofUpload] = useState(false);
   const [showCodConfirm, setShowCodConfirm] = useState(false);
   const [codAmount, setCodAmount] = useState('');
-  const [proofFile, setProofFile] = useState(null);
+  const [batch, setBatch] = useState(null);
+  const [batchLoading, setBatchLoading] = useState(false);
 
   const status = normalizeDeliveryStatus(delivery?.status);
   const progress = calculateDeliveryProgress(delivery?.status);
+
+  // Fetch the batch this delivery belongs to (if any) to gate rider actions.
+  useEffect(() => {
+    if (!delivery?.assignmentId) {
+      setBatch(null);
+      return;
+    }
+    let cancelled = false;
+    setBatchLoading(true);
+    deliveryService
+      .getMyDispatchBatch(delivery.assignmentId)
+      .then((b) => {
+        if (!cancelled) setBatch(b);
+      })
+      .catch(() => {
+        if (!cancelled) setBatch(null);
+      })
+      .finally(() => {
+        if (!cancelled) setBatchLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [delivery?.assignmentId]);
 
   const handleStatusUpdate = async (newStatus) => {
     setUpdating(true);
@@ -39,33 +65,28 @@ const ActiveDelivery = () => {
       if (response.success) {
         toast.success('Status updated successfully');
       } else {
-        toast.error(response.message || 'Failed to update status');
+        toast.error(response.message || apiErrorMessage(response.error, 'Failed to update status'));
       }
     } catch (err) {
-      toast.error('Failed to update status');
+      toast.error(apiErrorMessage(err, 'Failed to update status'));
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleProofUpload = async (e) => {
-    e.preventDefault();
-    if (!proofFile) {
-      toast.error('Please select a file to upload');
-      return;
-    }
+  const handleAcceptBatch = async () => {
+    if (!delivery?.assignmentId) return;
     setUpdating(true);
     try {
-      const response = await uploadProof(id, proofFile);
-      if (response.success) {
-        toast.success('Proof uploaded successfully');
-        setShowProofUpload(false);
-        setProofFile(null);
+      const result = await deliveryService.respondToDispatchBatch(delivery.assignmentId, true);
+      if (result) {
+        toast.success('Batch assignment accepted');
+        setBatch(result);
       } else {
-        toast.error(response.message || 'Failed to upload proof');
+        toast.error('Failed to accept batch assignment');
       }
     } catch (err) {
-      toast.error('Failed to upload proof');
+      toast.error(apiErrorMessage(err, 'Failed to accept batch assignment'));
     } finally {
       setUpdating(false);
     }
@@ -81,14 +102,14 @@ const ActiveDelivery = () => {
     try {
       const response = await confirmCod(id, parseFloat(codAmount));
       if (response.success) {
-        toast.success('COD confirmed successfully');
+        toast.success('Delivery completed and cash confirmed');
         setShowCodConfirm(false);
         setCodAmount('');
       } else {
-        toast.error(response.message || 'Failed to confirm COD');
+        toast.error(response.message || apiErrorMessage(response.error, 'Failed to confirm COD'));
       }
     } catch (err) {
-      toast.error('Failed to confirm COD');
+      toast.error(apiErrorMessage(err, 'Failed to confirm COD'));
     } finally {
       setUpdating(false);
     }
@@ -219,7 +240,7 @@ const ActiveDelivery = () => {
                   onClick={() => setShowCodConfirm(true)}
                   className="px-3 py-1.5 bg-amber-600 text-white rounded text-sm font-medium hover:bg-amber-700 transition"
                 >
-                  Confirm Collection
+                  Confirm &amp; Complete
                 </button>
               ) : <span className="text-xs text-amber-800">Confirm collection after starting delivery.</span>}
             </div>
@@ -237,12 +258,9 @@ const ActiveDelivery = () => {
                   Submitted
                 </span>
               ) : (
-                <button
-                  onClick={() => setShowProofUpload(true)}
-                  className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition"
-                >
-                  Upload Proof
-                </button>
+                <p className="text-xs text-blue-800">
+                  Proof (photo, signature, or COD confirmation) is submitted when you mark the delivery complete.
+                </p>
               )}
             </div>
           )}
@@ -320,7 +338,28 @@ const ActiveDelivery = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
         <div className="flex flex-wrap gap-3">
-          {status === DELIVERY_STATUSES.ASSIGNED && (
+          {batchLoading && (
+            <span className="text-sm text-gray-500">Loading batch info…</span>
+          )}
+
+          {!batchLoading && !batch && delivery?.assignmentId && (
+            <div className="px-4 py-2.5 bg-amber-50 text-amber-800 rounded-lg font-medium text-sm">
+              This delivery is not part of a batch. Contact operations for assistance.
+            </div>
+          )}
+
+          {!batchLoading && batch?.status === 'waiting_acceptance' && (
+            <button
+              onClick={handleAcceptBatch}
+              disabled={updating}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <MdCheck size={18} />
+              {updating ? 'Accepting...' : 'Accept Assignment'}
+            </button>
+          )}
+
+          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.ASSIGNED && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.PICKUP)}
               disabled={updating}
@@ -331,7 +370,7 @@ const ActiveDelivery = () => {
             </button>
           )}
 
-          {status === DELIVERY_STATUSES.PICKUP && (
+          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.PICKUP && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.IN_TRANSIT)}
               disabled={updating}
@@ -342,7 +381,7 @@ const ActiveDelivery = () => {
             </button>
           )}
 
-          {status === DELIVERY_STATUSES.IN_TRANSIT && (
+          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.IN_TRANSIT && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.DELIVERED)}
               disabled={updating}
@@ -358,53 +397,23 @@ const ActiveDelivery = () => {
               ✓ Delivery Completed
             </div>
           )}
+
+          {!batchLoading && !['assigned', 'pickup', 'in_transit', 'delivered'].includes(status) && (
+            <div className="px-4 py-2.5 bg-gray-50 text-gray-600 rounded-lg font-medium text-sm">
+              This delivery is being handled by operations.
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Proof Upload Modal */}
-      {showProofUpload && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Proof of Delivery</h3>
-            <form onSubmit={handleProofUpload}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setProofFile(e.target.files[0])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#75d04b] focus:border-transparent"
-                  required
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="flex-1 px-4 py-2 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
-                >
-                  {updating ? 'Uploading...' : 'Upload'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowProofUpload(false)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* COD Confirmation Modal */}
       {showCodConfirm && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm COD Collection</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm COD &amp; Complete Delivery</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This records the cash you collected and marks the delivery complete.
+            </p>
             <form onSubmit={handleCodConfirm}>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">

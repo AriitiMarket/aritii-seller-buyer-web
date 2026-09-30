@@ -1,29 +1,13 @@
 import React from 'react';
-import { MdWarning, MdInfo } from 'react-icons/md';
-import { useProviderDelivery } from '../hooks/useProviderDelivery';
+import { MdInfo } from 'react-icons/md';
 
 /**
  * Warnings - shows provider warnings and notifications.
+ *
+ * The delivery service has no warning/notification endpoint yet, so this page
+ * is a static placeholder. It does not fetch deliveries to decide support.
  */
 const Warnings = () => {
-  const { supported } = useProviderDelivery();
-
-  if (!supported) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Warnings</h1>
-          <p className="text-gray-600 mt-1">View warnings and notifications.</p>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-          <p className="text-amber-800">
-            <strong>Warnings Not Available:</strong> The warning/notification system is not currently supported by the delivery service.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>

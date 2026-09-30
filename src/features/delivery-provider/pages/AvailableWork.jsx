@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MdCheck, MdClose, MdStore, MdLocationOn, MdInventory, MdOutlineAssignment } from 'react-icons/md';
 import { useAvailableWork } from '../hooks/useAvailableWork';
-import { 
-  getDeliveryStatusLabel, 
-  getDeliveryStatusColor, 
-  formatDeliveryAddress, 
+import {
+  getDeliveryStatusLabel,
+  getDeliveryStatusColor,
+  formatDeliveryAddress,
   shortReference,
   formatDeliveryTime,
-  formatCurrency 
+  formatCurrency,
+  apiErrorMessage
 } from '../utils/providerDeliveryHelpers';
 import { toast } from 'react-toastify';
 
@@ -18,6 +19,22 @@ import { toast } from 'react-toastify';
 const AvailableWork = () => {
   const { assignments, count, loading, error, supported, respondToAssignment } = useAvailableWork();
   const [responding, setResponding] = useState(null);
+  const [now, setNow] = useState(Date.now());
+
+  // Tick every second so expiry countdowns stay live.
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const getTimeLeft = (expiresAt) => {
+    if (!expiresAt) return null;
+    const ms = new Date(expiresAt).getTime() - now;
+    if (ms <= 0) return 'Expired';
+    const min = Math.floor(ms / 60000);
+    const sec = Math.floor((ms % 60000) / 1000);
+    return `${min}:${sec.toString().padStart(2, '0')}`;
+  };
 
   const handleAccept = async (assignmentId) => {
     setResponding(assignmentId);
@@ -26,10 +43,10 @@ const AvailableWork = () => {
       if (response.success) {
         toast.success('Assignment accepted successfully!');
       } else {
-        toast.error(response.error?.message || 'Failed to accept assignment');
+        toast.error(apiErrorMessage(response.error, 'Failed to accept assignment'));
       }
     } catch (err) {
-      toast.error('Failed to accept assignment');
+      toast.error(apiErrorMessage(err, 'Failed to accept assignment'));
     } finally {
       setResponding(null);
     }
@@ -42,10 +59,10 @@ const AvailableWork = () => {
       if (response.success) {
         toast.success('Assignment declined');
       } else {
-        toast.error(response.error?.message || 'Failed to decline assignment');
+        toast.error(apiErrorMessage(response.error, 'Failed to decline assignment'));
       }
     } catch (err) {
-      toast.error('Failed to decline assignment');
+      toast.error(apiErrorMessage(err, 'Failed to decline assignment'));
     } finally {
       setResponding(null);
     }
@@ -123,6 +140,15 @@ const AvailableWork = () => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDeliveryStatusColor(assignment.status)}`}>
                       {getDeliveryStatusLabel(assignment.status)}
                     </span>
+                    {assignment.expiresAt && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        getTimeLeft(assignment.expiresAt) === 'Expired'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        Expires in {getTimeLeft(assignment.expiresAt)}
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
