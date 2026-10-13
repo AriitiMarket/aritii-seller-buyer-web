@@ -85,23 +85,6 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     }
   };
 
-  const uploadProof = async (id, file) => {
-    try {
-      const response = await providerDeliveryApi.uploadProofOfDelivery(id, file);
-      if (response.success) {
-        if (deliveryId === id) {
-          await fetchDeliveryDetails();
-        } else {
-          await fetchDeliveries();
-        }
-      }
-      return response;
-    } catch (err) {
-      console.error('Failed to upload proof:', err);
-      return { success: false, error: err };
-    }
-  };
-
   const confirmCod = async (id, amount) => {
     try {
       const response = await providerDeliveryApi.confirmCodCollection(id, amount);
@@ -150,7 +133,6 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     refetch: deliveryId ? fetchDeliveryDetails : fetchDeliveries,
     respondToAssignment,
     updateStatus,
-    uploadProof,
     confirmCod,
     getTracking,
     getLatestLocation,

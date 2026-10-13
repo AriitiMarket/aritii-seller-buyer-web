@@ -8,7 +8,7 @@
  * Keep the three in sync — the bridge stores exactly these values.
  *
  * The bridge also stores `null` while a shipment exists but no provider has
- * reported a status yet: that is "waiting for a courier", not "unknown", so it
+ * reported a status yet: that is "waiting for a provider", not "unknown", so it
  * must read as a normal in-progress step rather than an error.
  *
  * Delivery status is NOT the order status: the order moves through
@@ -18,36 +18,27 @@
 
 export const DELIVERY_STATUSES = Object.freeze({
   PENDING: 'pending',
-  VALIDATED: 'validated',
-  READY_FOR_PICKUP: 'ready_for_pickup',
   ASSIGNED: 'assigned',
   REASSIGNED: 'reassigned',
   PICKUP: 'pickup',
   IN_TRANSIT: 'in_transit',
-  ARRIVED_AT_HUB: 'arrived_at_hub',
-  OUT_FOR_DELIVERY: 'out_for_delivery',
   DELIVERED: 'delivered',
   FAILED: 'failed',
   CANCELLED: 'cancelled',
-  RETURN_REQUESTED: 'return_requested',
-  RETURNED: 'returned',
 });
 
+// The buyer-facing wording for the canonical lifecycle. `pending` is the ready
+// pool (the service dispatches straight from it), so it reads as "waiting for a
+// rider" rather than naming a state that does not exist.
 const STATUS_META = Object.freeze({
-  pending: { label: 'Waiting for a courier', tone: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-  validated: { label: 'Delivery validated', tone: 'bg-teal-100 text-teal-700 border-teal-200' },
-  ready_for_pickup: { label: 'Ready for pickup', tone: 'bg-lime-100 text-lime-700 border-lime-200' },
-  assigned: { label: 'Courier assigned', tone: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  reassigned: { label: 'Reassigning a courier', tone: 'bg-gray-100 text-gray-700 border-gray-200' },
+  pending: { label: 'Waiting for a provider', tone: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  assigned: { label: 'Provider assigned', tone: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  reassigned: { label: 'Reassigning a provider', tone: 'bg-gray-100 text-gray-700 border-gray-200' },
   pickup: { label: 'Picked up from the shop', tone: 'bg-amber-100 text-amber-700 border-amber-200' },
   in_transit: { label: 'On the way to you', tone: 'bg-blue-100 text-blue-700 border-blue-200' },
-  arrived_at_hub: { label: 'Arrived at the hub', tone: 'bg-sky-100 text-sky-700 border-sky-200' },
-  out_for_delivery: { label: 'Out for delivery', tone: 'bg-purple-100 text-purple-700 border-purple-200' },
   delivered: { label: 'Delivered', tone: 'bg-green-100 text-green-700 border-green-200' },
   failed: { label: 'Delivery failed', tone: 'bg-red-100 text-red-700 border-red-200' },
   cancelled: { label: 'Delivery cancelled', tone: 'bg-red-100 text-red-700 border-red-200' },
-  return_requested: { label: 'Return requested', tone: 'bg-orange-100 text-orange-700 border-orange-200' },
-  returned: { label: 'Returned', tone: 'bg-slate-200 text-slate-700 border-slate-300' },
 });
 
 const DEFAULT_META = Object.freeze({
@@ -60,9 +51,11 @@ const ALIASES = Object.freeze({
   PENDING: DELIVERY_STATUSES.PENDING,
   NEW: DELIVERY_STATUSES.PENDING,
   REQUESTED: DELIVERY_STATUSES.PENDING,
-  VALIDATED: DELIVERY_STATUSES.VALIDATED,
-  READY_FOR_PICKUP: DELIVERY_STATUSES.READY_FOR_PICKUP,
-  READY: DELIVERY_STATUSES.READY_FOR_PICKUP,
+  // Pre-assignment readiness folded onto the ready pool: `pending` IS the pool
+  // dispatch draws from, so there is no separate "ready" state any more.
+  VALIDATED: DELIVERY_STATUSES.PENDING,
+  READY_FOR_PICKUP: DELIVERY_STATUSES.PENDING,
+  READY: DELIVERY_STATUSES.PENDING,
   ASSIGNED: DELIVERY_STATUSES.ASSIGNED,
   ACCEPTED: DELIVERY_STATUSES.ASSIGNED,
   REASSIGNED: DELIVERY_STATUSES.REASSIGNED,
@@ -73,10 +66,12 @@ const ALIASES = Object.freeze({
   'IN TRANSIT': DELIVERY_STATUSES.IN_TRANSIT,
   IN_TRANSIT: DELIVERY_STATUSES.IN_TRANSIT,
   TRANSIT: DELIVERY_STATUSES.IN_TRANSIT,
-  ARRIVED_AT_HUB: DELIVERY_STATUSES.ARRIVED_AT_HUB,
-  HUB: DELIVERY_STATUSES.ARRIVED_AT_HUB,
-  'OUT FOR DELIVERY': DELIVERY_STATUSES.OUT_FOR_DELIVERY,
-  OUT_FOR_DELIVERY: DELIVERY_STATUSES.OUT_FOR_DELIVERY,
+  // The customer leg is one state: there is no hub stage and no separate
+  // last-mile stage, so a rider heading to the buyer is simply `in_transit`.
+  ARRIVED_AT_HUB: DELIVERY_STATUSES.IN_TRANSIT,
+  HUB: DELIVERY_STATUSES.IN_TRANSIT,
+  'OUT FOR DELIVERY': DELIVERY_STATUSES.IN_TRANSIT,
+  OUT_FOR_DELIVERY: DELIVERY_STATUSES.IN_TRANSIT,
   'ON THE WAY': DELIVERY_STATUSES.IN_TRANSIT,
   SHIPPED: DELIVERY_STATUSES.IN_TRANSIT,
   DELIVERED: DELIVERY_STATUSES.DELIVERED,
@@ -84,9 +79,10 @@ const ALIASES = Object.freeze({
   FAILED: DELIVERY_STATUSES.FAILED,
   CANCELLED: DELIVERY_STATUSES.CANCELLED,
   CANCELED: DELIVERY_STATUSES.CANCELLED,
-  RETURN_REQUESTED: DELIVERY_STATUSES.RETURN_REQUESTED,
-  'RETURN REQUESTED': DELIVERY_STATUSES.RETURN_REQUESTED,
-  RETURNED: DELIVERY_STATUSES.RETURNED,
+  // No returns flow exists. These spellings are NOT folded onto anything: a
+  // return is not a cancellation, so rewriting one into the other would show
+  // the buyer a parcel as "cancelled" when it in fact came back. An
+  // unrecognised value falls through to the neutral "in progress" meta.
 });
 
 /** Fold any stored/legacy delivery status onto a canonical one (or null). */
@@ -110,13 +106,17 @@ export function getDeliveryStatus(status) {
   };
 }
 
-/** A delivery that will not progress any further on its own. */
+/**
+ * A delivery that will not progress any further on its own.
+ *
+ * `failed` counts: the buyer is not waiting on the rider any more, and the only
+ * way forward is a retry the platform (not the buyer) initiates.
+ */
 export function isDeliveryFinal(status) {
   const key = normalizeDeliveryStatus(status);
   return key === DELIVERY_STATUSES.DELIVERED
     || key === DELIVERY_STATUSES.FAILED
-    || key === DELIVERY_STATUSES.CANCELLED
-    || key === DELIVERY_STATUSES.RETURNED;
+    || key === DELIVERY_STATUSES.CANCELLED;
 }
 
 /**
@@ -162,7 +162,7 @@ export function deliveryReference(delivery) {
  *   delivery-service record (`GET /delivery/delivery/order/:orderId`)
  * @returns {{linked: boolean, status: string|null, statusLabel: string,
  *   statusTone: string, isFinal: boolean, reference: string,
- *   courierReference: string, courierName: string, lastUpdate: string|null,
+ *   providerReference: string, providerName: string, lastUpdate: string|null,
  *   note: string, pickup: string, destination: string, itemCount: number,
  *   totalValue: number}}
  */
@@ -175,8 +175,8 @@ export function describeDelivery(delivery) {
       statusTone: 'bg-gray-100 text-gray-600 border-gray-200',
       isFinal: false,
       reference: '',
-      courierReference: '',
-      courierName: '',
+      providerReference: '',
+      providerName: '',
       lastUpdate: null,
       note: '',
       pickup: '',
@@ -193,11 +193,11 @@ export function describeDelivery(delivery) {
     statusTone: status.tone,
     isFinal: isDeliveryFinal(delivery.status),
     reference: deliveryReference(delivery),
-    // The courier's own id is what support asks for; shortened for display.
-    courierReference: delivery.providerId ? `#${String(delivery.providerId).slice(-8)}` : '',
+    // The provider's own id is what support asks for; shortened for display.
+    providerReference: delivery.providerId ? `#${String(delivery.providerId).slice(-8)}` : '',
     // The enriched delivery-by-order read carries the provider's display name;
     // the raw id hash is only the fallback when it does not.
-    courierName: delivery.provider?.name || delivery.providerName || '',
+    providerName: delivery.provider?.name || delivery.providerName || '',
     lastUpdate: delivery.statusUpdatedAt || delivery.updatedAt || null,
     note: delivery.note || '',
     pickup: formatDeliveryAddress(delivery.pickupAddress),
@@ -213,7 +213,7 @@ export function explainNoDelivery(orderStatus) {
   if (status.includes('cancel')) return 'This order was cancelled, so no delivery was booked.';
   if (status.includes('refund')) return 'This order is in a refund flow — delivery is not part of it.';
   if (status === 'processing') return 'The shop has not accepted this order yet. Delivery is requested once it is confirmed.';
-  if (status === 'confirmed') return 'The order is confirmed and waiting to be handed to a courier.';
+  if (status === 'confirmed') return 'The order is confirmed and waiting to be handed to a provider.';
   if (status === 'delivered') return 'This order is marked delivered. Its delivery record is not available.';
   return 'Delivery is booked once the shop confirms the order.';
 }

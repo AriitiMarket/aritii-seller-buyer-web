@@ -46,19 +46,19 @@ const TrackOrder = () => {
       [ORDER_STATUSES.CONFIRMED]: {
         icon: BsBox2,
         title: 'Order Confirmed',
-        message: 'The shop accepted your order and is getting it ready for the courier.',
+        message: 'The shop accepted your order and is getting it ready for the provider.',
         className: 'status-processing'
       },
       [ORDER_STATUSES.SHIPPED]: {
         icon: BsTruck,
         title: 'Handed to Delivery',
-        message: 'Your order left the shop with the courier network.',
+        message: 'Your order left the shop with the provider network.',
         className: 'status-shipped'
       },
       [ORDER_STATUSES.IN_TRANSIT]: {
         icon: BsTruck,
         title: 'Out for Delivery',
-        message: 'The courier is on the way to your delivery address.',
+        message: 'The provider is on the way to your delivery address.',
         className: 'status-shipped'
       },
       [ORDER_STATUSES.DELIVERED]: {

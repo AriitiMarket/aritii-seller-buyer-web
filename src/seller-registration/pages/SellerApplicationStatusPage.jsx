@@ -40,7 +40,14 @@ export default function SellerApplicationStatusPage() {
   if (error) return <main className="mx-auto max-w-3xl p-8 text-red-600">{error}</main>;
 
   const reason = application.review?.informationRequestReason || application.review?.rejectionReason;
-  const editable = ['DRAFT', 'MORE_INFORMATION_REQUIRED', 'REJECTED'].includes(application.status);
+  // Which statuses the applicant can still act on. A MISSING status is the
+  // "registered as a seller but never finished (or never even started) the
+  // wizard" case — it must offer a way to CONTINUE, never a dead end, or the
+  // account looks locked out of the very application it registered to submit.
+  // The locked statuses mirror the wizard's own redirect (SellerRegistrationPage).
+  const LOCKED_STATUSES = ['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'];
+  const canContinue = !LOCKED_STATUSES.includes(application.status);
+  const needsResubmit = application.status === 'REJECTED' || application.status === 'MORE_INFORMATION_REQUIRED';
   const hasStores = storeCount !== null && storeCount > 0;
   const staleDraft = application.status === 'DRAFT' && hasStores;
 
@@ -87,7 +94,8 @@ export default function SellerApplicationStatusPage() {
           {application.status === 'REJECTED' && 'Your application was rejected. You may update and resubmit it.'}
           {application.status === 'APPROVED' && 'Your seller application has been approved.'}
           {application.status === 'SUSPENDED' && 'Your seller application is suspended.'}
-          {(!application.status || application.status === 'DRAFT') && 'Your seller application is not complete.'}
+          {(!application.status) && 'You have not started your seller application yet. Continue to set up your store.'}
+          {application.status === 'DRAFT' && 'Your seller application is not complete yet. Continue where you left off.'}
         </p>
         {reason && <div className="mt-6 rounded border border-orange-200 bg-orange-50 p-4"><strong>Review message:</strong> {reason}</div>}
 
@@ -119,9 +127,9 @@ export default function SellerApplicationStatusPage() {
         )}
 
         <div className="mt-8"><SellerApplicationSummary application={application} /></div>
-        {editable && !staleDraft && (
+        {canContinue && !staleDraft && (
           <Link to="/seller-registration" className="mt-8 inline-flex rounded bg-[#75d04b] px-5 py-2 text-white">
-            {application.status === 'DRAFT' ? 'Continue Registration' : 'Update and Resubmit'}
+            {needsResubmit ? 'Update and Resubmit' : 'Continue Registration'}
           </Link>
         )}
         

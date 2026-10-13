@@ -279,7 +279,7 @@ const ActiveDelivery = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 mb-1">Pickup Location</p>
                 <p className="text-sm text-gray-600 mb-1">
-                  {formatDeliveryAddress(delivery.pickupAddress) || 'Address not specified'}
+                  {formatDeliveryAddress(delivery.origin) || 'Address not specified'}
                 </p>
                 {delivery.sellerName && (
                   <p className="text-xs text-gray-500">{delivery.sellerName}</p>
@@ -306,7 +306,7 @@ const ActiveDelivery = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 mb-1">Delivery Destination</p>
                 <p className="text-sm text-gray-600 mb-1">
-                  {formatDeliveryAddress(delivery.deliveryAddress) || 'Address not specified'}
+                  {formatDeliveryAddress(delivery.destination) || 'Address not specified'}
                 </p>
                 {delivery.buyerName && (
                   <p className="text-xs text-gray-500">{delivery.buyerName}</p>

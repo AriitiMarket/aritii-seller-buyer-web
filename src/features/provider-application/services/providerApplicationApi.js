@@ -33,25 +33,6 @@ export const providerApplicationApi = {
   async withdraw() {
     return unwrap(await api.delete('/provider-application/me'));
   },
-
-  // ── Admin review queue (the admin console owns the UI) ────────────────────
-  async adminList(params) {
-    const result = unwrap(await api.get('/provider-application', { params }));
-    return result.applications || [];
-  },
-
-  async adminGet(id) {
-    const result = unwrap(await api.get(`/provider-application/${id}`));
-    return result.application;
-  },
-
-  async approve(id) {
-    return unwrap(await api.post(`/provider-application/${id}/approve`, {}));
-  },
-
-  async reject(id, reason) {
-    return unwrap(await api.post(`/provider-application/${id}/reject`, { reason }));
-  },
 };
 
 export default providerApplicationApi;

@@ -28,28 +28,6 @@ export const sellerRegistrationApi = {
   async discardDraft() {
     return unwrap(await api.delete('/seller-application/me'));
   },
-
-  async adminList(params) {
-    const result = unwrap(await api.get('/seller-application', { params }));
-    return result.applications || [];
-  },
-
-  async adminGet(id) {
-    const result = unwrap(await api.get(`/seller-application/${id}`));
-    return result.application;
-  },
-
-  async approve(id) {
-    return unwrap(await api.post(`/seller-application/${id}/approve`, {}));
-  },
-
-  async reject(id, reason) {
-    return unwrap(await api.post(`/seller-application/${id}/reject`, { reason }));
-  },
-
-  async requestInformation(id, reason) {
-    return unwrap(await api.post(`/seller-application/${id}/request-information`, { reason }));
-  },
 };
 
 export default sellerRegistrationApi;

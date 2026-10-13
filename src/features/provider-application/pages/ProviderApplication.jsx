@@ -30,11 +30,48 @@ const ProviderApplication = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Mirrors the hint under the file input: the browser's `accept` only filters
+  // the picker, so size and type are enforced here before anything is sent.
+  const MAX_ID_FILE_BYTES = 5 * 1024 * 1024;
+  const ID_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
+  const validate = () => {
+    if (formData.fullName.trim().length < 2) return 'Please enter your full name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) return 'Please enter a valid email address.';
+    if (formData.phone.replace(/\D/g, '').length < 7) return 'Please enter a valid phone number.';
+    if (!formData.vehicleType) return 'Please select your vehicle type.';
+    if (!formData.vehicleModel.trim()) return 'Please enter your vehicle model.';
+    if (!formData.vehiclePlate.trim()) return 'Please enter your license plate number.';
+    if (!formData.availability.trim()) return 'Please tell us when you are available.';
+    if (!formData.idDocument) return 'Please attach a copy of your ID document.';
+    if (formData.idDocument.size > MAX_ID_FILE_BYTES) return 'The ID document must be 5MB or smaller.';
+    if (!ID_FILE_TYPES.includes(formData.idDocument.type)) return 'The ID document must be a JPG, PNG or PDF file.';
+    return '';
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+    if (type === 'file') {
+      const file = files[0] || null;
+      if (file && file.size > MAX_ID_FILE_BYTES) {
+        setErrorMessage('The ID document must be 5MB or smaller.');
+        e.target.value = '';
+        setFormData(prev => ({ ...prev, idDocument: null }));
+        return;
+      }
+      if (file && !ID_FILE_TYPES.includes(file.type)) {
+        setErrorMessage('The ID document must be a JPG, PNG or PDF file.');
+        e.target.value = '';
+        setFormData(prev => ({ ...prev, idDocument: null }));
+        return;
+      }
+      setErrorMessage('');
+      setFormData(prev => ({ ...prev, idDocument: file }));
+      return;
+    }
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -63,6 +100,14 @@ const ProviderApplication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validate();
+    if (validationError) {
+      setErrorMessage(validationError);
+      toast.error(validationError);
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage('');
 

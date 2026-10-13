@@ -71,8 +71,8 @@ const roleCards = [
   {
     title: 'External providers',
     description:
-      'Trusted logistics partners plugged into the same flow — they receive requests, manage assignments, and fulfil deliveries under the same standards.',
-    tag: 'Partner network',
+      'Trusted delivery providers plugged into the same flow — they receive requests, manage assignments, and fulfil deliveries under the same standards.',
+    tag: 'Provider network',
   },
 ];
 
@@ -162,7 +162,7 @@ const DeliveryPage = () => {
           </h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
             The platform never assumes a single provider — Aritii's own network and external
-            partners work the same flow.
+            providers work the same flow.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 mb-10">

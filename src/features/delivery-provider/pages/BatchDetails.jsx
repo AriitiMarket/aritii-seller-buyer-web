@@ -23,6 +23,7 @@ const BatchDetails = () => {
   const { id } = useParams();
   const { batch, loading, error, supported, runBatchAction, refetch } = useProviderBatches({ routeId: id });
   const [responding, setResponding] = useState(false);
+  const [actioning, setActioning] = useState(false);
 
   const handleRespond = async (accepted) => {
     setResponding(true);
@@ -39,6 +40,34 @@ const BatchDetails = () => {
     } finally {
       setResponding(false);
     }
+  };
+
+  const handleBatchAction = async (action, ...args) => {
+    setActioning(true);
+    try {
+      await runBatchAction(action, ...args);
+      toast.success('Action completed');
+      await refetch();
+    } catch (err) {
+      toast.error(apiErrorMessage(err, `Failed to ${action}`));
+    } finally {
+      setActioning(false);
+    }
+  };
+
+  const deliverOrder = (item) => {
+    let proof = {};
+    if (item.paymentMethod === 'COD') {
+      const amount = window.prompt(`Confirm cash collected (order total: ${item.paymentAmount})`);
+      if (amount === null) return;
+      const collected = Number(amount);
+      if (!Number.isFinite(collected) || collected !== Number(item.paymentAmount)) {
+        window.alert('Enter the exact order total to confirm COD collection.');
+        return;
+      }
+      proof = { proofOfDelivery: { codConfirmed: true, codCollectedAmount: collected, confirmedAt: new Date().toISOString() } };
+    }
+    handleBatchAction('confirmDispatchDelivery', batch.id, item.orderId, proof);
   };
 
   if (loading) {
@@ -112,20 +141,6 @@ const BatchDetails = () => {
   const assignments = batch.assignments || [];
   const progress = calculateBatchProgress(assignments);
   const batchStatus = batch.originalStatus || batch.status;
-  const deliverOrder = (item) => {
-    let proof = {};
-    if (item.paymentMethod === 'COD') {
-      const amount = window.prompt(`Confirm cash collected (order total: ${item.paymentAmount})`);
-      if (amount === null) return;
-      const collected = Number(amount);
-      if (!Number.isFinite(collected) || collected !== Number(item.paymentAmount)) {
-        window.alert('Enter the exact order total to confirm COD collection.');
-        return;
-      }
-      proof = { proofOfDelivery: { codConfirmed: true, codCollectedAmount: collected, confirmedAt: new Date().toISOString() } };
-    }
-    runBatchAction('confirmDispatchDelivery', batch.id, item.orderId, proof);
-  };
 
   return (
     <div className="space-y-6">
@@ -298,10 +313,44 @@ const BatchDetails = () => {
             </button>
           </>
         )}
-        {batchStatus === 'accepted' && <button onClick={() => runBatchAction('startDispatchPickup', batch.id)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Start pickup</button>}
-        {batchStatus === 'picking_up' && (batch.pickupPlan || []).filter((stop) => !stop.completed).map((stop) => <button key={stop.sellerId} onClick={() => runBatchAction('confirmDispatchPickup', batch.id, stop.sellerId)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Confirm pickup: {stop.shopName || stop.sellerName}</button>)}
-        {batchStatus === 'picked_up' && <button onClick={() => runBatchAction('startDispatchTransit', batch.id)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Start delivery</button>}
-        {batchStatus === 'in_transit' && (batch.assignments || []).filter((item) => item.status !== 'delivered').map((item) => <button key={item.orderId} onClick={() => deliverOrder(item)} className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg">Mark {item.orderId} delivered</button>)}
+        {batchStatus === 'accepted' && (
+          <button
+            onClick={() => handleBatchAction('startDispatchPickup', batch.id)}
+            disabled={actioning}
+            className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+          >
+            {actioning ? 'Starting...' : 'Start Pickup'}
+          </button>
+        )}
+        {batchStatus === 'picking_up' && (batch.pickupPlan || []).filter((stop) => !stop.completed).map((stop) => (
+          <button
+            key={stop.sellerId}
+            onClick={() => handleBatchAction('confirmDispatchPickup', batch.id, stop.sellerId)}
+            disabled={actioning}
+            className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+          >
+            {actioning ? 'Confirming...' : `Confirm pickup: ${stop.shopName || stop.sellerName}`}
+          </button>
+        ))}
+        {batchStatus === 'picked_up' && (
+          <button
+            onClick={() => handleBatchAction('startDispatchTransit', batch.id)}
+            disabled={actioning}
+            className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+          >
+            {actioning ? 'Starting...' : 'Start Delivery'}
+          </button>
+        )}
+        {batchStatus === 'in_transit' && (batch.assignments || []).filter((item) => item.status !== 'delivered').map((item) => (
+          <button
+            key={item.orderId}
+            onClick={() => deliverOrder(item)}
+            disabled={actioning}
+            className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+          >
+            {actioning ? 'Processing...' : `Mark ${shortReference(item.orderId)} delivered`}
+          </button>
+        ))}
         <Link
           to="/provider/deliveries"
           className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition text-center"

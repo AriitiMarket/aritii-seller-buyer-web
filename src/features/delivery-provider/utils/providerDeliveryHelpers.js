@@ -91,26 +91,24 @@ export const getBatchStatusColor = (status) => {
 };
 
 /**
- * Calculate delivery progress percentage based on delivery status
- * (every status of the Delivery Service state machine).
+ * Delivery progress percentage, one entry per canonical delivery status.
+ *
+ * `assignments`/`reassigned` share a value: reassignment is the handover between
+ * two riders, not forward progress, and the old 10-point "validated" /
+ * "ready for pickup" rungs were states the service never produced — so the bar
+ * could only ever jump over them.
  */
 export const calculateDeliveryProgress = (status) => {
   const normalized = normalizeDeliveryStatus(status);
   const progressMap = {
     [DELIVERY_STATUSES.PENDING]: 0,
-    [DELIVERY_STATUSES.VALIDATED]: 5,
-    [DELIVERY_STATUSES.READY_FOR_PICKUP]: 10,
     [DELIVERY_STATUSES.ASSIGNED]: 20,
     [DELIVERY_STATUSES.REASSIGNED]: 20,
-    [DELIVERY_STATUSES.PICKUP]: 40,
-    [DELIVERY_STATUSES.IN_TRANSIT]: 60,
-    [DELIVERY_STATUSES.ARRIVED_AT_HUB]: 75,
-    [DELIVERY_STATUSES.OUT_FOR_DELIVERY]: 90,
+    [DELIVERY_STATUSES.PICKUP]: 45,
+    [DELIVERY_STATUSES.IN_TRANSIT]: 75,
     [DELIVERY_STATUSES.DELIVERED]: 100,
     [DELIVERY_STATUSES.FAILED]: 0,
     [DELIVERY_STATUSES.CANCELLED]: 0,
-    [DELIVERY_STATUSES.RETURN_REQUESTED]: 0,
-    [DELIVERY_STATUSES.RETURNED]: 0,
   };
   return progressMap[normalized] ?? 0;
 };

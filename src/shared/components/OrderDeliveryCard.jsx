@@ -12,7 +12,7 @@ import { FiRefreshCw } from 'react-icons/fi';
  *
  * It prefers the Delivery Service's own order-scoped read
  * (`GET /delivery/delivery/order/:orderId`), which is authorized by the
- * ORDER's ownership server-side and carries the enriched shape — the courier's
+ * ORDER's ownership server-side and carries the enriched shape — the provider's
  * name, both addresses, the timeline. When that domain answers 404/501 (or has
  * no record for the order) it falls back to the ORDER ↔ DELIVERY bridge
  * (`orderService.getOrderDelivery`), so the panel is correct on a customer
@@ -113,7 +113,7 @@ export default function OrderDeliveryCard({
         <div className="mt-4 rounded-lg bg-[#F7F8FA] border border-[#E5E7EB] p-4">
           <p className="text-sm text-gray-700">{explainNoDelivery(orderStatus)}</p>
           <p className="mt-1 text-xs text-gray-500">
-            Nothing is booked with a courier for this order yet.
+            Nothing is booked with a provider for this order yet.
           </p>
         </div>
       )}
@@ -121,7 +121,7 @@ export default function OrderDeliveryCard({
       {!state.loading && !state.error && view.linked && (
         <div className="mt-5 space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <Row label="Courier" value={view.courierName || view.courierReference || 'Aritii delivery network'} />
+            <Row label="Provider" value={view.providerName || view.providerReference || 'Aritii delivery network'} />
             <Row label="Delivery ref" value={view.reference} />
             <Row label="Last update" value={view.lastUpdate ? formatDateTime(view.lastUpdate) : ''} />
             <Row label="Items" value={view.itemCount ? `${view.itemCount} item${view.itemCount > 1 ? 's' : ''}` : ''} />
@@ -143,7 +143,7 @@ export default function OrderDeliveryCard({
           )}
 
           <p className="text-xs text-gray-500">
-            Delivery progress is reported by the courier network; the order status follows it.
+            Delivery progress is reported by the provider network; the order status follows it.
           </p>
         </div>
       )}

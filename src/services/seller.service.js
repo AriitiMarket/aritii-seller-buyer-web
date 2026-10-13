@@ -31,17 +31,9 @@ export const sellerService = {
     return data.application || null;
   },
 
-  /**
-   * Approve seller application (admin only)
-   * @param {string} applicationId - Application ID
-   * @returns {Promise} - Updated seller object
-   */
-  async approveApplication(applicationId) {
-    const { data } = await api.post(
-      `/seller-application/${applicationId}/approve`
-    );
-    return data.seller || null;
-  },
+  // The admin-only approve/reject wrappers that used to live here were removed:
+  // reviewers act from Aritii-admin-web (POST /seller-application/:id/...), and
+  // an applicant account must never carry an approval call.
 
   // Shop read/write lives in `shop.service` only (getById / updateShopInfo /
   // updateShopAvatar / getByOwner) — duplicate endpoints here drifted from the

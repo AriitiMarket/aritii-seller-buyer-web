@@ -8,21 +8,27 @@ import { useRoleAccess } from '@/hooks/useRoleAccess';
  * ApplicationStatus - the real state of the signed-in user's application, read
  * from GET /provider-application/me.
  *
- * The backend keeps one Partner record per applicant, so the review states map
+ * The backend keeps one Provider record per applicant, so the review states map
  * off its `status`:
  *   pending                        -> under review
  *   available / busy / offline     -> approved (a live provider)
- *   suspended                      -> not approved (the reason is stored on
- *                                     metadata.application.rejectionReason)
+ *   rejected                       -> not approved (the reason is stored on
+ *                                     metadata.application.rejectionReason);
+ *                                     a rejected applicant may re-apply
+ *   suspended                      -> treated as not approved (legacy records
+ *                                     rejected before `rejected` existed);
+ *                                     suspended accounts must contact support
  *   no record                      -> never applied
  */
 const APPROVED_STATUSES = ['available', 'busy', 'offline'];
+const REJECTED_STATUSES = ['rejected', 'suspended'];
 
 function resolveState(application) {
   if (!application) return 'none';
   const status = String(application.status || '').toLowerCase();
   if (status === 'pending') return 'pending';
   if (APPROVED_STATUSES.includes(status)) return 'approved';
+  if (REJECTED_STATUSES.includes(status)) return 'rejected';
   return 'rejected';
 }
 
@@ -87,15 +93,16 @@ const ApplicationStatus = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">No Application Yet</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Finish Your Application</h1>
               <p className="text-gray-600 mb-6">
-                You have not applied to become a delivery provider. The application takes a few minutes.
+                Your delivery provider application has not been submitted yet. Continue where you
+                left off to finish — it only takes a few minutes.
               </p>
               <Link
                 to="/provider-application"
                 className="inline-flex items-center justify-center px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition"
               >
-                Apply Now
+                Start or Continue Application
               </Link>
             </>
           )}
@@ -156,8 +163,18 @@ const ApplicationStatus = () => {
                 <p className="text-sm text-gray-500 mb-3">Reason: {rejectionReason}</p>
               )}
               <p className="text-gray-600 mb-6">
-                Unfortunately, your application was not approved at this time. Please contact support if you believe this is a mistake.
+                {application?.status === 'suspended'
+                  ? 'Your provider account is suspended. Please contact support if you believe this is a mistake.'
+                  : 'Unfortunately, your application was not approved at this time. You can update your details and apply again.'}
               </p>
+              {application?.status !== 'suspended' && (
+                <Link
+                  to="/provider-application"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition mr-3"
+                >
+                  Re-apply
+                </Link>
+              )}
               <Link
                 to="/"
                 className="inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition"

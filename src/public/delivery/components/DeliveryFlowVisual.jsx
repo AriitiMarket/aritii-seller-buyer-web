@@ -22,7 +22,7 @@ const DeliveryFlowVisual = () => {
     {
       step: '3',
       title: 'Assignment',
-      description: 'A rider or provider is assigned the request — Aritii Delivery or a trusted external partner.',
+      description: 'A rider or provider is assigned the request — Aritii Delivery or a trusted external provider.',
     },
     {
       step: '4',
