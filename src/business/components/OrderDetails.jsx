@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, Link } from 'react-router-dom';
 import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import api from '@/services/api';
-import { toast } from "react-toastify";
-import { BsFillBagFill } from "react-icons/bs";
-import styles from '@/styles/styles';
-import { Link } from "react-router-dom";
+import { toast } from 'react-toastify';
+import { AiOutlineShoppingCart } from 'react-icons/ai';
+import { Link as RouterLink } from 'react-router-dom';
+import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import {
   ALLOWED_TRANSITIONS,
   normalizeStatus,
@@ -14,26 +14,26 @@ import {
   isRefundStatus,
 } from '@/shared/utils/orderStatus';
 import OrderDeliveryCard from '@/shared/components/OrderDeliveryCard';
+import { SellerStatusBadge } from '@/business/components';
 
 const OrderDetails = () => {
   const { ShopOrders, isLoading } = useSelector((state) => state.order);
-  const { seller } = useSelector((state) => state.seller);
+  const { seller } = useSelector((state) => state.seller || {});
+  const { activeShopId } = useBusinessShops();
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const { id } = useParams();
-  // `seller` is null until the store hydrates — a bare seller._id here used to
-  // throw and blank the whole page.
-  const sellerId = seller?._id;
+  // Scope orders to the active shop (multi-shop aware); fall back to the
+  // seller's identity id so the backend's order.sellerId ownership check passes.
+  const shopId = activeShopId || seller?._id;
 
   useEffect(() => {
-    if (sellerId) dispatch(getAllOrdersOfShop(sellerId));
-  }, [dispatch, sellerId]);
+    if (shopId) dispatch(getAllOrdersOfShop(shopId));
+  }, [dispatch, shopId]);
 
   const data = ShopOrders && ShopOrders.find((item) => item._id === id);
-  // Legacy rows ('PENDING'/'CONFIRMED') are normalized so the seller sees the
-  // right current state and gets the correct next-step options.
   const currentStatus = normalizeStatus(data?.status) || 'Processing';
   const isRefund = isRefundStatus(currentStatus);
   const nextStatuses = nextStatusesFor(currentStatus);
@@ -45,15 +45,13 @@ const OrderDetails = () => {
     }
     setSubmitting(true);
     try {
-      // Refund states are managed by the refund endpoint; every other status
-      // goes through the transition-guarded status endpoint.
       if (isRefund) {
         await api.put(`/order/order-refund-success/${id}`, { status: next });
       } else {
         await api.put(`/order/update-order-status/${id}`, { status: next });
       }
       toast.success(next === 'Confirmed' ? 'Order accepted!' : 'Order updated!');
-      if (sellerId) dispatch(getAllOrdersOfShop(sellerId));
+      if (shopId) dispatch(getAllOrdersOfShop(shopId));
       setStatus('');
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to update order');
@@ -69,176 +67,161 @@ const OrderDetails = () => {
 
   if (!data) {
     return (
-      <div className={`py-4 min-h-screen ${styles.section}`}>
-        <div className="w-full flex items-center justify-between">
-          <div className="flex items-center">
-            <BsFillBagFill size={30} color="crimson" />
-            <h1 className="pl-2 text-[25px]">Order Details</h1>
-          </div>
-          <Link to="/business/orders">
-            <div
-              className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px]`}
-            >
-              Order List
-            </div>
+      <div className="seller-shell-bg min-h-screen flex items-center justify-center">
+        <div className="seller-empty-state">
+          <span className="seller-empty-state-icon">📦</span>
+          <h3 className="seller-empty-state-title">Order not found</h3>
+          <p className="seller-empty-state-desc">The order you're looking for might be unavailable.</p>
+          <Link to="/business/orders" className="seller-btn-primary">
+            Back to orders
           </Link>
-        </div>
-        <div className="w-full text-center py-20">
-          <p className="text-[20px] text-[#00000084]">
-            {isLoading ? 'Loading order…' : 'Order not found in your shop.'}
-          </p>
         </div>
       </div>
     );
   }
 
-
+  if (isLoading) return <div className="seller-loading-state">Loading order…</div>;
 
   return (
-    <div className={`py-4 min-h-screen ${styles.section}`}>
-      <div className="w-full flex items-center justify-between">
-        <div className="flex items-center">
-          <BsFillBagFill size={30} color="crimson" />
-          <h1 className="pl-2 text-[25px]">Order Details</h1>
-        </div>
-        {/* The seller workspace lives under /business — the old
-            /dashboard-orders path was never registered (404). */}
-        <Link to="/business/orders">
-          <div
-            className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px]`}
-          >
-            Order List
+    <div className="seller-shell-bg min-h-screen space-y-6">
+      <div className="seller-section-header">
+        <div className="flex items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <Link to="/business/orders" className="inline-flex items-center gap-1 text-sm text-market-primary hover:underline">
+              ← Back to orders
+            </Link>
+            <h1 className="seller-section-header-title mt-2">Order #{data._id?.slice(-8)}</h1>
+            <p className="text-sm text-market-on-surface-variant">
+              {new Date(data.createdAt).toLocaleDateString()} · {customerName(data)}
+            </p>
           </div>
-        </Link>
+          <SellerStatusBadge status={data.status} />
+        </div>
       </div>
 
-      <div className="w-full flex items-center justify-between pt-6">
-        <h5 className="text-[#00000084]">
-          Order ID: <span>#{data?._id?.slice(0, 8)}</span>
-        </h5>
-        <h5 className="text-[#00000084]">
-          Placed on: <span>{data?.createdAt?.slice(0, 10)}</span>
-        </h5>
-      </div>
-
-      {/* Delivery (ORDER ↔ DELIVERY bridge). A seller is authorized to read the
-          shipment of their OWN order, so this shows the courier state — and an
-          honest explanation while the order is not handed over yet. */}
-      <OrderDeliveryCard
-        orderId={id}
-        orderStatus={currentStatus}
-        title="Delivery for this order"
-        className="mt-6"
-      />
-
-      {/* order items */}
-      <br />
-      <br />
-      {data &&
-        (data.cart || []).map((item, index) => {
-          // Order lines carry images as either ["url"] or [{ url }] — the old
-          // `item.images[0].url` threw on a missing array.
-          const image = Array.isArray(item.images)
-            ? (typeof item.images[0] === 'string' ? item.images[0] : item.images[0]?.url)
-            : (item.images?.url || item.image || '');
-          return (
-          <div className="w-full flex items-start mb-5" key={index}>
-            <img
-              src={image || ''}
-              alt={item.name || ''}
-              className="w-[80px] h-[80px]"
-            />
-            <div className="w-full">
-              <h5 className="pl-3 text-[20px]">{item.name}</h5>
-              <h5 className="pl-3 text-[20px] text-[#00000091]">
-                ETB {item.discountPrice ?? item.price} x {item.quantity ?? item.qty ?? 1}
-              </h5>
+      <div className="max-w-3xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="seller-form-section">
+              <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Items</h3>
+              <div className="divide-y divide-market-border">
+                {(data.cart || data.products || data.items || []).map((item, idx) => (
+                  <div key={idx} className="p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded overflow-hidden bg-market-surface-container-low shrink-0">
+                      <img
+                        src={Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || '/assets/images/placeholders/product-placeholder.svg')}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-market-on-surface">{item.name}</p>
+                      <p className="text-xs text-market-on-surface-variant">{item.sku || '—'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-market-on-surface">
+                        {Number(item.discountPrice ?? item.price).toLocaleString()} ETB
+                      </p>
+                      <p className="text-xs text-market-on-surface-variant">Qty: {item.quantity ?? item.qty ?? 1}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-market-border pt-4 mt-4 flex justify-end">
+                <p className="font-bold text-market-on-surface">
+                  Total: ETB {Number(data.totalPrice || 0).toLocaleString()}
+                </p>
+              </div>
             </div>
           </div>
-          );
-        })}
 
-      <div className="border-t w-full text-right">
-        <h5 className="pt-3 text-[18px]">
-          Total Price: <strong>ETB {data?.totalPrice}</strong>
-        </h5>
-      </div>
-      <br />
-      <br />
-      <div className="w-full lg:flex items-center">
-        <div className="w-full lg:w-[60%]">
-          <h4 className="pt-3 text-[20px] font-[600]">Shipping Address:</h4>
-          <h4 className="pt-3 text-[20px]">
-            {[data?.shippingAddress?.address1, data?.shippingAddress?.address2]
-              .filter(Boolean)
-              .join(' ') || '—'}
-          </h4>
-          <h4 className=" text-[20px]">{data?.shippingAddress?.country}</h4>
-          <h4 className=" text-[20px]">{data?.shippingAddress?.city}</h4>
-          <h4 className=" text-[20px]">{data?.user?.phoneNumber}</h4>
-        </div>
-        <div className="w-full lg:w-[40%]">
-          <h4 className="pt-3 text-[20px] font-[600]">Payment Info:</h4>
-          <h4>
-            Status:{" "}
-            {data?.paymentStatus
-              || (data?.paymentInfo?.status
-                ? String(data.paymentInfo.status)
-                : "Not Paid")}
-          </h4>
-          {data?.paymentInfo?.type && (
-            <h4>Method: {data.paymentInfo.type}</h4>
-          )}
-        </div>
-      </div>
-      <br />
-      <br />
-      <h4 className="pt-3 text-[20px] font-[600]">Order Status:</h4>
-      <p className="pt-1 text-[16px] text-[#00000091]">
-        Current: <span className="font-[600] text-[#000000c4]">{currentStatus}</span>
-      </p>
+          <div className="lg:col-span-1">
+            <div className="seller-form-section">
+              <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Status</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg">
+                  <span className="text-sm text-market-on-surface-variant">Current status</span>
+                  <SellerStatusBadge status={data.status} />
+                </div>
+                {nextStatuses.length > 0 ? (
+                  <div>
+                    <label className="seller-form-label">Update to</label>
+                    <select
+                      value={status || nextStatuses[0]}
+                      onChange={(e) => setStatus(e.target.value)}
+                      className="seller-form-input"
+                    >
+                      {nextStatuses.map((option) => (
+                        <option value={option} key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <p className="text-sm text-market-on-surface-variant">
+                    This order has reached a final state — no further status changes allowed.
+                  </p>
+                )}
+                <div className="flex gap-3 mt-4">
+                  {currentStatus === 'Processing' && (
+                    <button
+                      onClick={() => applyStatus('Confirmed')}
+                      disabled={submitting}
+                      className="seller-btn-primary"
+                    >
+                      {submitting ? 'Accepting…' : 'Accept Order'}
+                    </button>
+                  )}
+                  {nextStatuses.length > 0 && (
+                    <button
+                      onClick={orderUpdateHandler}
+                      disabled={submitting}
+                      className="seller-btn-secondary"
+                    >
+                      Update Status
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
 
-      {/* Only transitions the backend actually accepts are offered — the old
-          hard-coded list (Shipping / On the way / Received / ...) is not in the
-          order state machine, so every update came back a 400. */}
-      {nextStatuses.length > 0 ? (
-        <select
-          value={status || nextStatuses[0]}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
-        >
-          {nextStatuses.map((option) => (
-            <option value={option} key={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <p className="pt-2 text-[16px] text-[#00000091]">
-          This order has reached a final state — no further status changes allowed.
-        </p>
-      )}
-
-      <div className="flex flex-wrap items-center gap-4 mt-5">
-        {currentStatus === 'Processing' && (
-          <div
-            className={`${styles.button} !bg-[#75d04b] !rounded-[4px] text-white font-[600] !h-[45px] text-[18px] ${submitting ? 'opacity-60 pointer-events-none' : ''}`}
-            onClick={() => applyStatus('Confirmed')}
-          >
-            {submitting ? 'Accepting…' : 'Accept Order'}
+            <div className="seller-form-section mt-6">
+              <h3 className="text-lg font-bold text-market-on-surface mb-4">Customer Details</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 text-market-on-surface-variant">👤</span>
+                  <div>
+                    <p className="font-medium text-market-on-surface">{customerName(data)}</p>
+                    <p className="text-xs text-market-on-surface-variant">{data.user?.email || data.shippingAddress?.email || '—'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-10 text-market-on-surface-variant">📍</span>
+                  <div>
+                    <p className="font-medium text-market-on-surface">Shipping Address</p>
+                    <p className="text-sm text-market-on-surface-variant">
+                      {[data?.shippingAddress?.address1, data?.shippingAddress?.address2, data?.shippingAddress?.city, data?.shippingAddress?.country]
+                        .filter(Boolean)
+                        .join(', ')} || '—'
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-10 text-market-on-surface-variant">📞</span>
+                  <p className="font-medium text-market-on-surface">{data?.user?.phoneNumber || data?.shippingAddress?.phone || '—'}</p>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-        {nextStatuses.length > 0 && (
-          <div
-            className={`${styles.button} !bg-[#FCE1E6] !rounded-[4px] text-[#E94560] font-[600] !h-[45px] text-[18px] ${submitting ? 'opacity-60 pointer-events-none' : ''}`}
-            onClick={orderUpdateHandler}
-          >
-            Update Status
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
+
+const customerName = (order) =>
+  order.user?.name ||
+  order.shippingAddress?.name ||
+  order.user?.email ||
+  (order.userId ? `#${String(order.userId).slice(-6)}` : 'Customer');
 
 export default OrderDetails;

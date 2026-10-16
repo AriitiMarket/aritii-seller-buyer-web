@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllProductsShop } from '@/store/slices/productThunks';
+import { useSelector } from 'react-redux';
 import Loader from '@/components/common/Loading';
-import { FiStar, FiFilter, FiSearch, FiMessageSquare, FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
+import { FiStar, FiFilter, FiSearch, FiMessageSquare } from 'react-icons/fi';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
+import { SellerStatusBadge, SellerEmptyState } from '@/business/components';
+import { reviewService } from '@/services/review.service';
 
 const Reviews = () => {
-  const { shopProducts = [], isLoading } = useSelector((state) => state.products);
-  const { seller } = useSelector((state) => state.seller);
+  const { seller } = useSelector((state) => state.seller || {});
   const { activeShopId } = useBusinessShops();
-  const dispatch = useDispatch();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [ratingFilter, setRatingFilter] = useState('all');
@@ -17,251 +16,218 @@ const Reviews = () => {
 
   const shopId = activeShopId || seller?._id;
 
+  const [reviews, setReviews] = useState([]);
+  const [supported, setSupported] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    if (shopId) {
-      dispatch(getAllProductsShop(shopId));
-    }
-  }, [dispatch, shopId]);
+    if (!shopId) return;
+    setIsLoading(true);
+    reviewService
+      .getByShop(shopId)
+      .then(({ reviews: fetched, supported: isSupported }) => {
+        setReviews(fetched || []);
+        setSupported(isSupported);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setReviews([]);
+        setIsLoading(false);
+      });
+  }, [shopId]);
 
-  // Mock reviews data (in real app, this would come from a reviews API)
-  const reviews = React.useMemo(() => {
-    const mockReviews = [];
-    shopProducts.forEach((product) => {
-      if (product.reviews && product.reviews.length > 0) {
-        product.reviews.forEach((review) => {
-          mockReviews.push({
-            id: review._id || Math.random().toString(),
-            productId: product._id,
-            productName: product.name,
-            rating: review.rating || Math.floor(Math.random() * 5) + 1,
-            comment: review.comment || 'Great product!',
-            user: review.user || { name: 'Customer', avatar: null },
-            date: review.createdAt || new Date().toISOString(),
-            helpful: review.helpful || Math.floor(Math.random() * 20),
-          });
-        });
-      }
-    });
-    return mockReviews;
-  }, [shopProducts]);
+  if (isLoading || (supported === false && reviews.length === 0)) return <Loader />;
 
-  // Filter reviews
-  const filteredReviews = React.useMemo(() => {
-    let filtered = reviews;
+  // Only APPROVED reviews are served by the backend — never expose pending or
+  // rejected customer reviews, and never surface private buyer contact details.
+  const allReviews = (reviews || []).map((review) => ({
+    id: review._id,
+    productId: review.productId,
+    productName: review.productName || '',
+    rating: Number(review.rating || 0),
+    comment: review.comment || '',
+    user: {
+      name: review.author?.name || 'Aritii customer',
+    },
+    date: review.createdAt || new Date().toISOString(),
+    helpful: Number(review.helpful || 0),
+    status: review.status || 'pending',
+  }));
 
-    if (activeTab === 'recent') {
-      filtered = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    } else if (activeTab === 'highest') {
-      filtered = filtered.sort((a, b) => b.rating - a.rating);
-    } else if (activeTab === 'lowest') {
-      filtered = filtered.sort((a, b) => a.rating - b.rating);
-    }
+  const filteredReviews = allReviews.filter((r) => {
+    if (activeTab === 'recent') return true;
+    if (activeTab === 'highest') return r.rating >= 4;
+    if (activeTab === 'lowest') return r.rating <= 2;
+    return true;
+  }).filter((r) => {
+    if (ratingFilter !== 'all') return r.rating === parseInt(ratingFilter);
+    return true;
+  }).filter((r) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return r.productName.toLowerCase().includes(term) ||
+      r.comment.toLowerCase().includes(term) ||
+      r.user.name.toLowerCase().includes(term);
+  });
 
-    if (ratingFilter !== 'all') {
-      filtered = filtered.filter((r) => r.rating === parseInt(ratingFilter));
-    }
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (r) =>
-          r.productName.toLowerCase().includes(term) ||
-          r.comment.toLowerCase().includes(term) ||
-          r.user.name.toLowerCase().includes(term)
-      );
-    }
-
-    return filtered;
-  }, [reviews, activeTab, ratingFilter, searchTerm]);
-
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+  const averageRating = allReviews.length > 0
+    ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)
     : '0.0';
 
   const ratingDistribution = [5, 4, 3, 2, 1].map((rating) => ({
     rating,
-    count: reviews.filter((r) => r.rating === rating).length,
-    percentage: reviews.length > 0
-      ? (reviews.filter((r) => r.rating === rating).length / reviews.length) * 100
+    count: allReviews.filter((r) => r.rating === rating).length,
+    percentage: allReviews.length > 0
+      ? (allReviews.filter((r) => r.rating === rating).length / allReviews.length) * 100
       : 0,
   }));
 
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">Reviews</h1>
-                <p className="text-sm text-gray-600">Manage customer feedback for your products</p>
-              </div>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-bold text-market-on-surface">Reviews</h2>
+          <p className="text-sm text-market-on-surface-variant">Customer feedback for your products</p>
+        </div>
+      </div>
 
-          {/* Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <FiStar className="text-yellow-600" size={20} />
-                </div>
-                <span className="text-sm text-gray-600">Average Rating</span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{averageRating} / 5.0</p>
-              <div className="flex items-center gap-1 mt-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <FiStar
-                    key={star}
-                    className={star <= Math.round(averageRating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-                    size={16}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <FiMessageSquare className="text-blue-600" size={20} />
-                </div>
-                <span className="text-sm text-gray-600">Total Reviews</span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <FiThumbsUp className="text-green-600" size={20} />
-                </div>
-                <span className="text-sm text-gray-600">5-Star Reviews</span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">
-                {ratingDistribution.find((r) => r.rating === 5)?.count || 0}
-              </p>
-            </div>
-          </div>
-
-          {/* Rating Distribution */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating Distribution</h3>
-            <div className="space-y-3">
-              {ratingDistribution.map((item) => (
-                <div key={item.rating} className="flex items-center gap-3">
-                  <span className="text-sm text-gray-600 w-8">{item.rating} star</span>
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-yellow-400 rounded-full"
-                      style={{ width: `${item.percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-sm text-gray-600 w-12 text-right">{item.count}</span>
-                </div>
+      {/* Rating overview */}
+      <div className="seller-form-section">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-market-on-surface">{averageRating}</div>
+            <div className="flex items-center gap-1 text-yellow-500">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FiStar
+                  key={star}
+                  className={star <= parseFloat(averageRating) ? 'fill-current' : 'text-market-on-surface-variant'}
+                  size={16}
+                />
               ))}
             </div>
+            <p className="text-sm text-market-on-surface-variant">{allReviews.length} reviews</p>
           </div>
-
-          {/* Filters */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search reviews..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                />
+          <div className="flex-1 grid grid-cols-5 gap-2">
+            {ratingDistribution.map((dist) => (
+              <div key={dist.rating} className="flex flex-col items-center gap-1">
+                <span className="text-xs text-market-on-surface-variant">{dist.rating}</span>
+                <div className="w-full bg-market-border rounded-full h-2">
+                  <div
+                    className="h-full bg-yellow-500 rounded-full"
+                    style={{ width: `${Math.max(dist.percentage, 0)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-market-on-surface-variant">{dist.count}</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <select
-                  value={ratingFilter}
-                  onChange={(e) => setRatingFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
-                >
-                  <option value="all">All Ratings</option>
-                  <option value="5">5 Stars</option>
-                  <option value="4">4 Stars</option>
-                  <option value="3">3 Stars</option>
-                  <option value="2">2 Stars</option>
-                  <option value="1">1 Star</option>
-                </select>
-                <select
-                  value={activeTab}
-                  onChange={(e) => setActiveTab(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
-                >
-                  <option value="all">Sort by: Recent</option>
-                  <option value="highest">Highest Rated</option>
-                  <option value="lowest">Lowest Rated</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Reviews List */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            {filteredReviews.length === 0 ? (
-              <div className="text-center py-16">
-                <FiMessageSquare className="text-5xl text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg mb-2">No reviews found</p>
-                <p className="text-gray-500 text-sm">Customer reviews will appear here</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {filteredReviews.map((review) => (
-                  <div key={review.id} className="p-6 hover:bg-gray-50 transition">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-gray-600 font-semibold">
-                          {review.user.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-gray-900">{review.user.name}</span>
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <FiStar
-                                key={star}
-                                className={star <= review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-                                size={14}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-500 mb-2">
-                          {new Date(review.date).toLocaleDateString()} · {review.productName}
-                        </p>
-                        <p className="text-gray-700 mb-3">{review.comment}</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <button className="flex items-center gap-1 text-gray-600 hover:text-brand-primary-dark transition">
-                            <FiThumbsUp size={16} />
-                            Helpful ({review.helpful})
-                          </button>
-                          <button className="flex items-center gap-1 text-gray-600 hover:text-brand-primary-dark transition">
-                            <FiThumbsDown size={16} />
-                            Not helpful
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Pagination Info */}
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <p>Showing {filteredReviews.length} of {reviews.length} reviews</p>
+            ))}
           </div>
         </div>
-      )}
-    </>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <span className="text-market-on-surface-variant text-sm">🔍</span>
+          <input
+            type="search"
+            placeholder="Search reviews…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="seller-form-input pl-9 pr-4 flex-1 min-w-0"
+            aria-label="Search reviews"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2 w-full">
+          <div className="flex flex-wrap gap-2">
+            {[{ key: 'all', label: 'All' }, { key: 'recent', label: 'Recent' }, { key: 'highest', label: '4★ & up' }, { key: 'lowest', label: '1-2★' }].map((f) => {
+              const isActive = activeTab === f.key;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  onClick={() => setActiveTab(f.key)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
+                    ? 'bg-market-primary text-market-on-primary'
+                    : 'text-market-on-surface-variant hover:bg-market-surface-container-high hover:text-market-primary'
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+            {[5, 4, 3, 2, 1].map((r) => (
+              <button
+                key={`stars-${r}`}
+                type="button"
+                onClick={() => setRatingFilter(r === parseInt(ratingFilter) ? 'all' : String(r))}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${ratingFilter === String(r)
+                  ? 'bg-market-primary text-market-on-primary'
+                  : 'text-market-on-surface-variant hover:bg-market-surface-container-high hover:text-market-primary'
+                }`}
+                aria-pressed={ratingFilter === String(r)}
+              >
+                {r}★
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews list */}
+      <div className="seller-form-section">
+        {filteredReviews.length === 0 ? (
+          <SellerEmptyState
+            title="No reviews found"
+            description="Customer reviews will appear here as buyers purchase and rate your products."
+            icon="💬"
+          />
+        ) : (
+          <div className="divide-y divide-market-border">
+            {filteredReviews.map((review) => (
+              <div key={review.id} className="p-4 hover:bg-market-surface-container-low transition">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-market-surface-container-low flex items-center justify-center flex-shrink-0">
+                    <span className="text-market-on-surface-variant font-semibold">
+                      {review.user.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-market-on-surface">{review.user.name}</span>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <FiStar
+                            key={star}
+                            className={star <= review.rating ? 'text-yellow-500 fill-current' : 'text-market-on-surface-variant'}
+                            size={14}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-market-on-surface-variant mb-2">
+                      {new Date(review.date).toLocaleDateString()} · {review.productName}
+                    </p>
+                    <p className="text-market-on-surface-variant text-sm mb-3">{review.comment}</p>
+                    <div className="flex items-center gap-4 text-sm">
+                      <button className="flex items-center gap-1 text-market-primary hover:text-market-primary-hover transition">
+                        Helpful ({review.helpful})
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between text-sm text-market-on-surface-variant">
+        <p>Showing {filteredReviews.length} of {allReviews.length} reviews</p>
+      </div>
+    </div>
   );
 };
 
