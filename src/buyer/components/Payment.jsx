@@ -43,22 +43,22 @@ const Payment = () => {
   if (!orderData?.cart?.length) {
     return (
       <div className="w-full flex items-center justify-center py-16 px-4">
-        <div className="w-full max-w-lg bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-8 text-center">
+        <div className="w-full max-w-lg bg-white rounded-lg border border-market-border shadow-sm p-8 text-center">
           <div className="text-4xl mb-4">🛒</div>
-          <h2 className="text-lg font-bold text-[#171A21] mb-2">No checkout session</h2>
-          <p className="text-sm text-[#667085] mb-6">
+          <h2 className="text-lg font-bold text-market-on-surface mb-2">No checkout session</h2>
+          <p className="text-sm text-market-on-surface-variant mb-6">
             Your cart is empty or the checkout session expired. Add items and try again.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <button
               onClick={() => navigate("/my-dashboard/cart")}
-              className="px-5 py-2.5 bg-[#20305C] hover:bg-[#2C3F6E] text-white rounded-lg text-sm font-semibold transition"
+              className="px-5 py-2.5 bg-market-primary text-market-on-primary hover:bg-market-primary-hover rounded-lg text-sm font-semibold transition"
             >
               View cart
             </button>
             <button
               onClick={() => navigate("/my-dashboard/marketplace")}
-              className="px-5 py-2.5 border border-[#E5E7EB] text-[#171A21] rounded-lg text-sm font-semibold hover:bg-[#F7F8FA] transition"
+              className="px-5 py-2.5 border border-market-border text-market-on-surface rounded-lg text-sm font-semibold hover:bg-market-surface-dim transition"
             >
               Browse products
             </button>
@@ -105,6 +105,16 @@ const Payment = () => {
       const orderId = Array.isArray(createdOrder)
         ? createdOrder[0]?._id
         : createdOrder?._id;
+
+      // Create a PENDING payment record so the buyer sees accurate payment
+      // status immediately (COD is confirmed later by the delivery webhook).
+      try {
+        await paymentService.createPayment(orderId, selectedMethod);
+      } catch (payErr) {
+        // Payment record creation must not block order confirmation; the
+        // delivery webhook will create it later for COD. Log and continue.
+        console.error('[Payment] createPayment skipped:', payErr.message);
+      }
 
       navigate(`/order/success?orderId=${orderId}`);
       toast.success("Order successful!");
@@ -160,10 +170,10 @@ const PaymentInfo = ({
   cashOnDeliveryHandler,
 }) => {
   return (
-    <div className="w-full lg:w-[95%] bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+    <div className="w-full lg:w-[95%] bg-white rounded-lg shadow-sm border border-market-border p-6">
       {/* Payment Method Card */}
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-[#171A21] mb-4">Payment Method</h3>
+        <h3 className="text-lg font-bold text-market-on-surface mb-4">Payment Method</h3>
         
         <div className="border border-green-200 bg-green-50 rounded-lg p-4 mb-4">
           <div className="flex items-start">
@@ -172,11 +182,11 @@ const PaymentInfo = ({
               id="cod"
               name="payment"
               defaultChecked
-              className="w-4 h-4 text-[#20305C] mt-1"
+              className="w-4 h-4 text-market-secondary mt-1"
             />
             <label htmlFor="cod" className="ml-3 cursor-pointer flex-1">
-              <h4 className="text-sm font-semibold text-[#171A21]">Cash on Delivery</h4>
-              <p className="text-xs text-[#667085] mt-1">
+              <h4 className="text-sm font-semibold text-market-on-surface">Cash on Delivery</h4>
+              <p className="text-xs text-market-on-surface-variant mt-1">
                 Pay directly to the delivery agent when your order arrives
               </p>
             </label>
@@ -199,7 +209,7 @@ const PaymentInfo = ({
         <form className="w-full" onSubmit={cashOnDeliveryHandler}>
           <button
             type="submit"
-            className="w-full px-4 py-3 bg-[#20305C] hover:bg-[#2C3F6E] text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -207,7 +217,7 @@ const PaymentInfo = ({
             Confirm Order
           </button>
         </form>
-        <p className="text-xs text-[#667085] text-center">
+        <p className="text-xs text-market-on-surface-variant text-center">
           By confirming, you agree to our terms and conditions
         </p>
       </div>
@@ -217,40 +227,40 @@ const PaymentInfo = ({
 
 const CartData = ({ orderData }) => {
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
-      <h3 className="text-lg font-bold text-[#171A21] mb-4">Order Summary</h3>
+    <div className="w-full bg-white rounded-lg shadow-sm border border-market-border p-6">
+      <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Summary</h3>
       
-      <div className="space-y-3 pb-4 border-b border-[#E5E7EB]">
+      <div className="space-y-3 pb-4 border-b border-market-border">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-[#667085]">Subtotal</span>
-          <span className="text-sm font-semibold text-[#171A21]">{Number(orderData?.subTotalPrice || 0).toFixed(2)} ETB</span>
+          <span className="text-sm text-market-on-surface-variant">Subtotal</span>
+          <span className="text-sm font-semibold text-market-on-surface">{Number(orderData?.subTotalPrice || 0).toFixed(2)} ETB</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-[#667085]">Shipping</span>
-          <span className="text-sm font-semibold text-[#171A21]">{Number(orderData?.shipping || 0).toFixed(2)} ETB</span>
+          <span className="text-sm text-market-on-surface-variant">Shipping</span>
+          <span className="text-sm font-semibold text-market-on-surface">{Number(orderData?.shipping || 0).toFixed(2)} ETB</span>
         </div>
         {orderData?.discountPrice && (
           <div className="flex justify-between items-center">
-            <span className="text-sm text-[#667085]">Discount</span>
-            <span className="text-sm font-semibold text-[#20305C]">-{Number(orderData.discountPrice).toFixed(2)} ETB</span>
+            <span className="text-sm text-market-on-surface-variant">Discount</span>
+            <span className="text-sm font-semibold text-market-secondary">-{Number(orderData.discountPrice).toFixed(2)} ETB</span>
           </div>
         )}
       </div>
 
       <div className="flex justify-between items-center mt-4">
-        <span className="text-base font-bold text-[#171A21]">Total Amount</span>
-        <span className="text-2xl font-bold text-[#20305C]">{Number(orderData?.totalPrice || 0).toFixed(2)} ETB</span>
+        <span className="text-base font-bold text-market-on-surface">Total Amount</span>
+        <span className="text-2xl font-bold text-market-secondary">{Number(orderData?.totalPrice || 0).toFixed(2)} ETB</span>
       </div>
 
       {/* Order Items */}
-      <div className="mt-6 pt-6 border-t border-[#E5E7EB]">
-        <h4 className="text-sm font-semibold text-[#171A21] mb-3">Items ({orderData?.cart?.length})</h4>
+      <div className="mt-6 pt-6 border-t border-market-border">
+        <h4 className="text-sm font-semibold text-market-on-surface mb-3">Items ({orderData?.cart?.length})</h4>
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {orderData?.cart?.map((item, index) => {
             const qty = item.quantity ?? item.qty ?? 1;
             const unit = Number(item.price || item.discountPrice || 0);
             return (
-              <div key={index} className="flex justify-between text-xs text-[#667085]">
+              <div key={index} className="flex justify-between text-xs text-market-on-surface-variant">
                 <span>{item.name} x {qty}</span>
                 <span>{unit.toFixed(2)} ETB × {qty} = {(unit * qty).toFixed(2)} ETB</span>
               </div>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Store from '@/store';
 import { loadUser, loadSeller } from '@/store/slices/userThunks';
 import { fetchWishlist } from '@/store/slices/wishlistThunks';
@@ -19,8 +20,14 @@ let bootstrapped = false;
  * The wishlist is re-fetched here (after the identity is restored) so header
  * badges and hearts are account-accurate on every reload, not only after the
  * Wishlist page is visited.
+ *
+ * Also listens for the `auth:unauthorized` event (dispatched by the API
+ * interceptors on unrecoverable 401) and navigates to /login via React Router —
+ * never a hard window.location reload.
  */
 export function useAppBootstrap() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (bootstrapped) return;
     bootstrapped = true;
@@ -36,7 +43,14 @@ export function useAppBootstrap() {
       // so the seller slice resolves (isLoading: false) instead of hanging.
       Store.dispatch(loadSeller());
     });
-  }, []);
+
+    // Handle token-expired / unauthorized events from the API layer.
+    const onUnauthorized = () => {
+      navigate('/login', { replace: true });
+    };
+    window.addEventListener('auth:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
+  }, [navigate]);
 }
 
 export default useAppBootstrap;
