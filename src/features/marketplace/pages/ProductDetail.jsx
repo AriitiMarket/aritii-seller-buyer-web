@@ -90,10 +90,10 @@ const ProductDetailPage = () => {
   const inStock = availableUnits > 0
   const lowStock = inStock && availableUnits <= 8
 
+  const category = data?.category
+  const shopId = data?.shop?._id || data?.shopId
   const relatedProducts = React.useMemo(() => {
     if (!data) return []
-    const category = data.category
-    const shopId = data.shop?._id || data.shopId
     return allProducts
       .filter((p) => (p._id || p.id) !== (data._id || data.id))
       .filter(
