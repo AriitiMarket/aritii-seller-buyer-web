@@ -1,3 +1,44 @@
 import { useCallback, useEffect, useState } from 'react';
 
-/**\n * Hook for the public "deals" catalog page.\n *\n * Fetches GET /product/public/deals (no auth required).\n * Returns { deals, loading, error, refresh }.\n */\nexport function useDeals() {\n  const [deals, setDeals] = useState([]);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  const fetchDeals = useCallback(async () => {\n    setLoading(true);\n    setError(null);\n    try {\n      const res = await fetch('/api/product/public/deals');\n      if (!res.ok) {\n        let detail = 'Failed to load deals';\n        try {\n          const body = await res.json();\n          if (body?.error) detail = body.error;\n        } catch {\n          /* ignore JSON parse failure */\n        }\n        throw new Error(detail);\n      }\n      const json = await res.json();\n      setDeals(json.products || []);\n    } catch (err) {\n      setError(err?.message || 'Something went wrong while loading deals.');\n    } finally {\n      setLoading(false);\n    }\n  }, []);\n\n  useEffect(() => {\n    fetchDeals();\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, []);\n\n  return { deals, loading, error, refresh: fetchDeals };\n}
+/**
+ * Hook for the public deals page.
+ *
+ * Fetches GET /product/public/deals (no auth required).
+ * Returns { deals, loading, error, refresh }.
+ */
+export function useDeals() {
+  const [deals, setDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchDeals = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/product/public/deals');
+      if (!res.ok) {
+        let detail = 'Failed to load deals';
+        try {
+          const body = await res.json();
+          if (body?.error) detail = body.error;
+        } catch {
+          /* ignore JSON parse failure */
+        }
+        throw new Error(detail);
+      }
+      const json = await res.json();
+      setDeals(json.products || []);
+    } catch (err) {
+      setError(err?.message || 'Something went wrong while loading deals.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDeals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { deals, loading, error, refresh: fetchDeals };
+}

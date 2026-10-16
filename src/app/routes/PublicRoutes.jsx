@@ -26,6 +26,7 @@ const DeliveryExperiencePage = lazy(() => import('@/public/delivery/pages/Delive
 const DeliveryLayout = lazy(() => import('@/features/delivery-provider/components/DeliveryLayout'));
 
 const ProductsPage = lazy(() => import('@/features/marketplace/pages/Products'));
+const BestSellersPage = lazy(() => import('@/features/marketplace/pages/BestSellersPage'));
 const ProductDetailsPage = lazy(() => import('@/features/marketplace/pages/ProductDetail'));
 const CategoriesPage = lazy(() => import('@/features/marketplace/pages/Categories'));
 const ShopsPage = lazy(() => import('@/features/marketplace/pages/Shops'));
@@ -53,7 +54,7 @@ export const PublicRoutes = () => (
       <Route path="/shops" element={<ShopsPage />} />
       <Route path="/shops/:id" element={<ShopDetailsPage />} />
       <Route path="/deals" element={<DealsPage />} />
-      <Route path="/best-selling" element={<Navigate to="/products" replace />} />
+      <Route path="/best-selling" element={<BestSellersPage />} />
       <Route path="/search" element={<Navigate to="/products" replace />} />
     </Route>
   </>
