@@ -272,6 +272,12 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
               {/* Profile Dropdown */}
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[90]">
+                  {/* Seller Info Header */}
+                  <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{seller?.name || 'Seller'}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{seller?.email || 'seller@aritii.local'}</p>
+                  </div>
+
                   {/* Shop Selector (if multiple shops) */}
                   {shops && shops.length > 1 && (
                     <>
