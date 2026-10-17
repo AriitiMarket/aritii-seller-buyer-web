@@ -120,6 +120,31 @@ const DeliveryPage = () => {
 
   return (
     <>
+      {/* Provider Access Banner - for existing providers */}
+      {isAuthenticated && !loading && (
+        <section className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm md:text-base font-medium">
+                  Ready to start delivering?
+                </p>
+                <p className="text-xs md:text-sm text-white/80 mt-1">
+                  Access your Delivery Center workspace to view assignments and manage deliveries
+                </p>
+              </div>
+              <Link
+                to="/provider"
+                className="flex-shrink-0 px-6 py-2 bg-white text-[#2563eb] font-semibold rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+              >
+                Go to Delivery Center
+                <AiOutlineArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Hero */}
       <section className="px-4 sm:px-6 lg:px-8 py-10 md:py-16 lg:py-20">
           <div className="max-w-7xl mx-auto">
