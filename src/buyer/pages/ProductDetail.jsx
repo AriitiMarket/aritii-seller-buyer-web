@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useProducts } from '@/shared/hooks/useProducts';
 import { productService } from '@/services';
 import { useAuth } from '@/auth/hooks/useAuth';
@@ -15,14 +15,25 @@ import EmptyState from '@/components/common/EmptyState';
  * Resolution order:
  *   1. The product store, seeded by useProducts (catalog cache).
  *   2. Public endpoint for guests / authenticated endpoint for signed-in users.
+ *
+ * Navigation: breadcrumbs preserve the referrer URL so users can return to
+ * their filtered results (category, search, etc.) without losing their context.
  */
 const ProductDetailsPage = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { products: allProducts = [], error: productsError } = useProducts();
   const { isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(productsError || null);
+
+  // Try to infer the referrer category/search from the back button or URL.
+  // Fall back to /products if no referrer.
+  const referrer = location.state?.from || document.referrer;
+  const productsLink = referrer && (referrer.includes('/products') || referrer.includes('/product/'))
+    ? new URL(referrer).pathname + new URL(referrer).search
+    : '/products';
 
   useEffect(() => {
     let active = true;
@@ -90,7 +101,7 @@ const ProductDetailsPage = () => {
             action={
               <Link
                 to="/products"
-                className="inline-block px-5 py-2.5 bg-[#20305C] hover:bg-[#2C3F6E] text-white rounded-xl font-semibold transition-colors"
+                className="inline-block px-5 py-2.5 bg-market-primary text-market-on-primary hover:bg-market-primary-hover rounded-xl font-semibold transition-colors"
               >
                 Back to products
               </Link>
@@ -99,8 +110,12 @@ const ProductDetailsPage = () => {
         </div>
       ) : (
         <>
-          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Products', to: '/products' }, { label: data?.name || 'Loading...' }]} />
-          <ProductDetail data={data} />
+          <Breadcrumbs items={[
+            { label: 'Home', to: '/' },
+            { label: 'Products', to: productsLink },
+            { label: data?.name || 'Loading...' }
+          ]} />
+          <ProductDetail data={data} basePath="/products" />
           <SuggestedProducts data={data} />
         </>
       )}

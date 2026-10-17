@@ -23,15 +23,39 @@ const OrderDetails = () => {
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [allocation, setAllocation] = useState(null);
+  const [allocLoading, setAllocLoading] = useState(false);
 
   const { id } = useParams();
   // Scope orders to the active shop (multi-shop aware); fall back to the
   // seller's identity id so the backend's order.sellerId ownership check passes.
   const shopId = activeShopId || seller?._id;
+  // Seller-scoped financial allocation: this seller's row within the buyer order.
+  // Backend enforces ownership — a seller can only ever read their own rows.
+  const sellerId = shopId;
 
   useEffect(() => {
     if (shopId) dispatch(getAllOrdersOfShop(shopId));
   }, [dispatch, shopId]);
+
+  // Fetch this seller's allocation for the displayed order. Idempotent and
+  // scoped to the seller — never reveals another seller's financials.
+  useEffect(() => {
+    if (!id || !sellerId) return;
+    setAllocLoading(true);
+    api
+      .get(`/payment/seller-allocations/${sellerId}`, { params: { orderId: id } })
+      .then((res) => {
+        const rows = res.data?.allocations || [];
+        setAllocation(rows.find((a) => String(a.orderId) === String(id)) || null);
+      })
+      .catch((err) => {
+        // Allocations are additive enrichment; never block the order view.
+        console.warn("[OrderDetails] allocation lookup failed:", err.message);
+        setAllocation(null);
+      })
+      .finally(() => setAllocLoading(false));
+  }, [id, sellerId]);
 
   const data = ShopOrders && ShopOrders.find((item) => item._id === id);
   const currentStatus = normalizeStatus(data?.status) || 'Processing';
@@ -183,6 +207,59 @@ const OrderDetails = () => {
                 </div>
               </div>
             </div>
+
+            {/* Seller payout — this seller's allocation within the buyer order. Never exposes
+                 another seller's financials; backend enforces ownership per sellerId. */}
+            {allocation || allocLoading ? (
+              <div className="seller-form-section mt-6">
+                <h3 className="text-lg font-bold text-market-on-surface mb-4">Seller Payout</h3>
+                {allocLoading ? (
+                  <p className="text-sm text-market-on-surface-variant">Calculating your share…</p>
+                ) : allocation ? (
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between border-b border-market-border pb-2">
+                      <span className="text-market-on-surface-variant">Gross subtotal</span>
+                      <span className="font-medium text-market-on-surface">ETB {Number(allocation.grossSubtotal || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-market-border pb-2">
+                      <span className="text-market-on-surface-variant">Shipping</span>
+                      <span className="font-medium text-market-on-surface">ETB {Number(allocation.shippingFee || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-market-border pb-2">
+                      <span className="text-market-on-surface-variant">Platform commission</span>
+                      <span className="text-market-error">− ETB {Number(allocation.platformCommission || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-market-border pb-2">
+                      <span className="text-market-on-surface-variant">Refunds / adjustments</span>
+                      <span className="text-market-error">
+                        − ETB {Number((allocation.refundAmount || 0) - (allocation.adjustmentAmount || 0)).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-market-border pb-2">
+                      <span className="font-semibold text-market-on-surface">Net payable</span>
+                      <span className="font-bold text-market-on-surface">ETB {Number(allocation.netPayable || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <span className="text-xs text-market-on-surface-variant">Settled</span>
+                      <span className="text-xs font-semibold">
+                        {Number(allocation.settledAmount || 0).toLocaleString()} ETB
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-market-on-surface-variant">Pending</span>
+                      <span className={`text-xs font-semibold ${Number(allocation.pendingAmount || 0) > 0 ? 'text-market-warning' : 'text-market-success'}`}>
+                        {Number(allocation.pendingAmount || 0).toLocaleString()} ETB
+                      </span>
+                    </div>
+                    <p className="text-xs text-market-on-surface-variant">
+                      Status: {allocation.status}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-market-on-surface-variant">No payout record yet.</p>
+                )}
+              </div>
+            ) : null}
 
             <div className="seller-form-section mt-6">
               <h3 className="text-lg font-bold text-market-on-surface mb-4">Customer Details</h3>

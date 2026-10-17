@@ -7,6 +7,7 @@ import { shopReducer } from '@/store/slices/shopSlice';
 import { cartReducer } from '@/store/slices/cartSlice';
 import { wishlistReducer } from '@/store/slices/wishlistSlice';
 import { orderReducer } from '@/store/slices/orderSlice';
+import { deliveryLocationReducer } from './slices/deliveryLocationSlice';
 
 /**
  * Store — single Redux store for the whole application.
@@ -35,6 +36,7 @@ const Store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer,
     order: orderReducer,
+    deliveryLocation: deliveryLocationReducer,
   },
 });
 

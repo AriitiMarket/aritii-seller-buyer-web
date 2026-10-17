@@ -39,7 +39,7 @@ const ProviderHeader = ({ onMenuClick }) => {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser());
-      navigate('/login');
+      navigate('/delivery', { replace: true });
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -61,8 +61,9 @@ const ProviderHeader = ({ onMenuClick }) => {
       'available-work': { title: 'Available Work', path: '/provider/available-work' },
       'deliveries': { title: 'My Deliveries', path: '/provider/deliveries' },
       'batches': { title: 'Batches', path: '/provider/batches' },
-      'warnings': { title: 'Warnings', path: '/provider/warnings' },
-      'profile': { title: 'Profile', path: '/provider/profile' },
+      'warnings': { title: 'Warnings & Support', path: '/provider/warnings' },
+      'profile': { title: 'Profile & Settings', path: '/provider/profile' },
+      'operating-area': { title: 'Operating Area', path: '/provider/operating-area' },
     };
 
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -179,6 +180,18 @@ const ProviderHeader = ({ onMenuClick }) => {
 
           {/* Role chooser — lets a provider who is also a seller (or buyer) switch */}
           <RoleSwitcher tone="light" />
+
+          <Link
+            to="/marketplace"
+            className="hidden sm:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-all duration-200 text-white/90"
+            aria-label="Marketplace"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 21 10 21" />
+            </svg>
+          </Link>
 
           {/* Logout */}
           <button

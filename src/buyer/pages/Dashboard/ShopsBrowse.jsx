@@ -73,10 +73,10 @@ const BuyerShopsBrowse = () => {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">
+        <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">
           {selectedCategory || 'Discover shops'}
         </h1>
-        <p className="text-sm text-[#667085] mt-1">Meet trusted sellers and artisans from across Ethiopia</p>
+        <p className="text-sm text-market-on-surface-variant mt-1">Meet trusted sellers and artisans from across Ethiopia</p>
       </div>
 
       {/* Search + Sort */}
@@ -88,14 +88,14 @@ const BuyerShopsBrowse = () => {
             placeholder="Search shops"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C] focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-market-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-market-secondary focus:border-transparent"
           />
         </div>
 
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-sm font-semibold text-[#171A21] focus:outline-none focus:ring-2 focus:ring-[#20305C]"
+          className="px-4 py-2.5 bg-white border border-market-border rounded-xl text-sm font-semibold text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-secondary"
         >
           {SORT_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -106,24 +106,24 @@ const BuyerShopsBrowse = () => {
       {/* Active filters */}
       {(selectedCategory || searchQuery) && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[#667085] font-medium">Active filters:</span>
+          <span className="text-xs text-market-on-surface-variant font-medium">Active filters:</span>
           {selectedCategory && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#E9ECF5] text-[#20305C] text-xs font-semibold rounded-full border border-[#20305C]/20">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-market-surface-container text-market-secondary text-xs font-semibold rounded-full border border-[#2162a1]/20">
               {selectedCategory}
-              <button onClick={clearCategory} aria-label="Remove category filter" className="hover:text-[#2C3F6E]">
+              <button onClick={clearCategory} aria-label="Remove category filter" className="hover:text-market-secondary-hover">
                 <MdClose size={14} />
               </button>
             </span>
           )}
           {searchQuery && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#E9ECF5] text-[#2C3F6E] text-xs font-semibold rounded-full border border-[#20305C]/20">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-market-surface-container text-market-secondary-hover text-xs font-semibold rounded-full border border-[#2162a1]/20">
               "{searchQuery}"
               <button onClick={() => setSearchQuery('')} aria-label="Clear search" className="hover:text-[#182647]">
                 <MdClose size={14} />
               </button>
             </span>
           )}
-          <button onClick={clearAll} className="text-xs text-[#667085] hover:text-[#171A21] font-semibold">
+          <button onClick={clearAll} className="text-xs text-market-on-surface-variant hover:text-market-on-surface font-semibold">
             Clear all
           </button>
         </div>
@@ -131,17 +131,17 @@ const BuyerShopsBrowse = () => {
 
       {/* Results count */}
       {!isLoading && (
-        <p className="text-sm text-[#667085]">{filteredShops.length} shop{filteredShops.length !== 1 ? 's' : ''} found</p>
+        <p className="text-sm text-market-on-surface-variant">{filteredShops.length} shop{filteredShops.length !== 1 ? 's' : ''} found</p>
       )}
 
       {/* Shops Grid */}
       {isLoading ? (
         <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#20305C] mx-auto mb-4"></div>
-          <p className="text-[#667085] text-sm">Loading shops...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2162a1] mx-auto mb-4"></div>
+          <p className="text-market-on-surface-variant text-sm">Loading shops...</p>
         </div>
       ) : error ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-[#E5E7EB]">
+        <div className="text-center py-20 bg-white rounded-lg border border-market-border">
           <p className="text-red-600 text-sm mb-4">{error}</p>
         </div>
       ) : filteredShops.length > 0 ? (
@@ -151,20 +151,20 @@ const BuyerShopsBrowse = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-white rounded-2xl border border-[#E5E7EB]">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="text-center py-20 bg-white rounded-lg border border-market-border">
+          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <MdStorefront className="text-3xl text-gray-300" />
           </div>
-          <p className="text-[#667085] font-medium mb-1">
+          <p className="text-market-on-surface-variant font-medium mb-1">
             {selectedCategory ? `No shops in ${selectedCategory} yet` : searchQuery ? 'No shops match your search' : 'No shops found'}
           </p>
-          <p className="text-[#667085] text-sm mb-5">
+          <p className="text-market-on-surface-variant text-sm mb-5">
             {selectedCategory || searchQuery ? 'Try another category or clear your filters' : 'Check back later for new sellers'}
           </p>
           {(searchQuery || selectedCategory) && (
             <button
               onClick={clearAll}
-              className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
+              className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition"
             >
               Clear Filters
             </button>

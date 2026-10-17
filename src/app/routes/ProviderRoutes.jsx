@@ -27,6 +27,7 @@ const BatchDetailsPage = lazy(() => import('@/features/delivery-provider/pages/B
 const ActiveDeliveryPage = lazy(() => import('@/features/delivery-provider/pages/ActiveDelivery'));
 const WarningsPage = lazy(() => import('@/features/delivery-provider/pages/Warnings'));
 const ProviderProfilePage = lazy(() => import('@/features/delivery-provider/pages/ProviderProfile'));
+const OperatingAreaPage = lazy(() => import('@/features/delivery-provider/pages/OperatingArea'));
 
 export const ProviderRoutes = () => (
   <Route
@@ -46,6 +47,7 @@ export const ProviderRoutes = () => (
     <Route path="batches/:id" element={<BatchDetailsPage />} />
     <Route path="warnings" element={<WarningsPage />} />
     <Route path="profile" element={<ProviderProfilePage />} />
+    <Route path="operating-area" element={<OperatingAreaPage />} />
   </Route>
 );
 

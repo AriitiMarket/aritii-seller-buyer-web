@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  AiOutlineSearch,
-  AiOutlineArrowRight,
-} from 'react-icons/ai';
+import HeaderSearch from '@/shared/components/header/HeaderSearch';
+import { AiOutlineArrowRight } from 'react-icons/ai';
 import AritiiLogo from '@/assets/images/brand/aritii-logo.svg';
 
 /**
@@ -17,14 +14,6 @@ import AritiiLogo from '@/assets/images/brand/aritii-logo.svg';
  */
 
 const HeroSection = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`;
-    }
-  };
 
   return (
     <section className="relative isolate w-full min-h-[640px] overflow-hidden bg-[#20305c] sm:min-h-[700px] lg:min-h-[720px]">
@@ -112,25 +101,14 @@ const HeroSection = () => {
 
         {/* ===== Search + quick categories ===== */}
         <div className="hero-entrance hero-entrance-delay-2 mx-auto mt-7 w-full max-w-3xl sm:mt-10">
-          <form onSubmit={handleSearch} className="w-full mb-4">
-            <div className="relative flex items-center bg-white rounded-xl shadow-2xl transition-transform duration-300 hover:scale-[1.01]">
-              <input
-                type="search"
-                placeholder="Search for products, shops, and more..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="min-w-0 flex-1 rounded-l-xl bg-transparent px-3 py-3.5 text-sm text-gray-900 placeholder-gray-500 focus:outline-none sm:px-5 sm:py-4 sm:text-base"
-                aria-label="Search marketplace"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-r-xl bg-[#75d04b] px-4 py-3.5 font-semibold text-white transition-colors hover:bg-[#5ac12f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] sm:px-6 sm:py-4"
-                aria-label="Search"
-              >
-                <AiOutlineSearch size={20} />
-              </button>
-            </div>
-          </form>
+          <HeaderSearch
+            dark
+            variant="inline"
+            destination={(term) => `/products?search=${encodeURIComponent(term.trim())}`}
+            placeholder="Search for products, shops, and more..."
+            ariaLabel="Search marketplace"
+            className="w-full"
+          />
 
         </div>
       </div>

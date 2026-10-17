@@ -58,7 +58,7 @@ const BuyerProductDetail = () => {
     <div className="space-y-6">
       <Link
         to="/my-dashboard/marketplace"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#667085] hover:text-[#20305C] transition"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-market-on-surface-variant hover:text-market-secondary transition"
       >
         <MdArrowBack size={18} />
         Back to Marketplace
@@ -74,7 +74,7 @@ const BuyerProductDetail = () => {
             action={
               <Link
                 to="/my-dashboard/marketplace"
-                className="inline-block px-5 py-2.5 bg-[#20305C] text-white rounded-lg font-semibold hover:opacity-90 transition"
+                className="inline-block px-5 py-2.5 bg-market-primary text-market-on-primary rounded-lg font-semibold hover:opacity-90 transition"
               >
                 Back to Marketplace
               </Link>

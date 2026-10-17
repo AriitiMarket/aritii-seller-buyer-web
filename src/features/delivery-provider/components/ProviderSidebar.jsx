@@ -4,36 +4,31 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { logoutUser } from '@/store/slices/userThunks';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { MdDashboard, MdWorkOutline, MdLocalShipping, MdInventory, MdWarning, MdPerson, MdLogout } from 'react-icons/md';
+import {
+  MdDashboard,
+  MdWorkOutline,
+  MdLocalShipping,
+  MdInventory,
+  MdPerson,
+  MdLogout,
+  MdLocationOn,
+  MdHelpOutline,
+} from 'react-icons/md';
+import DELIVERY_NAV_ITEMS from './deliveryNavConfig';
 
-const PROVIDER_SIDEBAR = [
-  { section: 'OVERVIEW' },
-  { label: 'Overview', to: '/provider', icon: 'MdDashboard', end: true },
-  
-  { section: 'WORK' },
-  { label: 'Available Work', to: '/provider/available-work', icon: 'MdWorkOutline' },
-  { label: 'My Deliveries', to: '/provider/deliveries', icon: 'MdLocalShipping' },
-  { label: 'Batches', to: '/provider/batches', icon: 'MdInventory' },
-  
-  { section: 'ACCOUNT' },
-  { label: 'Warnings', to: '/provider/warnings', icon: 'MdWarning' },
-  { label: 'Profile', to: '/provider/profile', icon: 'MdPerson' },
-  
-  { type: 'logout' },
-];
-
-const getNavIcon = (iconName) => {
-  const icons = {
-    MdDashboard,
-    MdWorkOutline,
-    MdLocalShipping,
-    MdInventory,
-    MdWarning,
-    MdPerson,
-    MdLogout,
-  };
-  return icons[iconName];
+const SIDEBAR_ICONS = {
+  MdDashboard,
+  MdWorkOutline,
+  MdLocalShipping,
+  MdInventory,
+  MdWarning,
+  MdPerson,
+  MdLogout,
+  MdLocationOn,
+  MdHelpOutline,
 };
+
+const getNavIcon = (iconName) => SIDEBAR_ICONS[iconName];
 
 const ProviderSidebar = ({ onClose, className = '' }) => {
   const dispatch = useDispatch();
@@ -45,7 +40,7 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
     try {
       const res = await dispatch(logoutUser());
       toast.success(res?.message || 'Logged out successfully');
-      navigate('/');
+      navigate('/delivery', { replace: true });
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Logout failed');
     }
@@ -56,7 +51,7 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
   return (
     <aside
       className={`relative flex flex-col h-full bg-[#141414] text-white border-r border-white/15 transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-64'
+        isCollapsed ? 'w-[68px]' : 'w-[240px]'
       } ${className}`}
       aria-label="Provider navigation"
     >
@@ -71,14 +66,10 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
 
       {/* Navigation — only this list scrolls if it overflows; the sidebar shell stays fixed */}
       <div className="flex-1 min-h-0 space-y-1 px-3 py-6 overflow-y-auto">
-        {PROVIDER_SIDEBAR.map((item, index) => {
-          if (item.type === 'separator') {
-            return <div key={index} className="border-t border-white/15 my-3" />;
-          }
-
+        {DELIVERY_NAV_ITEMS.map((item, index) => {
           if (item.section) {
             return (
-              <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-white/55 px-2 mb-2 mt-4">
+              <p key={index} className="text-[10px] font-bold uppercase tracking-wider text-white/55 px-2 mb-2 mt-4">
                 {isCollapsed ? '' : item.section}
               </p>
             );
@@ -105,7 +96,8 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
           }
 
           const Icon = getNavIcon(item.icon);
-          const isActive = location.pathname === item.to || (item.end && location.pathname === item.to);
+          const isActive =
+            location.pathname === item.to || (item.end && location.pathname === item.to);
 
           return (
             <NavLink
@@ -115,8 +107,8 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
               onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-sm relative group ${
                 isActive
-                  ? 'bg-white/15 text-white font-semibold border border-white/25'
-                  : 'text-white/80 hover:bg-white/10 hover:text-white border border-transparent hover:border-white/15'
+                  ? 'bg-white/15 text-white font-semibold border-l-2 border-[#75d04b]'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white border-l-2 border-transparent'
               }`}
               title={isCollapsed ? item.label : undefined}
             >

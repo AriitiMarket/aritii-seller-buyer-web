@@ -5,52 +5,152 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Aritii commerce design system — buyer content pages.
-        // (Header/Sidebar keep their own hardcoded branding and never use these.)
         market: {
-          bg: '#F7F8FA',       // page background
-          card: '#FFFFFF',     // cards / content surfaces
-          ink: '#171A21',      // primary text
-          muted: '#667085',    // secondary text
-          line: '#E5E7EB',     // borders
-          brand: '#20305C',    // brand actions & buttons
-          'brand-hover': '#2C3F6E',
-          'brand-press': '#182647',
-          'brand-soft': '#E9ECF5', // soft brand backgrounds
+          surface: '#ffffff',
+          'surface-dim': '#f7f7f7',
+          'surface-bright': '#ffffff',
+          'surface-container-lowest': '#ffffff',
+          'surface-container-low': '#f0f2f2',
+          'surface-container': '#e6e6e6',
+          'surface-container-high': '#d5d9d9',
+          'surface-container-highest': '#c0c5c5',
+          'on-surface': '#0f1111',
+          'on-surface-variant': '#555555',
+          header: '#131921',
+          'header-border': '#232f3e',
+          subnav: '#232f3e',
+          'subnav-border': '#37475a',
+          primary: '#febd69',
+          'primary-hover': '#f3a847',
+          'primary-pressed': '#ff9900',
+          'primary-container': '#f3a847',
+          'on-primary': '#0f1111',
+          'inverse-primary': '#ff9900',
+          secondary: '#2162a1',
+          'secondary-hover': '#0064f9',
+          'on-secondary': '#ffffff',
+          tertiary: '#cc0c39',
+          'tertiary-hover': '#cc0c39',
+          'on-tertiary': '#ffffff',
+          error: '#cc0c39',
+          'on-error': '#ffffff',
+          price: '#B12704',
+          outline: '#888c8c',
+          'outline-variant': '#969696',
+          border: '#d5d9d9',
+          background: '#ffffff',
+          'on-background': '#0f1111',
+          'surface-variant': '#e6e6e6',
+          'inverse-surface': '#131921',
+          'inverse-on-surface': '#ffffff',
         },
         brand: {
-          primary: '#75d04b',
-          'primary-light': '#f3ffee',
-          'primary-dark': '#5ac12f',
-          'primary-hover': '#68c73e',
-          'primary-pressed': '#56b02f',
+          primary: '#febd69',
+          'primary-light': '#f3a847',
+          'primary-dark': '#ff9900',
+          'primary-hover': '#f3a847',
+          'primary-pressed': '#ff9900',
           'primary-disabled': '#b9e8a3',
           'secondary-border': '#111827',
-          dark: '#141414'
+          dark: '#131921'
         }
       },
       fontFamily: {
-        inter: ['Inter', 'sans-serif']
-      },
-      width: {
-        'custom-button': '110px',
-        'app-bar-search': '408px'
-      },
-      height: {
-        'custom-button': '45px'
+        'market-display': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
+        'market-text': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        body: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
       fontSize: {
-        'heading-1': '20px',
-        'heading-2': '36px',
-        'card-h1': '16px'
+        'display': ['56px', { lineHeight: '64px', fontWeight: '700', letterSpacing: '-0.02em' }],
+        'headline-lg': ['40px', { lineHeight: '48px', fontWeight: '700', letterSpacing: '-0.01em' }],
+        'headline-md': ['28px', { lineHeight: '36px', fontWeight: '700' }],
+        'headline-sm': ['24px', { lineHeight: '32px', fontWeight: '700' }],
+        'title-lg': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '24px', fontWeight: '600' }],
+        'title-sm': ['14px', { lineHeight: '20px', fontWeight: '600' }],
+        'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+        'body-sm': ['13px', { lineHeight: '18px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '20px', fontWeight: '500' }],
+        'label-md': ['13px', { lineHeight: '18px', fontWeight: '500' }],
+        'label-sm': ['12px', { lineHeight: '16px', fontWeight: '500' }],
+        'caption': ['12px', { lineHeight: '16px', fontWeight: '400' }],
+        'overline': ['11px', { lineHeight: '16px', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }],
       },
-      scale: {
-        '102': '1.02'
+      spacing: {
+        '0': '0',
+        '1': '4px',
+        '2': '8px',
+        '3': '12px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '7': '28px',
+        '8': '32px',
+        '10': '40px',
+        '12': '48px',
+        '16': '64px',
+        '20': '80px',
+        '24': '96px',
+      },
+      borderRadius: {
+        'none': '0',
+        'sm': '2px',
+        'DEFAULT': '4px',
+        'md': '5px',
+        'lg': '8px',
+        'xl': '12px',
+        '2xl': '16px',
+        'full': '9999px',
+        'button': '5px',
+      },
+      boxShadow: {
+        'level-1': 'none',
+        'level-2': '0 3px 8px rgba(15, 17, 17, 0.15)',
+        'level-3': '0 8px 24px rgba(15, 17, 17, 0.2)',
+        'level-2-sm': '0 1px 3px rgba(15, 17, 17, 0.1)',
+        'search': '0 2px 5px rgba(15, 17, 17, 0.15)',
+        'card': '0 1px 2px rgba(15, 17, 17, 0.1), 0 1px 3px rgba(15, 17, 17, 0.1)',
+        'card-hover': '0 4px 8px rgba(15, 17, 17, 0.15)',
+      },
+      minHeight: {
+        'button': '40px',
+        'input': '40px',
+      },
+      height: {
+        'button': '40px',
+        'input': '40px',
+        'header': '60px',
+        'subnav': '40px',
+      },
+      transitionDuration: {
+        'fast': '150ms',
+        'normal': '200ms',
+      },
+      transitionTimingFunction: {
+        'ease-out': 'ease-out',
       },
       container: {
         center: true,
-        padding: '2rem',
-        screens: { '2xl': '1400px' }
+        padding: {
+          DEFAULT: '16px',
+          sm: '24px',
+          lg: '32px',
+          xl: '40px',
+        },
+        screens: {
+          '2xl': '1400px',
+        },
+      },
+      zIndex: {
+        'header': '70',
+        'subnav': '60',
+        'drawer': '50',
+        'dropdown': '40',
+        'modal': '80',
+        'toast': '90',
       }
     }
   },

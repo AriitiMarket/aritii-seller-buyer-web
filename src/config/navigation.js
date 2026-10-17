@@ -2,27 +2,28 @@
  * Navigation Configuration
  *
  * Single source of truth for the buyer and seller sidebars.
- * The public header keeps its own hand-placed nav (it interleaves the
- * Discover dropdown), so there is no unused public list here any more.
+ * 
+ * BUYER_SIDEBAR now contains only account management pages.
+ * Marketplace shopping (Products, Shops) is in the public marketplace
+ * accessible via the MarketplaceHeader.
  */
 
 /**
- * BUYER_SIDEBAR — grouped sections for the modern sidebar.
- * Sections: Overview, Shopping, My Activity, Account.
+ * BUYER_SIDEBAR — grouped sections for account management only.
+ * Sections: Overview, My Activity, Account.
+ * 
+ * Note: Products and Shops navigation removed - use public marketplace instead.
  */
 export const BUYER_SIDEBAR = [
   { section: 'OVERVIEW' },
   { label: 'Dashboard', to: '/my-dashboard', icon: 'MdDashboard', end: true },
-  { section: 'SHOPPING' },
-  { label: 'Products', to: '/my-dashboard/marketplace', icon: 'MdShoppingBag' },
-  { label: 'Shops', to: '/my-dashboard/shops', icon: 'MdStorefront' },
-  { label: 'Cart', to: '/my-dashboard/cart', icon: 'MdShoppingCart', badge: 'cart' },
   { section: 'MY ACTIVITY' },
   { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt', badge: 'orders' },
   { label: 'Saved Items', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder', badge: 'wishlist' },
   { label: 'Reviews', to: '/my-dashboard/reviews', icon: 'MdRateReview' },
-  { label: 'Product Requests', to: '/my-dashboard/requests', icon: 'MdHelpOutline' },
+  { label: 'Messages', to: '/my-dashboard/requests', icon: 'MdHelpOutline' },
   { section: 'ACCOUNT' },
+  { label: 'Cart', to: '/my-dashboard/cart', icon: 'MdShoppingCart', badge: 'cart' },
   { label: 'Addresses', to: '/my-dashboard/addresses', icon: 'MdLocationOn' },
   { label: 'Settings', to: '/my-dashboard/settings', icon: 'MdSettings' },
   { label: 'Become a Seller', to: '/seller-registration', icon: 'MdStorefront' },
@@ -30,16 +31,23 @@ export const BUYER_SIDEBAR = [
 
 /**
  * BUYER_BOTTOM_NAV — 5 items for the mobile bottom navigation bar.
+ * Updated to remove product/shop browsing, focus on account.
  */
 export const BUYER_BOTTOM_NAV = [
   { label: 'Home', to: '/my-dashboard', icon: 'MdDashboard', end: true },
-  { label: 'Products', to: '/my-dashboard/marketplace', icon: 'MdShoppingBag' },
-  { label: 'Shops', to: '/my-dashboard/shops', icon: 'MdStorefront' },
   { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt' },
-  { label: 'More', to: null, icon: 'MdMoreHoriz', action: 'openDrawer' },
+  { label: 'Cart', to: '/my-dashboard/cart', icon: 'MdShoppingCart' },
+  { label: 'Wishlist', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder' },
+  { label: 'Account', to: '/my-dashboard/settings', icon: 'MdPerson' },
 ];
 
 export const BUYER_PROFILE_DROPDOWN = [
+  { type: 'separator' },
+  { section: 'ACCOUNT' },
+  { label: 'Profile', to: '/my-dashboard/profile', icon: 'MdPerson', end: true },
+  { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt', badge: 'orders' },
+  { label: 'Wishlist', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder', badge: 'wishlist' },
+  { type: 'separator' },
   { type: 'logout' },
 ];
 
@@ -65,7 +73,7 @@ export const SELLER_SIDEBAR = [
   { label: 'Transactions', to: '/business/transactions', icon: 'MdReceipt' },
   { label: 'Payment account application', to: '/business/settings?section=payments', icon: 'MdAccountBalanceWallet' },
   { section: 'STORE' },
-  { label: 'Shops', to: '/business/shops', icon: 'MdStorefront' },
+  { label: 'Store', to: '/business/shops', icon: 'MdStorefront' },
   { label: 'Reviews', to: '/business/reviews', icon: 'MdRateReview' },
   { section: 'SETTINGS' },
   { label: 'Settings', to: '/business/settings', icon: 'MdSettings' },

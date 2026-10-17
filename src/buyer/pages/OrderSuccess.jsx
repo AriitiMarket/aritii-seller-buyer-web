@@ -7,11 +7,11 @@ import CheckoutSteps from '@/buyer/components/CheckoutSteps';
 
 const OrderSuccessPage = () => {
   return (
-    <div className="w-full min-h-screen bg-[#F7F8FA] flex flex-col">
+    <div className="w-full min-h-screen bg-market-surface-dim flex flex-col">
       <BuyerHeader onMenuClick={() => {}} />
 
       {/* Same step indicator as Checkout (1) and Payment (2). */}
-      <div className="w-full py-6 bg-white border-b border-[#E5E7EB]">
+      <div className="w-full py-6 bg-white border-b border-market-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <CheckoutSteps active={3} />
         </div>
@@ -34,7 +34,7 @@ const Success = () => {
     <div className="w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-2xl">
         {/* Main Success Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8 sm:p-12 text-center mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-market-border p-8 sm:p-12 text-center mb-6">
           {/* Success Icon */}
           <div className="flex justify-center mb-8">
             <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
@@ -43,13 +43,13 @@ const Success = () => {
           </div>
 
           {/* Success Message */}
-          <h1 className="text-3xl font-bold text-[#171A21] mb-3">
+          <h1 className="text-3xl font-bold text-market-on-surface mb-3">
             Order Placed Successfully!
           </h1>
-          <p className="text-lg text-[#667085] mb-2">
+          <p className="text-lg text-market-on-surface-variant mb-2">
             Thank you for your purchase.
           </p>
-          <p className="text-sm text-[#667085] mb-8">
+          <p className="text-sm text-market-on-surface-variant mb-8">
             Your order has been confirmed. You'll receive a detailed confirmation email shortly with all the order information.
           </p>
 
@@ -99,14 +99,14 @@ const Success = () => {
           <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 sm:justify-center">
             <button
               onClick={() => navigate('/my-dashboard/orders')}
-              className="w-full sm:flex-1 px-6 py-3 bg-[#20305C] hover:bg-[#2C3F6E] active:bg-[#182647] text-white font-semibold rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              className="w-full sm:flex-1 px-6 py-3 bg-market-primary text-market-on-primary hover:bg-market-primary-hover active:bg-market-primary-pressed font-semibold rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               View My Orders
               <FiArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => navigate('/')}
-              className="w-full sm:flex-1 px-6 py-3 bg-white border border-[#E5E7EB] hover:bg-[#F7F8FA] active:bg-gray-100 text-[#171A21] font-semibold rounded-lg transition duration-200 shadow-sm hover:shadow-md"
+              className="w-full sm:flex-1 px-6 py-3 bg-white border border-market-border hover:bg-market-surface-dim active:bg-gray-100 text-market-on-surface font-semibold rounded-lg transition duration-200 shadow-sm hover:shadow-md"
             >
               Continue Shopping
             </button>
@@ -114,12 +114,12 @@ const Success = () => {
         </div>
 
         {/* Help Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
           <div className="flex gap-3">
             <FiHelpCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-base font-semibold text-[#171A21] mb-2">Need Help?</h4>
-              <p className="text-sm text-[#667085] mb-3">
+              <h4 className="text-base font-semibold text-market-on-surface mb-2">Need Help?</h4>
+              <p className="text-sm text-market-on-surface-variant mb-3">
                 If you have any questions about your order, check your email for the order confirmation or visit our help center.
               </p>
               <button className="text-sm text-green-600 hover:text-green-700 font-semibold hover:underline">

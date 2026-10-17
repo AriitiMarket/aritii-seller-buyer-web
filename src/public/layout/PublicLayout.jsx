@@ -1,22 +1,33 @@
 import React from 'react'
-import PublicHeader from '@/public/components/PublicHeader'
-import ExperienceSubNav from '@/public/components/ExperienceSubNav'
+import MarketplaceHeader from "@/public/components/MarketplaceHeader"
+import SubNavBar from '@/features/marketplace/components/SubNavBar'
 import PublicFooter from '@/shared/components/Footer'
 import SkipToContent from '@/shared/components/SkipToContent'
 import PublicScrollToTop from '@/public/components/PublicScrollToTop'
 
 /**
  * PublicLayout — for pages visible to anyone (no login required).
- * Wraps: PublicHeader → ExperienceSubNav (contextual sub-header) → children → PublicFooter
+ *
+ * Chrome stack (mobile-first):
+ *   1. MarketplaceHeader — sticky, h-16 (64px)
+ *   2. SubNavBar — sticky top-16 (40px); the responsive secondary nav with
+ *      the left slide-in "All" browse drawer. Pass `hideSubNav` to opt out
+ *      (e.g. full-bleed campaign pages).
+ *   3. Page content
  */
-const PublicLayout = ({ children, hideFooter = false, hideSubNav = false }) => {
+const PublicLayout = ({ 
+  children, 
+  hideFooter = false, 
+  hideSubNav = false,
+}) => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDF6EC] dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
       <PublicScrollToTop />
       <SkipToContent />
-      <PublicHeader />
-      {!hideSubNav && <ExperienceSubNav />}
-      <main id="main-content" tabIndex={-1} className="flex-1 outline-none bg-[#FDF6EC] dark:bg-gray-950">{children}</main>
+      <MarketplaceHeader />
+      {!hideSubNav && <SubNavBar />}
+      
+      <main id="main-content" tabIndex={-1} className="flex-1 outline-none bg-white dark:bg-gray-950">{children}</main>
       {!hideFooter && <PublicFooter />}
     </div>
   )

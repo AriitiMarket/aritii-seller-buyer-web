@@ -14,9 +14,9 @@ import CategoryIcon from './CategoryIcon';
  *
  * Every variant reads the active value from `?category=`, so links, chips and
  * sidebar rows can never disagree about what is selected. The vertical
- * sidebar list lives in `@/public/marketplace/components/CategorySidebar` (it owns the
+ * sidebar list lives in `@/features/marketplace/components/CategorySidebar` (it owns the
  * collapse-to-icon-rail behaviour); on <1024px the public catalog uses
- * `@/public/marketplace/components/CategorySheet` (trigger + bottom sheet) instead.
+ * `@/features/marketplace/components/CategorySheet` (trigger + bottom sheet) instead.
  */
 
 /* ------------------------------------------------------------------ */

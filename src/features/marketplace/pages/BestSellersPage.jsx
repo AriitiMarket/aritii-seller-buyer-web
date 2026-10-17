@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/shared/components/ProductCard';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';

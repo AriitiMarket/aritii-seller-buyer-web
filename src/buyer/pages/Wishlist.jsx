@@ -47,13 +47,13 @@ const BuyerWishlistPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Saved Items</h1>
-          <p className="text-sm text-[#667085] mt-1">Your favorite products in one place</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">Saved Items</h1>
+          <p className="text-sm text-market-on-surface-variant mt-1">Your favorite products in one place</p>
         </div>
         <div className="flex items-center justify-center min-h-[40vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#20305C] mx-auto mb-4"></div>
-            <p className="text-[#667085] text-sm">Loading your saved items...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2162a1] mx-auto mb-4"></div>
+            <p className="text-market-on-surface-variant text-sm">Loading your saved items...</p>
           </div>
         </div>
       </div>
@@ -64,18 +64,18 @@ const BuyerWishlistPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Saved Items</h1>
-          <p className="text-sm text-[#667085] mt-1">Your favorite products in one place</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">Saved Items</h1>
+          <p className="text-sm text-market-on-surface-variant mt-1">Your favorite products in one place</p>
         </div>
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-[#E5E7EB] text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white rounded-lg p-12 shadow-sm border border-market-border text-center">
+          <div className="w-16 h-16 bg-red-50 rounded-lg flex items-center justify-center mx-auto mb-4">
             <AiOutlineHeart className="text-3xl text-red-400" />
           </div>
-          <p className="text-[#667085] font-medium mb-1">Could not load your wishlist</p>
-          <p className="text-[#667085] text-sm mb-6">{error}</p>
+          <p className="text-market-on-surface-variant font-medium mb-1">Could not load your wishlist</p>
+          <p className="text-market-on-surface-variant text-sm mb-6">{error}</p>
           <button
             onClick={() => dispatch(fetchWishlist())}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition"
           >
             Try again
           </button>
@@ -88,18 +88,18 @@ const BuyerWishlistPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Saved Items</h1>
-          <p className="text-sm text-[#667085] mt-1">Your favorite products in one place</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">Saved Items</h1>
+          <p className="text-sm text-market-on-surface-variant mt-1">Your favorite products in one place</p>
         </div>
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-[#E5E7EB] text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white rounded-lg p-12 shadow-sm border border-market-border text-center">
+          <div className="w-16 h-16 bg-red-50 rounded-lg flex items-center justify-center mx-auto mb-4">
             <AiOutlineHeart className="text-3xl text-red-400" />
           </div>
-          <p className="text-[#667085] font-medium mb-1">Your wishlist is empty</p>
-          <p className="text-[#667085] text-sm mb-6">Save items you love to your wishlist</p>
+          <p className="text-market-on-surface-variant font-medium mb-1">Your wishlist is empty</p>
+          <p className="text-market-on-surface-variant text-sm mb-6">Save items you love to your wishlist</p>
           <Link
             to="/my-dashboard/marketplace"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition"
           >
             Discover Products
           </Link>
@@ -112,8 +112,8 @@ const BuyerWishlistPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">Saved Items</h1>
-        <p className="text-sm text-[#667085] mt-1">{wishlist.length} item{wishlist.length !== 1 ? 's' : ''} saved</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">Saved Items</h1>
+        <p className="text-sm text-market-on-surface-variant mt-1">{wishlist.length} item{wishlist.length !== 1 ? 's' : ''} saved</p>
       </div>
 
       {error && (
@@ -141,7 +141,7 @@ const BuyerWishlistPage = () => {
               ? Math.round(((originalPrice - price) / originalPrice) * 100)
               : 0
           return (
-            <div key={p._id || w._id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#E5E7EB] hover:shadow-md hover:border-[#E5E7EB] transition-all group">
+            <div key={p._id || w._id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-market-border hover:shadow-md hover:border-market-border transition-all group">
               {/* Image */}
               <div className="relative aspect-square bg-gray-100 overflow-hidden">
                 <Link to={`/product/${p._id}`}>
@@ -164,22 +164,22 @@ const BuyerWishlistPage = () => {
               {/* Info */}
               <div className="p-3">
                 <Link to={`/product/${p._id}`}>
-                  <h3 className="font-semibold text-xs text-[#171A21] line-clamp-2 hover:text-[#20305C] transition leading-snug">
+                  <h3 className="font-semibold text-xs text-market-on-surface line-clamp-2 hover:text-market-secondary transition leading-snug">
                     {p.name}
                   </h3>
                 </Link>
                 {shopName && (
-                  <p className="text-[10px] text-[#667085] mt-1">{shopName}</p>
+                  <p className="text-[10px] text-market-on-surface-variant mt-1">{shopName}</p>
                 )}
                 {p.ratings > 0 && (
                   <div className="flex items-center gap-1 mt-1.5">
                     <span className="text-yellow-500 text-[10px]">★</span>
-                    <span className="text-[10px] text-[#667085] font-medium">{Number(p.ratings || 0).toFixed(1)}</span>
+                    <span className="text-[10px] text-market-on-surface-variant font-medium">{Number(p.ratings || 0).toFixed(1)}</span>
                   </div>
                 )}
                 <div className="mt-2">
-                  <span className="text-sm font-bold text-[#20305C]">
-                    {price.toLocaleString()} <span className="text-[10px] font-medium text-[#667085]">ETB</span>
+                  <span className="text-sm font-bold text-market-secondary">
+                    {price.toLocaleString()} <span className="text-[10px] font-medium text-market-on-surface-variant">ETB</span>
                   </span>
                   {originalPrice > 0 && originalPrice > price && (
                     <span className="text-[10px] text-gray-400 line-through ml-1">{originalPrice.toLocaleString()}</span>
@@ -188,10 +188,10 @@ const BuyerWishlistPage = () => {
                 <button
                   onClick={() => handleAddToCart(p)}
                   disabled={outOfStock}
-                  className="w-full mt-3 px-3 py-2 bg-[#20305C] text-white rounded-xl text-xs font-semibold hover:bg-[#2C3F6E] transition flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-3 px-3 py-2 bg-[#FF9900] text-white rounded-xl text-xs font-semibold hover:bg-[#FFB426] active:bg-[#E68A00] transition flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
-                  <MdShoppingCart size={14} />
-                  {outOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  <MdShoppingCart size={13} className="text-white" />
+                  {p.inCart ? 'In Your Cart' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
               </div>
             </div>

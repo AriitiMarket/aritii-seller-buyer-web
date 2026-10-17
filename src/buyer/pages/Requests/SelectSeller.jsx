@@ -69,14 +69,14 @@ export default function SelectSellerPage() {
       <div className="flex flex-col gap-3">
         <Link
           to="/my-dashboard/requests"
-          className="inline-flex items-center gap-1.5 text-sm text-[#667085] hover:text-[#2C3F6E] w-fit"
+          className="inline-flex items-center gap-1.5 text-sm text-market-on-surface-variant hover:text-market-secondary-hover w-fit"
         >
           <FiArrowLeft size={14} />
           Product Requests
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[#171A21]">Select a Seller / Brand</h1>
-          <p className="text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-market-on-surface">Select a Seller / Brand</h1>
+          <p className="text-market-on-surface-variant mt-1">
             Choose the business you want to request a product from. You can review their profile
             before sending the request.
           </p>
@@ -95,14 +95,14 @@ export default function SelectSellerPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search sellers, brands or categories…"
             aria-label="Search sellers"
-            className="w-full pl-9 pr-3 py-2.5 border border-[#E5E7EB] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#20305C]"
+            className="w-full pl-9 pr-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
           />
         </div>
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value)}
           aria-label="Filter by category"
-          className="sm:w-56 px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#20305C]"
+          className="sm:w-56 px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
         >
           <option value="">All categories</option>
           {categories.map((value) => (
@@ -128,7 +128,7 @@ export default function SelectSellerPage() {
           action={
             <Link
               to="/my-dashboard/requests"
-              className="text-sm font-semibold text-[#2C3F6E] hover:underline"
+              className="text-sm font-semibold text-market-secondary-hover hover:underline"
             >
               Back to Product Requests
             </Link>

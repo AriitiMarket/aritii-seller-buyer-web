@@ -15,19 +15,19 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
   if (!data) return null;
 
   const isPublic = variant === 'public';
-  
+
   const name = data.name || "Aritii Shop";
   const id = data._id || data.id;
   const address = data.address || "";
   const zipCode = data.zipCode || "";
-  
+
   const rawProductCount = data.productCount ?? data.noOfProducts;
   const productCount = rawProductCount ?? 0;
-  
+
   const rating = data.ratings || data.rating || 0;
   const rawRatingCount = data.ratingCount;
   const ratingCount = rawRatingCount ?? 0;
-  
+
   const description = data.description || "";
 
   const safeAddress = address && zipCode ? `${address}, ${zipCode}` : address;
@@ -35,20 +35,28 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
   const shopPath = basePath ? `${basePath}/shops/${id}` : `/shops/${id}`;
 
   return (
-    <div className="w-full bg-white dark:bg-gray-900 rounded-2xl border border-[#E5E7EB] dark:border-gray-700 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden">
+    <div className="w-full market-shop-tile">
       <Link to={shopPath} className="block h-full" aria-label={`Visit ${name} shop`}>
-        {/* Shop Header with Image */}
-        <div className="relative h-24 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center">
-          <div className="absolute top-4 left-1/2 -translate-x-1/2">
-            <ShopImage
-              data={{ avatar: { url: data.avatar?.url }, image: data.avatar?.url, image_Url: data.avatar?.url }}
-              fallback={PlaceholderAvatar}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md"
-              alt={name}
-            />
-          </div>
+        {/* Shop header with logo */ }
+        <div className="relative h-40 bg-market-surface-container-low overflow-hidden">
+          <ShopImage
+            data={{ avatar: { url: data.avatar?.url }, image: data.avatar?.url, image_Url: data.avatar?.url }}
+            fallback={PlaceholderAvatar}
+            className="w-full h-full object-cover"
+            alt={name}
+          />
+          {data.avatar?.url && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2">
+              <ShopImage
+                data={{ avatar: { url: data.avatar?.url }, image: data.avatar?.url, image_Url: data.avatar?.url }}
+                fallback={PlaceholderAvatar}
+                className="w-16 h-16 rounded-full object-cover border-4 border-surface shadow-md"
+                alt={name}
+              />
+            </div>
+          )}
           {/* Verified Badge */}
-          {data.isVerified || data.verified && (
+          {(data.isVerified || data.verified) && (
             <div className="absolute top-2 right-2">
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#20305C] text-white text-xs font-semibold rounded-full">
                 ✓ Verified
@@ -58,16 +66,16 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
         </div>
 
         {/* Shop Info */}
-        <div className="p-4 pt-12">
-          <h4 className="text-gray-900 dark:text-white font-semibold text-base sm:text-lg truncate text-center">
+        <div className="p-3 pt-10 flex-1 flex flex-col">
+          <h4 className="text-title-sm font-semibold text-market-on-surface line-clamp-1 text-center mb-2">
             {name}
           </h4>
 
           {/* Rating */}
-          <div className="flex items-center justify-center mt-2">
+          <div className="flex items-center justify-center mt-1 mb-2">
             <Ratings rating={rating} />
             {ratingCount !== undefined && (
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1.5">
+              <span className="text-xs text-market-on-surface-variant ml-1.5">
                 {ratingCount ? `(${ratingCount})` : "No reviews"}
               </span>
             )}
@@ -75,15 +83,15 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
 
           {/* Location */}
           {safeAddress && (
-            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center truncate">
+            <div className="mt-1 text-body-sm text-market-on-surface-variant text-center truncate">
               {safeAddress}
             </div>
           )}
 
           {/* Product Count */}
           {productCount > 0 && (
-            <div className="mt-3 text-center">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs text-gray-600 dark:text-gray-300">
+            <div className="mt-auto text-center mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-market-surface-container-low rounded-full text-xs text-market-on-surface-variant">
                 <span className="font-medium">{productCount}</span>
                 <span>{productCount === 1 ? "product" : "products"}</span>
               </span>
@@ -92,14 +100,14 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
 
           {/* Description */}
           {description && (
-            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2 text-center min-h-[2.5rem]">
+            <div className="mt-auto mb-3 text-sm text-market-on-surface-variant line-clamp-2 text-center min-h-[2.5rem]">
               {description}
             </div>
           )}
 
           {/* Visit Shop Button */}
-          <div className="mt-4">
-            <span className="block w-full text-center py-2.5 px-4 bg-[#20305C] hover:bg-[#2C3F6E] text-white text-sm font-semibold rounded-lg transition-colors">
+          <div className="mt-auto">
+            <span className="block w-full text-center py-2.5 px-4 bg-market-primary text-market-on-primary hover:bg-market-primary-hover text-sm font-semibold rounded-button transition-colors">
               Visit Shop →
             </span>
           </div>

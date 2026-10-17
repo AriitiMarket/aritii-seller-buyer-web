@@ -88,7 +88,7 @@ const UserOrderDetailComponent = () => {
     <div className="order-detail-container">
       {/* Header */}
       <div className="order-detail-header">
-        <BsFillBagFill size={28} color="#20305C" />
+        <BsFillBagFill size={28} color="#2162a1" />
         <h1>Order Details</h1>
       </div>
 
@@ -192,7 +192,7 @@ const UserOrderDetailComponent = () => {
               if (/FAIL|CANCEL|DECLIN|REFUND/.test(s)) return '#D92D20'; // red — negative outcome
               if (/PAID|SUCCESS|COMPLETE/.test(s)) return '#16A34A'; // green — settled
               if (/PENDING|PROCESSING/.test(s)) return '#B54708'; // amber — in flight
-              return '#667085'; // secondary text — unknown/neutral
+              return '#555555'; // secondary text — unknown/neutral
             })() }}>
               {data?.paymentStatus
                 || (data?.paymentInfo?.status

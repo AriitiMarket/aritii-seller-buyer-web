@@ -136,16 +136,16 @@ const BuyerProductsBrowse = () => {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#171A21]">{pageTitle}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">{pageTitle}</h1>
         {!loading && (
-          <p className="text-sm text-[#667085] mt-1">{filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} from trusted Ethiopian shops</p>
+          <p className="text-sm text-market-on-surface-variant mt-1">{filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} from trusted Ethiopian shops</p>
         )}
       </div>
 
       {/* Search + Sort Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full sm:max-w-md relative">
-          <div className="flex items-center bg-white rounded-xl border border-[#E5E7EB] focus-within:ring-2 focus-within:ring-[#20305C] focus-within:border-transparent overflow-hidden">
+          <div className="flex items-center bg-white rounded-xl border border-market-border focus-within:ring-2 focus-within:ring-[#2162a1] focus-within:border-transparent overflow-hidden">
             <MdSearch size={18} className="text-gray-400 ml-3" />
             <input
               type="text"
@@ -155,7 +155,7 @@ const BuyerProductsBrowse = () => {
               className="flex-1 px-3 py-2.5 text-sm bg-transparent focus:outline-none"
             />
             {localSearch && (
-              <button type="button" onClick={() => { setLocalSearch(''); setSearchParams({}); }} className="px-2 text-gray-400 hover:text-[#667085]">
+              <button type="button" onClick={() => { setLocalSearch(''); setSearchParams({}); }} className="px-2 text-gray-400 hover:text-market-on-surface-variant">
                 <MdClose size={16} />
               </button>
             )}
@@ -165,7 +165,7 @@ const BuyerProductsBrowse = () => {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-sm font-semibold text-[#171A21] focus:outline-none focus:ring-2 focus:ring-[#20305C]"
+          className="px-4 py-2.5 bg-white border border-market-border rounded-xl text-sm font-semibold text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-secondary"
         >
           {SORT_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -176,17 +176,17 @@ const BuyerProductsBrowse = () => {
       {/* Active filters */}
       {(selectedCategory || searchQuery) && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[#667085] font-medium">Active filters:</span>
+          <span className="text-xs text-market-on-surface-variant font-medium">Active filters:</span>
           {selectedCategory && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#E9ECF5] text-[#20305C] text-xs font-semibold rounded-full border border-[#20305C]/20">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-market-surface-container text-market-secondary text-xs font-semibold rounded-full border border-[#2162a1]/20">
               {selectedCategory}
-              <button onClick={() => setSelectedCategory('')} className="hover:text-[#2C3F6E]">
+              <button onClick={() => setSelectedCategory('')} className="hover:text-market-secondary-hover">
                 <MdClose size={14} />
               </button>
             </span>
           )}
           {searchQuery && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#E9ECF5] text-[#2C3F6E] text-xs font-semibold rounded-full border border-[#20305C]/20">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-market-surface-container text-market-secondary-hover text-xs font-semibold rounded-full border border-[#2162a1]/20">
               "{searchQuery}"
               <button onClick={() => { setLocalSearch(''); setSearchParams({}); }} className="hover:text-[#182647]">
                 <MdClose size={14} />
@@ -195,7 +195,7 @@ const BuyerProductsBrowse = () => {
           )}
           <button
             onClick={() => { setSelectedCategory(''); setLocalSearch(''); setSearchParams({}); }}
-            className="text-xs text-[#667085] hover:text-[#171A21] font-semibold"
+            className="text-xs text-market-on-surface-variant hover:text-market-on-surface font-semibold"
           >
             Clear all
           </button>
@@ -205,13 +205,13 @@ const BuyerProductsBrowse = () => {
       {/* Loading */}
       {loading ? (
         <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#20305C] mx-auto mb-4"></div>
-          <p className="text-[#667085] text-sm">Loading products...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2162a1] mx-auto mb-4"></div>
+          <p className="text-market-on-surface-variant text-sm">Loading products...</p>
         </div>
       ) : error ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-[#E5E7EB]">
+        <div className="text-center py-20 bg-white rounded-lg border border-market-border">
           <p className="text-red-600 text-sm mb-4">{error}</p>
-          <button onClick={handleRefresh} className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition">
+          <button onClick={handleRefresh} className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition">
             Try Again
           </button>
         </div>
@@ -224,20 +224,20 @@ const BuyerProductsBrowse = () => {
           </div>
         </>
       ) : (
-        <div className="text-center py-20 bg-white rounded-2xl border border-[#E5E7EB]">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="text-center py-20 bg-white rounded-lg border border-market-border">
+          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <MdOutlineStorefront className="text-3xl text-gray-300" />
           </div>
-          <p className="text-[#667085] font-medium mb-1">
+          <p className="text-market-on-surface-variant font-medium mb-1">
             {searchQuery || selectedCategory ? "No products match your filters" : "No products found"}
           </p>
-          <p className="text-[#667085] text-sm mb-5">
+          <p className="text-market-on-surface-variant text-sm mb-5">
             {searchQuery || selectedCategory ? "Try adjusting your search or filters" : "Check back later for new products"}
           </p>
           {(searchQuery || selectedCategory) && (
             <button
               onClick={() => { setSelectedCategory(''); setLocalSearch(''); setSearchParams({}); }}
-              className="px-5 py-2.5 bg-[#20305C] text-white rounded-xl text-sm font-semibold hover:bg-[#2C3F6E] transition"
+              className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition"
             >
               Clear Filters
             </button>

@@ -1,5 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+/**
+ * Cart slice — unified cart for the marketplace.
+ *
+ * - Guest cart: persisted to localStorage, survives page refreshes.
+ * - Server cart: fetched on login, merged into guest cart automatically.
+ * - Both render from the same state; the view layer decides which data to show.
+ */
 const initialState = {
   cart: [],
   isLoading: false,
@@ -10,6 +17,7 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
+    /** Add an item (called by public addToCart flow). */
     addToCart: (state, action) => {
       const item = action.payload;
       if (!item || !(item.productId || item._id)) return;
@@ -22,6 +30,7 @@ export const cartSlice = createSlice({
       }
       state.error = null;
     },
+    /** Replace the entire cart (server response). */
     setCart: (state, action) => {
       state.cart = action.payload || [];
     },
@@ -52,4 +61,5 @@ export const cartSlice = createSlice({
 
 export const cartReducer = cartSlice.reducer;
 export const { addToCart, setCart, updateQuantity, removeFromCart, clearCart, setCartLoading, setCartError } = cartSlice.actions;
+
 export default cartReducer;

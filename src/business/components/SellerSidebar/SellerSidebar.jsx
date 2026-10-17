@@ -29,26 +29,26 @@ const SellerSidebar = ({ onClose, className = '' }) => {
 
   return (
     <aside
-      className={`relative flex flex-col h-full bg-[#141414] text-white border-r border-white/15 transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-64'
-      } ${className}`}
+      className={`relative flex flex-col h-full seller-sidebar ${isCollapsed ? 'seller-sidebar-collapsed' : ''} ${className}`}
       aria-label="Business navigation"
     >
-      {/* Collapse Button */}
-      <button
-        onClick={toggleCollapse}
-        className="absolute -right-3 top-6 w-6 h-6 bg-[#141414] text-white border border-white/30 rounded-full flex items-center justify-center shadow-sm hover:bg-[#20305c] hover:border-[#75d04b] hover:shadow-[0_0_0_4px_rgba(117,208,75,0.12)] hover:scale-110 active:scale-95 transition-all duration-200 z-10"
-        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {isCollapsed ? <FiChevronRight size={14} /> : <FiChevronLeft size={14} />}
-      </button>
+      {/* Collapse button (desktop only) */}
+      {!isCollapsed && (
+        <button
+          onClick={toggleCollapse}
+          className="absolute top-6 right-2 w-6 h-6 rounded-lg bg-white dark:bg-[#1a1f2a] text-market-on-surface border border-market-border flex items-center justify-center shadow-sm hover:bg-market-surface-container-high hover:border-market-primary hover:shadow-level-2 hover:scale-110 active:scale-95 transition-all duration-200 z-10"
+          aria-label="Collapse sidebar"
+        >
+          <FiChevronLeft size={14} />
+        </button>
+      )}
 
       {/* Shop switcher — one business may own multiple shops */}
       {!isCollapsed && shops.length > 0 && (
-        <div className="px-3 pb-3 border-b border-white/15">
+        <div className="px-3 pb-3 border-b border-market-border">
           <label
             htmlFor="sidebar-shop-switcher"
-            className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-white/60"
+            className="mb-1 block text-xs font-semibold text-market-on-surface-variant uppercase tracking-wider"
           >
             Active shop
           </label>
@@ -56,7 +56,7 @@ const SellerSidebar = ({ onClose, className = '' }) => {
             id="sidebar-shop-switcher"
             value={activeShopId || ''}
             onChange={(e) => selectShop(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 focus:border-brand-primary focus:outline-none"
+            className="w-full rounded-lg border border-market-border bg-white dark:bg-[#1a1f2a] px-2 py-2 text-sm font-medium text-market-on-surface focus:border-market-primary focus:outline-none"
             aria-label="Select active shop"
           >
             {shops.map((s) => (
@@ -66,24 +66,24 @@ const SellerSidebar = ({ onClose, className = '' }) => {
             ))}
           </select>
           {activeShop?.status && activeShop.status !== 'ACTIVE' && activeShop.status !== 'APPROVED' && (
-            <p className="mt-1 text-[11px] text-amber-600">
+            <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
               {activeShop.status === 'PENDING_APPROVAL' ? 'Pending approval' : activeShop.status}
             </p>
           )}
         </div>
       )}
 
-      {/* Navigation — only this list scrolls if it overflows; the sidebar shell stays fixed */}
+      {/* Navigation */}
       <div className="flex-1 min-h-0 space-y-1 px-3 py-6 overflow-y-auto">
         {SELLER_SIDEBAR.map((item, index) => {
           if (item.type === 'separator') {
-            return <div key={index} className="border-t border-white/15 my-3" />;
+            return <div key={index} className="border-t border-market-border my-3" />;
           }
 
           if (item.section) {
             return (
-              <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-white/55 px-2 mb-2 mt-4">
-                {isCollapsed ? '' : item.section}
+              <p key={index} className="seller-sidebar-section">
+                {item.section}
               </p>
             );
           }
@@ -92,11 +92,8 @@ const SellerSidebar = ({ onClose, className = '' }) => {
             return (
               <button
                 key={index}
-                onClick={() => {
-                  logoutHandler();
-                  onClose?.();
-                }}
-                className="mt-2 flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-500/15 text-red-100 hover:bg-red-500/25 hover:translate-x-0.5 font-semibold border border-red-300/20 transition-all duration-200 text-sm w-full text-left"
+                onClick={() => { logoutHandler(); onClose?.(); }}
+                className="mt-2 seller-sidebar-item text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold border border-transparent w-full text-left"
                 aria-label="Log out"
               >
                 {(() => {
@@ -117,19 +114,13 @@ const SellerSidebar = ({ onClose, className = '' }) => {
               to={item.to}
               end={item.end}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 hover:translate-x-0.5 text-sm relative group ${
-                isActive
-                  ? 'bg-white/15 text-white font-semibold border-l-2 border-[#75d04b]'
-                  : 'text-white/80 hover:bg-white/10 hover:text-white border-l-2 border-transparent'
-              }`}
+              className={`seller-sidebar-item ${isActive ? 'active' : ''}`}
               title={isCollapsed ? item.label : undefined}
             >
               {Icon && <Icon className="text-lg flex-shrink-0" />}
               {!isCollapsed && <span className="truncate">{item.label}</span>}
-
-              {/* Tooltip for collapsed mode */}
               {isCollapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none z-50">
+                <div className="absolute left-full ml-2 px-2 py-1 bg-[#1a1f2a] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none z-50">
                   {item.label}
                 </div>
               )}

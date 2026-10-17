@@ -37,12 +37,12 @@ const ShopProfileData = ({ isOwner, shopId }) => {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <div className="w-full flex">
-          <div className="flex items-center" onClick={() => setActive(1)}>
+        <div className="w-full flex overflow-x-auto pb-2 no-scrollbar sm:overflow-visible sm:pb-0">
+          <div className="flex items-center shrink-0" onClick={() => setActive(1)}>
             <h5
-              className={`font-[600] text-[20px] ${
+              className={`font-[600] text-[16px] sm:text-[20px] ${
                 active === 1 ? "text-brand-primary" : "text-[#333]"
-              } cursor-pointer pr-[20px]`}
+              } cursor-pointer pr-[20px] sm:pr-[20px]`}
             >
               Shop Products
             </h5>
@@ -51,11 +51,11 @@ const ShopProfileData = ({ isOwner, shopId }) => {
 
 
           
-          <div className="flex items-center" onClick={() => setActive(2)}>
+          <div className="flex items-center shrink-0" onClick={() => setActive(2)}>
             <h5
-              className={`font-[600] text-[20px] ${
+              className={`font-[600] text-[16px] sm:text-[20px] ${
                 active === 2 ? "text-brand-primary" : "text-[#333]"
-              } cursor-pointer pr-[20px]`}
+              } cursor-pointer pr-[20px] sm:pr-[20px]`}
             >
               Running Events
             </h5>
