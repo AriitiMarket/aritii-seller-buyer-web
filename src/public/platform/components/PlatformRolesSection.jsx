@@ -56,7 +56,7 @@ const experiences = [
     key: 'delivery',
     image: '/delivery.png',
     imageAlt: 'An Aritii delivery provider handing an order to a customer',
-    accent: '#2563eb',
+    accent: '#00A8E1',
     tint: 'bg-white dark:bg-gray-900',
     eyebrow: 'Delivery Experience',
     icon: AiOutlineCar,
@@ -70,7 +70,7 @@ const experiences = [
       'Follow active deliveries in progress',
       'Run day-to-day delivery operations',
     ],
-    cta: { label: 'Delivery Services', to: '/delivery' },
+    cta: { label: 'Delivery Services', to: '/delivery-center' },
   },
 ];
 

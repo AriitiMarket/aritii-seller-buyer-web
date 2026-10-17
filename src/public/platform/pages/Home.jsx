@@ -133,8 +133,8 @@ const HomePage = () => {
               Sell
             </Link>
             <Link
-              to="/delivery"
-              className="px-8 py-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
+              to="/delivery-center"
+              className="px-8 py-4 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
             >
               Deliver
             </Link>
