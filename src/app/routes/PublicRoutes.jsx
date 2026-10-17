@@ -28,7 +28,6 @@ const SellerCenterBenefitsPage = lazy(() => import('@/public/sell/pages/SellerCe
 const SellerCenterHowItWorksPage = lazy(() => import('@/public/sell/pages/SellerCenterHowItWorks'));
 const SellerCenterWorkspacePage = lazy(() => import('@/public/sell/pages/SellerCenterWorkspace'));
 const DeliveryExperiencePage = lazy(() => import('@/public/delivery/pages/Delivery'));
-const DeliveryLayout = lazy(() => import('@/features/delivery-provider/components/DeliveryLayout'));
 const DeliveryPortalLandingPage = lazy(() => import('@/public/delivery-center/pages/DeliveryPortalLanding'));
 
 const ProductsPage = lazy(() => import('@/features/marketplace/pages/Products'));
@@ -53,7 +52,7 @@ export const PublicRoutes = () => (
     <Route path="/seller-center/benefits" element={<SellerCenterBenefitsPage />} />
     <Route path="/seller-center/how-it-works" element={<SellerCenterHowItWorksPage />} />
     <Route path="/seller-center/workspace" element={<SellerCenterWorkspacePage />} />
-    <Route path="/delivery" element={<DeliveryLayout><DeliveryExperiencePage /></DeliveryLayout>} />
+    <Route path="/delivery" element={<DeliveryExperiencePage />} />
     <Route path="/delivery-center" element={<DeliveryPortalLandingPage />} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/how-it-works" element={<HowItWorksPage />} />

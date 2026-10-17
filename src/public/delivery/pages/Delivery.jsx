@@ -4,6 +4,7 @@ import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineMobile } from 'react-icon
 import { MdLocalShipping, MdStore } from 'react-icons/md';
 import api from '@/services/api';
 import DeliveryFlowVisual from '@/public/delivery/components/DeliveryFlowVisual';
+import DeliveryLandingLayout from '../layout/DeliveryLandingLayout';
 import { useAuth } from '@/auth/hooks/useAuth';
 
 const EXPLANATORY_STEPS = [
@@ -93,9 +94,6 @@ const DeliveryPage = () => {
   useEffect(() => {
     let cancelled = false;
     setLocationsLoading(true);
-    // Public endpoint — skipAuth prevents token attach/refresh and any 401
-    // redirect to /login from the API interceptor when a visitor has no
-    // session or an expired token.
     api
       .get('/delivery/location/hierarchy', { skipAuth: true })
       .then((data) => {
@@ -119,10 +117,10 @@ const DeliveryPage = () => {
   const regions = topLevel.slice(0, 6);
 
   return (
-    <>
+    <DeliveryLandingLayout>
       {/* Provider Access Banner - for existing providers */}
       {isAuthenticated && !loading && (
-        <section className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white">
+        <section className="bg-gradient-to-r from-[#00A8E1] to-[#0087B8] text-white">
           <div className="px-4 sm:px-6 lg:px-8 py-4 md:py-6">
             <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
               <div>
@@ -135,7 +133,7 @@ const DeliveryPage = () => {
               </div>
               <Link
                 to="/provider"
-                className="flex-shrink-0 px-6 py-2 bg-white text-[#2563eb] font-semibold rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+                className="flex-shrink-0 px-6 py-2 bg-white text-[#00A8E1] font-semibold rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
               >
                 Go to Delivery Center
                 <AiOutlineArrowRight size={16} />
@@ -149,11 +147,11 @@ const DeliveryPage = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-10 md:py-16 lg:py-20">
           <div className="max-w-7xl mx-auto">
             <div className="text-center">
-              <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#2563eb]/10 text-[#2563eb] text-xs font-bold uppercase tracking-wider">
-                Ariiti Market Delivery Portal
+              <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#00A8E1]/10 text-[#00A8E1] text-xs font-bold uppercase tracking-wider">
+                Aritii Market Delivery Portal
               </span>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-                Deliver Locally. Grow with Ariiti Market.
+                Deliver Locally. Grow with Aritii Market.
               </h1>
               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8 leading-relaxed">
                 Connect with local delivery opportunities, manage assignments,
@@ -163,7 +161,7 @@ const DeliveryPage = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
                   to="/delivery-sign-up"
-                  className="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-base bg-[#2563eb] hover:bg-[#1d4ed8] text-white transition-colors"
+                  className="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-base bg-[#00A8E1] hover:bg-[#0087B8] text-white transition-colors"
                 >
                   Get Started
                 </Link>
@@ -196,7 +194,7 @@ const DeliveryPage = () => {
                   key={step.title}
                   className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center flex-shrink-0 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#00A8E1]/10 text-[#00A8E1] flex items-center justify-center flex-shrink-0 mb-4">
                     {index + 1}
                   </div>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2">
@@ -220,7 +218,7 @@ const DeliveryPage = () => {
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
                 The delivery models and operating options supported on the
-                Ariiti Market delivery network.
+                Aritii Market delivery network.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
@@ -229,7 +227,7 @@ const DeliveryPage = () => {
                   key={card.title}
                   className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                 >
-                  <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#2563eb]/10 text-[#2563eb] text-xs font-bold uppercase tracking-wider">
+                  <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#00A8E1]/10 text-[#00A8E1] text-xs font-bold uppercase tracking-wider">
                     {card.tag}
                   </span>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2">
@@ -244,12 +242,12 @@ const DeliveryPage = () => {
           </div>
         </section>
 
-        {/* Why Deliver with Ariiti Market */}
+        {/* Why Deliver with Aritii Market */}
         <section id="why" className="px-4 sm:px-6 lg:px-8 py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                Why Deliver with Ariiti Market?
+                Why Deliver with Aritii Market?
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
                 Built for Ethiopia's local-first delivery model — region, city,
@@ -262,7 +260,7 @@ const DeliveryPage = () => {
                   key={card.title}
                   className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                 >
-                  <MdLocalShipping className="w-8 h-8 text-[#2563eb] mb-4" />
+                  <MdLocalShipping className="w-8 h-8 text-[#00A8E1] mb-4" />
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                     {card.title}
                   </h3>
@@ -290,9 +288,9 @@ const DeliveryPage = () => {
 
             {locationsLoading && (
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-                <span className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#2563eb]" />
+                <span className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#00A8E1]" />
                 <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                  Loading operating areas\u2026
+                  Loading operating areas…
                 </p>
               </div>
             )}
@@ -327,13 +325,13 @@ const DeliveryPage = () => {
                     className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="flex items-center gap-2 mb-4">
-                      <MdStore className="text-[#2563eb]" size={20} />
+                      <MdStore className="text-[#00A8E1]" size={20} />
                       <h3 className="font-bold text-gray-900 dark:text-white">
                         {region.name}
                       </h3>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      Region \u2022 delivery coverage
+                      Region • delivery coverage
                     </p>
                     <div className="space-y-2">
                       {region.children && region.children.length > 0 ? (
@@ -345,7 +343,7 @@ const DeliveryPage = () => {
                             <span className="text-sm text-gray-700 dark:text-gray-300">
                               {city.name}
                             </span>
-                            <span className="text-xs text-[#2563eb] font-medium">
+                            <span className="text-xs text-[#00A8E1] font-medium">
                               zones
                             </span>
                           </div>
@@ -393,7 +391,7 @@ const DeliveryPage = () => {
                 </p>
                 <Link
                   to="/delivery-sign-up"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563eb] text-white font-semibold rounded-lg hover:bg-[#1d4ed8] transition"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00A8E1] text-white font-semibold rounded-lg hover:bg-[#0087B8] transition"
                 >
                   Get Started <AiOutlineArrowRight size={16} />
                 </Link>
@@ -458,7 +456,7 @@ const DeliveryPage = () => {
                   {isAuthenticated && (
                     <Link
                       to="/provider/warnings"
-                      className="px-6 py-3 bg-[#2563eb] text-white font-semibold rounded-lg hover:bg-[#1d4ed8] transition"
+                      className="px-6 py-3 bg-[#00A8E1] text-white font-semibold rounded-lg hover:bg-[#0087B8] transition"
                     >
                       Warnings &amp; Notifications
                     </Link>
@@ -466,7 +464,7 @@ const DeliveryPage = () => {
                   {!isAuthenticated && (
                     <Link
                       to="/login"
-                      className="px-6 py-3 bg-[#2563eb] text-white font-semibold rounded-lg hover:bg-[#1d4ed8] transition"
+                      className="px-6 py-3 bg-[#00A8E1] text-white font-semibold rounded-lg hover:bg-[#0087B8] transition"
                     >
                       Sign in for Support
                     </Link>
@@ -487,7 +485,7 @@ const DeliveryPage = () => {
         <section className="px-4 sm:px-6 lg:px-8 py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
           <DeliveryFlowVisual />
         </section>
-      </>
+    </DeliveryLandingLayout>
   );
 };
 
