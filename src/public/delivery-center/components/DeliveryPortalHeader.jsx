@@ -48,6 +48,15 @@ const DeliveryPortalHeader = () => {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3 ml-auto">
+          {/* Return to Marketplace */}
+          <Link
+            to="/marketplace"
+            className="hidden sm:inline-flex px-3 py-2 text-xs font-medium text-[#CCCCCB] hover:text-white transition-colors rounded hover:bg-[#232F3E]"
+            title="Return to shopping"
+          >
+            ← Shopping
+          </Link>
+
           {/* Sign In Button */}
           <Link
             to="/login"

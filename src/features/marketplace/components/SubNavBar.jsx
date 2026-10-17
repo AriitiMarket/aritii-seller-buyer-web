@@ -191,6 +191,23 @@ const SubNavBar = ({ onOpenAll }) => {
                   {item.label}
                 </Link>
               ))}
+
+              {/* Portal Links */}
+              <p className="mt-4 mb-2 px-3 border-t border-market-subnav-border pt-4 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
+                Other Portals
+              </p>
+              <Link
+                to="/seller"
+                className="block w-full rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
+              >
+                🏪 Become a Seller
+              </Link>
+              <Link
+                to="/delivery-center"
+                className="block w-full rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
+              >
+                🚗 Become a Driver
+              </Link>
             </nav>
           </div>
         </div>
