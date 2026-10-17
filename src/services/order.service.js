@@ -126,4 +126,27 @@ export const orderService = {
   },
 };
 
+/**
+ * Seller/business reports.
+ *
+ * All report endpoints are scoped to the authenticated seller's own shop(s)
+ * by the backend; the frontend never sends a seller/shop id that the backend
+ * would trust for data access.
+ */
+export const reportService = {
+  /**
+   * Fetch the seller's own business report for a reporting period.
+   * @param {string} startDate - ISO date (inclusive)
+   * @param {string} endDate - ISO date (inclusive)
+   * @returns {Promise<{data: object}>} grossSales, refunds, netSales, orders, bestSellers, …
+   */
+  async getSellerStats(startDate, endDate) {
+    const params = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    const { data } = await api.get('/analytics/seller/stats', { params });
+    return data?.data || data || {};
+  },
+};
+
 export default orderService;

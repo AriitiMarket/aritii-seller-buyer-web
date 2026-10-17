@@ -143,7 +143,7 @@ export default function NewRequestPage() {
         description={shopError || 'The selected seller could not be loaded.'}
         action={
           <Link to="/my-dashboard/requests/new">
-            <Button className="bg-[#20305C] text-white">Choose another seller</Button>
+            <Button className="bg-market-primary text-market-on-primary">Choose another seller</Button>
           </Link>
         }
       />
@@ -154,28 +154,35 @@ export default function NewRequestPage() {
   const location = shopLocation(shop);
 
   const fieldClass =
-    'w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#20305C]';
+    'w-full border border-market-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-market-secondary';
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 pb-28 sm:pb-6">
-      <Link
-        to="/my-dashboard/requests/new"
-        className="inline-flex items-center gap-1.5 text-sm text-[#667085] hover:text-[#2C3F6E]"
-      >
-        <FiArrowLeft size={14} />
-        Select a seller
-      </Link>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Link
+          to="/my-dashboard/requests/new"
+          className="inline-flex items-center gap-1.5 text-sm text-market-on-surface-variant hover:text-market-secondary-hover"
+        >
+          <FiArrowLeft size={14} />
+          Select a seller
+        </Link>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-market-secondary-hover bg-market-surface-container px-2 py-0.5 rounded-full">
+            Requesting from {shop.name}
+          </span>
+        </div>
+      </div>
 
       <div>
-        <h1 className="text-2xl font-bold text-[#171A21]">Request Product</h1>
-        <p className="text-[#667085] mt-1">
+        <h1 className="text-2xl font-bold text-market-on-surface">Request Product</h1>
+        <p className="text-market-on-surface-variant mt-1">
           Tell the seller exactly what you need. They will respond with availability and an offer
           inside this request.
         </p>
       </div>
 
       {/* Selected seller */}
-      <div className="bg-white rounded-2xl border border-[#20305C]/40 bg-[#E9ECF5]/40 p-4 flex items-center gap-3">
+      <div className="bg-white rounded-lg border border-[#2162a1]/40 bg-market-surface-container/40 p-4 flex items-center gap-3">
         <ShopImage
           data={{ avatar: { url: shop.avatar?.url }, image: shop.avatar?.url }}
           fallback={PlaceholderAvatar}
@@ -183,10 +190,10 @@ export default function NewRequestPage() {
           alt={`${shop.name} logo`}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] uppercase tracking-wide text-[#667085] font-semibold">
+          <p className="text-[11px] uppercase tracking-wide text-market-on-surface-variant font-semibold">
             Requesting from
           </p>
-          <p className="font-semibold text-[#171A21] truncate flex items-center gap-2">
+          <p className="font-semibold text-market-on-surface truncate flex items-center gap-2">
             {shop.name}
             {verification && (
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${verification.tone}`}>
@@ -194,11 +201,11 @@ export default function NewRequestPage() {
               </span>
             )}
           </p>
-          {location && <p className="text-xs text-[#667085] truncate">{location}</p>}
+          {location && <p className="text-xs text-market-on-surface-variant truncate">{location}</p>}
         </div>
         <Link
           to="/my-dashboard/requests/new"
-          className="text-xs font-semibold text-[#2C3F6E] hover:underline whitespace-nowrap"
+          className="text-xs font-semibold text-market-secondary-hover hover:underline whitespace-nowrap"
         >
           Change
         </Link>
@@ -207,10 +214,10 @@ export default function NewRequestPage() {
       <form
         id="request-product-form"
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-4"
+        className="bg-white rounded-lg border border-market-border p-4 sm:p-6 space-y-4"
       >
         <div>
-          <label htmlFor="request-title" className="block text-sm font-medium text-[#171A21] mb-1">
+          <label htmlFor="request-title" className="block text-sm font-medium text-market-on-surface mb-1">
             Product or requested item <span className="text-red-500">*</span>
           </label>
           <input
@@ -226,7 +233,7 @@ export default function NewRequestPage() {
         </div>
 
         <div>
-          <label htmlFor="request-description" className="block text-sm font-medium text-[#171A21] mb-1">
+          <label htmlFor="request-description" className="block text-sm font-medium text-market-on-surface mb-1">
             Description
           </label>
           <textarea
@@ -242,7 +249,7 @@ export default function NewRequestPage() {
 
         <div className="grid sm:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="request-quantity" className="block text-sm font-medium text-[#171A21] mb-1">
+            <label htmlFor="request-quantity" className="block text-sm font-medium text-market-on-surface mb-1">
               Quantity <span className="text-red-500">*</span>
             </label>
             <input
@@ -257,7 +264,7 @@ export default function NewRequestPage() {
             />
           </div>
           <div>
-            <label htmlFor="request-unit" className="block text-sm font-medium text-[#171A21] mb-1">
+            <label htmlFor="request-unit" className="block text-sm font-medium text-market-on-surface mb-1">
               Unit <span className="text-red-500">*</span>
             </label>
             <input
@@ -277,7 +284,7 @@ export default function NewRequestPage() {
             </datalist>
           </div>
           <div>
-            <label htmlFor="request-price" className="block text-sm font-medium text-[#171A21] mb-1">
+            <label htmlFor="request-price" className="block text-sm font-medium text-market-on-surface mb-1">
               Expected / target price (ETB)
             </label>
             <input
@@ -294,12 +301,12 @@ export default function NewRequestPage() {
         </div>
 
         {/* Structured requirements — the seller quotes against these exact rows. */}
-        <fieldset className="border-t border-[#E5E7EB] pt-4">
+        <fieldset className="border-t border-market-border pt-4">
           <legend className="sr-only">Structured requirements</legend>
-          <p className="text-sm font-medium text-[#171A21] mb-1">
+          <p className="text-sm font-medium text-market-on-surface mb-1">
             Requirements <span className="text-gray-400 font-normal">(optional)</span>
           </p>
-          <p className="text-xs text-[#667085] mb-3">
+          <p className="text-xs text-market-on-surface-variant mb-3">
             Fill what matters — quality, brand, size, colour and packaging travel with the request
             as structured data, not buried in prose.
           </p>
@@ -308,7 +315,7 @@ export default function NewRequestPage() {
               <div key={key}>
                 <label
                   htmlFor={`request-spec-${key}`}
-                  className="block text-sm font-medium text-[#171A21] mb-1"
+                  className="block text-sm font-medium text-market-on-surface mb-1"
                 >
                   {label}
                 </label>
@@ -326,7 +333,7 @@ export default function NewRequestPage() {
         </fieldset>
 
         <div>
-          <label htmlFor="request-requirements" className="block text-sm font-medium text-[#171A21] mb-1">
+          <label htmlFor="request-requirements" className="block text-sm font-medium text-market-on-surface mb-1">
             Other requirements / notes
           </label>
           <textarea
@@ -341,29 +348,29 @@ export default function NewRequestPage() {
         </div>
 
         <div>
-          <span className="block text-sm font-medium text-[#171A21] mb-1">
+          <span className="block text-sm font-medium text-market-on-surface mb-1">
             Image / attachment <span className="text-gray-400 font-normal">(optional)</span>
           </span>
           {attachment ? (
-            <div className="flex items-center gap-3 border border-[#E5E7EB] rounded-lg p-2.5">
+            <div className="flex items-center gap-3 border border-market-border rounded-lg p-2.5">
               <img
                 src={attachment.url}
                 alt={attachment.name}
-                className="w-14 h-14 rounded-lg object-cover border border-[#E5E7EB]"
+                className="w-14 h-14 rounded-lg object-cover border border-market-border"
               />
-              <p className="text-sm text-[#667085] flex-1 truncate">{attachment.name}</p>
+              <p className="text-sm text-market-on-surface-variant flex-1 truncate">{attachment.name}</p>
               <button
                 type="button"
                 onClick={() => setAttachment(null)}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-[#667085]"
+                className="p-1.5 rounded-full hover:bg-gray-100 text-market-on-surface-variant"
                 aria-label="Remove attachment"
               >
                 <FiX size={16} />
               </button>
             </div>
           ) : (
-            <label className="flex items-center gap-2 border border-dashed border-[#E5E7EB] rounded-lg px-3 py-3 text-sm text-[#667085] cursor-pointer hover:border-[#20305C] transition">
-              <FiImage size={16} className="text-[#20305C]" />
+            <label className="flex items-center gap-2 border border-dashed border-market-border rounded-lg px-3 py-3 text-sm text-market-on-surface-variant cursor-pointer hover:border-[#2162a1] transition">
+              <FiImage size={16} className="text-market-secondary" />
               Add an image (max 1 MB)
               <input type="file" accept="image/*" className="hidden" onChange={handleAttachment} />
             </label>
@@ -373,12 +380,12 @@ export default function NewRequestPage() {
 
         {/* Desktop submit */}
         <div className="hidden sm:flex items-center gap-3 pt-2">
-          <Button type="submit" disabled={submitting} className="bg-[#20305C] text-white">
+          <Button type="submit" disabled={submitting} className="bg-market-primary text-market-on-primary">
             {submitting ? 'Sending…' : 'Send Product Request'}
           </Button>
           <Link
             to="/my-dashboard/requests"
-            className="h-[45px] px-5 inline-flex items-center justify-center rounded-full border border-[#E5E7EB] text-[#171A21] font-semibold text-sm hover:border-[#20305C] transition"
+            className="h-[45px] px-5 inline-flex items-center justify-center rounded-full border border-market-border text-market-on-surface font-semibold text-sm hover:border-[#2162a1] transition"
           >
             Cancel
           </Link>
@@ -386,12 +393,12 @@ export default function NewRequestPage() {
       </form>
 
       {/* Mobile sticky action */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#E5E7EB] p-3">
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-market-border p-3">
         <Button
           type="submit"
           form="request-product-form"
           disabled={submitting}
-          className="w-full bg-[#20305C] text-white"
+          className="w-full bg-market-primary text-market-on-primary"
         >
           {submitting ? 'Sending…' : 'Send Product Request'}
         </Button>

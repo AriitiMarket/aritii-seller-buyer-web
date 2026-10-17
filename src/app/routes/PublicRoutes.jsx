@@ -1,5 +1,5 @@
 import React, { lazy } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 import PublicCatalogLayout from '@/public/layout/PublicCatalogLayout';
 
 /**
@@ -20,18 +20,19 @@ const AboutPage = lazy(() => import('@/public/platform/pages/About'));
 const HowItWorksPage = lazy(() => import('@/public/platform/pages/HowItWorks'));
 const FAQPage = lazy(() => import('@/public/platform/pages/FAQ'));
 const PublicEventsPage = lazy(() => import('@/public/platform/pages/Events'));
-const MarketplaceLandingPage = lazy(() => import('@/public/marketplace/pages/Marketplace'));
+const MarketplaceLandingPage = lazy(() => import('@/features/marketplace/pages/MarketplaceLandingPage'));
 const SellOnAritiiPage = lazy(() => import('@/public/sell/pages/SellOnAritii'));
 const DeliveryExperiencePage = lazy(() => import('@/public/delivery/pages/Delivery'));
+const DeliveryLayout = lazy(() => import('@/features/delivery-provider/components/DeliveryLayout'));
 
-const ProductsPage = lazy(() => import('@/public/marketplace/pages/Products'));
-const ProductDetailsPage = lazy(() => import('@/buyer/pages/ProductDetail'));
-const CategoriesPage = lazy(() => import('@/public/marketplace/pages/Categories'));
-const ShopsPage = lazy(() => import('@/public/marketplace/pages/Shops'));
+const ProductsPage = lazy(() => import('@/features/marketplace/pages/Products'));
+const BestSellersPage = lazy(() => import('@/features/marketplace/pages/BestSellersPage'));
+const ProductDetailsPage = lazy(() => import('@/features/marketplace/pages/ProductDetail'));
+const CategoriesPage = lazy(() => import('@/features/marketplace/pages/Categories'));
+const ShopsPage = lazy(() => import('@/features/marketplace/pages/Shops'));
 const ShopDetailsPage = lazy(() => import('@/buyer/pages/ShopDetail'));
-const DealsPage = lazy(() => import('@/public/marketplace/pages/Deals'));
-const BestSellingPage = lazy(() => import('@/public/marketplace/pages/BestSelling'));
-const SearchResultsPage = lazy(() => import('@/public/marketplace/pages/SearchResults'));
+const DealsPage = lazy(() => import('@/features/marketplace/pages/DealsPage'));
+const SearchResultsPage = lazy(() => import('@/features/marketplace/pages/Products'));  // kept from public
 
 export const PublicRoutes = () => (
   <>
@@ -39,7 +40,7 @@ export const PublicRoutes = () => (
     <Route path="/" element={<HomePage />} />
     <Route path="/marketplace" element={<MarketplaceLandingPage />} />
     <Route path="/sell-on-aritii" element={<SellOnAritiiPage />} />
-    <Route path="/delivery" element={<DeliveryExperiencePage />} />
+    <Route path="/delivery" element={<DeliveryLayout><DeliveryExperiencePage /></DeliveryLayout>} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/how-it-works" element={<HowItWorksPage />} />
     <Route path="/faq" element={<FAQPage />} />
@@ -53,8 +54,8 @@ export const PublicRoutes = () => (
       <Route path="/shops" element={<ShopsPage />} />
       <Route path="/shops/:id" element={<ShopDetailsPage />} />
       <Route path="/deals" element={<DealsPage />} />
-      <Route path="/best-selling" element={<BestSellingPage />} />
-      <Route path="/search" element={<SearchResultsPage />} />
+      <Route path="/best-selling" element={<BestSellersPage />} />
+      <Route path="/search" element={<Navigate to="/products" replace />} />
     </Route>
   </>
 );

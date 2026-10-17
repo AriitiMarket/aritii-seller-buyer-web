@@ -28,24 +28,24 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+        className="fixed inset-0 z-50 bg-black/40 lg:hidden backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer */}
       <div
-        className="fixed top-0 left-0 z-50 h-full w-80 bg-white shadow-2xl lg:hidden flex flex-col transform transition-transform duration-300 ease-in-out"
+        className="fixed inset-y-0 left-0 z-50 w-80 flex flex-col bg-white dark:bg-[#1a1f2a] shadow-xl border-r border-market-border lg:hidden transform transition-transform duration-300 ease-in-out"
         role="dialog"
         aria-label="Mobile navigation"
         aria-modal="true"
       >
-        {/* Drawer Header — no store identity (shown in the top header) */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <p className="font-semibold text-gray-900 text-sm">Menu</p>
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between p-4 border-b border-market-border">
+          <p className="font-semibold text-market-on-surface text-sm">Menu</p>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition"
+            className="p-2 rounded-lg text-market-on-surface-variant hover:text-market-primary hover:bg-market-surface-container-high transition-colors"
             aria-label="Close menu"
           >
             <FiX size={24} />
@@ -56,12 +56,12 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
         <div className="flex-1 min-h-0 overflow-y-auto py-4">
           {SELLER_SIDEBAR.map((item, index) => {
             if (item.type === 'separator') {
-              return <div key={index} className="border-t border-gray-200 my-3 mx-4" />;
+              return <div key={index} className="border-t border-market-border my-3 mx-4" />;
             }
 
             if (item.section) {
               return (
-                <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-4 mb-2 mt-4">
+                <p key={index} className="seller-sidebar-section">
                   {item.section}
                 </p>
               );
@@ -71,11 +71,8 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
               return (
                 <button
                   key={index}
-                  onClick={() => {
-                    logoutHandler();
-                    onClose();
-                  }}
-                  className="mx-4 mt-2 flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold border border-red-200 transition text-sm w-full text-left"
+                  onClick={() => { logoutHandler(); onClose(); }}
+                  className="mx-4 mt-2 seller-sidebar-item text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold border border-transparent w-full text-left"
                   aria-label="Log out"
                 >
                   {(() => {
@@ -96,11 +93,7 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
                 to={item.to}
                 end={item.end}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-3 mx-4 rounded-lg transition text-sm ${
-                  isActive
-                    ? 'bg-brand-primary-light text-brand-primary-dark font-semibold border border-brand-primary'
-                    : 'text-gray-700 hover:bg-gray-50 border border-transparent'
-                }`}
+                className={`seller-sidebar-item ${isActive ? 'active' : ''}`}
               >
                 {Icon && <Icon className="text-lg flex-shrink-0" />}
                 <span>{item.label}</span>
@@ -110,8 +103,8 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
         </div>
 
         {/* Drawer Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="p-4 border-t border-market-border">
+          <p className="text-xs text-market-on-surface-variant text-center">
             © Aritii Market Seller Portal
           </p>
         </div>

@@ -44,6 +44,12 @@ export const locationService = {
     const { data } = await api.get(`/delivery/zone/location/${locationId}`);
     return data.zones || [];
   },
+
+  /** List all public delivery zones (for the location selector). */
+  async listZones() {
+    const { data } = await api.get('/delivery/zone/public');
+    return data.zones || [];
+  },
 };
 
 export default locationService;

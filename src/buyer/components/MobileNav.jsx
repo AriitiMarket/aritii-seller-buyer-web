@@ -40,14 +40,14 @@ const MobileNav = ({ onMoreClick }) => {
               key={item.to}
               to={item.to}
               className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition ${
-                active ? 'text-[#75d04b]' : 'text-gray-500 active:text-gray-700'
+                active ? '#75d04b' : 'text-gray-500 active:text-gray-700'
               }`}
               aria-current={active ? 'page' : undefined}
             >
               <div className="relative">
                 {Icon && <Icon size={22} />}
                 {item.badge === 'cart' && cartCount > 0 && (
-                  <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#75d04b] text-white text-[8px] font-bold rounded-full flex items-center justify-center" aria-hidden="true">
+                  <span className="absolute -top-1 -right-2 w-3.5 h-3.5 #75d04b #141414 text-[8px] font-bold rounded-full flex items-center justify-center" aria-hidden="true">
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
                 )}

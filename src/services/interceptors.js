@@ -31,12 +31,10 @@ export function setNavigate(fn) {
 function notifyUnauthorized() {
   if (typeof window === 'undefined') return;
   if (window.location.pathname === '/login') return;
+  // Dispatch the custom event; the app-level listener in useAppBootstrap
+  // handles the React Router navigation. Never do a hard window.location
+  // redirect here — that bypasses the router and reloads the whole page.
   window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-  if (navigateFn) {
-    navigateFn('/login');
-  } else {
-    window.location.href = '/login';
-  }
 }
 
 export function attachRequestInterceptor(client) {

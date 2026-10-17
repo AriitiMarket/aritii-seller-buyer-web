@@ -27,14 +27,26 @@ export const productService = {
    *
    * The storefront needs the counts to render "1–20 of 143" and a pager; the
    * array-only helper hid them, so every grid silently assumed page 1.
+   *
+   * Accepts optional `zoneId` and `cityId` so the marketplace shows only
+   * products from shops serving the buyer's selected delivery zone.
    */
   async getPublicPage(options = {}) {
-    const cacheKey = `products:public:${JSON.stringify(options)}`;
+    const { zoneId, cityId, ...rest } = options;
+    const cacheKey = `products:public:${JSON.stringify({ ...rest, zoneId, cityId })}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
 
-    const params = new URLSearchParams(options).toString();
+    let params = new URLSearchParams(rest).toString();
+    if (zoneId) {
+      const sep = params ? '&' : '';
+      params += `${sep}zoneId=${encodeURIComponent(zoneId)}`;
+    }
+    if (cityId) {
+      const sep = params ? '&' : '';
+      params += `${sep}cityId=${encodeURIComponent(cityId)}`;
+    }
     const url = params ? `/product/public/all?${params}` : "/product/public/all";
     const { data } = await publicApi.get(url, { skipAuth: true });
     const page = {

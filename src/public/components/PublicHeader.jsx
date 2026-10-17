@@ -100,7 +100,7 @@ const PublicHeader = () => {
 
   return (
     <>
-      <HeaderShell height="h-16" bg="bg-[#807dad]" position="fixed" zIndex="z-[70]">
+      <HeaderShell height="h-16" bg="bg-[#20305C]" position="fixed" zIndex="z-[70]">
         {/* Logo + current-experience sub-brand */}
         <Link
           to="/"
@@ -252,7 +252,7 @@ const PublicHeader = () => {
       <div aria-hidden="true" className="h-16" />
 
       {/* Search Bar below the header on <lg screens (in-header search takes over from lg) */}
-      <div className="lg:hidden sticky top-16 z-40 self-start w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <div className="lg:hidden sticky top-16 z-40 self-start w-full bg-[#20305C] dark:bg-[#20305C]/95 border-b border-white/15 px-4 py-3">
         <HeaderSearch
           variant="inline"
           destination={(term) => `/products?search=${encodeURIComponent(term)}`}

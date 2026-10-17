@@ -4,7 +4,7 @@ import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineShop, AiOutlineGlobal, Ai
 import { PublicLayout } from '@/public/layout/PublicLayout';
 import { HeroSection } from '@/public/marketplace/components/HeroSection';
 import { PlatformRolesSection } from '@/public/platform/components/PlatformRolesSection';
-import { TrendingProducts } from '@/public/marketplace/components/TrendingProducts';
+import { TrendingProducts } from '@/features/marketplace/components/TrendingProducts';
 import { HowItWorksSection } from '@/public/platform/components/HowItWorksSection';
 
 /**

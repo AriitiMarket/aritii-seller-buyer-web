@@ -196,6 +196,31 @@ export const validateCart = () => async (dispatch, getState) => {
 };
 
 /**
+ * Validate the cart against the buyer's selected delivery zone.
+ * Calls POST /cart/validate with cart + zoneId in the body (backend contract).
+ * Returns per-row eligibility results so the UI can show incompatible items.
+ */
+export const validateCartForZone = (zoneId) => async (dispatch, getState) => {
+  try {
+    dispatch(setCartLoading(true));
+    const state = getState();
+    const { cart } = state.cart;
+
+    const { data } = await api.post(
+      `${API_BASE}/validate`,
+      { cart, zoneId }
+    );
+
+    dispatch(setCartLoading(false));
+    return data;
+  } catch (error) {
+    dispatch(setCartError(error?.response?.data?.message || error?.message || 'Zone validation failed'));
+    dispatch(setCartLoading(false));
+    return null;
+  }
+};
+
+/**
  * Fetch cart from backend on mount/login.
  */
 export const fetchCart = () => async (dispatch) => {

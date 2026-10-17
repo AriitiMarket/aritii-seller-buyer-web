@@ -9,19 +9,42 @@ import cache from "@/services/cache";
 
 export const shopService = {
   /**
-   * Get all shops — public endpoint (limited fields, no auth required)
-   * @returns {Promise} - Array of shop objects with limited fields
+   * Get all shops — public endpoint (limited fields, no auth required).
+   * Accepts optional `zoneId` and `cityId` query params so the marketplace
+   * can show only shops that serve the buyer's selected delivery zone.
+   * @param {Object} [params] - { zoneId?, cityId?, limit? }
+   * @returns {Promise} - Array of shop objects (each carries a `delivery` block)
    */
-  async getPublicAll() {
-    const cacheKey = "shops:public:all";
+  async getPublicAll(params = {}) {
+    const { zoneId, cityId, limit = 100 } = params;
+    const cacheKey = `shops:public:all:${zoneId || 'none'}:${cityId || 'none'}:${limit}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
 
-    const { data } = await publicApi.get("/shop/public/all?limit=100", { skipAuth: true });
+    const query = { limit };
+    if (zoneId) query.zoneId = zoneId;
+    if (cityId) query.cityId = cityId;
+
+    const { data } = await publicApi.get('/shop/public/all', {
+      params: query,
+      skipAuth: true,
+    });
     const shops = data.shops || [];
     cache.set(cacheKey, shops, 15 * 60 * 1000);
     return shops;
+  },
+
+  /**
+   * Get public shops that serve the buyer's selected delivery zone.
+   * Falls back to all shops when no zone is selected (broadcast mode).
+   * @param {string|null} zoneId
+   * @param {string|null} cityId
+   * @returns {Promise<Array>} shops serving the zone (or all shops if no zone)
+   */
+  async getPublicShopsForZone(zoneId, cityId) {
+    if (!zoneId && !cityId) return this.getPublicAll({});
+    return this.getPublicAll({ zoneId, cityId });
   },
 
   /**

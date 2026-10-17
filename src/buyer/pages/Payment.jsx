@@ -10,11 +10,11 @@ const PaymentPage = () => {
   }, [])
 
   return (
-    <div className='w-full min-h-screen bg-[#F7F8FA] flex flex-col'>
+    <div className='w-full min-h-screen bg-market-surface-dim flex flex-col'>
       <BuyerHeader onMenuClick={() => {}} />
       
       {/* Checkout Steps */}
-      <div className="w-full py-6 bg-white border-b border-[#E5E7EB]">
+      <div className="w-full py-6 bg-white border-b border-market-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <CheckoutSteps active={2} />
         </div>

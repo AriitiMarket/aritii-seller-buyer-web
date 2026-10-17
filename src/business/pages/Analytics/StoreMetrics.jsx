@@ -82,16 +82,37 @@ const BusinessStoreMetricsPage = () => {
   </>
   )
 
+  // Compute the selected window bounds so the displayed figures match the filter.
+  const now = new Date()
+  const start = (() => {
+    const d = new Date(now)
+    switch (timeFilter) {
+      case '7D': d.setDate(now.getDate() - 7); break
+      case '30D': d.setDate(now.getDate() - 30); break
+      case '90D': d.setDate(now.getDate() - 90); break
+      case '1Y': d.setFullYear(now.getFullYear() - 1); break
+      default: d.setDate(now.getDate() - 30)
+    }
+    return d
+  })()
+
+  const inWindow = (o) => {
+    const dt = o.createdAt ? new Date(o.createdAt) : null
+    return dt && dt >= start && dt <= now
+  }
+
+  const windowOrders = ShopOrders.filter(inWindow)
+
   // Revenue only from Delivered orders (normalized so legacy spellings merge);
   // never count Processing/Cancelled/Refund toward revenue.
-  const succeeded = ShopOrders.filter((o) => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED)
+  const succeeded = windowOrders.filter((o) => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED)
   const revenue = succeeded.reduce((s, o) => s + (Number(o.totalPrice) || 0), 0)
   const lowStock = shopProducts.filter((p) => Number(p.stock) <= 5 && Number(p.stock) > 0)
   const outOfStock = shopProducts.filter((p) => Number(p.stock) === 0)
 
-  // Best sellers: aggregate quantity by product from order cart lines
+  // Best sellers: aggregate quantity by product from order cart lines (window only).
   const soldMap = new Map()
-  ShopOrders.forEach((o) => (o.cart || []).forEach((li) => {
+  windowOrders.forEach((o) => (o.cart || []).forEach((li) => {
     const id = li.productId || li.product || li._id || 'unknown'
     const nm = li.name || 'Product'
     const quantity = Number(li.quantity) || 1
@@ -103,7 +124,7 @@ const BusinessStoreMetricsPage = () => {
 
   const totalStockUnits = shopProducts.reduce((s, p) => s + (Number(p.stock) || 0), 0)
   const completedOrders = succeeded.length
-  const uniqueCustomers = new Set(ShopOrders.map(o => o.buyerId || o.userId).filter(Boolean)).size
+  const uniqueCustomers = new Set(windowOrders.map(o => o.buyerId || o.userId).filter(Boolean)).size
 
   return (
     <>
@@ -123,8 +144,8 @@ const BusinessStoreMetricsPage = () => {
         />
         <MetricCard 
           label="Total Orders" 
-          value={ShopOrders.length} 
-          sub="All orders for your shop"
+          value={windowOrders.length} 
+          sub="All orders for your shop in the selected period"
           tone="blue"
           icon={FiShoppingCart}
           trend={completedOrders > 0 ? `${completedOrders} delivered` : undefined}
@@ -147,19 +168,19 @@ const BusinessStoreMetricsPage = () => {
       </div>
 
       {/* Revenue Trend Chart */}
-      <RevenueTrendChart timeFilter={timeFilter} setTimeFilter={setTimeFilter} ShopOrders={ShopOrders} />
+      <RevenueTrendChart timeFilter={timeFilter} setTimeFilter={setTimeFilter} ShopOrders={windowOrders} />
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Sales by Category */}
-        <CategoryChart ShopOrders={ShopOrders} products={shopProducts} />
+        <CategoryChart ShopOrders={windowOrders} products={shopProducts} />
 
         {/* Order Status Distribution */}
-        <OrderStatusChart ShopOrders={ShopOrders} />
+        <OrderStatusChart ShopOrders={windowOrders} />
       </div>
 
       {/* Monthly Orders Comparison */}
-      <MonthlyOrdersChart ShopOrders={ShopOrders} />
+      <MonthlyOrdersChart ShopOrders={windowOrders} />
 
       {/* Low Stock Alerts */}
       {lowStock.length > 0 && (

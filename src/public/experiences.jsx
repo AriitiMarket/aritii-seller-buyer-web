@@ -84,14 +84,8 @@ export const PLATFORM_EXPERIENCES = Object.freeze([
  */
 export const EXPERIENCE_SUBNAV = Object.freeze({
   marketplace: Object.freeze([
-    { label: 'Overview', to: '/marketplace' },
-    { label: 'All Products', to: '/products', match: '/products' },
-    { label: 'Categories', to: '/categories' },
-    { label: 'Shops', to: '/shops', match: '/shops' },
-    { label: "Today's Deals", to: '/deals' },
     { label: 'Best Selling', to: '/best-selling' },
-    { label: 'How Shopping Works', to: '/how-it-works#shopping', hash: 'shopping' },
-    { label: 'Events', to: '/events' },
+    { label: "Today's Deals", to: '/deals' },
   ]),
   seller: Object.freeze([
     { label: 'Overview', to: '/sell-on-aritii' },

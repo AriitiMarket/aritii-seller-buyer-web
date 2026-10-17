@@ -16,11 +16,9 @@ const LoginPage = () => {
     if (!isAuthenticated) return;
     let active = true;
     const redirect = async () => {
-      // Guards stash where the visitor was heading (e.g. /seller-registration).
-      if (from && from !== '/login') {
-        navigate(from, { replace: true });
-        return;
-      }
+      // A buyer session always lands on the consistent public marketplace
+      // layout (same experience non-logged-in shoppers see), never the
+      // marketing hero and never the account shell.
       // Identity resolves the role for this shared Login. A seller/provider
       // awaiting approval lands on the correct application status page.
       const destination = await authService.loginDestination(tokenStore.getLoginRole());

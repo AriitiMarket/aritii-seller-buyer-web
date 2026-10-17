@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAllProductsShop } from '@/store/slices/productThunks';
 import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import { getAllEventsShop } from '@/store/slices/eventThunks';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
-import { MdShoppingBag, MdInventory2, MdEventNote, MdTrendingUp, MdStorefront, MdWarningAmber } from "react-icons/md";
-import { FiPackage, FiDollarSign, FiUsers } from "react-icons/fi";
-import { KPICard, StatusRow, StatusBadge, QuickActionButton } from '@/business/pages/Dashboard/components';
+import { MdShoppingBag, MdInventory2, MdEventNote, MdStorefront, MdWarningAmber, MdTrendingUp } from 'react-icons/md';
+import { FiPackage, FiDollarSign, FiUsers, FiAlertCircle } from 'react-icons/fi';
+import { SellerStatCard, SellerStatusBadge, SellerEmptyState } from '@/business/components';
 import { SalesOverviewChart } from '@/business/shared/charts';
 import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus';
 
@@ -34,10 +34,13 @@ const DashboardHero = () => {
   const isSuspendedShop =
     activeShop?.status === 'SUSPENDED' || activeShop?.status === 'INACTIVE' || activeShop?.status === 'PENDING_APPROVAL';
 
-  const totalRevenue = String(
-    ShopOrders
-      ?.filter((order) => normalizeStatus(order.status) === ORDER_STATUSES.DELIVERED)
-      .reduce((acc, order) => acc + (Number(order.totalPrice) || 0), 0) || 0
+  const totalRevenue = useMemo(() =>
+    String(
+      ShopOrders
+        ?.filter((order) => normalizeStatus(order.status) === ORDER_STATUSES.DELIVERED)
+        .reduce((acc, order) => acc + (Number(order.totalPrice) || 0), 0) || 0
+    ),
+    [ShopOrders]
   );
 
   const totalOrders = ShopOrders?.length || 0;
@@ -69,269 +72,196 @@ const DashboardHero = () => {
     return 'Good evening';
   };
 
-  const topProducts = [...(shopProducts || [])]
-    .sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0))
-    .slice(0, 5);
+  const topProducts = useMemo(() =>
+    [...(shopProducts || [])]
+      .sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0))
+      .slice(0, 5),
+    [shopProducts]
+  );
 
-  const shopName = activeShop?.name || 'your store';
+  const shopName = activeShop?.name || 'your shop';
 
   return (
-    <div className="w-full space-y-6">
-
-      {/* Welcome Header + shop context */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary-dark mb-1 flex items-center gap-1.5">
-              <MdStorefront size={14} />
-              {shopName}
-              {activeShop?.status ? (
-                <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                  activeShop.status === 'ACTIVE' || activeShop.status === 'APPROVED'
-                    ? 'bg-green-50 text-green-700'
-                    : activeShop.status === 'SUSPENDED'
-                      ? 'bg-red-50 text-red-700'
-                      : 'bg-amber-50 text-amber-700'
-                }`}>
-                  {activeShop.status === 'PENDING_APPROVAL' ? 'Pending approval' : activeShop.status}
-                </span>
-              ) : null}
-            </p>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              {getGreeting()}, {seller?.name || 'Seller'}
-            </h1>
-            <p className="text-sm text-gray-600">
-              Here's what's happening with {shopName} today.
+    <div className="space-y-6">
+      {/* Greeting */}
+      <div className="seller-section-header">
+        <div className="flex items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="seller-section-header-title">{getGreeting()}, {seller?.name || 'Seller'}</h1>
+            <p className="seller-section-header-desc">
+              Welcome back to your seller dashboard. Here's how {shopName} is performing.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {hasMultipleShops && (
-              <label className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-medium">Shop:</span>
-                <select
-                  value={activeShopId || ''}
-                  onChange={(e) => selectShop(e.target.value)}
-                  className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 focus:border-brand-primary focus:outline-none"
-                  aria-label="Select active shop"
-                >
-                  {shops.map((s) => (
-                    <option key={s._id} value={s._id}>{s.name || 'Unnamed shop'}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-            <Link
-              to="/business/products/create"
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-dark transition flex items-center gap-2"
-            >
-              <MdShoppingBag size={18} />
-              Add Product
-            </Link>
-          </div>
+          {hasMultipleShops && (
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-market-on-surface-variant mb-0">Active shop:</label>
+              <select
+                value={activeShopId || ''}
+                onChange={(e) => selectShop(e.target.value)}
+                className="seller-form-select w-auto"
+              >
+                {shops.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name || 'Unnamed shop'}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
-      {isSuspendedShop && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-start gap-2">
-          <MdWarningAmber className="mt-0.5 flex-shrink-0" size={18} />
-          <div>
-            <p className="font-semibold">
-              {activeShop?.status === 'PENDING_APPROVAL'
-                ? 'This shop is pending approval'
-                : 'This shop is not currently active'}
-            </p>
-            <p className="mt-0.5 text-amber-700">
-              Some actions may be limited until an admin reviews or reactivates it.{' '}
-              <Link to="/business/shops" className="font-medium underline">Manage shops</Link>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {lowStockProducts.length > 0 && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex flex-wrap items-start gap-2">
-          <MdWarningAmber className="mt-0.5 flex-shrink-0" size={18} />
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">
-              {lowStockProducts.length} product{lowStockProducts.length === 1 ? '' : 's'} running low on stock
-            </p>
-            <p className="mt-0.5 text-red-700 truncate">
-              {lowStockProducts.slice(0, 4).map(p => p.name).join(', ')}
-              {lowStockProducts.length > 4 ? ` +${lowStockProducts.length - 4} more` : ''}
-            </p>
-          </div>
-          <Link
-            to="/business/inventory"
-            className="font-semibold underline whitespace-nowrap text-red-900"
-          >
-            Restock
-          </Link>
-        </div>
-      )}
-
-      {outOfStock > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 flex items-center justify-between gap-3">
-          <span>
-            <strong>{outOfStock}</strong> product{outOfStock === 1 ? '' : 's'} out of stock
-          </span>
-          <Link to="/business/inventory" className="font-semibold text-brand-primary-dark hover:underline">
-            Manage inventory
-          </Link>
-        </div>
-      )}
-
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
+        <SellerStatCard
+          title="Total Products"
+          value={totalProducts}
+          icon={MdShoppingBag}
+          color="blue"
+          link="/business/products"
+        />
+        <SellerStatCard
+          title="Total Orders"
+          value={totalOrders}
+          icon={FiPackage}
+          color="green"
+          link="/business/orders"
+        />
+        <SellerStatCard
           title="Revenue"
-          value={`ETB ${Number(totalRevenue).toLocaleString()}`}
+          value={`ETB ${totalRevenue}`}
+          change={totalOrders > 0 ? '+' : undefined}
+          isPositive
           icon={FiDollarSign}
           color="green"
           link="/business/revenue"
         />
-        <KPICard
-          title="Orders"
-          value={totalOrders}
-          icon={FiPackage}
-          color="blue"
-          link="/business/orders"
-        />
-        <KPICard
-          title="Products"
-          value={totalProducts}
-          icon={MdInventory2}
-          color="yellow"
-          link="/business/products"
-        />
-        <KPICard
-          title="Customers"
-          value={uniqueCustomers}
-          icon={FiUsers}
-          color="purple"
-          link="/business/customers"
+        <SellerStatCard
+          title="Pending Orders"
+          value={pendingOrders}
+          change={cancelledOrders > 0 ? cancelledOrders : undefined}
+          isPositive={cancelledOrders === 0}
+          icon={FiAlertCircle}
+          color={pendingOrders > 0 ? 'yellow' : 'green'}
+          link="/business/orders?tab=new"
         />
       </div>
 
-      {/* Sales Overview Chart */}
-      <SalesOverviewChart timeFilter={timeFilter} setTimeFilter={setTimeFilter} ShopOrders={ShopOrders} />
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Products */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Top Products</h2>
-            <Link to="/business/products" className="text-sm text-brand-primary-dark hover:text-brand-primary font-medium">
-              View all
-            </Link>
-          </div>
-          {topProducts.length === 0 ? (
-            <div className="text-center py-8">
-              <MdInventory2 className="text-4xl text-gray-300 mx-auto mb-2" />
-              <p className="text-gray-500 text-sm">No products yet</p>
-              <Link
-                to="/business/products/create"
-                className="mt-3 inline-block px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold"
-              >
-                Add your first product
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {topProducts.map((product, index) => (
-                <div key={product._id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                  <div className="w-10 h-10 bg-brand-primary-light rounded-lg flex items-center justify-center text-brand-primary-dark font-bold">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500">{product.sold_out || 0} sold</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      ETB {Number(product.discountPrice || 0).toLocaleString()}
-                    </p>
-                    <p className={`text-xs ${(Number(product.stock ?? 0) <= 5) ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                      {product.stock} in stock
-                    </p>
-                  </div>
+      {/* Alerts Row */}
+      {(outOfStock > 0 || lowStockProducts.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {outOfStock > 0 && (
+            <div className="seller-stat-card border-red-50 bg-red-50">
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-2.5 rounded-lg bg-red-100 text-red-600">
+                  <MdWarningAmber size={20} />
                 </div>
-              ))}
+                <div className="flex items-center gap-1 text-xs font-medium text-red-600">
+                  ▲ {outOfStock}
+                </div>
+              </div>
+              <p className="seller-stat-card-value text-red-700 font-bold">{outOfStock}</p>
+              <p className="seller-stat-card-label">Out of stock</p>
+            </div>
+          )}
+          {lowStockProducts.length > 0 && (
+            <div className="seller-stat-card border-amber-50 bg-amber-50">
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-2.5 rounded-lg bg-amber-100 text-amber-600">
+                  <MdWarningAmber size={20} />
+                </div>
+                <div className="flex items-center gap-1 text-xs font-medium text-amber-600">
+                  ▲ {lowStockProducts.length}
+                </div>
+              </div>
+              <p className="seller-stat-card-value text-amber-700 font-bold">{lowStockProducts.length}</p>
+              <p className="seller-stat-card-label">Low stock</p>
             </div>
           )}
         </div>
+      )}
 
-        {/* Order Status */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Order Status</h2>
-            <Link to="/business/orders" className="text-sm text-brand-primary-dark hover:text-brand-primary font-medium">
-              View all
-            </Link>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="seller-section-header">
+          <h3 className="text-lg font-bold text-market-on-surface mb-4">Sales Trend</h3>
+          <div className="h-[240px]">
+            <SalesOverviewChart timeFilter={timeFilter} />
           </div>
+        </div>
+        <div className="seller-section-header">
+          <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Status</h3>
           <div className="space-y-3">
-            <StatusRow label="Completed" count={completedOrders} color="green" />
-            <StatusRow label="Processing" count={pendingOrders} color="blue" />
-            <StatusRow label="Cancelled" count={cancelledOrders} color="red" />
-          </div>
-          {totalEvents > 0 && (
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <Link to="/business/events" className="text-sm text-brand-primary-dark hover:text-brand-primary font-medium flex items-center gap-1.5">
-                <MdEventNote size={16} /> {totalEvents} active event{totalEvents === 1 ? '' : 's'}
-              </Link>
+            <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-blue-100" />
+                <span className="text-market-on-surface font-medium">Pending</span>
+              </div>
+              <span className="font-semibold text-market-on-surface">{pendingOrders}</span>
             </div>
-          )}
+            <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-green-100" />
+                <span className="text-market-on-surface font-medium">Completed</span>
+              </div>
+              <span className="font-semibold text-market-on-surface">{completedOrders}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-red-100" />
+                <span className="text-market-on-surface font-medium">Cancelled</span>
+              </div>
+              <span className="font-semibold text-market-on-surface">{cancelledOrders}</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="seller-section-header">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-          <Link to="/business/orders" className="text-sm text-brand-primary-dark hover:text-brand-primary font-medium">
+          <h3 className="text-lg font-bold text-market-on-surface">Recent Orders</h3>
+          <Link to="/business/orders" className="text-sm text-market-primary hover:underline font-medium">
             View all orders
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <div className="text-center py-10">
-            <FiPackage className="text-5xl text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600 text-sm mb-2">You have no orders yet.</p>
-            <p className="text-gray-500 text-xs">Share your shop link to start receiving orders.</p>
-          </div>
+          <SellerEmptyState
+            title="No orders yet"
+            description="You have no orders yet. Share your shop link to start receiving orders."
+            action={{ to: '/business/products/create', label: 'Add Product' }}
+            icon="📦"
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="seller-data-table">
               <thead>
-                <tr className="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
-                  <th className="pb-3 px-2">Order ID</th>
-                  <th className="pb-3 px-2">Customer</th>
-                  <th className="pb-3 px-2">Items</th>
-                  <th className="pb-3 px-2">Amount</th>
-                  <th className="pb-3 px-2">Status</th>
-                  <th className="pb-3 px-2">Date</th>
+                <tr>
+                  <th scope="col">Order ID</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Items</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {recentOrders.map((order) => (
-                  <tr key={order._id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                    <td className="py-3 px-2">
-                      <Link to={`/business/orders/${order._id}`} className="font-semibold text-gray-900 hover:text-brand-primary-dark">
+                  <tr key={order._id}>
+                    <td>
+                      <Link to={`/business/orders/${order._id}`} className="font-semibold text-market-on-surface hover:text-market-primary">
                         #{order._id?.slice(-8)}
                       </Link>
                     </td>
-                    <td className="py-3 px-2 text-gray-700">
-                      {customerLabel(order)}
-                    </td>
-                    <td className="py-3 px-2 text-gray-700">
+                    <td className="text-market-on-surface">{customerLabel(order)}</td>
+                    <td className="text-market-on-surface">
                       {order.cart?.length ?? 0} item{(order.cart?.length ?? 0) !== 1 ? 's' : ''}
                     </td>
-                    <td className="py-3 px-2 font-semibold text-gray-900">
+                    <td className="font-semibold text-market-on-surface">
                       ETB {Number(order.totalPrice || 0).toLocaleString()}
                     </td>
-                    <td className="py-3 px-2">
-                      <StatusBadge status={order.status} />
+                    <td>
+                      <SellerStatusBadge status={order.status} />
                     </td>
-                    <td className="py-3 px-2 text-gray-500 text-sm">
+                    <td className="text-market-on-surface-variant text-sm">
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
@@ -343,16 +273,39 @@ const DashboardHero = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+      <div className="seller-section-header">
+        <h3 className="text-lg font-bold text-market-on-surface mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <QuickActionButton to="/business/products/create" label="Add Product" icon={MdInventory2} color="green" />
-          <QuickActionButton to="/business/orders" label="View Orders" icon={FiPackage} color="blue" />
-          <QuickActionButton to="/business/promotions" label="Create Promotion" icon={MdEventNote} color="purple" />
-          <QuickActionButton to="/business/analytics" label="View Analytics" icon={MdTrendingUp} color="yellow" />
+          <a
+            href="/business/products/create"
+            className="flex flex-col items-center gap-2 p-4 rounded-xl border border-market-border bg-white dark:bg-[#1a1f2a] text-center transition-colors hover:border-market-primary hover:bg-market-surface-container-low"
+          >
+            <MdInventory2 size={24} className="text-market-primary mb-1" />
+            <span className="text-sm font-medium text-market-on-surface">Add Product</span>
+          </a>
+          <a
+            href="/business/orders"
+            className="flex flex-col items-center gap-2 p-4 rounded-xl border border-market-border bg-white dark:bg-[#1a1f2a] text-center transition-colors hover:border-market-primary hover:bg-market-surface-container-low"
+          >
+            <FiPackage size={24} className="text-market-primary mb-1" />
+            <span className="text-sm font-medium text-market-on-surface">View Orders</span>
+          </a>
+          <a
+            href="/business/promotions"
+            className="flex flex-col items-center gap-2 p-4 rounded-xl border border-market-border bg-white dark:bg-[#1a1f2a] text-center transition-colors hover:border-market-primary hover:bg-market-surface-container-low"
+          >
+            <MdEventNote size={24} className="text-market-primary mb-1" />
+            <span className="text-sm font-medium text-market-on-surface">Create Promotion</span>
+          </a>
+          <a
+            href="/business/analytics"
+            className="flex flex-col items-center gap-2 p-4 rounded-xl border border-market-border bg-white dark:bg-[#1a1f2a] text-center transition-colors hover:border-market-primary hover:bg-market-surface-container-low"
+          >
+            <MdTrendingUp size={24} className="text-market-primary mb-1" />
+            <span className="text-sm font-medium text-market-on-surface">View Analytics</span>
+          </a>
         </div>
       </div>
-
     </div>
   );
 };

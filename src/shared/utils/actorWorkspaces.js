@@ -104,7 +104,11 @@ export function workspaceForLogin(role, status) {
   if (requested === 'PROVIDER') {
     return state === 'ACTIVE' ? '/provider' : '/provider-application/status';
   }
-  return '/my-dashboard';
+  // Buyers land on the consistent public marketplace layout (same one
+  // unauthenticated shoppers use) instead of the buyer account shell or the
+  // marketing hero. The account workspace is a secondary space reached from
+  // the account menu.
+  return '/products';
 }
 
 /**

@@ -4,36 +4,31 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { logoutUser } from '@/store/slices/userThunks';
 import { FiX } from 'react-icons/fi';
-import { MdDashboard, MdWorkOutline, MdLocalShipping, MdInventory, MdWarning, MdPerson, MdLogout } from 'react-icons/md';
+import {
+  MdDashboard,
+  MdWorkOutline,
+  MdLocalShipping,
+  MdInventory,
+  MdPerson,
+  MdLogout,
+  MdLocationOn,
+  MdHelpOutline,
+} from 'react-icons/md';
+import DELIVERY_NAV_ITEMS from './deliveryNavConfig';
 
-const PROVIDER_SIDEBAR = [
-  { section: 'OVERVIEW' },
-  { label: 'Overview', to: '/provider', icon: 'MdDashboard', end: true },
-  
-  { section: 'WORK' },
-  { label: 'Available Work', to: '/provider/available-work', icon: 'MdWorkOutline' },
-  { label: 'My Deliveries', to: '/provider/deliveries', icon: 'MdLocalShipping' },
-  { label: 'Batches', to: '/provider/batches', icon: 'MdInventory' },
-  
-  { section: 'ACCOUNT' },
-  { label: 'Warnings', to: '/provider/warnings', icon: 'MdWarning' },
-  { label: 'Profile', to: '/provider/profile', icon: 'MdPerson' },
-  
-  { type: 'logout' },
-];
-
-const getNavIcon = (iconName) => {
-  const icons = {
-    MdDashboard,
-    MdWorkOutline,
-    MdLocalShipping,
-    MdInventory,
-    MdWarning,
-    MdPerson,
-    MdLogout,
-  };
-  return icons[iconName];
+const DRAWER_ICONS = {
+  MdDashboard,
+  MdWorkOutline,
+  MdLocalShipping,
+  MdInventory,
+  MdWarning,
+  MdPerson,
+  MdLogout,
+  MdLocationOn,
+  MdHelpOutline,
 };
+
+const getNavIcon = (iconName) => DRAWER_ICONS[iconName];
 
 const ProviderMobileDrawer = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -44,7 +39,7 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
     try {
       const res = await dispatch(logoutUser());
       toast.success(res?.message || 'Logged out successfully');
-      navigate('/');
+      navigate('/delivery', { replace: true });
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Logout failed');
     }
@@ -82,11 +77,7 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <div className="flex-1 min-h-0 overflow-y-auto py-4">
-          {PROVIDER_SIDEBAR.map((item, index) => {
-            if (item.type === 'separator') {
-              return <div key={index} className="border-t border-gray-200 my-3 mx-4" />;
-            }
-
+          {DELIVERY_NAV_ITEMS.map((item, index) => {
             if (item.section) {
               return (
                 <p key={index} className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-4 mb-2 mt-4">
@@ -116,7 +107,9 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
             }
 
             const Icon = getNavIcon(item.icon);
-            const isActive = location.pathname === item.to || (item.end && location.pathname === item.to);
+            const isActive =
+              location.pathname === item.to ||
+              (item.end && location.pathname === item.to);
 
             return (
               <NavLink
@@ -140,7 +133,7 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
         {/* Drawer Footer */}
         <div className="p-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            © Aritii Market Provider Portal
+            \u00a9 Aritii Market Provider Portal
           </p>
         </div>
       </div>

@@ -15,9 +15,12 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--market-background);
+  color: var(--market-on-background);
+  line-height: 1.5;
 }
 
 /* Scrollbar */
@@ -26,89 +29,615 @@ body {
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--market-surface-container-low);
 }
 ::-webkit-scrollbar-thumb {
-  background: #d3d3d3;
+  background: var(--market-border);
   border-radius: 7px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--market-on-surface-variant);
+}
+
+/* Focus styles - Aritii style */
+*:focus-visible {
+  outline: 3px solid rgba(33, 98, 161, 0.3);
+  outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
 }
 
 @layer components {
-  /* Typography classes */
-  .heading-1 {
-    @apply text-[30px] leading-[40px] font-bold;
+  /* Aritii Typography Classes */
+  .market-display {
+    @apply font-display text-display leading-tight;
   }
-  .heading-2 {
-    @apply text-[22px] leading-[40px] font-bold;
+  .market-headline-lg {
+    @apply font-display text-headline-lg leading-tight;
   }
-  .heading-3 {
-    @apply text-[20px] leading-[36px] font-bold;
+  .market-headline-md {
+    @apply font-display text-headline-md leading-tight;
   }
-  .heading-4 {
-    @apply text-[18px] leading-[32px] font-bold;
+  .market-headline-sm {
+    @apply font-display text-headline-sm leading-tight;
   }
-  .heading-5 {
-    @apply text-[16px] leading-[28px] font-bold;
+  .market-title-lg {
+    @apply font-body text-title-lg leading-snug font-semibold;
   }
-  .heading-6 {
-    @apply text-[14px] leading-[24px] font-bold;
+  .market-title-md {
+    @apply font-body text-title-md leading-snug font-semibold;
   }
-  .heading-7 {
-    @apply text-[12px] leading-[20px] font-bold;
+  .market-title-sm {
+    @apply font-body text-title-sm leading-snug font-semibold;
   }
-  .card-h1 {
-    @apply text-[15px] leading-[20px] font-bold tracking-[0.03em];
+  .market-body-lg {
+    @apply font-body text-body-lg leading-relaxed;
   }
-  .card-h2 {
-    @apply text-[13px] leading-[20px] font-normal tracking-[0.03em];
+  .market-body-md {
+    @apply font-body text-body-md leading-relaxed;
   }
-  .card-h3 {
-    @apply text-[11px] leading-[20px] font-normal tracking-[0.03em];
+  .market-body-sm {
+    @apply font-body text-body-sm leading-relaxed;
   }
-
-  /* Layout classes */
-  .screen-container {
-    @apply flex flex-col h-[90dvh] overflow-y-auto;
+  .market-label-lg {
+    @apply font-body text-label-lg leading-normal font-medium;
   }
-  .layout-top-container {
-    @apply sticky z-[997] top-0 left-0 w-full border-b-[0.2px] border-black/10;
+  .market-label-md {
+    @apply font-body text-label-md leading-normal font-medium;
   }
-  .layout-main-container {
-    @apply flex;
+  .market-label-sm {
+    @apply font-body text-label-sm leading-normal font-medium;
   }
-  .layout-main {
-    @apply w-full relative;
+  .market-caption {
+    @apply font-body text-caption leading-normal;
   }
-  .padding-container {
-    @apply w-full px-4 md:px-6 lg:px-12 xl:px-20 2xl:px-[80px];
+  .market-overline {
+    @apply font-body text-overline leading-normal tracking-wide uppercase;
   }
 
-  /* ── Aritii commerce design system (buyer content pages) ───────────────
-     Page #F7F8FA · cards #FFFFFF · text #171A21/#667085 · line #E5E7EB ·
-     brand actions #20305C · soft brand #E9ECF5 · green/amber/red reserved
-     for meaningful statuses. Header/Sidebar branding is untouched. */
-  .market-card {
-    @apply bg-white border border-[#E5E7EB] rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)];
+  /* Aritii Button System */
+  .market-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 h-button px-4 rounded-button
+           bg-market-primary text-market-on-primary font-medium text-label-lg
+           transition-colors duration-fast ease-out
+           hover:bg-market-primary-hover active:bg-market-primary-pressed
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-market-primary;
   }
+  .market-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 h-button px-4 rounded-button
+           border border-market-outline-variant bg-transparent text-market-on-surface font-medium text-label-lg
+           transition-colors duration-fast ease-out
+           hover:bg-market-surface-container-high active:bg-market-surface-container
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .market-btn-tertiary {
+    @apply inline-flex items-center justify-center gap-2 h-button px-4 rounded-button
+           bg-market-tertiary text-market-on-tertiary font-medium text-label-lg
+           transition-colors duration-fast ease-out
+           hover:bg-market-tertiary-hover active:bg-market-tertiary
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .market-btn-link {
+    @apply inline-flex items-center gap-1 text-market-secondary font-medium text-label-md
+           hover:text-market-secondary-hover hover:underline
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Aritii Input System */
   .market-input {
-    @apply w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm text-[#171A21] placeholder:text-[#667085] outline-none transition focus:border-[#20305C] focus:ring-2 focus:ring-[#20305C]/15;
+    @apply w-full h-input px-3 rounded-button border border-market-outline-variant
+           bg-market-surface text-market-on-surface text-body-md
+           placeholder:text-market-on-surface-variant
+           transition-colors duration-fast ease-out
+           hover:border-market-outline
+           focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20 focus:outline-none;
   }
-  .market-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#20305C] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2C3F6E] active:bg-[#182647] disabled:pointer-events-none disabled:opacity-50;
+  .market-input-error {
+    @apply border-market-error focus:border-market-error focus:ring-market-error/20;
   }
-  .market-btn-soft {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#E9ECF5] px-4 py-2.5 text-sm font-semibold text-[#20305C] transition hover:bg-[#DDE2F0] disabled:pointer-events-none disabled:opacity-50;
+
+  /* Aritii Card System */
+  .market-card {
+    @apply bg-market-surface border border-market-border rounded-lg shadow-level-2-sm
+           transition-shadow duration-fast ease-out;
   }
-  .market-btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-semibold text-[#171A21] transition hover:border-[#20305C] hover:text-[#20305C] disabled:pointer-events-none disabled:opacity-50;
+  .market-card-hover {
+    @apply hover:shadow-level-2;
+  }
+  .market-card-elevated {
+    @apply shadow-level-2;
+  }
+  .market-card-modal {
+    @apply shadow-level-3;
+  }
+
+  /* Aritii Divider */
+  .market-divider {
+    @apply h-px bg-market-border;
+  }
+  .market-divider-strong {
+    @apply h-px bg-market-outline-variant;
+  }
+
+  /* Aritii Link */
+  .market-link {
+    @apply text-market-secondary hover:text-market-secondary-hover underline-offset-2
+           hover:underline transition-colors duration-fast ease-out;
+  }
+  .market-link-visited {
+    @apply text-market-tertiary hover:text-market-tertiary-hover;
+  }
+
+  /* Aritii Price */
+  .market-price {
+    @apply text-market-price font-bold text-title-lg;
+  }
+  .market-price-sm {
+    @apply text-market-price font-bold text-title-md;
+  }
+  .market-price-lg {
+    @apply text-market-price font-bold text-headline-sm;
+  }
+  .market-original-price {
+    @apply text-market-on-surface-variant line-through text-body-sm;
+  }
+  .market-savings-badge {
+    @apply text-market-tertiary font-semibold text-body-sm;
+  }
+
+  /* Aritii Badge */
+  .market-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+           text-overline font-semibold
+           bg-market-surface-container-high text-market-on-surface;
+  }
+  .market-badge-primary {
+    @apply bg-market-primary-container text-market-on-primary;
+  }
+  .market-badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+  }
+  .market-badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+  }
+  .market-badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+  }
+
+  /* Aritii Rating Stars */
+  .market-rating-star {
+    @apply text-market-primary;
+  }
+  .market-rating-star-empty {
+    @apply text-market-border;
+  }
+  .market-rating-text {
+    @apply text-market-secondary text-body-sm;
+  }
+
+  /* Aritii Search Input */
+  .market-search-input {
+    @apply w-full h-input pl-10 pr-12 rounded-full border border-market-outline-variant
+           bg-market-surface text-market-on-surface text-body-md
+           placeholder:text-market-on-surface-variant
+           transition-all duration-fast ease-out
+           hover:border-market-outline
+           focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20 focus:outline-none;
+  }
+  .market-search-submit {
+    @apply absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full
+           bg-market-primary text-market-on-primary flex items-center justify-center
+           transition-colors duration-fast ease-out
+           hover:bg-market-primary-hover active:bg-market-primary-pressed;
+  }
+
+  /* Aritii Header Nav Item */
+  .market-nav-item {
+    @apply px-3 py-2 text-body-sm font-medium text-market-inverse-on-surface
+           hover:text-market-inverse-on-surface hover:bg-market-inverse-surface/10 rounded-md
+           transition-colors duration-fast ease-out;
+  }
+  .market-nav-item-active {
+    @apply border-b-2 border-market-inverse-primary;
+  }
+
+  /* Aritii Sub-nav Item */
+  .market-subnav-item {
+    @apply px-3 py-1.5 text-body-sm font-medium text-market-inverse-on-surface/90
+           hover:text-market-inverse-on-surface hover:bg-market-inverse-surface/10 rounded-md
+           whitespace-nowrap transition-colors duration-fast ease-out;
+  }
+  .market-subnav-item-active {
+    @apply font-bold text-market-inverse-on-surface bg-market-inverse-surface/10;
+  }
+
+  /* Aritii Product Card */
+  .market-product-card {
+    @apply market-card market-card-hover; @apply relative overflow-hidden flex flex-col;
+  }
+  .market-product-card-image {
+    @apply aspect-square w-full bg-market-surface-container-low flex items-center justify-center
+           transition-transform duration-300 ease-out group-hover:scale-[1.02];
+  }
+  .market-product-card-title {
+    @apply market-title-sm text-market-on-surface line-clamp-2 mb-1;
+  }
+  .market-product-card-subtitle {
+    @apply market-body-sm text-market-on-surface-variant mb-2;
+  }
+  .market-product-card-price {
+    @apply market-price;
+  }
+
+  /* Aritii List Item */
+  .market-list-item {
+    @apply flex gap-4 py-4 border-b border-market-border hover:bg-market-surface-container-low
+           transition-colors duration-fast ease-out;
+  }
+  .market-list-item-image {
+    @apply flex-shrink-0 w-36 aspect-square bg-market-surface-container-low rounded-md
+           flex items-center justify-center overflow-hidden;
+  }
+
+  /* Aritii Quantity Selector */
+  .market-quantity-selector {
+    @apply inline-flex items-center border border-market-outline-variant rounded-button overflow-hidden;
+  }
+  .market-quantity-btn {
+    @apply w-9 h-9 flex items-center justify-center bg-market-surface-container-high
+           text-market-on-surface hover:bg-market-surface-container
+           transition-colors duration-fast ease-out;
+  }
+  .market-quantity-input {
+    @apply w-12 h-9 text-center border-none bg-transparent text-market-on-surface text-body-md
+           focus:outline-none;
+  }
+
+  /* Aritii Delivery Tag */
+  .market-delivery-tag {
+    @apply inline-flex items-center gap-1 px-2 py-1 rounded-full
+           bg-market-surface-container-low text-market-on-surface-variant text-body-sm;
+  }
+  .market-delivery-tag-prime {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Amazon-style shopping utilities (Aritii-branded, original copy)    */
+  /* ------------------------------------------------------------------ */
+
+  /* Shopping result header — "1–24 of over 2,000 results" style line */
+  .market-results-bar {
+    @apply flex items-center justify-between gap-4 mb-6 px-2 py-3 border-b border-market-border bg-market-surface-container-low;
+  }
+  .market-results-text {
+    @apply text-sm font-medium text-market-on-surface-variant;
+  }
+  .market-results-count {
+    @apply text-market-on-surface font-semibold;
+  }
+
+  /* Shop results bar */
+  .market-shop-results-bar {
+    @apply flex items-center justify-between gap-4 mb-6;
+  }
+
+  /* Product card — shopping grid tile */
+  .market-shop-tile {
+    @apply flex flex-col h-full rounded-lg border border-market-border bg-market-surface overflow-hidden transition-all duration-200 ease-out hover:border-market-primary/60 hover:shadow-level-2;
+  }
+  .market-shop-tile-image {
+    @apply relative w-full h-48 bg-market-surface-container-low overflow-hidden;
+  }
+  .market-shop-tile-body {
+    @apply p-3 flex-1 flex flex-col;
+  }
+  .market-shop-tile-name {
+    @apply text-title-sm font-semibold text-market-on-surface line-clamp-2 min-h-[3rem] leading-snug mb-1 hover:text-market-primary transition-colors cursor-pointer;
+  }
+  .market-shop-tile-meta {
+    @apply flex items-center gap-1 text-body-sm text-market-on-surface-variant mb-2;
+  }
+  .market-shop-tile-price-row {
+    @apply mt-auto flex items-baseline gap-1;
+  }
+  .market-shop-tile-price {
+    @apply text-title-lg font-bold text-market-on-surface;
+  }
+  .market-shop-tile-action {
+    @apply mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-button bg-market-primary text-market-on-primary font-medium text-label-sm transition-colors hover:bg-market-primary-hover active:bg-market-primary-pressed;
+  }
+  .market-shop-tile-action.public {
+    @apply bg-transparent border border-market-outline-variant text-market-on-surface hover:bg-market-surface-container-high;
+  }
+
+  /* Urgency / stock tag — "Only N left" */
+  .market-stock-tag {
+    @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold tracking-tight uppercase;
+  }
+  .market-stock-tag-low {
+    @apply bg-market-tertiary/10 text-market-tertiary border border-market-tertiary/30;
+  }
+  .market-stock-tag-ok {
+    @apply bg-market-surface-container-low text-market-on-surface-variant;
+  }
+
+  /* Delivery tag — prime-style */
+  .market-delivery-tag {
+    @apply inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] font-bold tracking-tight uppercase;
+  }
+  .market-delivery-tag-fast {
+    @apply bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800;
+  }
+
+  /* Best seller badge */
+  .market-best-seller-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] font-bold tracking-tight uppercase bg-market-tertiary text-market-on-tertiary;
+  }
+
+  /* Buy box — right column of a product detail page */
+  .market-buy-box {
+    @apply rounded-lg border border-market-border bg-market-surface-container-low p-5 md:p-7 shadow-sm;
+  }
+  .market-buy-box-title {
+    @apply text-headline-sm font-bold text-market-on-surface leading-snug mb-3;
+  }
+  .market-buy-box-rating {
+    @apply flex items-center gap-2 mb-3;
+  }
+  .market-buy-box-price {
+    @apply text-2xl font-bold text-market-price mb-1;
+  }
+  .market-buy-box-list-price {
+    @apply text-body-sm text-market-on-surface-variant line-through mr-1;
+  }
+  .market-buy-box-saving {
+    @apply text-body-sm text-market-tertiary font-semibold mb-3 block;
+  }
+  .market-buy-box-row {
+    @apply flex items-start gap-3 mb-3 text-body-sm text-market-on-surface-variant;
+  }
+  .market-buy-box-row b, .market-buy-box-row strong {
+    @apply text-market-on-surface font-semibold;
+  }
+  .market-buy-box-cta {
+    @apply mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-button bg-market-primary text-market-on-primary font-semibold text-label-lg transition-colors hover:bg-market-primary-hover active:bg-market-primary-pressed;
+  }
+  .market-buy-box-cta.secondary {
+    @apply mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-button border border-market-outline-variant bg-transparent text-market-on-surface font-semibold text-label-lg transition-colors hover:bg-market-surface-container-high;
+  }
+  .market-buy-box-divider {
+    @apply border-t border-market-border mt-4 mb-3;
+  }
+
+  /* Category tile — shopping department tile */
+  .market-category-tile {
+    @apply flex flex-col items-center justify-center rounded-xl border border-market-border bg-market-surface p-4 text-center transition-all duration-200 ease-out hover:border-market-primary hover:shadow-level-2 cursor-pointer;
+  }
+  .market-category-tile-icon {
+    @apply w-14 h-14 rounded-full bg-gradient-to-br from-market-primary/10 to-market-primary/20 flex items-center justify-center text-market-primary group-hover:bg-market-primary group-hover:text-market-on-primary transition-colors mb-3;
+  }
+  .market-category-tile-name {
+    @apply text-title-sm font-semibold text-market-on-surface leading-tight;
+  }
+  .market-category-tile-count {
+    @apply mt-1 text-body-sm text-market-on-surface-variant;
+  }
+
+  /* Category page — shopping department layout */
+  .market-category-hero {
+    @apply mb-8 px-2 py-6 border-b border-market-border bg-market-surface-container-low;
+  }
+  .market-category-hero-title {
+    @apply text-headline-md font-bold text-market-on-surface mb-1;
+  }
+  .market-category-hero-desc {
+    @apply text-body-md text-market-on-surface-variant mb-3;
+  }
+  .market-category-hero-meta {
+    @apply text-body-sm text-market-on-surface-variant font-semibold;
+  }
+
+  .market-category-sidebar {
+    @apply hidden lg:flex flex-col gap-1 w-64;
+  }
+  .market-category-sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 text-body-sm rounded-lg transition-colors hover:bg-market-surface-container-high hover:text-market-primary text-market-on-surface-variant;
+  }
+  .market-category-sidebar-item.active {
+    @apply bg-market-primary text-market-on-primary font-semibold;
+  }
+  .market-category-sidebar-count {
+    @apply ml-auto text-market-on-surface-variant text-xs;
+  }
+
+  .market-category-card {
+    @apply flex flex-col items-center justify-center rounded-xl border border-market-border bg-market-surface p-5 text-center transition-all duration-200 ease-out hover:border-market-primary hover:shadow-level-2 cursor-pointer;
+  }
+  .market-category-card-icon {
+    @apply w-20 h-20 rounded-full bg-gradient-to-br from-market-primary/10 to-market-primary/20 flex items-center justify-center text-market-primary group-hover:bg-market-primary group-hover:text-market-on-primary transition-colors mb-4;
+  }
+  .market-category-card-name {
+    @apply text-title-md font-semibold text-market-on-surface leading-tight mb-1;
+  }
+  .market-category-card-count {
+    @apply text-body-sm text-market-on-surface-variant;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Seller workspace utilities */
+  /* ------------------------------------------------------------------ */
+
+  .seller-shell-bg {
+    @apply bg-[#f8fafc] dark:bg-[#0f1111];
+  }
+  .seller-header-bar {
+    @apply sticky top-0 z-50 w-full border-b border-market-border bg-white dark:bg-[#131921];
+  }
+  .seller-sidebar {
+    @apply hidden lg:flex lg:flex-col flex-shrink-0 h-full w-48 border-r border-market-border bg-white dark:bg-[#131921] text-market-on-surface;
+  }
+  .seller-sidebar-collapsed {
+    @apply w-[68px];
+  }
+  .seller-sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors hover:bg-market-surface-container-high hover:text-market-primary text-market-on-surface-variant;
+  }
+  .seller-sidebar-item.active {
+    @apply bg-market-primary text-market-on-primary font-semibold border-l-2 border-market-primary;
+  }
+  .seller-sidebar-section {
+    @apply px-4 pt-4 pb-1 text-xs font-semibold text-market-on-surface-variant uppercase tracking-wider mb-2 mt-4;
+  }
+
+  /* Seller stat card */
+  .seller-stat-card {
+    @apply rounded-xl border border-market-border bg-white dark:bg-[#1a1f2a] p-5 shadow-sm transition-all duration-200 ease-out hover:border-market-primary/60 hover:shadow-level-2;
+  }
+  .seller-stat-card-value {
+    @apply text-2xl font-bold text-market-on-surface mb-1;
+  }
+  .seller-stat-card-label {
+    @apply text-sm text-market-on-surface-variant;
+  }
+  .seller-stat-card-icon {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center text-market-primary bg-market-primary/10 mb-3;
+  }
+
+  /* Seller data table */
+  .seller-data-table {
+    @apply w-full text-left border-collapse;
+  }
+  .seller-data-table th {
+    @apply px-6 py-3 text-xs font-semibold text-market-on-surface-variant uppercase tracking-wider border-b border-market-border bg-market-surface-container-low;
+  }
+  .seller-data-table td {
+    @apply px-6 py-3 border-b border-market-border text-sm text-market-on-surface;
+  }
+  .seller-data-table tr:hover {
+    @apply bg-market-surface-container-low;
+  }
+
+  /* Seller status badge */
+  .seller-status-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .seller-status-badge.published { @apply bg-green-100 text-green-700; }
+  .seller-status-badge.processing { @apply bg-blue-100 text-blue-700; }
+  .seller-status-badge.confirmed { @apply bg-indigo-100 text-indigo-700; }
+  .seller-status-badge.pending { @apply bg-yellow-100 text-yellow-700; }
+  .seller-status-badge.cancelled { @apply bg-red-100 text-red-700; }
+  .seller-status-badge.draft { @apply bg-gray-100 text-gray-600; }
+  .seller-status-badge.active { @apply bg-green-100 text-green-700; }
+  .seller-status-badge.inactive { @apply bg-gray-100 text-gray-600; }
+
+  /* Seller section header */
+  .seller-section-header {
+    @apply bg-white dark:bg-[#1a1f2a] rounded-xl p-6 shadow-sm border border-market-border mb-6;
+  }
+  .seller-section-header-title {
+    @apply text-xl font-bold text-market-on-surface mb-1;
+  }
+  .seller-section-header-desc {
+    @apply text-sm text-market-on-surface-variant;
+  }
+
+  /* Seller form section */
+  .seller-form-section {
+    @apply bg-white dark:bg-[#1a1f2a] rounded-xl border border-market-border p-6 shadow-sm;
+  }
+  .seller-form-section-title {
+    @apply text-base font-semibold text-market-on-surface mb-4;
+  }
+  .seller-form-group {
+    @apply mb-4;
+  }
+  .seller-form-label {
+    @apply block text-sm font-medium text-market-on-surface-variant mb-1.5;
+  }
+  .seller-form-input {
+    @apply w-full px-4 py-2.5 border border-market-border rounded-xl text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-primary/30 transition-colors;
+  }
+  .seller-form-select {
+    @apply w-full px-4 py-2.5 border border-market-border rounded-xl text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-primary/30 transition-colors;
+  }
+
+  /* Seller buttons */
+  .seller-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-market-primary text-market-on-primary font-semibold text-sm transition-colors hover:bg-market-primary-hover active:bg-market-primary-pressed disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .seller-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-market-outline-variant bg-transparent text-market-on-surface font-semibold text-sm transition-colors hover:bg-market-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Seller empty state */
+  .seller-empty-state {
+    @apply text-center py-16 bg-white dark:bg-[#1a1f2a] rounded-xl border border-market-border shadow-sm;
+  }
+  .seller-empty-state-icon {
+    @apply text-5xl text-market-on-surface-variant mx-auto mb-4;
+  }
+  .seller-empty-state-title {
+    @apply text-lg font-semibold text-market-on-surface mb-2;
+  }
+  .seller-empty-state-desc {
+    @apply text-sm text-market-on-surface-variant max-w-md mx-auto mb-6;
+  }
+
+  /* Seller loading state */
+  .seller-loading-state {
+    @apply flex items-center justify-center py-16 text-market-on-surface-variant;
+  }
+
+  /* Seller confirmation dialog */
+  .seller-confirm-dialog {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4;
+  }
+  .seller-confirm-dialog-panel {
+    @apply bg-white dark:bg-[#1a1f2a] rounded-xl shadow-xl p-6 max-w-md w-full border border-market-border;
+  }
+  .seller-confirm-dialog-title {
+    @apply text-lg font-semibold text-market-on-surface mb-2;
+  }
+  .seller-confirm-dialog-desc {
+    @apply text-sm text-market-on-surface-variant mb-6;
+  }
+
+
+  /* Animation */
+  @keyframes market-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes market-slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes market-slide-down {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .market-animate-fade-in {
+    animation: market-fade-in 150ms ease-out;
+  }
+  .market-animate-slide-up {
+    animation: market-slide-up 200ms ease-out;
+  }
+  .market-animate-slide-down {
+    animation: market-slide-down 200ms ease-out;
   }
 }
 
+/* Dark mode body */
 .dark body, .dark #root {
-  background-color: #111827;
-  color: #fff;
+  background-color: var(--market-background);
+  color: var(--market-on-background);
 }
 
+/* Legacy animations kept for compatibility */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -143,4 +672,26 @@ body {
   .seller-content-enter {
     animation: none;
   }
+
+@media (prefers-reduced-motion: reduce) {
+  .seller-content-enter {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbar utilities                                                  */
+/* ------------------------------------------------------------------ */
+
+/* Visually hide the scrollbar on horizontal rails (e.g. the marketplace
+   SubNavBar link row on small screens) while keeping them scrollable. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 }

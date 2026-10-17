@@ -10,9 +10,16 @@ import ProviderRoutes from '@/app/routes/ProviderRoutes';
 import ProtectedRoute from '@/app/routes/ProtectedRoute';
 import PageLoader from '@/app/routes/PageLoader';
 import ErrorBoundary from '@/components/layout/ErrorBoundary';
+import { useAppBootstrap } from '@/shared/hooks/useAppBootstrap';
 import AuthNavigator from '@/shared/components/AuthNavigator';
 
 const NotFound = lazy(() => import('@/public/NotFound'));
+
+const BootstrapListener = () => {
+  useAppBootstrap();
+  return null;
+};
+
 const BecomeProvider = lazy(() => import('@/features/provider-application/pages/BecomeProvider'));
 const ProviderApplication = lazy(() => import('@/features/provider-application/pages/ProviderApplication'));
 const ApplicationStatus = lazy(() => import('@/features/provider-application/pages/ApplicationStatus'));
@@ -31,6 +38,7 @@ const ApplicationStatus = lazy(() => import('@/features/provider-application/pag
 const AppRoutes = () => (
   <ErrorBoundary>
     <BrowserRouter>
+      <BootstrapListener />
       <ToastContainer position="top-right" />
       <AuthNavigator />
       <Suspense fallback={<PageLoader />}>

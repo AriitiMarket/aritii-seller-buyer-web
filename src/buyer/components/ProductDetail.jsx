@@ -160,7 +160,7 @@ const ProductDetail = ({ data, basePath = '' }) => {
 
               {/* LEFT SIDE — images */}
               <div className="space-y-4">
-                <div className="aspect-square bg-white dark:bg-gray-900 rounded-2xl border border-[#E5E7EB] dark:border-gray-700 overflow-hidden flex items-center justify-center">
+                <div className="aspect-square bg-white dark:bg-gray-900 rounded-lg border border-market-border dark:border-gray-700 overflow-hidden flex items-center justify-center">
                   <img
                     src={images[select] || PlaceholderProduct}
                     alt={data.name || 'Product image'}
@@ -175,8 +175,8 @@ const ProductDetail = ({ data, basePath = '' }) => {
                         key={index} 
                         className={`flex-shrink-0 cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${
                           select === index 
-                            ? 'border-[#20305C] ring-2 ring-[#20305C]/20' 
-                            : 'border-[#E5E7EB] dark:border-gray-700 hover:border-[#E5E7EB] dark:hover:border-gray-600'
+                            ? 'border-[#2162a1] ring-2 ring-[#2162a1]/20' 
+                            : 'border-market-border dark:border-gray-700 hover:border-market-border dark:hover:border-gray-600'
                         }`}
                         onClick={() => setSelect(index)}
                       >
@@ -194,13 +194,13 @@ const ProductDetail = ({ data, basePath = '' }) => {
               {/* RIGHT SIDE — product info */}
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-[#171A21] dark:text-white">
+                  <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface dark:text-white">
                     {data.name}
                   </h1>
                   <div className="flex items-center gap-2 mt-2">
                     <Ratings rating={data?.ratings} />
                     {data?.reviews?.length > 0 && (
-                      <span className="text-sm text-[#667085] dark:text-gray-400">
+                      <span className="text-sm text-market-on-surface-variant dark:text-gray-400">
                         ({data.reviews.length} reviews)
                       </span>
                     )}
@@ -209,7 +209,7 @@ const ProductDetail = ({ data, basePath = '' }) => {
 
                 {/* Price */}
                 <div className="flex items-baseline gap-3">
-                  <h4 className="text-3xl font-bold text-[#20305C]">
+                  <h4 className="text-3xl font-bold text-market-secondary">
                     {activePrice} ETB
                   </h4>
                   {originalPrice && originalPrice > activePrice ? (
@@ -238,7 +238,7 @@ const ProductDetail = ({ data, basePath = '' }) => {
                 </div>
 
                 {/* Description */}
-                <p className="text-[#667085] dark:text-gray-400 leading-relaxed">
+                <p className="text-market-on-surface-variant dark:text-gray-400 leading-relaxed">
                   {data.description}
                 </p>
 
@@ -250,17 +250,17 @@ const ProductDetail = ({ data, basePath = '' }) => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <button
-                          className="w-12 h-12 rounded-xl border border-[#E5E7EB] dark:border-gray-700 text-[#171A21] dark:text-gray-300 font-bold hover:bg-[#E9ECF5] dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
+                          className="w-12 h-12 rounded-xl border border-market-border dark:border-gray-700 text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
                           onClick={decrementCount}
                           aria-label="Decrease quantity"
                         >
                           -
                         </button>
-                        <span className="bg-gray-100 dark:bg-gray-800 text-[#171A21] dark:text-white font-semibold px-6 py-3 rounded-xl min-w-[60px] text-center">
+                        <span className="bg-gray-100 dark:bg-gray-800 text-market-on-surface dark:text-white font-semibold px-6 py-3 rounded-xl min-w-[60px] text-center">
                           {count}
                         </span>
                         <button
-                          className="w-12 h-12 rounded-xl border border-[#E5E7EB] dark:border-gray-700 text-[#171A21] dark:text-gray-300 font-bold hover:bg-[#E9ECF5] dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
+                          className="w-12 h-12 rounded-xl border border-market-border dark:border-gray-700 text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
                           onClick={incrementCount}
                           aria-label="Increase quantity"
                         >
@@ -269,14 +269,14 @@ const ProductDetail = ({ data, basePath = '' }) => {
                       </div>
 
                       <button
-                        className="p-3 rounded-xl border border-[#E5E7EB] dark:border-gray-700 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                        className="p-3 rounded-xl border border-market-border dark:border-gray-700 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
                         onClick={click ? () => removeFromWishlistHandler(data) : () => addToWishlistHandler(data)}
                         aria-label={click ? "Remove from wishlist" : "Add to wishlist"}
                       >
                         {click ? (
                           <AiFillHeart size={24} className="text-red-500" />
                         ) : (
-                          <AiOutlineHeart size={24} className="text-gray-400 dark:text-[#667085]" />
+                          <AiOutlineHeart size={24} className="text-gray-400 dark:text-market-on-surface-variant" />
                         )}
                       </button>
                     </div>
@@ -286,8 +286,8 @@ const ProductDetail = ({ data, basePath = '' }) => {
                       disabled={availableUnits < 1}
                       className={`w-full h-14 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-lg shadow-lg ${
                         availableUnits < 1
-                          ? 'bg-gray-300 text-[#667085] cursor-not-allowed'
-                          : 'bg-[#20305C] hover:bg-[#2C3F6E] text-white hover:shadow-xl'
+                          ? 'bg-gray-300 text-market-on-surface-variant cursor-not-allowed'
+                          : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover hover:shadow-xl'
                       }`}
                       onClick={() => AddToCartHandler(data._id)}
                       aria-label={availableUnits < 1 ? 'Product is out of stock' : 'Add to cart'}
@@ -297,30 +297,30 @@ const ProductDetail = ({ data, basePath = '' }) => {
                     </button>
 
                     {/* Shop Info */}
-                    <div className="bg-white dark:bg-gray-900 rounded-xl border border-[#E5E7EB] dark:border-gray-700 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl border border-market-border dark:border-gray-700 p-4">
                       <div className="flex items-center gap-4">
                         <Link to={shopPath}>
                           <Avatar
                             data={shop}
                             alt={shop?.name || 'Shop avatar'}
-                            className="w-14 h-14 rounded-full border-2 border-[#20305C]"
+                            className="w-14 h-14 rounded-full border-2 border-[#2162a1]"
                           />
                         </Link>
                         <div className="flex-1">
                           <Link to={shopPath}>
-                            <h3 className="font-semibold text-[#171A21] dark:text-white hover:text-[#20305C] transition-colors">
+                            <h3 className="font-semibold text-market-on-surface dark:text-white hover:text-market-secondary transition-colors">
                               {shop?.name}
                             </h3>
                           </Link>
                           <div className="flex items-center gap-1 mt-1">
                             <AiFillStar className="text-yellow-400" size={16} />
-                            <span className="text-sm text-[#667085] dark:text-gray-400">
+                            <span className="text-sm text-market-on-surface-variant dark:text-gray-400">
                               {Number(shopRating).toFixed(1)}
                             </span>
                           </div>
                         </div>
                         <button
-                          className="px-4 py-2 bg-[#20305C] hover:bg-[#2C3F6E] text-white font-medium rounded-lg transition-colors text-sm"
+                          className="px-4 py-2 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-medium rounded-lg transition-colors text-sm"
                           onClick={handleRequestProduct}
                           aria-label="Request this product from the seller"
                         >
@@ -334,13 +334,13 @@ const ProductDetail = ({ data, basePath = '' }) => {
                   <div className="space-y-4 pt-4">
                     <Link
                       to="/sign-up"
-                      className="block w-full h-14 bg-[#20305C] hover:bg-[#2C3F6E] text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center text-lg shadow-lg hover:shadow-xl"
+                      className="block w-full h-14 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-semibold rounded-xl transition-all duration-200 flex items-center justify-center text-lg shadow-lg hover:shadow-xl"
                     >
                       Sign Up to Buy
                     </Link>
-                    <p className="text-center text-sm text-[#667085] dark:text-gray-400">
+                    <p className="text-center text-sm text-market-on-surface-variant dark:text-gray-400">
                       Already have an account?{' '}
-                      <Link to="/login" className="text-[#20305C] hover:underline font-medium">Login</Link>
+                      <Link to="/login" className="text-market-secondary hover:underline font-medium">Login</Link>
                     </p>
                   </div>
                 )}
@@ -395,9 +395,9 @@ const ProductDetailInfo= ({data, shop})=>{
 
     return (
 
-        <div className="bg-white dark:bg-gray-900 border-t border-[#E5E7EB] dark:border-gray-800 px-3 lg:px-10 py-8">
+        <div className="bg-white dark:bg-gray-900 border-t border-market-border dark:border-gray-800 px-3 lg:px-10 py-8">
             <div
-              className="w-full flex justify-between border-b border-[#E5E7EB] dark:border-gray-700 pt-10 pb-2"
+              className="w-full flex justify-between border-b border-market-border dark:border-gray-700 pt-10 pb-2"
               role="tablist"
               aria-label="Product information"
             >
@@ -413,7 +413,7 @@ const ProductDetailInfo= ({data, shop})=>{
                         aria-controls={panelIds[1]}
                         tabIndex={active === 1 ? 0 : -1}
                         className={
-                        `text-[#171A21] dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 1 ? 'text-[#20305C]' : ''}`
+                        `text-market-on-surface dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 1 ? 'text-market-secondary' : ''}`
                         }
                         onClick={() => setActive(1)}
                         onKeyDown={(e) => handleTabKeyDown(e, 1)}
@@ -442,7 +442,7 @@ const ProductDetailInfo= ({data, shop})=>{
                         aria-controls={panelIds[2]}
                         tabIndex={active === 2 ? 0 : -1}
                         className={
-                        `text-[#171A21] dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 2 ? 'text-[#20305C]' : ''}`
+                        `text-market-on-surface dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 2 ? 'text-market-secondary' : ''}`
                         }
                         onClick={() => setActive(2)}
                         onKeyDown={(e) => handleTabKeyDown(e, 2)}
@@ -471,7 +471,7 @@ const ProductDetailInfo= ({data, shop})=>{
                         aria-controls={panelIds[3]}
                         tabIndex={active === 3 ? 0 : -1}
                         className={
-                        `text-[#171A21] dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 3 ? 'text-[#20305C]' : ''}`
+                        `text-market-on-surface dark:text-white text-[18px] px-1 leading-5 font-[600] cursor-pointer lg:text-[20px] ${active === 3 ? 'text-market-secondary' : ''}`
                         }
                         onClick={() => setActive(3)}
                         onKeyDown={(e) => handleTabKeyDown(e, 3)}
@@ -500,7 +500,7 @@ const ProductDetailInfo= ({data, shop})=>{
                       aria-labelledby={tabIds[1]}
                       tabIndex={0}
                     >
-                    <p className="py-2 text-[18px] leading-8 pb-10 pt-5 whitespace-pre-line text-[#171A21] dark:text-gray-300">
+                    <p className="py-2 text-[18px] leading-8 pb-10 pt-5 whitespace-pre-line text-market-on-surface dark:text-gray-300">
                         {data.description}
                     </p>
                     </div>
@@ -534,17 +534,17 @@ const ProductDetailInfo= ({data, shop})=>{
 
                 <div className="pl-2 ">
                   <div className="w-full flex items-center">
-                    <h1 className="font-[500] mr-3 text-[#171A21] dark:text-white">{item.user?.name || 'Anonymous'}</h1>
+                    <h1 className="font-[500] mr-3 text-market-on-surface dark:text-white">{item.user?.name || 'Anonymous'}</h1>
                     <Ratings rating={item.rating} />
                   </div>
-                  <p className="text-[#171A21] dark:text-gray-300">{item.comment}</p>
+                  <p className="text-market-on-surface dark:text-gray-300">{item.comment}</p>
                 </div>
               </div>
             ))}
 
           <div className="w-full flex justify-center">
             {data && (!data.reviews || data.reviews.length === 0) && (
-              <h5 className="text-[#667085] dark:text-gray-400">No Reviews have for this product!</h5>
+              <h5 className="text-market-on-surface-variant dark:text-gray-400">No Reviews have for this product!</h5>
             )}
           </div>
         </div>
@@ -568,14 +568,14 @@ const ProductDetailInfo= ({data, shop})=>{
                         <div className="flex items-center">
                             <Avatar
                                 data={data?.shop}
-                                className="w-[50px] h-[50px] rounded-full border-2 border-[#20305C]"
+                                className="w-[50px] h-[50px] rounded-full border-2 border-[#2162a1]"
                                 alt=""
                             />
                             <div className="pl-3">
                                 <h3 className={`${styles.shop_name}`}>
                                     {shop?.name || data?.shop?.name}
                                 </h3>
-                                <h5 className="pb-2 text-[15px] flex items-center text-[#171A21] dark:text-gray-300">
+                                <h5 className="pb-2 text-[15px] flex items-center text-market-on-surface dark:text-gray-300">
                             Rating: {Number(shopRating).toFixed(1)} <AiFillStar className="text-yellow-400 ml-1" size={20} />
                                 </h5>
                             </div>

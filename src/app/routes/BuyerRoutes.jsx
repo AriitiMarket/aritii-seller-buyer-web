@@ -5,11 +5,24 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute';
 /**
  * BUYER routes - the authenticated customer experience.
  *
- * The dashboard nested routes all render inside BuyerLayout (which owns the
- * buyer header + sidebar). Business management is deliberately NOT available
- * under /my-dashboard: it has its own domain at /business (see BusinessRoutes).
+ * Marketplace browsing (Products, Shops) is now unified in the public marketplace.
+ * This keeps all shopping navigation in one place, accessible to both authenticated
+ * and unauthenticated users.
+ *
+ * The buyer dashboard contains only buyer-specific account management:
+ * - Overview
+ * - Orders & Order Tracking
+ * - Addresses
+ * - Wishlist
+ * - Reviews
+ * - Requests (messaging with sellers)
+ * - Settings
+ * - Cart management
+ * - Checkout & Payment
  */
 const BuyerLayout = lazy(() => import('@/buyer/components/BuyerLayout'));
+// BuyerAccountLayout is aliased to BuyerLayout to eliminate duplication.
+const BuyerAccountLayout = lazy(() => import('@/buyer/components/BuyerLayout'));
 const BuyerOverviewPage = lazy(() => import('@/buyer/pages/Dashboard/Dashboard'));
 const BuyerProfilePage = lazy(() => import('@/buyer/pages/Profile'));
 const BuyerOrdersPage = lazy(() => import('@/buyer/pages/Orders'));
@@ -22,11 +35,7 @@ const BuyerSellerProfilePage = lazy(() => import('@/buyer/pages/Requests/SellerP
 const BuyerNewRequestPage = lazy(() => import('@/buyer/pages/Requests/NewRequest'));
 const BuyerRequestWorkspacePage = lazy(() => import('@/buyer/pages/Requests/RequestWorkspace'));
 const BuyerSettingsPage = lazy(() => import('@/buyer/pages/Settings'));
-const BuyerProductsBrowse = lazy(() => import('@/buyer/pages/Dashboard/ProductsBrowse'));
 const BuyerCartPage = lazy(() => import('@/buyer/pages/Cart'));
-const BuyerShopsBrowse = lazy(() => import('@/buyer/pages/Dashboard/ShopsBrowse'));
-const BuyerProductDetail = lazy(() => import('@/buyer/pages/Dashboard/BuyerProductDetail'));
-const BuyerShopDetail = lazy(() => import('@/buyer/pages/Dashboard/BuyerShopDetail'));
 const CheckoutPage = lazy(() => import('@/buyer/pages/Checkout'));
 const OrderSuccessPage = lazy(() => import('@/buyer/pages/OrderSuccess'));
 const PaymentPage = lazy(() => import('@/buyer/pages/Payment'));
@@ -49,6 +58,14 @@ export const BuyerRoutes = () => (
       element={
         <ProtectedRoute require="BUYER">
           <PaymentPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/buyer/requests"
+      element={
+        <ProtectedRoute require="BUYER">
+          <BuyerRequestsPage />
         </ProtectedRoute>
       }
     />
@@ -77,15 +94,15 @@ export const BuyerRoutes = () => (
       }
     />
 
-    {/* Unified buyer dashboard - one layout, nested content routes */}
-    <Route
-      path="/my-dashboard"
-      element={
-        <ProtectedRoute require="BUYER">
-          <BuyerLayout />
-        </ProtectedRoute>
-      }
-    >
+    {/* Unified buyer dashboard - account management only */}
+<Route
+  path="/my-dashboard"
+  element={
+    <ProtectedRoute require="BUYER">
+      <BuyerLayout />
+    </ProtectedRoute>
+  }
+>
       <Route index element={<BuyerOverviewPage />} />
       <Route path="profile" element={<BuyerProfilePage />} />
       <Route path="orders" element={<BuyerOrdersPage />} />
@@ -101,17 +118,16 @@ export const BuyerRoutes = () => (
       <Route path="requests/sellers/:shopId" element={<BuyerSellerProfilePage />} />
       <Route path="requests/:id" element={<BuyerRequestWorkspacePage />} />
       <Route path="settings" element={<BuyerSettingsPage />} />
-      <Route path="marketplace" element={<BuyerProductsBrowse />} />
-      <Route path="marketplace/product/:id" element={<BuyerProductDetail />} />
-      <Route path="shops" element={<BuyerShopsBrowse />} />
-      <Route path="shops/:id" element={<BuyerShopDetail />} />
       <Route path="cart" element={<BuyerCartPage />} />
 
-      {/* Legacy/incorrect URL shapes — redirect instead of 404.
-          (Product cards used to build /my-dashboard/product/:id, and shop links
-          can be built with a marketplace-prefixed base path.) */}
-      <Route path="product/:id" element={<Navigate to="marketplace/product/:id" replace />} />
-      <Route path="marketplace/shops/:id" element={<Navigate to="../shops/:id" replace />} />
+      {/* Marketplace browsing redirects to public marketplace */}
+      <Route path="marketplace" element={<Navigate to="/products" replace />} />
+      <Route path="marketplace/product/:id" element={<Navigate to="/product/:id" replace />} />
+      <Route path="shops" element={<Navigate to="/shops" replace />} />
+      <Route path="shops/:id" element={<Navigate to="/shops/:id" replace />} />
+
+      {/* Legacy/incorrect URL shapes — redirect instead of 404. */}
+      <Route path="product/:id" element={<Navigate to="/product/:id" replace />} />
     </Route>
   </>
 );

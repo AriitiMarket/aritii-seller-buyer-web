@@ -1,8 +1,81 @@
 :root {
-  --primary-color:#75d04b; --primary-light:#f3ffee; --primary-dark:#5ac12f;
-  --primary-hover:#68c73e; --primary-pressed:#56b02f;
-  --primary-focus:rgba(117,208,75,0.32); --primary-disabled:#b9e8a3;
-  --secondary-color:#75d04b;
-  --foreground-rgb:0,0,0; --background-start-rgb:255,255,255; --background-end-rgb:255,255,255;
+  /* Aritii Light Mode Colors */
+  --market-surface: #ffffff;
+  --market-surface-dim: #f7f7f7;
+  --market-surface-bright: #ffffff;
+  --market-surface-container-lowest: #ffffff;
+  --market-surface-container-low: #f0f2f2;
+  --market-surface-container: #e6e6e6;
+  --market-surface-container-high: #d5d9d9;
+  --market-surface-container-highest: #c0c5c5;
+  --market-on-surface: #0f1111;
+  --market-on-surface-variant: #555555;
+  --market-header: #131921;
+  --market-header-border: #232f3e;
+  --market-subnav: #232f3e;
+  --market-subnav-border: #37475a;
+  --market-primary: #febd69;
+  --market-primary-hover: #f3a847;
+  --market-primary-pressed: #ff9900;
+  --market-primary-container: #f3a847;
+  --market-on-primary: #0f1111;
+  --market-inverse-primary: #ff9900;
+  --market-secondary: #2162a1;
+  --market-secondary-hover: #0064f9;
+  --market-on-secondary: #ffffff;
+  --market-tertiary: #cc0c39;
+  --market-tertiary-hover: #cc0c39;
+  --market-on-tertiary: #ffffff;
+  --market-error: #cc0c39;
+  --market-on-error: #ffffff;
+  --market-price: #B12704;
+  --market-outline: #888c8c;
+  --market-outline-variant: #969696;
+  --market-border: #d5d9d9;
+  --market-background: #ffffff;
+  --market-on-background: #0f1111;
+  --market-surface-variant: #e6e6e6;
+  --market-inverse-surface: #131921;
+  --market-inverse-on-surface: #ffffff;
 }
-.dark { --foreground-rgb:255,255,255; --background-start-rgb:17,24,39; --background-end-rgb:17,24,39; }
+
+/* Dark Mode Colors */
+.dark {
+  --market-surface: #131921;
+  --market-surface-dim: #0f1111;
+  --market-surface-bright: #1a1f2a;
+  --market-surface-container-lowest: #0f1111;
+  --market-surface-container-low: #1a1f2a;
+  --market-surface-container: #232f3e;
+  --market-surface-container-high: #2d3a4a;
+  --market-surface-container-highest: #37475a;
+  --market-on-surface: #ffffff;
+  --market-on-surface-variant: #b0b0b0;
+  --market-header: #0f1111;
+  --market-header-border: #232f3e;
+  --market-subnav: #1a1f2a;
+  --market-subnav-border: #37475a;
+  --market-primary: #febd69;
+  --market-primary-hover: #f3a847;
+  --market-primary-pressed: #ff9900;
+  --market-primary-container: #f3a847;
+  --market-on-primary: #0f1111;
+  --market-inverse-primary: #ff9900;
+  --market-secondary: #6fa8e8;
+  --market-secondary-hover: #8db8f0;
+  --market-on-secondary: #0f1111;
+  --market-tertiary: #e86c8a;
+  --market-tertiary-hover: #f08aa3;
+  --market-on-tertiary: #0f1111;
+  --market-error: #e86c8a;
+  --market-on-error: #0f1111;
+  --market-price: #f44336;
+  --market-outline: #5a5a5a;
+  --market-outline-variant: #6a6a6a;
+  --market-border: #37475a;
+  --market-background: #0f1111;
+  --market-on-background: #ffffff;
+  --market-surface-variant: #232f3e;
+  --market-inverse-surface: #ffffff;
+  --market-inverse-on-surface: #0f1111;
+}

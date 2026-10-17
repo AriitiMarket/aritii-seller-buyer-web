@@ -1,38 +1,17 @@
 import React from "react";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { BsStarHalf } from "react-icons/bs";
 
 const Ratings = ({ rating }) => {
   const stars = [];
+  const value = Number(rating) || 0;
 
   for (let i = 1; i <= 5; i++) {
-    if (i <= rating) {
-      stars.push(
-        <AiFillStar
-          key={i}
-          size={20}
-          className="text-yellow-400 mr-0.5 cursor-pointer"
-        />
-      );
-    } else if (i === Math.ceil(rating) && !Number.isInteger(rating)) {
-      stars.push(
-        <BsStarHalf
-          key={i}
-          size={17}
-          className="text-yellow-400 mr-0.5 cursor-pointer"
-        />
-      );
+    if (i <= value) {
+      stars.push(<span key={i} className="market-rating-star" aria-hidden="true">★</span>);
     } else {
-      stars.push(
-        <AiOutlineStar
-          key={i}
-          size={20}
-          className="text-yellow-400 mr-0.5 cursor-pointer"
-        />
-      );
+      stars.push(<span key={i} className="market-rating-star-empty" aria-hidden="true">★</span>);
     }
   }
-  return <div className="flex">{stars}</div>;
+  return <div className="flex items-center gap-0.5" role="img" aria-label={`Rating ${value} out of 5`}>{stars}</div>;
 };
 
 export default Ratings;

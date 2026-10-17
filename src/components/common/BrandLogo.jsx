@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const BrandLogo = ({ size = 'md', showText = true, showTagline = true, linked = true, tone = 'default' }) => {
+const BrandLogo = ({ size = 'md', showText = true, showTagline = true, linked = true, to = '/', tone = 'default' }) => {
   const sizes = {
     sm: { box: 'w-8 h-8 text-sm', text: 'text-sm' },
     md: { box: 'w-10 h-10 text-base', text: 'text-base' },
@@ -39,7 +39,7 @@ const BrandLogo = ({ size = 'md', showText = true, showTagline = true, linked = 
   )
 
   if (linked) {
-    return <Link to="/">{content}</Link>
+    return <Link to={to}>{content}</Link>
   }
   return content
 }

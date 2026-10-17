@@ -9,7 +9,7 @@ const BuyerOrderDetailPage = () => {
   }, [])
 
   return (
-    <div className="w-full min-h-screen bg-[#F7F8FA] flex flex-col">
+    <div className="w-full min-h-screen bg-market-surface-dim flex flex-col">
       <BuyerHeader onMenuClick={() => {}} />
       
       <div className="flex-1">
