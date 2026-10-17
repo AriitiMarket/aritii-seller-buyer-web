@@ -109,6 +109,62 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Seller Center Navigation Section */}
+      <section className="bg-white dark:bg-gray-950 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Explore Selling on Aritii
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Learn how to grow your business with Aritii's tools and reach
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link
+              to="/seller-center/overview"
+              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Overview</h3>
+              <p className="text-sm text-[#565959] dark:text-gray-400">
+                Introduction to selling on Aritii and getting started
+              </p>
+            </Link>
+
+            <Link
+              to="/seller-center/benefits"
+              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Benefits</h3>
+              <p className="text-sm text-[#565959] dark:text-gray-400">
+                Discover what Aritii offers to help you succeed
+              </p>
+            </Link>
+
+            <Link
+              to="/seller-center/how-it-works"
+              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">How It Works</h3>
+              <p className="text-sm text-[#565959] dark:text-gray-400">
+                Step-by-step guide from registration to first sale
+              </p>
+            </Link>
+
+            <Link
+              to="/seller-center/workspace"
+              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Workspace</h3>
+              <p className="text-sm text-[#565959] dark:text-gray-400">
+                Preview your business dashboard and management tools
+              </p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
       <section className="home-brand-section home-brand-section--community py-16 md:py-20 bg-[#FDF6EC] dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
