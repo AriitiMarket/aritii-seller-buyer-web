@@ -4,7 +4,6 @@ import { AiOutlineCheckCircle, AiOutlineArrowRight } from 'react-icons/ai'
 
 // Components
 import DeliveryPortalLayout from '../layout/DeliveryPortalLayout'
-import DeliveryPortalHeader from '../components/DeliveryPortalHeader'
 import DeliveryPortalHero from '../components/DeliveryPortalHero'
 import DeliveryPartnerGrid from '../components/DeliveryPartnerGrid'
 import DeliveryPortalFooter from '../components/DeliveryPortalFooter'
@@ -12,12 +11,12 @@ import DeliveryPortalFooter from '../components/DeliveryPortalFooter'
 /**
  * DeliveryPortalLanding - Main delivery partner landing page
  * 
- * Complete pre-login landing experience for delivery partners
+ * Complete pre-login landing experience for delivery partners.
+ * Header and Footer are handled by DeliveryPortalLayout.
  */
 const DeliveryPortalLanding = () => {
   return (
     <DeliveryPortalLayout>
-      <DeliveryPortalHeader />
       <DeliveryPortalHero />
 
       {/* Partner Grid Section */}
@@ -280,8 +279,6 @@ const DeliveryPortalLanding = () => {
           </div>
         </div>
       </section>
-
-      <DeliveryPortalFooter />
     </DeliveryPortalLayout>
   )
 }
