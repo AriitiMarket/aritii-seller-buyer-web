@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MdLocalShipping, MdHelpOutline, MdArrowDropDown, MdLocationOn } from 'react-icons/md';
+import { MdLocalShipping, MdHelpOutline } from 'react-icons/md';
 import { AiOutlineMenu, AiOutlineUser } from 'react-icons/ai';
 import BrandLogo from '@/components/common/BrandLogo';
 import { useAuth } from '@/auth/hooks/useAuth';
@@ -16,16 +16,6 @@ const DELIVERY_NAV = [
   { label: 'Help & Support', to: '/delivery', hash: 'help' },
 ];
 
-const DELIVERY_LOCATIONS = [
-  'Addis Ababa',
-  'Dire Dawa',
-  'Harar',
-  'Bahir Dar',
-  'Adama',
-  'Hawassa',
-  'Mekelle',
-];
-
 const DeliveryPortalHeader = () => {
   const { isAuthenticated, loading, user } = useAuth();
   const dispatch = useDispatch();
@@ -34,7 +24,6 @@ const DeliveryPortalHeader = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [deliverTo, setDeliverTo] = useState(DELIVERY_LOCATIONS[0]);
 
   const providerCapability =
     user?.capabilities?.includes('PROVIDER') || user?.role === 'PROVIDER';
@@ -152,11 +141,6 @@ const DeliveryPortalHeader = () => {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3 ml-auto">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700">
-            <MdLocationOn size={16} className="text-[#2563eb]" />
-            <span>{deliverTo}</span>
-            <MdArrowDropDown size={14} className="text-gray-400" />
-          </div>
           <Link
             to="/delivery#help"
             aria-label="Help & support"
