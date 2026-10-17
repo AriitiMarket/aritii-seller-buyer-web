@@ -4,7 +4,7 @@ import { useProducts, useFilteredProducts } from '@/features/marketplace/hooks/u
 import { productService } from '@/services'
 import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import ProductImage from '@/features/marketplace/components/common/ProductImage'
-import Rating from '@/features/marketplace/components/common/Ratings'
+import Rating from '@/components/common/Ratings'
 import { formatCurrency } from '@/features/marketplace/utils/format'
 import Loading from '@/components/common/Loading'
 import EmptyState from '@/components/common/EmptyState'
