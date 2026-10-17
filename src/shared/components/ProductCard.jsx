@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AiFillHeart, AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 import { ProductImage } from '@/components/common/ImageWithFallback'
+import Loading from '@/components/common/Loading'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistThunks'
 import { addTocart, updateCartQuantity } from '@/store/slices/cartThunks'
@@ -10,7 +11,21 @@ import Ratings from '@/components/common/Ratings'
 
 const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const [click, setClick] = useState(false)
+  const [navigating, setNavigating] = useState(false)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  // Delay before force-navigating to the product detail page so a loading
+  // state can be shown to the user after they click a product.
+  const PRODUCT_CLICK_DELAY_MS = 800
+
+  const handleProductClick = (event, path) => {
+    event.preventDefault()
+    setNavigating(true)
+    setTimeout(() => {
+      navigate(path)
+    }, PRODUCT_CLICK_DELAY_MS)
+  }
   const { wishlist } = useSelector((state) => state.wishlist || {})
   const { cart } = useSelector((state) => state.cart || {})
   const { isAuthenticated } = useSelector((state) => state.user || {})
@@ -29,8 +44,11 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
         : Number(data?.stock ?? 0)
 
   const displayPrice = data?.discountPrice ?? data?.price ?? 0
+  const originalPrice = data?.originalPrice ?? data?.price
   const soldCount = data?.sold_out ?? data?.total_sell ?? 0
+  const reviewCount = data?.review_count ?? data?.reviewCount ?? 0
   const rating = data?.ratings ?? data?.rating ?? 0
+  const isOnSale = originalPrice > displayPrice
 
   const productPath = basePath ? basePath + '/product/' + id : '/product/' + id
   const shopPath = data?.shop?._id
@@ -81,89 +99,152 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const lowStock = inStock && availableUnits <= 8
   const bestSeller = soldCount > 10
 
+  // Format rating display: "4.5★ (234 reviews)"
+  const ratingDisplay = rating ? `${rating}★ (${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})` : ''
+
+  // Show a loading state while the click-delay waits before force-navigating
+  // to the product detail page.
+  if (navigating) {
+    return <Loading variant="inline" label="Loading product…" />
+  }
+
   return (
-    <article className='market-shop-tile'>
-      <Link to={productPath} className='block'>
-        <div className='market-shop-tile-image relative'>
+    <article className='market-amazon-product-card group'>
+      {/* Wishlist button - top right with 44px touch target */}
+      {!isPublic && (
+        <button
+          type='button'
+          onClick={toggleWishlist}
+          className={`absolute top-2 right-2 h-11 w-11 rounded-full shadow-md flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#75d04b]/30 transition-all z-10 min-h-[44px] min-w-[44px] ${
+            click 
+              ? 'bg-[#75d04b] text-white' 
+              : 'bg-white/95 text-[#131921] hover:bg-white hover:shadow-lg'
+          }`}
+          aria-label={click ? 'Remove from wishlist' : 'Save to wishlist'}
+        >
+          {click ? <AiFillHeart size={20} className='text-white' /> : <AiOutlineHeart size={20} />}
+        </button>
+      )}
+
+      {/* Image section: 100% width, 1:1 aspect ratio with hover scale */}
+      <Link
+        to={productPath}
+        onClick={(event) => handleProductClick(event, productPath)}
+        className='block overflow-hidden'
+      >
+        <div className='market-amazon-product-image group-hover:scale-105'>
           <ProductImage data={data} className='w-full h-full object-cover' />
+          
+          {/* Sale badge - top left */}
+          {isOnSale && (
+            <span className='absolute top-2 left-2 inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold tracking-tight uppercase bg-[#75d04b] text-white shadow-md'>
+              {Math.round(((originalPrice - displayPrice) / originalPrice) * 100)}% off
+            </span>
+          )}
+          
+          {/* Out of stock overlay */}
           {availableUnits < 1 && (
-            <span className='absolute top-2 left-2 market-stock-tag market-stock-tag-low'>Out of stock</span>
+            <div className='absolute inset-0 bg-black/40 flex items-center justify-center'>
+              <span className='text-white font-bold text-sm'>Out of stock</span>
+            </div>
           )}
-          {lowStock && (
-            <span className='absolute top-2 left-2 market-stock-tag market-stock-tag-low'>Only {availableUnits} left</span>
+          
+          {/* Stock status - top left (only if not sale badge) */}
+          {!isOnSale && lowStock && availableUnits > 0 && (
+            <span className='absolute top-2 left-2 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight uppercase bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 shadow-md'>
+              Only {availableUnits} left
+            </span>
           )}
+          
+          {/* Best seller badge - top right */}
           {bestSeller && (
-            <span className='absolute top-2 right-2 market-best-seller-badge'>Best seller</span>
+            <span className='absolute top-2 right-2 inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold tracking-tight uppercase bg-orange-500 text-white shadow-md'>
+              Best seller
+            </span>
           )}
-          {!isPublic && (
-            <button
-              type='button'
-              disabled={!inStock}
-              className={`absolute bottom-2 right-2 w-9 h-9 rounded-full shadow-md flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-market-secondary/30 transition-colors ${(!inStock) ? 'bg-market-surface-container-high text-market-on-surface-variant cursor-not-allowed' : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover'}`}
-              onClick={AddToCartHandler}
-              aria-label={!inStock ? name + ' is out of stock' : 'Add ' + name + ' to cart'}
-            >
-              <AiOutlineShoppingCart size={18} />
-            </button>
+          
+          {/* Prime badge - bottom left */}
+          {data?.isPrime && (
+            <span className='absolute bottom-2 left-2 inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold tracking-tight uppercase bg-blue-600 text-white shadow-md'>
+              Prime
+            </span>
           )}
-          {!isPublic && (
-            <button
-              type='button'
-              onClick={toggleWishlist}
-              className={`absolute top-2 right-2 w-9 h-9 rounded-full shadow-md flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-market-secondary/30 transition-colors ${click ? 'bg-market-tertiary text-market-on-tertiary' : 'bg-market-surface/90 text-market-on-surface hover:bg-market-surface-container-high'}`}
-              aria-label={click ? 'Remove from wishlist' : 'Save to wishlist'}
-            >
-              {click ? <AiFillHeart size={18} className='text-market-on-tertiary' /> : <AiOutlineHeart size={18} />}
-            </button>
-          )}
-          <span className='absolute bottom-2 left-2 market-delivery-tag market-delivery-tag-fast'>Fast delivery</span>
         </div>
       </Link>
 
-      <div className='market-shop-tile-body'>
-        <Link to={shopPath} className='mb-1'>
-          <p className='market-body-sm text-market-on-surface-variant hover:text-market-secondary transition-colors line-clamp-1'>{shopName}</p>
+      <div className='market-amazon-product-body'>
+        {/* Shop name link */}
+        <Link to={shopPath} className='mb-1 block'>
+          <p className='text-xs text-[#6b7280] hover:text-[#75d04b] transition-colors line-clamp-1 font-medium'>{shopName}</p>
         </Link>
 
-        <Link to={productPath} className='flex-1'>
-          <h4 className='market-title-sm text-market-on-surface line-clamp-2 min-h-[2.6rem] leading-snug hover:text-market-primary transition-colors'>{name}</h4>
+        {/* Product title: 2-line max with ellipsis */}
+        <Link
+          to={productPath}
+          onClick={(event) => handleProductClick(event, productPath)}
+          className='block mb-1.5'
+        >
+          <h4 className='text-sm font-semibold text-[#131921] dark:text-white line-clamp-2 leading-snug hover:text-[#75d04b] transition-colors'>{name}</h4>
         </Link>
 
-        <div className='flex items-center gap-1 mt-2 mb-1'>
-          <Ratings rating={rating} />
-          {soldCount > 0 && (
-             <span className='market-body-sm text-market-on-surface-variant'>({soldCount} bought)</span>
-          )}
-        </div>
-
-        <div className='market-shop-tile-price-row'>
-          <span className='market-shop-tile-price'>{Number(displayPrice).toLocaleString()} ETB</span>
-          {data?.originalPrice && data?.originalPrice > displayPrice && (
-            <div className='flex items-center gap-2'>
-              <span className='market-original-price'>{Number(data.originalPrice).toLocaleString()} ETB</span>
-              <span className='market-savings-badge'>{Math.round(((data.originalPrice - displayPrice) / data.originalPrice) * 100)}% off</span>
+        {/* Rating: Stars + review count (e.g., "4.5★ (234 reviews)") */}
+        {rating > 0 && (
+          <div className='flex items-center gap-1.5 mb-1.5'>
+            <div className='flex items-center'>
+              <Ratings rating={rating} />
             </div>
-          )}
-        </div>
-
-        {lowStock && (
-          <p className='market-body-sm mt-1 text-market-tertiary font-semibold'>Hurry, only {availableUnits} left in stock.</p>
+            <span className='text-xs text-[#6b7280]'>({reviewCount})</span>
+          </div>
         )}
 
+        {/* Price section: with strikethrough original and savings badge */}
+        <div className='mb-1.5'>
+          <div className='flex items-center gap-2 flex-wrap'>
+            <span className='text-lg font-bold text-[#131921] dark:text-white'>{Number(displayPrice).toLocaleString()} ETB</span>
+            {isOnSale && (
+              <>
+                <span className='text-xs line-through text-[#6b7280]'>{Number(originalPrice).toLocaleString()} ETB</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Stock status badge */}
+        {inStock && !lowStock && (
+          <p className='text-xs font-semibold text-green-700 dark:text-green-400 mb-1.5 inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded'>
+            ✓ In stock
+          </p>
+        )}
+        {lowStock && inStock && (
+          <p className='text-xs font-semibold text-red-700 dark:text-red-400 mb-1.5 inline-block px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded'>
+            Only {availableUnits} left
+          </p>
+        )}
+        {!inStock && (
+          <p className='text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 inline-block px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded'>
+            Out of stock
+          </p>
+        )}
+
+        {/* Add to cart button or link */}
         {!isPublic ? (
           <button
             type='button'
             onClick={AddToCartHandler}
             disabled={!inStock}
-            className={`market-shop-tile-action ${!inStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full mt-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-200 min-h-[44px] ${
+              inStock
+                ? 'bg-[#75d04b] text-white hover:bg-[#5ac12f] active:scale-95 shadow-sm hover:shadow-md'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700'
+            }`}
             aria-label={!inStock ? name + ' is out of stock' : 'Add ' + name + ' to cart'}
           >
-            <AiOutlineShoppingCart size={16} /> Add to cart
+            <AiOutlineShoppingCart size={18} /> Add to cart
           </button>
         ) : (
           <Link
             to='/login'
-            className='market-shop-tile-action public'
+            className='w-full mt-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm text-[#75d04b] border-2 border-[#75d04b] hover:bg-[#75d04b] hover:text-white transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px]'
           >
             Sign in to buy
           </Link>

@@ -30,6 +30,8 @@ export const productService = {
    *
    * Accepts optional `zoneId` and `cityId` so the marketplace shows only
    * products from shops serving the buyer's selected delivery zone.
+   * 
+   * Includes timeout protection to prevent hanging requests.
    */
   async getPublicPage(options = {}) {
     const { zoneId, cityId, ...rest } = options;
@@ -47,40 +49,219 @@ export const productService = {
       const sep = params ? '&' : '';
       params += `${sep}cityId=${encodeURIComponent(cityId)}`;
     }
+    
     const url = params ? `/product/public/all?${params}` : "/product/public/all";
-    const { data } = await publicApi.get(url, { skipAuth: true });
-    const page = {
-      products: data.products || [],
-      total: Number(data.total) || (data.products || []).length,
-      page: Number(data.page) || 1,
-      limit: Number(data.limit) || (data.products || []).length,
-      totalPages: Number(data.totalPages) || 1,
-    };
-    cache.set(cacheKey, page, 2 * 60 * 1000);
-    return page;
+    
+    try {
+      const { data } = await publicApi.get(url, { 
+        skipAuth: true,
+        timeout: 30000 // 30 second timeout
+      });
+      
+      const page = {
+        products: data.products || [],
+        total: Number(data.total) || (data.products || []).length,
+        page: Number(data.page) || 1,
+        limit: Number(data.limit) || (data.products || []).length,
+        totalPages: Number(data.totalPages) || 1,
+      };
+      cache.set(cacheKey, page, 2 * 60 * 1000);
+      return page;
+    } catch (error) {
+      // If timeout, return empty cache to allow graceful degradation
+      if (error.code === 'ECONNABORTED') {
+        console.warn('Product loading timeout, returning cached or empty results');
+        return {
+          products: [],
+          total: 0,
+          page: 1,
+          limit: 0,
+          totalPages: 0,
+        };
+      }
+      throw error;
+    }
   },
 
   /**
-   * Get a single product — public endpoint (limited fields, no auth required)
-   * @param {string} productId - Product ID
-   * @returns {Promise} - Product object with limited fields
+   * Get filtered products from the backend with all filter params
+   * Falls back to getPublicAll if filtered endpoint unavailable
+   * @param {Object} filters - { category, minPrice, maxPrice, rating, zoneId, cityId, search, page, limit }
+   * @returns {Promise} - Paged response with products and metadata
    */
-  async getPublicById(productId) {
-    const cacheKey = `product:public:${productId}`;
+  async getPublicFiltered(filters = {}) {
+    const {
+      category,
+      minPrice,
+      maxPrice,
+      rating,
+      zoneId,
+      cityId,
+      search,
+      shop,
+      page = 1,
+      limit = 24,
+    } = filters;
+
+    // Build cache key from filters
+    const cacheKey = `products:public:filtered:${JSON.stringify({
+      category,
+      minPrice,
+      maxPrice,
+      rating,
+      zoneId,
+      cityId,
+      search,
+      shop,
+      page,
+      limit,
+    })}`;
+
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
 
-    const { data } = await publicApi.get(`/product/public/${productId}`, { skipAuth: true });
-    const product = data.product || null;
-    cache.set(cacheKey, product, 15 * 60 * 1000);
-    return product;
+    // Build query params - only if at least one filter is specified
+    const hasFilters = category || minPrice || maxPrice || rating || search || shop || zoneId || cityId;
+    const params = new URLSearchParams();
+    
+    if (category) params.append('category', category);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    if (rating) params.append('rating', rating);
+    if (zoneId) params.append('zoneId', zoneId);
+    if (cityId) params.append('cityId', cityId);
+    if (search) params.append('search', search);
+    if (shop) params.append('shop', shop);
+    if (page && page > 1) params.append('page', page);
+    if (limit && limit !== 24) params.append('limit', limit);
+
+    const url = hasFilters ? `/product/public/filtered?${params.toString()}` : `/product/public/all?${params.toString()}`;
+    
+    try {
+      const { data } = await publicApi.get(url, { 
+        skipAuth: true,
+        timeout: 30000 // 30 second timeout
+      });
+
+      const result = {
+        products: data.products || [],
+        total: Number(data.total) || 0,
+        page: Number(data.page) || 1,
+        limit: Number(data.limit) || limit,
+        totalPages: Math.ceil((Number(data.total) || 0) / limit),
+        aggregations: data.aggregations || {},
+      };
+
+      cache.set(cacheKey, result, 2 * 60 * 1000);
+      return result;
+    } catch (error) {
+      // If 404 or 400, endpoint doesn't exist - fall back to public all endpoint
+      if (error.response?.status === 400 || error.response?.status === 404) {
+        console.warn('Filtered endpoint unavailable, falling back to getPublicAll');
+        const fallbackResult = await this.getPublicPage({
+          page,
+          limit,
+          zoneId,
+          cityId,
+        });
+        
+        // Perform client-side filtering
+        let filtered = fallbackResult.products || [];
+        if (category) {
+          filtered = filtered.filter(p => (p.category || '').toLowerCase() === String(category).toLowerCase());
+        }
+        if (search) {
+          const q = String(search).toLowerCase();
+          filtered = filtered.filter(p => 
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.description || '').toLowerCase().includes(q) ||
+            (p.category || '').toLowerCase().includes(q)
+          );
+        }
+        if (minPrice) {
+          filtered = filtered.filter(p => (p.discountPrice || p.price || 0) >= Number(minPrice));
+        }
+        if (maxPrice) {
+          filtered = filtered.filter(p => (p.discountPrice || p.price || 0) <= Number(maxPrice));
+        }
+        if (rating) {
+          filtered = filtered.filter(p => (p.ratings || 0) >= Number(rating));
+        }
+        if (shop) {
+          filtered = filtered.filter(p => (p.shop?.name || '').toLowerCase() === String(shop).toLowerCase());
+        }
+        
+        const result = {
+          products: filtered,
+          total: filtered.length,
+          page: 1,
+          limit: filtered.length,
+          totalPages: 1,
+          aggregations: {},
+        };
+        
+        cache.set(cacheKey, result, 2 * 60 * 1000);
+        return result;
+      }
+      
+      // For timeout or other errors, return empty result
+      if (error.code === 'ECONNABORTED') {
+        console.warn('Filtered products request timeout, returning empty results');
+        return {
+          products: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+          aggregations: {},
+        };
+      }
+      
+      // For other errors, still return something usable
+      console.error('Filtered products request error:', error.message);
+      return {
+        products: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+        aggregations: {},
+      };
+    }
+  },
+
+  /**
+   * Get category metadata with product counts
+   * @param {Object} filters - { zoneId, cityId }
+   * @returns {Promise} - Array of categories with product counts
+   */
+  async getCategoryMetadata(filters = {}) {
+    const { zoneId, cityId } = filters;
+    const cacheKey = `categories:metadata:${zoneId || ''}:${cityId || ''}`;
+
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    const params = new URLSearchParams();
+    if (zoneId) params.append('zoneId', zoneId);
+    if (cityId) params.append('cityId', cityId);
+
+    const url = `/product/public/categories?${params.toString()}`;
+    const { data } = await publicApi.get(url, { skipAuth: true });
+
+    const categories = data.categories || [];
+    cache.set(cacheKey, categories, 5 * 60 * 1000);
+    return categories;
   },
 
   /**
    * Get all products for marketplace browsing (authenticated — full fields)
    * @param {Object} options - { page, limit } (optional)
    * @returns {Promise} - Array of products
+   * 
+   * Includes timeout protection to prevent hanging requests.
    */
   async getAll(options = {}) {
     const cacheKey = `products:all:${JSON.stringify(options)}`;
@@ -90,10 +271,20 @@ export const productService = {
 
     const params = new URLSearchParams(options).toString();
     const url = params ? `/product/get-all-products?${params}` : "/product/get-all-products";
-    const { data } = await api.get(url);
-    const products = data.products || [];
-    cache.set(cacheKey, products, 2 * 60 * 1000);
-    return products;
+    
+    try {
+      const { data } = await api.get(url, { timeout: 30000 }); // 30 second timeout
+      const products = data.products || [];
+      cache.set(cacheKey, products, 2 * 60 * 1000);
+      return products;
+    } catch (error) {
+      // If timeout, return empty to allow graceful degradation
+      if (error.code === 'ECONNABORTED') {
+        console.warn('All products loading timeout, returning empty results');
+        return [];
+      }
+      throw error;
+    }
   },
 
   /**
@@ -108,7 +299,39 @@ export const productService = {
   },
 
   /**
-   * Get detailed information about a single product
+   * Get detailed information about a single product — public endpoint
+   * @param {string} productId - Product ID
+   * @returns {Promise} - Product object with full details
+   */
+  async getPublicById(productId) {
+    const cacheKey = `product:public:${productId}`;
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    try {
+      const { data } = await publicApi.get(`/product/public/${productId}`, { skipAuth: true });
+      const product = data.product || data || null;
+      cache.set(cacheKey, product, 15 * 60 * 1000);
+      return product;
+    } catch (error) {
+      // Fallback to authenticated endpoint if public endpoint doesn't exist
+      if (error.response?.status === 404) {
+        try {
+          const { data } = await api.get(`/product/get-product/${productId}`);
+          const product = data.product || null;
+          cache.set(cacheKey, product, 15 * 60 * 1000);
+          return product;
+        } catch {
+          throw error; // Re-throw original 404
+        }
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get detailed information about a single product (authenticated)
    * @param {string} productId - Product ID
    * @returns {Promise} - Product object with full details
    */

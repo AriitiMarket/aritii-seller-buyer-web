@@ -111,11 +111,15 @@ const SubNavBar = ({ onOpenAll }) => {
 
       {/* ===== Browse drawer — LEFT slide-in on mobile AND desktop ===== */}
       {allOpen && (
-        <div
-          className="fixed inset-0 z-[65] bg-black/50"
-          onClick={() => setAllOpen(false)}
-          aria-hidden="true"
-        >
+        <div className="fixed inset-0 z-[65]" onClick={() => setAllOpen(false)}>
+          {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
+          <div
+            className="fixed inset-0 bg-black/50"
+            inert=""
+            aria-hidden="true"
+          />
+          
+          {/* Dialog itself — NOT aria-hidden, so focus can be trapped inside */}
           <div
             role="dialog"
             aria-modal="true"
@@ -130,7 +134,7 @@ const SubNavBar = ({ onOpenAll }) => {
                 ref={closeRef}
                 type="button"
                 onClick={() => setAllOpen(false)}
-                className="p-1.5 text-[#9aa6b2] transition-colors hover:text-white"
+                className="p-1.5 -m-2 text-[#9aa6b2] transition-colors hover:text-white rounded-lg min-h-[44px] min-w-[44px]"
                 aria-label="Close browse menu"
               >
                 <AiOutlineClose size={22} />

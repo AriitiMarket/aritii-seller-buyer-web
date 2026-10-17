@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser, AiOutlineHeart } from 'react-icons/ai';
+import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser, AiOutlineHeart, AiOutlineSearch } from 'react-icons/ai';
 import { MdLocalShipping, MdLocationOn, MdHelpOutline, MdArrowDropDown } from 'react-icons/md';
 import BrandLogo from '@/components/common/BrandLogo';
 import HeaderSearch from '@/shared/components/header/HeaderSearch';
@@ -9,7 +9,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '@/store/slices/userThunks';
 import { toast } from 'react-toastify';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
-import { locationService } from '@/services';
+import { useDeliveryZones } from '@/shared/hooks/useDeliveryZones';
+import locationService from '@/services/location.service';
 
 /**
  * BuyerHeader — the public-shop-style bar for the buyer account shell.
@@ -36,7 +37,10 @@ const ACCOUNT_ITEMS = isAuthenticated => [
 const BuyerHeader = ({ onMenuClick }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const profileRef = useRef(null);
+  const locationRef = useRef(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
@@ -47,16 +51,17 @@ const BuyerHeader = ({ onMenuClick }) => {
   useEffect(() => {
     const handleClick = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
+      if (locationRef.current && !locationRef.current.contains(e.target)) setLocationOpen(false);
     };
-    if (profileOpen) {
+    if (profileOpen || locationOpen) {
       document.addEventListener('mousedown', handleClick);
       return () => document.removeEventListener('mousedown', handleClick);
     }
-  }, [profileOpen]);
+  }, [profileOpen, locationOpen]);
 
   const handleLogout = async () => {
     try {
-      await dispatch(logoutUser());
+      dispatch(logoutUser());
       toast.success('You have been signed out.');
       setProfileOpen(false);
       setMobileMenuOpen(false);
@@ -76,7 +81,6 @@ const BuyerHeader = ({ onMenuClick }) => {
   const { cityName, zoneName, setLocation, clearLocation, isSelected } =
     useDeliveryLocation();
 
-  const [locationOpen, setLocationOpen] = useState(false);
   const [zones, setZones] = useState([]);
 
   // Load zones for the location selector when opened
@@ -138,7 +142,7 @@ const BuyerHeader = ({ onMenuClick }) => {
             {/* Right: account & lists · cart · menu */}
             <div className="flex items-center gap-1 flex-shrink-0">
               {/* Delivery zone selector */}
-              <div className="relative group">
+              <div className="relative group" ref={locationRef}>
                 <button
                   type="button"
                   onClick={() => {

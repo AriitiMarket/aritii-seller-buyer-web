@@ -738,3 +738,154 @@ button, a, input[type="checkbox"], input[type="radio"] {
     padding-bottom: max(0, env(safe-area-inset-bottom));
   }
 }
+
+
+/* ============================================================================
+   MARKETPLACE MOBILE CONSISTENCY FIX
+   ============================================================================ */
+
+/* Global touch target sizing - minimum 44px for all interactive elements */
+@media (max-width: 767px) {
+  button,
+  a[role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  [role="button"],
+  .aritii-shop-card,
+  .market-amazon-product-card {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Product grid - 2 columns on mobile */
+  .grid[class*="grid-cols"] {
+    grid-auto-rows: auto;
+  }
+
+  /* Ensure no 1-column grids on mobile */
+  .grid-cols-1 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap, 12px);
+  }
+
+  /* Shop card grid - 2 columns */
+  .shops-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Product card spacing and sizing */
+  .market-amazon-product-card {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  /* Buttons in cards - proper padding */
+  .market-amazon-product-card button {
+    padding: 12px 16px;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  /* Shop card buttons - proper sizing */
+  .aritii-shop-card button,
+  .aritii-shop-card a {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Modal/drawer actions */
+  .drawer-done-btn,
+  [class*="done-btn"] {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  /* Filter buttons */
+  .categories-mobile-button,
+  [class*="filter"] button,
+  [class*="filter"] a {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+}
+
+/* Consistent spacing for product/shop cards on mobile */
+@media (max-width: 640px) {
+  .grid[class*="gap"] {
+    gap: 10px;
+  }
+
+  .market-amazon-product-card,
+  .aritii-shop-card {
+    border-radius: 8px;
+  }
+
+  /* Image aspect ratios */
+  .market-amazon-product-image {
+    aspect-ratio: 1;
+    min-height: 160px;
+  }
+
+  .aritii-shop-card .aspect-video {
+    min-height: 140px;
+  }
+}
+
+/* Medium screens - 3 column grid */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid[class*="sm:grid-cols-2"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Adjust spacing for tablet */
+  .grid[class*="gap"] {
+    gap: 16px;
+  }
+}
+
+/* Large screens - 4 column grid */
+@media (min-width: 1024px) {
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .grid[class*="gap"] {
+    gap: 20px;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0, env(safe-area-inset-left));
+    padding-right: max(0, env(safe-area-inset-right));
+  }
+
+  .drawer-footer,
+  [class*="drawer"] {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* No single-column layouts on any viewport */
+.grid-cols-1,
+.grid-cols-1 > * {
+  display: revert;
+}
+
+@media (max-width: 767px) {
+  .grid-cols-1 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

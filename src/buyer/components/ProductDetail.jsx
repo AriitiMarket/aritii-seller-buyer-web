@@ -17,6 +17,7 @@ import { resolveImageUrl } from '@/shared/utils/image';
 import { Avatar } from '@/components/common/ImageWithFallback';
 import shopService from '@/services/shop.service';
 import { useAuth } from '@/auth/hooks/useAuth';
+import { TbTrendingUp } from 'react-icons/tb';
 
 const ProductDetail = ({ data, basePath = '' }) => {
 
@@ -152,115 +153,140 @@ const ProductDetail = ({ data, basePath = '' }) => {
 
  
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-market-surface dark:bg-gray-900">
       {data ? (
         <>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+          {/* MAIN PRODUCT SECTION */}
+          <div className="max-w-7xl mx-auto px-0 py-8 md:py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-8 md:gap-6">
 
-              {/* LEFT SIDE — images */}
-              <div className="space-y-4">
-                <div className="aspect-square bg-white dark:bg-gray-900 rounded-lg border border-market-border dark:border-gray-700 overflow-hidden flex items-center justify-center">
-                  <img
-                    src={images[select] || PlaceholderProduct}
-                    alt={data.name || 'Product image'}
-                    className="w-full h-full object-contain p-8"
-                  />
-                </div>
-
-                {images.length > 1 && (
-                  <div className="flex gap-3 overflow-x-auto pb-2">
-                    {images.map((img, index) => (
-                      <div 
-                        key={index} 
-                        className={`flex-shrink-0 cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${
-                          select === index 
-                            ? 'border-[#2162a1] ring-2 ring-[#2162a1]/20' 
-                            : 'border-market-border dark:border-gray-700 hover:border-market-border dark:hover:border-gray-600'
-                        }`}
-                        onClick={() => setSelect(index)}
-                      >
-                        <img
-                          src={img}
-                          alt={`${data.name || 'Product'} image ${index + 1}`}
-                          className="h-20 w-20 object-cover"
-                        />
-                      </div>
-                    ))}
+              {/* LEFT SIDE — Image Gallery (3:4 aspect ratio) */}
+              <div className="lg:col-span-2 px-4 sm:px-6 lg:px-0">
+                <div className="space-y-4">
+                  {/* Main Image - 3:4 aspect ratio */}
+                  <div className="bg-market-surface-container-low dark:bg-gray-800 rounded-lg border border-market-border dark:border-gray-700 overflow-hidden flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                    <img
+                      src={images[select] || PlaceholderProduct}
+                      alt={data.name || 'Product image'}
+                      className="w-full h-full object-contain p-6"
+                    />
                   </div>
-                )}
+
+                  {/* Thumbnail Gallery */}
+                  {images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {images.map((img, index) => (
+                        <button
+                          key={index}
+                          className={`flex-shrink-0 cursor-pointer rounded-lg overflow-hidden border-2 transition-all h-20 w-20 ${
+                            select === index
+                              ? 'border-[#75d04b] ring-2 ring-[#75d04b]/20'
+                              : 'border-market-border dark:border-gray-700 hover:border-[#75d04b] dark:hover:border-[#75d04b]'
+                          }`}
+                          onClick={() => setSelect(index)}
+                          aria-label={`View image ${index + 1}`}
+                        >
+                          <img
+                            src={img}
+                            alt={`${data.name || 'Product'} image ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* RIGHT SIDE — product info */}
-              <div className="space-y-6">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface dark:text-white">
+              {/* RIGHT SIDE — Buy Box (Sticky on desktop) */}
+              <div className="lg:col-span-1 px-4 sm:px-6 lg:px-0 lg:sticky lg:top-24 lg:h-fit">
+                <div className="rounded-xl border border-market-border bg-market-surface-container-low dark:bg-gray-800 p-5 md:p-6 shadow-sm">
+                  {/* Title */}
+                  <h1 className="text-xl md:text-2xl font-bold text-[#131921] dark:text-white mb-3 leading-snug">
                     {data.name}
                   </h1>
-                  <div className="flex items-center gap-2 mt-2">
+
+                  {/* Rating + Review Count */}
+                  <div className="flex items-center gap-2 mb-4 pb-4 border-b border-market-border">
                     <Ratings rating={data?.ratings} />
                     {data?.reviews?.length > 0 && (
                       <span className="text-sm text-market-on-surface-variant dark:text-gray-400">
-                        ({data.reviews.length} reviews)
+                        ({data.reviews.length} {data.reviews.length === 1 ? 'review' : 'reviews'})
                       </span>
                     )}
                   </div>
-                </div>
 
-                {/* Price */}
-                <div className="flex items-baseline gap-3">
-                  <h4 className="text-3xl font-bold text-market-secondary">
-                    {activePrice} ETB
-                  </h4>
-                  {originalPrice && originalPrice > activePrice ? (
-                    <h3 className="text-xl text-gray-400 line-through">
-                      {originalPrice} ETB
-                    </h3>
-                  ) : null}
-                  {originalPrice && originalPrice > activePrice && (
-                    <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full">
-                      {Math.round(((originalPrice - activePrice) / originalPrice) * 100)}% OFF
+                  {/* Stock Status Badge */}
+                  <div className="mb-4">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                      availableUnits > 8
+                        ? 'bg-[#75d04b]/10 text-[#75d04b] border border-[#75d04b]/20'
+                        : availableUnits > 0
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200'
+                    }`}>
+                      <span className={`w-2.5 h-2.5 rounded-full ${
+                        availableUnits > 8
+                          ? 'bg-[#75d04b]'
+                          : availableUnits > 0
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                      }`}></span>
+                      {availableUnits > 8 ? 'In Stock' : availableUnits > 0 ? `Only ${availableUnits} left` : 'Out of Stock'}
                     </span>
+                  </div>
+
+                  {/* Prime Badge */}
+                  {data?.isPrime && (
+                    <div className="mb-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-tight bg-blue-600 text-white">
+                        ✓ Prime
+                      </span>
+                    </div>
                   )}
-                </div>
 
-                {/* Stock Status — mirrors backend `available`; out-of-stock rows
-                    are already filtered from public lists by the API. */}
-                <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                    availableUnits > 0
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full ${availableUnits > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                    {availableUnits > 0 ? `${availableUnits} in stock` : 'Out of stock'}
-                  </span>
-                </div>
+                  {/* Price Display - Large */}
+                  <div className="mb-3">
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-4xl font-bold text-[#131921] dark:text-white">
+                        {activePrice.toLocaleString()} ETB
+                      </span>
+                    </div>
+                    {originalPrice && originalPrice > activePrice && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg text-market-on-surface-variant dark:text-gray-400 line-through">
+                          {originalPrice.toLocaleString()} ETB
+                        </span>
+                        <span className="text-sm font-bold text-[#cc0c39] bg-[#cc0c39]/10 px-2.5 py-1 rounded">
+                          {Math.round(((originalPrice - activePrice) / originalPrice) * 100)}% OFF
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Description */}
-                <p className="text-market-on-surface-variant dark:text-gray-400 leading-relaxed">
-                  {data.description}
-                </p>
+                  {/* Description Preview */}
+                  <p className="text-sm text-market-on-surface-variant dark:text-gray-400 mb-4 leading-relaxed line-clamp-3">
+                    {data.description}
+                  </p>
 
-                <DeliveryAvailability shopId={data?.shopId} productId={data?._id} />
+                  <DeliveryAvailability shopId={data?.shopId} productId={data?._id} />
 
-                {isAuthenticated ? (
-                  <>
-                    {/* Quantity Selector */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                  {isAuthenticated ? (
+                    <>
+                      {/* Quantity Selector */}
+                      <div className="flex items-center gap-2 mb-4 bg-market-surface dark:bg-gray-700 rounded-lg p-1 w-fit">
                         <button
-                          className="w-12 h-12 rounded-xl border border-market-border dark:border-gray-700 text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
+                          className="w-9 h-9 rounded-md text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-600 transition-colors flex items-center justify-center text-lg"
                           onClick={decrementCount}
                           aria-label="Decrease quantity"
                         >
-                          -
+                          −
                         </button>
-                        <span className="bg-gray-100 dark:bg-gray-800 text-market-on-surface dark:text-white font-semibold px-6 py-3 rounded-xl min-w-[60px] text-center">
+                        <span className="text-market-on-surface dark:text-white font-semibold px-5 py-2 min-w-[50px] text-center">
                           {count}
                         </span>
                         <button
-                          className="w-12 h-12 rounded-xl border border-market-border dark:border-gray-700 text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-800 transition-colors flex items-center justify-center text-lg"
+                          className="w-9 h-9 rounded-md text-market-on-surface dark:text-gray-300 font-bold hover:bg-market-surface-container dark:hover:bg-gray-600 transition-colors flex items-center justify-center text-lg"
                           onClick={incrementCount}
                           aria-label="Increase quantity"
                         >
@@ -268,88 +294,94 @@ const ProductDetail = ({ data, basePath = '' }) => {
                         </button>
                       </div>
 
+                      {/* Add to Cart Button - Large #75d04b green */}
                       <button
-                        className="p-3 rounded-xl border border-market-border dark:border-gray-700 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                        disabled={availableUnits < 1}
+                        className={`w-full h-12 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-base shadow-md mb-3 ${
+                          availableUnits < 1
+                            ? 'bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
+                            : 'bg-[#75d04b] text-white hover:bg-[#6ac540] hover:shadow-lg active:scale-95'
+                        }`}
+                        onClick={() => AddToCartHandler(data._id)}
+                        aria-label={availableUnits < 1 ? 'Product is out of stock' : 'Add to cart'}
+                      >
+                        <AiOutlineShoppingCart size={20} />
+                        {availableUnits < 1 ? 'Out of Stock' : 'Add to Cart'}
+                      </button>
+
+                      {/* Wishlist Button - Heart */}
+                      <button
+                        className="w-full h-11 rounded-lg border-2 border-market-border dark:border-gray-700 hover:border-red-300 hover:bg-red-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 font-medium text-market-on-surface dark:text-gray-300"
                         onClick={click ? () => removeFromWishlistHandler(data) : () => addToWishlistHandler(data)}
                         aria-label={click ? "Remove from wishlist" : "Add to wishlist"}
                       >
                         {click ? (
-                          <AiFillHeart size={24} className="text-red-500" />
+                          <AiFillHeart size={20} className="text-red-500" />
                         ) : (
-                          <AiOutlineHeart size={24} className="text-gray-400 dark:text-market-on-surface-variant" />
+                          <AiOutlineHeart size={20} />
                         )}
+                        {click ? 'Saved' : 'Save'}
                       </button>
-                    </div>
 
-                    {/* Add to Cart Button — disabled when backend available ≤ 0 */}
-                    <button
-                      disabled={availableUnits < 1}
-                      className={`w-full h-14 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-lg shadow-lg ${
-                        availableUnits < 1
-                          ? 'bg-gray-300 text-market-on-surface-variant cursor-not-allowed'
-                          : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover hover:shadow-xl'
-                      }`}
-                      onClick={() => AddToCartHandler(data._id)}
-                      aria-label={availableUnits < 1 ? 'Product is out of stock' : 'Add to cart'}
-                    >
-                      <AiOutlineShoppingCart size={22} />
-                      {availableUnits < 1 ? 'Out of Stock' : 'Add to Cart'}
-                    </button>
-
-                    {/* Shop Info */}
-                    <div className="bg-white dark:bg-gray-900 rounded-xl border border-market-border dark:border-gray-700 p-4">
-                      <div className="flex items-center gap-4">
-                        <Link to={shopPath}>
-                          <Avatar
-                            data={shop}
-                            alt={shop?.name || 'Shop avatar'}
-                            className="w-14 h-14 rounded-full border-2 border-[#2162a1]"
-                          />
-                        </Link>
-                        <div className="flex-1">
+                      {/* Shop Info Card */}
+                      <div className="bg-market-surface dark:bg-gray-700 rounded-lg border border-market-border dark:border-gray-600 p-4 mt-4">
+                        <div className="flex items-center gap-3 mb-3">
                           <Link to={shopPath}>
-                            <h3 className="font-semibold text-market-on-surface dark:text-white hover:text-market-secondary transition-colors">
-                              {shop?.name}
-                            </h3>
+                            <Avatar
+                              data={shop}
+                              alt={shop?.name || 'Shop avatar'}
+                              className="w-12 h-12 rounded-full border-2 border-[#75d04b]"
+                            />
                           </Link>
-                          <div className="flex items-center gap-1 mt-1">
-                            <AiFillStar className="text-yellow-400" size={16} />
-                            <span className="text-sm text-market-on-surface-variant dark:text-gray-400">
-                              {Number(shopRating).toFixed(1)}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <Link to={shopPath}>
+                              <h3 className="font-semibold text-market-on-surface dark:text-white hover:text-[#75d04b] transition-colors truncate">
+                                {shop?.name}
+                              </h3>
+                            </Link>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <AiFillStar className="text-yellow-400" size={14} />
+                              <span className="text-xs text-market-on-surface-variant dark:text-gray-400">
+                                {Number(shopRating).toFixed(1)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                         <button
-                          className="px-4 py-2 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-medium rounded-lg transition-colors text-sm"
+                          className="w-full px-3 py-2 bg-[#75d04b] text-white hover:bg-[#6ac540] font-semibold rounded-lg transition-colors text-sm"
                           onClick={handleRequestProduct}
                           aria-label="Request this product from the seller"
                         >
-                          Request Product
+                          Message Seller
                         </button>
                       </div>
+                    </>
+                  ) : (
+                    /* Guest CTA */
+                    <div className="space-y-3 pt-2">
+                      <Link
+                        to="/sign-up"
+                        className="block w-full h-12 bg-[#75d04b] text-white hover:bg-[#6ac540] font-bold rounded-lg transition-all duration-200 flex items-center justify-center text-base shadow-md hover:shadow-lg"
+                      >
+                        Sign Up to Buy
+                      </Link>
+                      <p className="text-center text-xs text-market-on-surface-variant dark:text-gray-400">
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-[#75d04b] hover:underline font-semibold">Login</Link>
+                      </p>
                     </div>
-                  </>
-                ) : (
-                  /* Guest CTA */
-                  <div className="space-y-4 pt-4">
-                    <Link
-                      to="/sign-up"
-                      className="block w-full h-14 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-semibold rounded-xl transition-all duration-200 flex items-center justify-center text-lg shadow-lg hover:shadow-xl"
-                    >
-                      Sign Up to Buy
-                    </Link>
-                    <p className="text-center text-sm text-market-on-surface-variant dark:text-gray-400">
-                      Already have an account?{' '}
-                      <Link to="/login" className="text-market-secondary hover:underline font-medium">Login</Link>
-                    </p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
             </div>
           </div>
 
+          {/* SPECS/REVIEWS SECTION - Below image on mobile, in right column on desktop */}
           <ProductDetailInfo data={data} shop={shop} />
+
+          {/* RELATED PRODUCTS SECTION */}
+          <RelatedProductsSection productData={data} basePath="" />
         </>
       ) : null}
     </div>

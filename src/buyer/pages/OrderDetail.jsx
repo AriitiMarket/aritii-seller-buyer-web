@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import BuyerHeader from '@/buyer/components/BuyerHeader'
 import Footer from '@/shared/components/Footer'
-import UserOrderDetailComponent from '@/buyer/components/UserOrderDetailComponent'
+import OrderDetailComponent from '@/buyer/components/OrderDetailComponent'
 
 const BuyerOrderDetailPage = () => {
   useEffect(() => {
@@ -13,8 +13,8 @@ const BuyerOrderDetailPage = () => {
       <BuyerHeader onMenuClick={() => {}} />
       
       <div className="flex-1">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <UserOrderDetailComponent />
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <OrderDetailComponent />
         </div>
       </div>
 

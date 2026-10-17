@@ -7,19 +7,17 @@ import EmptyState from "@/components/common/EmptyState";
 import { buildDestination, isUsableAddress } from "@/shared/utils/destination";
 import { useDeliveryLocation } from "@/shared/hooks/useDeliveryLocation";
 import { validateCartForZone } from "@/store/slices/cartThunks";
+import { FiEdit2, FiCheck } from "react-icons/fi";
 
-/**
- * Checkout - the buyer chooses one of their SAVED delivery addresses.
- *
- * Why saved addresses only: placing an order requires a delivery destination
- * (`destination.sectorId`, `destination.fullAddress`, `destination.phone`) and
- * only a saved address carries the Delivery-hierarchy sector captured by
- * /my-dashboard/addresses. Free-text input can never produce a `sectorId`, so it
- * is no longer collected here.
- *
- * Coupons are out of the MVP (see FEATURES.coupons in @/app/config) and are not
- * offered at checkout.
- */
+const money = (value) =>
+  `${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
+
+const getEstimatedDeliveryDate = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 3);
+  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+};
+
 /**
  * ZoneValidationBanner — explains which cart items cannot be delivered to
  * the selected zone, and lets the buyer remove them or change location.
@@ -83,15 +81,14 @@ const Checkout = () => {
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [zoneValidation, setZoneValidation] = useState(null);
   const [validatingZone, setValidatingZone] = useState(false);
+  const [activeStep, setActiveStep] = useState(1);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // move to top of the page when component is mounted
+    window.scrollTo(0, 0);
   }, []);
 
-  // Validate cart against the selected delivery zone whenever the cart or zone changes.
-  // This runs BEFORE checkout so incompatible items are explained to the buyer.
   useEffect(() => {
     if (!cart || cart.length === 0 || !hasZone) {
       setZoneValidation(null);
@@ -116,7 +113,6 @@ const Checkout = () => {
     };
   }, [cart, zoneId, hasZone, dispatch]);
 
-  // Saved addresses are the only source of a valid delivery destination.
   useEffect(() => {
     let active = true;
     addressService
@@ -137,8 +133,6 @@ const Checkout = () => {
     };
   }, []);
 
-  // Empty cart → checkout cannot proceed (the backend rejects empty carts).
-  // All hooks above stay unconditional (rules of hooks).
   if (!cart || cart.length === 0) {
     return (
       <div className="max-w-3xl mx-auto py-16 px-4">
@@ -166,31 +160,18 @@ const Checkout = () => {
     );
   }
 
-  // Subtotal: quantity x unit price, summed over the cart.
-  // Cart lines store the selling price as `price` (backend mirrors discountPrice
-  // into price). `discountPrice` is kept as a fallback for legacy lines.
-  // Canonical line quantity is `quantity`; `qty` is the legacy alias.
   const subTotalPrice = cart.reduce(
     (acc, item) => acc + (item.quantity ?? item.qty ?? 1) * Number(item.price || item.discountPrice || 0),
     0
   );
 
-  // Shipping cost (3% of the subtotal price).
   const shipping = subTotalPrice * 0.03;
-
   const totalPrice = (subTotalPrice + shipping).toFixed(2);
 
   const selectedAddress =
     addresses.find((address) => address._id === selectedAddressId) || null;
 
-  /**
-   * Flattening a saved address into `destination` lives in
-   * @/shared/utils/destination so checkout and request → order conversion
-   * cannot drift apart.
-   */
-
   const paymentSubmit = () => {
-    // Zone gating: a delivery zone must be selected before checkout.
     if (!hasZone) {
       toast.error(
         "Please select your delivery city and zone before checking out."
@@ -198,8 +179,6 @@ const Checkout = () => {
       return;
     }
 
-    // If we have zone validation results and there are incompatible items,
-    // block checkout and explain which items are the problem.
     if (zoneValidation && zoneValidation.valid === false) {
       const incompatible = zoneValidation.items?.filter(
         (i) => i.eligible === false
@@ -238,16 +217,12 @@ const Checkout = () => {
         country: selectedAddress.regionName || selectedAddress.country || "",
         city: selectedAddress.cityName || selectedAddress.city || "",
       },
-      // Required by POST /order/create-order (Commerce Service).
       destination: buildDestination(selectedAddress),
-      // Delivery zone — the order's ONE validated delivery zone.
       deliveryZoneId: zoneId,
       deliveryZoneName: zoneName,
       user,
     };
 
-    // Ensure every line carries a stable product id for order creation
-    // (backend re-prices from productId / _id).
     orderData.cart = cart.map((item) => ({
       ...item,
       _id: item.productId || item._id,
@@ -256,201 +231,236 @@ const Checkout = () => {
       quantity: item.quantity ?? item.qty ?? 1,
     }));
 
-    // The Payment step reads this back to place the order.
     localStorage.setItem("latestOrder", JSON.stringify(orderData));
     navigate("/payment");
   };
 
   return (
-    <div className="w-full flex flex-col items-center py-8 px-4">
+    <div className="w-full flex flex-col items-center py-8 px-4 bg-market-surface-dim min-h-screen">
       <div className="w-full max-w-6xl">
-        {/* Zone validation banner — shown when cart items don't serve the selected zone */}
+        {/* Zone validation banner */}
         {zoneValidation && zoneValidation.valid === false && (
           <ZoneValidationBanner validation={zoneValidation} />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Delivery Address */}
-          <div className="lg:col-span-2">
-            <DeliveryAddress
-              user={user}
-              addresses={addresses}
-              loading={loadingAddresses}
-              selectedAddressId={selectedAddressId}
-              setSelectedAddressId={setSelectedAddressId}
-            />
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Step 1: Delivery Address */}
+            <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-market-primary text-market-on-primary flex items-center justify-center font-bold">
+                  1
+                </div>
+                <h3 className="text-lg font-bold text-market-on-surface">Delivery Address</h3>
+              </div>
+
+              {/* Customer Info - Read Only */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-6 border-b border-market-border">
+                <div>
+                  <label className="block text-xs font-semibold text-market-on-surface-variant mb-1">Full Name</label>
+                  <div className="px-4 py-2.5 bg-market-surface-dim text-sm text-market-on-surface border border-market-border rounded-lg">
+                    {(user && user.name) || "—"}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-market-on-surface-variant mb-1">Email</label>
+                  <div className="px-4 py-2.5 bg-market-surface-dim text-sm text-market-on-surface border border-market-border rounded-lg">
+                    {(user && user.email) || "—"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Saved Addresses */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-market-on-surface">Select Delivery Address</h4>
+                  <Link
+                    to="/my-dashboard/addresses"
+                    className="text-xs font-semibold text-market-secondary hover:text-market-secondary-hover flex items-center gap-1"
+                  >
+                    <FiEdit2 size={14} /> Add new address
+                  </Link>
+                </div>
+
+                {loadingAddresses && (
+                  <p className="text-sm text-market-on-surface-variant">Loading your addresses...</p>
+                )}
+
+                {!loadingAddresses && addresses.length === 0 && (
+                  <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+                    <p className="text-sm text-amber-800">
+                      You have no saved delivery address. Add one to continue checkout.
+                    </p>
+                    <Link
+                      to="/my-dashboard/addresses"
+                      className="inline-block mt-3 text-sm font-semibold text-market-secondary hover:text-market-secondary-hover"
+                    >
+                      Add a delivery address
+                    </Link>
+                  </div>
+                )}
+
+                {!loadingAddresses && addresses.length > 0 && (
+                  <div className="space-y-3">
+                    {addresses.map((item) => {
+                      const selectable = Boolean(item.sectorId && item.phone);
+                      return (
+                        <label
+                          key={item._id}
+                          className={`flex items-start p-4 border rounded-lg cursor-pointer transition ${
+                            selectedAddressId === item._id
+                              ? 'border-market-secondary bg-market-secondary/5'
+                              : selectable
+                              ? 'border-market-border hover:bg-market-surface-dim'
+                              : 'border-amber-200 bg-amber-50'
+                          }`}
+                        >
+                          <div className="mt-1">
+                            <input
+                              type="radio"
+                              name="saved-address"
+                              className="w-5 h-5 text-market-secondary"
+                              checked={selectedAddressId === item._id}
+                              disabled={!selectable}
+                              onChange={() => setSelectedAddressId(item._id)}
+                            />
+                          </div>
+                          <div className="ml-4 flex-1">
+                            <p className="text-sm font-semibold text-market-on-surface">
+                              {item.addressType || "Delivery Address"}
+                            </p>
+                            <p className="text-sm text-market-on-surface-variant mt-1">{item.address1}</p>
+                            <p className="text-xs text-market-on-surface-variant mt-1">
+                              {[
+                                item.sectorName,
+                                item.cityName || item.city,
+                                item.regionName || item.country,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")}
+                            </p>
+                            {item.phone && (
+                              <p className="text-xs text-market-on-surface-variant mt-1">
+                                Phone: {item.phone}
+                              </p>
+                            )}
+                            {!selectable && (
+                              <p className="text-xs text-amber-700 mt-2 font-medium">
+                                ⚠ Missing delivery sector or phone - please update
+                              </p>
+                            )}
+                          </div>
+                          {selectedAddressId === item._id && selectable && (
+                            <FiCheck className="w-5 h-5 text-market-secondary flex-shrink-0 mt-1" />
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Estimated Delivery */}
+              {selectedAddress && (
+                <div className="mt-6 pt-6 border-t border-market-border">
+                  <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <span className="text-2xl">📦</span>
+                    <div>
+                      <p className="text-sm font-semibold text-green-900">Estimated Delivery</p>
+                      <p className="text-sm text-green-700">{getEstimatedDeliveryDate()}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Step 2: Order Review */}
+            <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-market-primary/20 text-market-primary flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <h3 className="text-lg font-bold text-market-on-surface">Order Review</h3>
+                <button className="ml-auto text-xs font-semibold text-market-secondary hover:underline">
+                  Edit items
+                </button>
+              </div>
+
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {cart.map((item, idx) => {
+                  const qty = item.quantity ?? item.qty ?? 1;
+                  const unit = Number(item.price || item.discountPrice || 0);
+                  return (
+                    <div key={idx} className="flex items-start gap-4 pb-4 border-b border-market-border last:border-0">
+                      <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                        [Image]
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-market-on-surface line-clamp-2">{item.name}</p>
+                        <p className="text-xs text-market-on-surface-variant mt-1">Qty: {qty}</p>
+                        <p className="text-sm font-semibold text-market-on-surface mt-2">{money(unit * qty)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step 3: Payment (Placeholder) */}
+            <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm opacity-50">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm">
+                  3
+                </div>
+                <h3 className="text-lg font-bold text-market-on-surface">Payment Method</h3>
+              </div>
+              <p className="text-sm text-market-on-surface-variant">Available on next step</p>
+            </div>
           </div>
 
-          {/* Order Summary */}
-          <div>
-            <CartData
-              totalPrice={totalPrice}
-              shipping={shipping}
-              subTotalPrice={subTotalPrice}
-            />
-          </div>
-        </div>
+          {/* Right Sidebar - Order Summary */}
+          <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm h-fit">
+            <h3 className="text-lg font-bold text-market-on-surface mb-6">Order Summary</h3>
 
-        {/* Proceed Button */}
-        <div className="mt-8 flex justify-end">
-          <button
-            onClick={paymentSubmit}
-            className="px-8 py-3 bg-market-primary text-market-on-primary hover:bg-market-primary-hover font-semibold rounded-lg transition flex items-center gap-2"
-          >
-            Proceed to Payment
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+            <div className="space-y-3 pb-4 border-b border-market-border">
+              <div className="flex justify-between">
+                <span className="text-sm text-market-on-surface-variant">Subtotal ({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
+                <span className="text-sm font-semibold text-market-on-surface">{money(subTotalPrice)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-market-on-surface-variant">Shipping</span>
+                <span className="text-sm font-semibold text-market-on-surface">{money(shipping)}</span>
+              </div>
+            </div>
 
-const DeliveryAddress = ({
-  user,
-  addresses,
-  loading,
-  selectedAddressId,
-  setSelectedAddressId,
-}) => {
-  return (
-    <div className="w-full lg:w-[95%] bg-white rounded-lg shadow-sm border border-market-border p-6">
-      <h5 className="text-lg font-bold text-market-on-surface mb-6">Delivery Address</h5>
+            <div className="mt-4 pt-4 border-b border-market-border pb-4">
+              <div className="flex justify-between">
+                <span className="text-base font-bold text-market-on-surface">Total</span>
+                <span className="text-xl font-bold text-market-secondary">{money(totalPrice)}</span>
+              </div>
+            </div>
 
-      {/* Customer */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-market-on-surface mb-2">Full Name</label>
-          <input
-            type="text"
-            value={(user && user.name) || ""}
-            readOnly
-            className="w-full px-4 py-2 border border-market-border rounded-lg bg-market-surface-dim text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-market-on-surface mb-2">Email</label>
-          <input
-            type="text"
-            value={(user && user.email) || ""}
-            readOnly
-            className="w-full px-4 py-2 border border-market-border rounded-lg bg-market-surface-dim text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Saved addresses - the only addresses that carry a delivery sector. */}
-      <div className="mt-6 pt-6 border-t border-market-border">
-        <div className="flex items-center justify-between mb-3">
-          <h6 className="text-sm font-semibold text-market-on-surface">Choose a saved address</h6>
-          <Link
-            to="/my-dashboard/addresses"
-            className="text-xs font-semibold text-market-secondary hover:text-market-secondary-hover"
-          >
-            Manage addresses
-          </Link>
-        </div>
-
-        {loading && <p className="text-sm text-market-on-surface-variant">Loading your addresses...</p>}
-
-        {!loading && addresses.length === 0 && (
-          <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
-            <p className="text-sm text-amber-800">
-              You have no saved delivery address yet. An order needs a delivery
-              location, so add one before checking out.
-            </p>
-            <Link
-              to="/my-dashboard/addresses"
-              className="inline-block mt-3 text-sm font-semibold text-market-secondary hover:text-market-secondary-hover"
+            <button
+              onClick={paymentSubmit}
+              disabled={!selectedAddress}
+              className={`mt-6 w-full h-11 rounded-lg text-sm font-semibold transition flex items-center justify-center ${
+                selectedAddress
+                  ? 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover shadow-sm'
+                  : 'bg-market-surface-container-low text-market-on-surface-variant cursor-not-allowed'
+              }`}
             >
-              Add a delivery address
+              Continue to Payment
+            </button>
+
+            <Link
+              to="/my-dashboard/cart"
+              className="mt-4 block w-full text-center text-sm text-market-secondary hover:text-market-secondary-hover transition"
+            >
+              Back to cart
             </Link>
           </div>
-        )}
-
-        {!loading && addresses.length > 0 && (
-          <div className="space-y-2">
-            {addresses.map((item) => {
-              const selectable = Boolean(item.sectorId && item.phone);
-              return (
-                <label
-                  key={item._id}
-                  className={
-                    selectable
-                      ? "flex items-start p-3 border border-market-border rounded-lg hover:bg-market-surface-dim cursor-pointer"
-                      : "flex items-start p-3 border border-amber-200 bg-amber-50 rounded-lg"
-                  }
-                >
-                  <input
-                    type="radio"
-                    name="saved-address"
-                    className="w-4 h-4 text-market-secondary mt-1"
-                    checked={selectedAddressId === item._id}
-                    disabled={!selectable}
-                    onChange={() => setSelectedAddressId(item._id)}
-                  />
-                  <div className="ml-3">
-                    <p className="text-sm font-semibold text-market-on-surface">
-                      {item.addressType || "Address"}
-                    </p>
-                    <p className="text-xs text-market-on-surface-variant">{item.address1}</p>
-                    <p className="text-xs text-market-on-surface-variant">
-                      {[
-                        item.sectorName,
-                        item.cityName || item.city,
-                        item.regionName || item.country,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
-                    {item.phone && (
-                      <p className="text-xs text-market-on-surface-variant">Phone: {item.phone}</p>
-                    )}
-                    {!selectable && (
-                      <p className="text-xs text-amber-700 mt-1">
-                        Missing a delivery sector or phone - update this address to use it.
-                      </p>
-                    )}
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const CartData = ({ totalPrice, shipping, subTotalPrice }) => {
-  return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-market-border p-6">
-      <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Summary</h3>
-
-      {/* Price Breakdown — ETB, the marketplace currency (matches ProductCard) */}
-      <div className="space-y-3 pb-4 border-b border-market-border">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-market-on-surface-variant">Subtotal</span>
-          <span className="text-sm font-semibold text-market-on-surface">
-            {Number(subTotalPrice).toFixed(2)} ETB
-          </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-market-on-surface-variant">Shipping</span>
-          <span className="text-sm font-semibold text-market-on-surface">
-            {Number(shipping).toFixed(2)} ETB
-          </span>
-        </div>
-      </div>
-
-      {/* Total */}
-      <div className="flex justify-between items-center mt-4">
-        <span className="text-base font-bold text-market-on-surface">Total</span>
-        <span className="text-2xl font-bold text-market-secondary">
-          {Number(totalPrice).toFixed(2)} ETB
-        </span>
       </div>
     </div>
   );

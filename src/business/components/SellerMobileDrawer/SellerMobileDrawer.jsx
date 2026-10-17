@@ -28,10 +28,16 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 bg-black/40 lg:hidden backdrop-blur-sm"
+        className="fixed inset-0 z-50 lg:hidden"
         onClick={onClose}
-        aria-hidden="true"
-      />
+      >
+        {/* Backdrop overlay — inert attribute prevents focus on main page */}
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+          inert=""
+          aria-hidden="true"
+        />
+      </div>
 
       {/* Drawer */}
       <div

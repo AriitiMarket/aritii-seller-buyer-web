@@ -212,3 +212,60 @@ textarea {
   top: -9%;
   cursor: pointer;
 }
+
+/* ===== Aritii Shops Grid ===== */
+.shops-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .shops-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .shops-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .shops-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Shop Card Enhanced Styling */
+.aritii-shop-card {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aritii-shop-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.aritii-shop-card:active {
+  transform: translateY(0);
+}
+
+/* Shops Results Bar */
+.shops-results-bar {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

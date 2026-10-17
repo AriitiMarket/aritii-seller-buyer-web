@@ -94,7 +94,13 @@ export default function ProfileMenu({
 
       {open && (
         <div ref={menuRef} id={menuId} onKeyDown={handleKeyDown}>
-          <div className="fixed inset-0 z-40" onClick={close} aria-hidden="true" />
+          {/* Backdrop overlay — inert attribute prevents focus on main page */}
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={close} 
+            inert=""
+            aria-hidden="true" 
+          />
           <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 py-2">
             {/* User Info */}
             <div className="px-4 py-3 border-b border-gray-100">

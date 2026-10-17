@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
+import { productService } from '@/services';
 
 /**
  * Hook for the public deals page.
  *
- * Fetches GET /product/public/deals (no auth required).
+ * Fetches discounted products from backend using the filtered endpoint.
  * Returns { deals, loading, error, refresh }.
  */
 export function useDeals() {
@@ -15,21 +16,26 @@ export function useDeals() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/product/public/deals');
-      if (!res.ok) {
-        let detail = 'Failed to load deals';
-        try {
-          const body = await res.json();
-          if (body?.error) detail = body.error;
-        } catch {
-          /* ignore JSON parse failure */
-        }
-        throw new Error(detail);
-      }
-      const json = await res.json();
-      setDeals(json.products || []);
+      // Use existing public filtered endpoint
+      // Filter for products with discounts
+      const response = await productService.getPublicFiltered({
+        page: 1,
+        limit: 24,
+      });
+      
+      // Filter and sort by discount percentage (discountPrice vs price)
+      const dealsWithDiscounts = (response.products || [])
+        .filter(p => p.discountPrice && p.price && p.discountPrice < p.price)
+        .map(p => ({
+          ...p,
+          discountPercent: Math.round(((p.price - p.discountPrice) / p.price) * 100),
+        }))
+        .sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+      
+      setDeals(dealsWithDiscounts);
     } catch (err) {
       setError(err?.message || 'Something went wrong while loading deals.');
+      setDeals([]);
     } finally {
       setLoading(false);
     }

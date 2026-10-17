@@ -694,4 +694,91 @@ body {
   display: none;
 }
 
+/* ================================================================== */
+/* Amazon-style Product and Shop Cards (Aritii branded)               */
+/* ================================================================== */
+
+/* Amazon-style Product Grid
+   Responsive: 1 col (mobile) → 2 col (tablet) → 4 col (desktop)
+   With consistent spacing, shadows, and hover effects */
+.market-product-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5;
+}
+
+/* Amazon-style Product Card with Aritii branding (#75d04b green, #131921 dark) */
+.market-amazon-product-card {
+  @apply relative flex flex-col h-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden 
+         transition-all duration-300 ease-out 
+         hover:border-[#75d04b] hover:shadow-lg hover:scale-[1.01];
+}
+
+/* Product image: 100% width, 1:1 aspect ratio with smooth transition */
+.market-amazon-product-image {
+  @apply relative w-full aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden transition-transform duration-300 ease-out;
+}
+
+/* Product body section with Aritii spacing */
+.market-amazon-product-body {
+  @apply p-3 md:p-4 flex-1 flex flex-col gap-1.5;
+}
+
+/* Special offer badge with Aritii green */
+.market-amazon-badge-sale {
+  @apply inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold tracking-tight uppercase
+         bg-[#75d04b] text-white shadow-md;
+}
+
+/* Large, bold price styling with Aritii dark text */
+.market-amazon-price {
+  @apply text-lg md:text-xl font-bold text-[#131921] dark:text-white;
+}
+
+/* Add to cart button with Aritii green */
+.market-amazon-add-to-cart {
+  @apply mt-auto w-full inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-lg 
+         bg-[#75d04b] text-white font-semibold text-sm transition-all duration-200 ease-out
+         hover:bg-[#5ac12f] active:scale-95 shadow-sm hover:shadow-md
+         focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#75d04b]/30;
+}
+
+.market-amazon-add-to-cart.public {
+  @apply bg-transparent border-2 border-[#75d04b] text-[#75d04b] 
+         hover:bg-[#75d04b] hover:text-white;
+}
+
+.market-amazon-add-to-cart:disabled {
+  @apply bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 shadow-none hover:shadow-none;
+}
+
+/* Amazon-style Shop Card */
+.market-amazon-shop-card {
+  @apply relative flex flex-col h-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden 
+         transition-all duration-300 ease-out 
+         hover:border-[#75d04b] hover:shadow-lg;
+}
+
+/* Shop image: 100% width, 1:1 aspect ratio */
+.market-amazon-shop-image {
+  @apply relative w-full aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden;
+}
+
+/* Shop body section */
+.market-amazon-shop-body {
+  @apply p-3 md:p-4 flex-1 flex flex-col gap-1.5;
+}
+
+/* Visit shop button with Aritii green */
+.market-amazon-visit-shop-btn {
+  @apply mt-auto w-full inline-flex items-center justify-center gap-1 px-3 md:px-4 py-2 md:py-2.5 rounded-lg 
+         bg-[#75d04b] text-white font-semibold text-sm transition-all duration-200 ease-out
+         hover:bg-[#5ac12f] active:scale-95 shadow-sm hover:shadow-md
+         focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#75d04b]/30;
+}
+
+/* Prime badge styling with bright blue */
+.market-amazon-prime-badge {
+  @apply inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold tracking-tight uppercase
+         bg-blue-600 text-white shadow-md;
+}
+
 }

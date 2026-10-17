@@ -13,6 +13,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const { wishlist } = useSelector((state) => state.wishlist || {})
   const { cart } = useSelector((state) => state.cart || {})
   const { isAuthenticated } = useSelector((state) => state.user || {})
+  const [inWishlist, setInWishlist] = useState(false)
 
   const isPublic = variant === 'public'
 
@@ -38,7 +39,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
 
   useEffect(() => {
     const item = wishlist && wishlist.find((i) => (i._id === id || i.productId === id))
-    setClick(Boolean(item))
+    setInWishlist(Boolean(item))
   }, [wishlist, id])
 
   const AddToCartHandler = async () => {
@@ -67,14 +68,14 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
       toast.error('Please login to save items to your wishlist')
       return
     }
-    if (click) {
+    if (inWishlist) {
       await dispatch(removeFromWishlist(data))
       toast.success('Removed from wishlist')
     } else {
       await dispatch(addToWishlist(data))
       toast.success('Saved to wishlist')
     }
-    setInWishlist(!click)
+    setInWishlist(!inWishlist)
   }
 
   const inStock = availableUnits > 0
@@ -119,10 +120,10 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
               type="button"
               onClick={toggleWishlist}
               className="mt-3 self-start inline-flex items-center gap-1.5 market-body-sm text-market-on-surface-variant hover:text-market-secondary transition-colors"
-              aria-label={click ? "Remove from wishlist" : "Save to wishlist"}
+              aria-label={inWishlist ? "Remove from wishlist" : "Save to wishlist"}
             >
-              {click ? <AiFillHeart size={16} className="text-market-tertiary" /> : <AiOutlineHeart size={16} />}
-              {click ? "Saved" : "Save"}
+              {inWishlist ? <AiFillHeart size={16} className="text-market-tertiary" /> : <AiOutlineHeart size={16} />}
+              {inWishlist ? "Saved" : "Save"}
             </button>
           )}
         </div>

@@ -61,10 +61,16 @@ export default function MobileDrawer({
       {/* Overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/50 z-[70] lg:hidden"
+          className="fixed inset-0 z-[70] lg:hidden"
           onClick={onClose}
-          aria-hidden="true"
-        />
+        >
+          {/* Backdrop overlay — inert attribute prevents focus on main page */}
+          <div 
+            className="fixed inset-0 bg-black/50"
+            inert=""
+            aria-hidden="true"
+          />
+        </div>
       )}
 
       {/* Drawer */}

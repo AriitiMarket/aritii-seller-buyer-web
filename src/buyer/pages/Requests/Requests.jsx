@@ -24,6 +24,10 @@ import {
 import { formatCurrency, formatDateTime } from '@/shared/utils/format';
 import { FiPlus, FiSearch, FiPackage, FiClock, FiArrowRight, FiXCircle } from 'react-icons/fi';
 
+// Aritii Brand Colors
+const ARITII_GREEN = '#75d04b'
+const ARITII_DARK = '#131921'
+
 /**
  * Buyer — Product Requests dashboard (`/my-dashboard/requests`).
  *
@@ -101,49 +105,55 @@ export default function BuyerRequestsPage() {
   const hasActiveFilters = Boolean(query.trim() || statusFilter || dateFilter !== 'any');
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 px-4 md:px-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-market-on-surface">Product Requests</h1>
-          <p className="text-market-on-surface-variant mt-1">
+          <h1 className="text-3xl md:text-4xl font-bold" style={{ color: ARITII_DARK }}>
+            Product Requests
+          </h1>
+          <p className="text-market-on-surface-variant text-sm mt-2">
             Request a product, negotiate an offer with the seller, then create the order when you agree.
           </p>
         </div>
-        <Link to="/my-dashboard/requests/new" className="shrink-0">
-          <Button className="bg-market-primary text-market-on-primary flex items-center gap-2">
-            <FiPlus size={16} />
-            Request Product
-          </Button>
+        <Link
+          to="/my-dashboard/requests/new"
+          className="shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 text-white rounded-lg font-semibold hover:opacity-90 transition"
+          style={{ backgroundColor: ARITII_GREEN }}
+        >
+          <FiPlus size={18} />
+          Request Product
         </Link>
       </div>
 
-      {/* Stages */}
-      <div className="bg-white rounded-lg border border-market-border p-3 sm:p-4">
+      {/* Tabs */}
+      <div className="bg-white rounded-lg border border-market-border p-3 md:p-4 overflow-x-auto">
         <RequestTabs tabs={BUYER_TABS} counts={counts} active={activeTab} onChange={setActiveTab} />
       </div>
 
-      {/* Search | Status | Date */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 min-w-0">
+      {/* Search | Status | Date - Mobile responsive */}
+      <div className="flex flex-col md:flex-row gap-3">
+        <div className="relative flex-1">
           <FiSearch
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
+            size={18}
           />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search requests, products or sellers…"
             aria-label="Search requests"
-            className="w-full pl-9 pr-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
+            className="w-full pl-10 pr-4 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+            style={{ '--tw-ring-color': ARITII_GREEN }}
           />
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 md:gap-3">
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
             aria-label="Filter by status"
-            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
+            className="flex-1 md:flex-none px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+            style={{ '--tw-ring-color': ARITII_GREEN }}
           >
             {STATUS_FILTER_OPTIONS.map((option) => (
               <option key={option.id || 'any'} value={option.id}>
@@ -155,7 +165,8 @@ export default function BuyerRequestsPage() {
             value={dateFilter}
             onChange={(event) => setDateFilter(event.target.value)}
             aria-label="Filter by date"
-            className="flex-1 sm:flex-none min-w-[140px] px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
+            className="flex-1 md:flex-none px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+            style={{ '--tw-ring-color': ARITII_GREEN }}
           >
             {DATE_FILTERS.map((option) => (
               <option key={option.id} value={option.id}>
@@ -166,7 +177,7 @@ export default function BuyerRequestsPage() {
         </div>
       </div>
 
-      {/* List */}
+      {/* Requests List - Full width cards mobile */}
       {loading ? (
         <Loading />
       ) : visible.length === 0 ? (
@@ -186,7 +197,10 @@ export default function BuyerRequestsPage() {
           action={
             requests.length === 0 ? (
               <Link to="/my-dashboard/requests/new">
-                <Button className="bg-market-primary text-market-on-primary flex items-center gap-2">
+                <Button
+                  className="text-white flex items-center gap-2"
+                  style={{ backgroundColor: ARITII_GREEN }}
+                >
                   <FiPlus size={16} />
                   Request Product
                 </Button>
@@ -195,7 +209,7 @@ export default function BuyerRequestsPage() {
           }
         />
       ) : (
-        <div className="grid gap-3">
+        <div className="space-y-3">
           {visible.map((request) => {
             const status = statusOf(request);
             const activeOffer = (request.offers || []).find((offer) => offer.status === 'ACTIVE');
@@ -203,71 +217,91 @@ export default function BuyerRequestsPage() {
               (offer) => offer.status === 'ACCEPTED'
             );
             const offer = activeOffer || acceptedOffer;
+            
             return (
               <article
                 key={request._id}
-                className="bg-white border border-market-border rounded-xl p-4 sm:p-5 hover:border-[#2162a1] transition"
+                className="bg-white border border-market-border rounded-lg p-4 md:p-6 hover:shadow-md transition"
               >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                {/* Request Header */}
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-semibold text-market-secondary-hover bg-market-surface-container px-2 py-0.5 rounded-full">
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <span
+                        className="text-xs font-semibold px-3 py-1 rounded-full text-white"
+                        style={{ backgroundColor: ARITII_GREEN }}
+                      >
                         {requestCode(request._id)}
                       </span>
-                      <h2 className="font-semibold text-market-on-surface flex items-center gap-2 truncate">
-                        <FiPackage className="text-market-secondary flex-shrink-0" size={16} />
+                      <h2 className="font-semibold text-market-on-surface flex items-center gap-2 truncate text-base md:text-lg">
+                        <FiPackage className="flex-shrink-0" size={18} style={{ color: ARITII_GREEN }} />
                         <span className="truncate">{request.title || request.subject}</span>
                       </h2>
                     </div>
-                    <p className="text-xs text-market-on-surface-variant mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="text-xs text-market-on-surface-variant flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
                       <span className="flex items-center gap-1">
-                        <FiClock size={12} />
+                        <FiClock size={14} />
                         {formatDateTime(request.updatedAt || request.createdAt)}
                       </span>
-                      <span>Qty {request.quantity}</span>
+                      <span className="font-medium">Qty: {request.quantity}</span>
                       {request.targetPrice != null && (
-                        <span>Target {formatCurrency(request.targetPrice)}</span>
+                        <span className="font-medium">Target: {formatCurrency(request.targetPrice)}</span>
                       )}
-                      {request.shopId ? 'Addressed to a seller' : 'Open to all sellers'}
+                    </p>
+                    <p className="text-xs text-market-on-surface-variant mt-1">
+                      {request.shopId ? '🏪 Addressed to a seller' : '🌐 Open to all sellers'}
                     </p>
                     {request.details ? (
                       <p className="text-sm text-market-on-surface-variant mt-2 line-clamp-2">{request.details}</p>
                     ) : null}
                   </div>
-                  <RequestStatusBadge status={status} className="self-start" />
+                  <div className="flex-shrink-0">
+                    <RequestStatusBadge status={status} />
+                  </div>
                 </div>
 
+                {/* Seller Offer */}
                 {offer ? (
-                  <p className="text-sm text-market-on-surface mt-3 bg-market-surface-dim rounded-lg px-3 py-2">
-                    Seller offer: {offer.quantity} &times; {formatCurrency(offer.unitPrice)} ={' '}
-                    <span className="font-semibold text-market-secondary-hover">
-                      {formatCurrency(offerTotal(offer))}
-                    </span>
-                  </p>
+                  <div
+                    className="p-3 md:p-4 rounded-lg mb-4 text-sm"
+                    style={{ backgroundColor: ARITII_GREEN + '15' }}
+                  >
+                    <p className="text-market-on-surface">
+                      Seller offer: <span className="font-semibold">{offer.quantity} ×</span> {formatCurrency(offer.unitPrice)} ={' '}
+                      <span className="font-bold" style={{ color: ARITII_GREEN }}>
+                        {formatCurrency(offerTotal(offer))}
+                      </span>
+                    </p>
+                  </div>
                 ) : null}
 
-                <div className="flex flex-wrap items-center gap-2 mt-4">
-                  <Link to={`/my-dashboard/requests/${request._id}`}>
-                    <Button className="bg-market-primary text-market-on-primary flex items-center gap-2">
-                      {OPEN_STATUSES.includes(status) ? 'Continue' : 'Open'}
-                      <FiArrowRight size={14} />
-                    </Button>
+                {/* Actions - Stacked for mobile */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center flex-wrap gap-2">
+                  <Link
+                    to={`/my-dashboard/requests/${request._id}`}
+                    className="flex-1 md:flex-none h-11 px-5 inline-flex items-center justify-center gap-2 text-white rounded-lg font-semibold hover:opacity-90 transition"
+                    style={{ backgroundColor: ARITII_GREEN }}
+                  >
+                    {OPEN_STATUSES.includes(status) ? 'Continue' : 'Open'}
+                    <FiArrowRight size={16} />
                   </Link>
                   {CANCELLABLE_STATUSES.includes(status) && (
                     <button
                       type="button"
                       onClick={() => handleCancel(request._id)}
                       disabled={cancellingId === request._id}
-                      className="h-[45px] min-w-[110px] px-5 inline-flex items-center justify-center gap-2 bg-white border border-red-300 rounded-full text-red-600 font-semibold text-sm hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      className="flex-1 md:flex-none h-11 px-5 inline-flex items-center justify-center gap-2 border-2 rounded-lg font-semibold text-sm transition disabled:opacity-50"
+                      style={{ borderColor: '#ef4444', color: '#ef4444' }}
                     >
-                      <FiXCircle size={14} />
+                      <FiXCircle size={16} />
                       {cancellingId === request._id ? 'Cancelling…' : 'Cancel'}
                     </button>
                   )}
                   {status === 'CONVERTED' && request.orderId ? (
                     <Link
                       to={`/user/order/${request.orderId}`}
-                      className="h-[45px] min-w-[110px] px-5 inline-flex items-center justify-center bg-white border border-market-border rounded-full text-market-on-surface font-semibold text-sm hover:border-[#2162a1] transition"
+                      className="flex-1 md:flex-none h-11 px-5 inline-flex items-center justify-center border-2 border-market-border rounded-lg font-semibold text-sm hover:border-market-on-surface-variant transition"
+                      style={{ color: ARITII_DARK }}
                     >
                       View Order
                     </Link>

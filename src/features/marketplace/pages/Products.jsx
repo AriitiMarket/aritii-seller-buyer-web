@@ -9,7 +9,7 @@
  *
  * Uses the marketplace feature's own hooks and components.
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductListItem from '@/features/marketplace/components/ProductListItem';
 import ProductCard from '@/shared/components/ProductCard';
@@ -19,6 +19,7 @@ import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import Button from '@/components/common/Button';
 import { useProducts, useFilteredProducts } from '@/shared/hooks/useProducts';
+import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 import { useAuth } from '@/features/marketplace/hooks/useAuth';
 
 const sortOptions = [
@@ -44,10 +45,24 @@ const ProductsPage = () => {
 
   const { isAuthenticated } = useAuth();
   const { zoneId: selectedZoneId, cityId: selectedCityId, cityName: selectedCityName, zoneName: selectedZoneName, hasZone, setLocation } = useDeliveryLocation();
-  const { products, loading, error, refresh } = useProducts({ auto: true, zoneId: hasZone ? selectedZoneId : undefined, cityId: hasZone ? selectedCityId : undefined });
+
+  // Build filter object for backend
+  const filters = {
+    ...(category && { category }),
+    ...(shop && { shop }),
+    ...(search && { search }),
+    ...(rating && { rating }),
+    ...(min !== null && { minPrice: min }),
+    ...(max !== null && { maxPrice: max }),
+  };
+
+  // Pass filters to backend via useProducts
+  const { products, loading, error, refresh } = useProducts({ 
+    auto: true,
+    filters,
+  });
 
   // Sync URL zone params into Redux state so the cart/checkout share the same zone.
-  // URL params are bookmarkable: ?zoneId=xxx&cityId=yyy
   useEffect(() => {
     if (zoneId || cityId) {
       setLocation({
@@ -58,22 +73,9 @@ const ProductsPage = () => {
       });
     }
   }, [zoneId, cityId, selectedZoneId, selectedZoneName, selectedCityName, setLocation, searchParams]);
-  const baseFiltered = useFilteredProducts(products, { category, shop, search });
 
-  // Apply the sidebar rating + price filters on top of the URL search filters.
-  const data = useMemo(() => {
-    let list = baseFiltered;
-    if (rating) {
-      list = list.filter((p) => Number(p.ratings || p.rating || 0) >= rating);
-    }
-    if (min != null) {
-      list = list.filter((p) => Number(p.discountPrice ?? p.price ?? 0) >= min);
-    }
-    if (max != null) {
-      list = list.filter((p) => Number(p.discountPrice ?? p.price ?? 0) <= max);
-    }
-    return list;
-  }, [baseFiltered, rating, min, max]);
+  // Frontend-side data is already filtered by backend, so no need for useFilteredProducts
+  const data = products || [];
 
   const heading = search ? `Search: "${search}"` : category || shop || 'All Products';
   const zoneHint = hasZone
@@ -194,7 +196,7 @@ const ProductsPage = () => {
           className={
             viewMode === 'list'
               ? 'bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700'
-              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6'
+              : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5'
           }
         >
           {sortedData.map((product, index) => (

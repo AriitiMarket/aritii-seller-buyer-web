@@ -6,28 +6,15 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs';
  * CatalogPageLayout — shared top chrome for the public catalog pages
  * (`/products` and `/shops`).
  *
- * Chrome stack (mobile-first):
- *   1. MarketplaceHeader (sticky, h-16 = 64px)        — in PublicCatalogLayout
- *   2. SubNavBar (sticky top-16, h-10 = 40px)         — in PublicCatalogLayout
- *   3. Breadcrumbs                                     — below the sub-nav
- *   4. Toolbar (mobile) / left rail (desktop) ↔ main content
+ * Layout structure:
+ *   - FilterSidebar to far left (full height, sticky)
+ *   - Main content takes remaining space
+ *   - Mobile: sidebar becomes drawer overlay
  *
- * Responsive layout (mobile-first):
- *   - < lg  : no inline rail. A "Filters & categories" toolbar button opens
- *             the SAME sidebar content in a LEFT slide-in drawer (overlay +
- *             scroll lock + Escape), so filters/categories stay fully usable
- *             on phones and the grid keeps the full width.
- *   - >= lg : the toolbar button is hidden; the sidebar is the leftmost fixed
- *             column (w-60), pinned with `sticky top-[104px]` (64px header +
- *             40px sub-nav) and scrolling internally past that height; the
- *             content takes the rest (flex-1).
- *
- * On desktop the rail is collapsible: hiding it frees the whole column
- * (width 0) so the content expands to the full container width; a "Show
- * filters" button is rendered above the content to bring it back.
- *
- * NOTE: horizontal padding (px-4 sm:px-6 lg:px-8) and the max-w-7xl container
- * come from PublicCatalogLayout — do not re-add them here.
+ * Responsive (mobile-first):
+ *   - Mobile (<lg): FilterSidebar hidden, toolbar with drawer button
+ *   - Tablet (md): Optional sidebar visibility
+ *   - Desktop (lg+): Sidebar sticky on left, full height
  */
 const CatalogPageLayout = ({
   breadcrumbItems,
@@ -59,111 +46,84 @@ const CatalogPageLayout = ({
       {breadcrumbItems && <Breadcrumbs items={breadcrumbItems} />}
 
       {/* Mobile toolbar — filters/categories live in a left drawer on <lg */}
-      <div className="mb-3 flex items-center gap-2 lg:hidden">
+      <div className="mb-4 flex items-center gap-2 lg:hidden px-3 sm:px-4">
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 rounded bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 min-h-[44px] min-w-[44px] flex-1"
           aria-haspopup="dialog"
           aria-controls="catalog-filters-drawer"
         >
-          <AiOutlineFilter size={14} />
-          Filters &amp; categories
+          <AiOutlineFilter size={18} />
+          <span>Filters</span>
         </button>
       </div>
 
-      {/* Mobile-first: the rail is desktop-only (hidden < lg), so the content
-          always gets the full width on phones */}
-      <div className={`flex flex-col lg:flex-row ${sidebarOpen ? 'gap-4 lg:gap-8' : 'gap-0'}`}>
-        {/* Left filter rail — leftmost column on desktop only, sticky under header+subnav */}
-        <div
-          className={`${
-            sidebarOpen ? 'hidden lg:block lg:w-60' : 'hidden lg:block lg:w-0'
-          } overflow-hidden transition-all duration-300 ease-in-out lg:flex-shrink-0 lg:sticky lg:top-[104px] lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}
+      {/* Main flex layout: Sidebar on left (desktop), content on right */}
+      <div className="flex gap-0 lg:gap-6 px-3 sm:px-4 lg:px-0">
+        {/* Left FilterSidebar — sticky, full height on desktop */}
+        <aside
+          className={`hidden lg:flex lg:flex-col lg:flex-shrink-0 ${
+            sidebarOpen ? 'lg:w-60' : 'lg:w-0'
+          } overflow-hidden transition-all duration-300 ease-in-out`}
         >
-          <div className="flex items-center justify-between gap-2 mb-3 lg:w-60">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              Filters
-            </h2>
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((v) => !v)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
-                sidebarOpen
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'
-                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-              }`}
-              aria-expanded={sidebarOpen}
-              aria-controls="catalog-filters"
-            >
-              <AiOutlineFilter size={13} />
-              {sidebarOpen ? 'Hide filters' : 'Show filters'}
-            </button>
+          <div className="sticky top-[104px] max-h-[calc(100vh-7rem)] overflow-y-auto pr-3">
+            <div className="space-y-1">{sidebarContent}</div>
           </div>
+        </aside>
 
-          <div
-            id="catalog-filters"
-            className={`${sidebarOpen ? 'w-full lg:w-60' : 'w-0'} overflow-hidden transition-all duration-300 ease-in-out`}
-          >
-            <div className="space-y-1 pr-1 lg:pr-0">{sidebarContent}</div>
-          </div>
-        </div>
-
-        {/* Main content — full width on mobile; takes the remaining space right
-            of the leftmost rail on desktop, and ALL of it when the rail is hidden */}
-        <div className="flex-1 min-w-0">
-          {!sidebarOpen && (
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="flex items-center gap-2 mb-3 px-3 py-1.5 text-xs font-semibold rounded bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-controls="catalog-filters"
-            >
-              <AiOutlineFilter size={13} />
-              Show filters
-            </button>
-          )}
+        {/* Main content area — takes remaining space */}
+        <main className="flex-1 min-w-0">
           {mainContent}
-        </div>
+        </main>
       </div>
 
-      {/* ===== Mobile filters/categories drawer — LEFT slide-in ===== */}
+      {/* ===== Mobile filters drawer — LEFT slide-in overlay ===== */}
       {drawerOpen && (
-        <div
-          className="fixed inset-0 z-[65] bg-black/50 lg:hidden"
-          onClick={() => setDrawerOpen(false)}
-          aria-hidden="true"
-        >
+        <div className="fixed inset-0 z-[65] lg:hidden" onClick={() => setDrawerOpen(false)}>
+          {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
+          <div
+            className="fixed inset-0 bg-black/50"
+            inert=""
+            aria-hidden="true"
+          />
+          
+          {/* Dialog itself — NOT aria-hidden, so focus can be trapped inside */}
           <div
             id="catalog-filters-drawer"
             role="dialog"
             aria-modal="true"
             aria-label="Filters and categories"
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-y-0 left-0 z-[70] flex w-72 max-w-[85vw] flex-col rounded-r-xl bg-white shadow-level-3 dark:bg-gray-900"
+            className="fixed inset-y-0 left-0 z-[70] flex w-72 max-w-[85vw] flex-col rounded-r-2xl bg-white dark:bg-gray-900 shadow-lg"
           >
-            <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                Filters &amp; categories
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 p-4 min-h-[56px] flex-shrink-0">
+              <h2 className="text-base font-bold text-[#131921] dark:text-white">
+                Filters & Categories
               </h2>
               <button
                 ref={drawerCloseRef}
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="p-1.5 text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="p-1.5 -m-2 text-gray-500 dark:text-gray-400 transition-colors hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
                 aria-label="Close filters"
               >
-                <AiOutlineClose size={22} />
+                <AiOutlineClose size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">{sidebarContent}</div>
+            {/* Sidebar content — scrollable */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-0">
+              {sidebarContent}
+            </div>
 
-            <div className="border-t border-gray-200 p-3 dark:border-gray-800">
+            {/* Footer action */}
+            <div className="border-t border-gray-200 dark:border-gray-800 p-4 min-h-[56px] flex items-center flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="w-full rounded-lg bg-[#75d04b] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#5ac12f]"
+                className="w-full rounded-lg bg-[#75d04b] px-4 py-3 text-base font-bold text-white transition-colors hover:bg-[#5ac12f] active:bg-[#4ab01f] min-h-[44px]"
               >
                 Done
               </button>

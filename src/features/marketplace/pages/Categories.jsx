@@ -3,9 +3,14 @@
  *
  * Canonical route: /categories
  *
- * Shopping department layout inspired by catalog browsing:
- * a left department rail (desktop) plus a main grid of department tiles.
- * Each tile links into /products?category=…
+ * Enhanced layout with:
+ * - Full-height left sidebar with category navigation
+ * - Featured categories banner (2x grid size)
+ * - Responsive category grid (1→2→4 columns)
+ * - Product count badges
+ * - Hover effects with zoom and shadow
+ * - Subcategory links
+ * - Aritii branding (#75d04b green, #131921 dark headers)
  */
 import React, { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -14,100 +19,193 @@ import Loading from '@/components/common/Loading'
 import EmptyState from '@/components/common/EmptyState'
 import CategoryIcon from '@/features/marketplace/components/CategoryIcon'
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories'
+import './Categories.css'
 
 const CategoriesPage = () => {
   const { categories: rawCategories = [], loading, error } = useCatalogCategories({ type: 'product' })
   const [searchParams] = useSearchParams()
   const active = searchParams.get('category') || ''
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState({})
+  const [priceFilter, setPriceFilter] = useState('all')
+  const [ratingFilter, setRatingFilter] = useState('all')
 
-  // Normalize categories into a consistent shape.
+  // Normalize categories into a consistent shape with subcategories
   const categories = useMemo(() => {
     return rawCategories.map((cat) => ({
       id: cat._id || cat.id || cat.title || cat.name || cat,
       title: cat.title || cat.name || cat,
       count: cat.productCount ?? cat.count ?? 0,
+      icon: cat.icon,
+      image: cat.image || `https://via.placeholder.com/400x300?text=${encodeURIComponent(cat.title || 'Category')}`,
+      subcategories: cat.subcategories || [],
+      isFeatured: cat.isFeatured || false,
+      group: cat.group || 'All',
     }))
   }, [rawCategories])
 
   const totalCount = useMemo(() => categories.reduce((sum, c) => sum + c.count, 0), [categories])
 
+  // Featured categories (first 3 marked as featured, or fallback to first 3)
+  const featuredCategories = useMemo(() => {
+    const featured = categories.filter(c => c.isFeatured)
+    return featured.length > 0 ? featured.slice(0, 3) : categories.slice(0, 3)
+  }, [categories])
+
+  // Grouped categories for sidebar
+  const groupedCategories = useMemo(() => {
+    const groups = {}
+    categories.forEach(cat => {
+      if (!groups[cat.group]) {
+        groups[cat.group] = []
+      }
+      groups[cat.group].push(cat)
+    })
+    return groups
+  }, [categories])
+
+  const toggleGroup = (group) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [group]: !prev[group],
+    }))
+  }
+
+  const clearFilters = () => {
+    setPriceFilter('all')
+    setRatingFilter('all')
+  }
+
+  const getCategoryImage = (category) => {
+    return category.image || `https://via.placeholder.com/400x300?text=${encodeURIComponent(category.title)}`
+  }
+
   return (
     <>
       <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Categories' }]} />
 
-      {/* Hero header */}
-      <header className="market-category-hero">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="market-category-hero-title">Shop by Category</div>
-          <p className="market-category-hero-desc">
-            Browse all departments and find what you need across the marketplace.
-          </p>
-          <div className="market-category-hero-meta">
-            {categories.length} category{categories.length !== 1 ? 's' : ''} &bull; {totalCount} product{totalCount !== 1 ? 's' : ''} available
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile department drawer trigger */}
-        <div className="lg:hidden mb-4 flex items-center justify-between">
+      <div className="categories-page-container">
+        {/* Mobile menu trigger */}
+        <div className="categories-mobile-trigger">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-market-border bg-market-surface text-market-on-surface text-sm font-medium hover:bg-market-surface-container-high transition-colors"
+            className="categories-mobile-button"
             aria-haspopup="dialog"
             aria-expanded={sidebarOpen}
           >
-            <span>Departments</span>
-            <span className="text-market-on-surface-variant">{categories.length}</span>
+            <span>☰ Filters</span>
+            <span className="badge-small">{Object.keys(groupedCategories).length}</span>
           </button>
         </div>
 
-        {/* Mobile drawer overlay */}
+        {/* Mobile overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+            className="categories-mobile-overlay"
             onClick={() => setSidebarOpen(false)}
             aria-hidden="true"
           />
         )}
-        {/* Mobile drawer panel */}
+
+        {/* Mobile sidebar drawer */}
         {sidebarOpen && (
-          <div className="fixed inset-y-0 left-0 z-[70] w-80 max-w-[85vw] flex flex-col bg-market-surface border-r border-market-border lg:hidden shadow-level-3">
-            <div className="flex items-center justify-between border-b border-market-border px-4 py-3">
-              <h2 className="font-bold text-market-on-surface text-base">Departments</h2>
+          <div className="categories-mobile-drawer">
+            <div className="drawer-header">
+              <h2>Filters & Categories</h2>
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
-                className="p-1.5 text-market-on-surface-variant hover:text-market-primary transition-colors"
-                aria-label="Close departments"
+                className="drawer-close"
+                aria-label="Close filters"
               >
                 ✕
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-3 space-y-0.5" aria-label="Departments">
-              {categories.map((cat) => {
-                const isActive = active.toLowerCase() === String(cat.title).toLowerCase()
-                return (
-                  <Link
-                    key={cat.id}
-                    to={`/products?category=${encodeURIComponent(cat.title)}`}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-market-primary text-market-on-primary font-semibold' : 'text-market-on-surface-variant hover:bg-market-surface-container-high hover:text-market-primary'}`}
+            
+            <div className="drawer-content">
+              {/* Filter section */}
+              <div className="filter-section">
+                <div className="filter-header">
+                  <h3>Filters</h3>
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="clear-filters-btn"
                   >
-                    <CategoryIcon title={cat.title} size={16} />
-                    <span className="flex-1">{cat.title}</span>
-                    <span className="market-category-sidebar-count">{cat.count}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-            <div className="border-t border-market-border p-3">
+                    Clear All
+                  </button>
+                </div>
+
+                <div className="filter-group">
+                  <label className="filter-label">Price Range</label>
+                  <select
+                    value={priceFilter}
+                    onChange={(e) => setPriceFilter(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Prices</option>
+                    <option value="0-50">Under $50</option>
+                    <option value="50-100">$50 - $100</option>
+                    <option value="100-500">$100 - $500</option>
+                    <option value="500+">$500+</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label className="filter-label">Rating</label>
+                  <select
+                    value={ratingFilter}
+                    onChange={(e) => setRatingFilter(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Ratings</option>
+                    <option value="4+">4+ Stars</option>
+                    <option value="3+">3+ Stars</option>
+                    <option value="2+">2+ Stars</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Categories section */}
+              <div className="categories-section">
+                <h3>Categories</h3>
+                {Object.entries(groupedCategories).map(([group, cats]) => (
+                  <div key={group} className="category-group">
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(group)}
+                      className="category-group-toggle"
+                    >
+                      <span>{group}</span>
+                      <span className="group-count">{cats.length}</span>
+                      <span className="toggle-icon">{expandedGroups[group] ? '▼' : '▶'}</span>
+                    </button>
+                    {expandedGroups[group] && (
+                      <div className="category-group-items">
+                        {cats.map(cat => (
+                          <Link
+                            key={cat.id}
+                            to={`/products?category=${encodeURIComponent(cat.title)}`}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`category-item ${active.toLowerCase() === cat.title.toLowerCase() ? 'active' : ''}`}
+                          >
+                            <span>{cat.title}</span>
+                            <span className="item-count">{cat.count}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="drawer-footer">
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
-                className="w-full rounded-lg bg-market-primary px-4 py-2.5 text-sm font-semibold text-market-on-primary transition-colors hover:bg-market-primary-hover"
+                className="drawer-done-btn"
               >
                 Done
               </button>
@@ -115,57 +213,171 @@ const CategoriesPage = () => {
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left department rail — desktop only */}
-          <aside className="market-category-sidebar flex-shrink-0" aria-label="Departments">
-            <div className="px-2 mb-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-market-on-surface-variant mb-2">Shop by department</h2>
+        {/* Main content wrapper */}
+        <div className="categories-content-wrapper">
+          {/* Left sidebar — desktop only */}
+          <aside className="categories-sidebar">
+            {/* Filter section */}
+            <div className="sidebar-section">
+              <div className="sidebar-section-header">
+                <h3>Filters</h3>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="clear-filters-link"
+                >
+                  Clear
+                </button>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-label">Price Range</label>
+                <select
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Prices</option>
+                  <option value="0-50">Under $50</option>
+                  <option value="50-100">$50 - $100</option>
+                  <option value="100-500">$100 - $500</option>
+                  <option value="500+">$500+</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-label">Rating</label>
+                <select
+                  value={ratingFilter}
+                  onChange={(e) => setRatingFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Ratings</option>
+                  <option value="4+">4+ Stars</option>
+                  <option value="3+">3+ Stars</option>
+                  <option value="2+">2+ Stars</option>
+                </select>
+              </div>
             </div>
-            <nav className="space-y-0.5" aria-label="Departments">
-              {categories.map((cat) => {
-                const isActive = active.toLowerCase() === String(cat.title).toLowerCase()
-                return (
-                  <Link
-                    key={cat.id}
-                    to={`/products?category=${encodeURIComponent(cat.title)}`}
-                    className={`market-category-sidebar-item ${isActive ? 'active' : ''}`}
+
+            {/* Categories section */}
+            <div className="sidebar-section">
+              <h3 className="sidebar-section-title">Categories</h3>
+              {Object.entries(groupedCategories).map(([group, cats]) => (
+                <div key={group} className="category-group">
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(group)}
+                    className="category-group-toggle"
                   >
-                    <CategoryIcon title={cat.title} size={16} />
-                    <span className="flex-1">{cat.title}</span>
-                    <span className="market-category-sidebar-count">{cat.count}</span>
-                  </Link>
-                )
-              })}
-            </nav>
+                    <span>{group}</span>
+                    <span className="group-count">{cats.length}</span>
+                    <span className="toggle-icon">{expandedGroups[group] ? '▼' : '▶'}</span>
+                  </button>
+                  {expandedGroups[group] && (
+                    <div className="category-group-items">
+                      {cats.map(cat => (
+                        <Link
+                          key={cat.id}
+                          to={`/products?category=${encodeURIComponent(cat.title)}`}
+                          className={`category-item ${active.toLowerCase() === cat.title.toLowerCase() ? 'active' : ''}`}
+                        >
+                          <span>{cat.title}</span>
+                          <span className="item-count">{cat.count}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </aside>
 
-          {/* Main category grid */}
-          <main className="flex-1 min-w-0">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {categories.length > 0 ? (
-                categories.map((cat) => {
-                  const isActive = active.toLowerCase() === String(cat.title).toLowerCase()
-                  return (
+          {/* Main grid area */}
+          <main className="categories-main">
+            {/* Featured categories banner */}
+            {featuredCategories.length > 0 && (
+              <section className="featured-categories">
+                <h2 className="featured-title">Featured Categories</h2>
+                <div className="featured-grid">
+                  {featuredCategories.map((cat, idx) => (
                     <Link
                       key={cat.id}
                       to={`/products?category=${encodeURIComponent(cat.title)}`}
-                      aria-current={isActive ? 'page' : undefined}
-                      className="market-category-card group"
+                      className={`featured-card featured-card-${idx + 1}`}
+                      style={{
+                        backgroundImage: `url('${getCategoryImage(cat)}')`,
+                      }}
                     >
-                      <div className="market-category-card-icon">
-                        <CategoryIcon title={cat.title} size={28} />
+                      <div className="featured-overlay">
+                        <h3 className="featured-name">{cat.title}</h3>
+                        <p className="featured-count">{cat.count} Products</p>
                       </div>
-                      <h3 className="market-category-card-name">{cat.title}</h3>
-                      {cat.count > 0 && (
-                        <p className="market-category-card-count">
-                          {cat.count} product{cat.count !== 1 ? 's' : ''}
-                        </p>
-                      )}
                     </Link>
-                  )
-                })
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Category grid */}
+            <section className="category-grid-section">
+              <h2 className="grid-title">All Categories</h2>
+              {categories.length > 0 ? (
+                <div className="category-grid">
+                  {categories.map((cat) => {
+                    const isActive = active.toLowerCase() === String(cat.title).toLowerCase()
+                    return (
+                      <Link
+                        key={cat.id}
+                        to={`/products?category=${encodeURIComponent(cat.title)}`}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`category-card ${isActive ? 'active' : ''}`}
+                      >
+                        {/* Card image */}
+                        <div
+                          className="category-card-image"
+                          style={{
+                            backgroundImage: `url('${getCategoryImage(cat)}')`,
+                          }}
+                        >
+                          {/* Product count badge */}
+                          <div className="product-badge">
+                            <span className="badge-count">{cat.count}</span>
+                            <span className="badge-label">products</span>
+                          </div>
+                        </div>
+
+                        {/* Card content */}
+                        <div className="category-card-content">
+                          <h3 className="category-title">{cat.title}</h3>
+
+                          {/* Subcategories */}
+                          {cat.subcategories && cat.subcategories.length > 0 && (
+                            <div className="subcategories">
+                              {cat.subcategories.slice(0, 3).map((sub, idx) => (
+                                <Link
+                                  key={idx}
+                                  to={`/products?category=${encodeURIComponent(cat.title)}&subcategory=${encodeURIComponent(sub)}`}
+                                  className="subcategory-link"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {sub}
+                                </Link>
+                              ))}
+                              {cat.subcategories.length > 3 && (
+                                <span className="subcategory-more">
+                                  +{cat.subcategories.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               ) : null}
-            </div>
+            </section>
           </main>
         </div>
       </div>

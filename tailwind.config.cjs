@@ -5,6 +5,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Aritii Brand Colors
+        aritii: {
+          green: '#75d04b',           // Primary - buttons, highlights, active states
+          'green-dark': '#5ab82e',    // Dark variant for hover
+          'green-light': '#8fda6f',   // Light variant for backgrounds
+          dark: '#131921',            // Headers, primary text
+          'dark-alt': '#0f1111',      // Alternative dark
+          border: '#232f3e',          // Light borders
+          muted: '#9aa6b2',           // Secondary text
+          success: '#28a745',         // Success states
+          warning: '#ffc107',         // Warning states
+          error: '#dc3545',           // Error states
+          'error-light': '#f8d7da',   // Error light background
+          'success-light': '#d4edda', // Success light background
+          'warning-light': '#fff3cd', // Warning light background
+        },
         market: {
           surface: '#ffffff',
           'surface-dim': '#f7f7f7',
@@ -14,45 +30,45 @@ module.exports = {
           'surface-container': '#e6e6e6',
           'surface-container-high': '#d5d9d9',
           'surface-container-highest': '#c0c5c5',
-          'on-surface': '#0f1111',
-          'on-surface-variant': '#555555',
+          'on-surface': '#131921',    // Use Aritii dark
+          'on-surface-variant': '#9aa6b2',  // Use Aritii muted
           header: '#131921',
           'header-border': '#232f3e',
           subnav: '#232f3e',
           'subnav-border': '#37475a',
-          primary: '#febd69',
-          'primary-hover': '#f3a847',
-          'primary-pressed': '#ff9900',
-          'primary-container': '#f3a847',
-          'on-primary': '#0f1111',
-          'inverse-primary': '#ff9900',
+          primary: '#75d04b',         // Aritii green
+          'primary-hover': '#5ab82e', // Aritii green dark
+          'primary-pressed': '#4da11f',
+          'primary-container': '#8fda6f',  // Aritii green light
+          'on-primary': '#ffffff',
+          'inverse-primary': '#75d04b',
           secondary: '#2162a1',
           'secondary-hover': '#0064f9',
           'on-secondary': '#ffffff',
-          tertiary: '#cc0c39',
-          'tertiary-hover': '#cc0c39',
+          tertiary: '#dc3545',        // Aritii error
+          'tertiary-hover': '#c82333',
           'on-tertiary': '#ffffff',
-          error: '#cc0c39',
+          error: '#dc3545',           // Aritii error
           'on-error': '#ffffff',
-          price: '#B12704',
+          price: '#dc3545',           // Use error for prices
           outline: '#888c8c',
           'outline-variant': '#969696',
-          border: '#d5d9d9',
+          border: '#232f3e',          // Aritii border
           background: '#ffffff',
-          'on-background': '#0f1111',
-          'surface-variant': '#e6e6e6',
+          'on-background': '#131921',
+          'surface-variant': '#f0f2f2',
           'inverse-surface': '#131921',
           'inverse-on-surface': '#ffffff',
         },
         brand: {
-          primary: '#febd69',
-          'primary-light': '#f3a847',
-          'primary-dark': '#ff9900',
-          'primary-hover': '#f3a847',
-          'primary-pressed': '#ff9900',
-          'primary-disabled': '#b9e8a3',
-          'secondary-border': '#111827',
-          dark: '#131921'
+          primary: '#75d04b',         // Aritii green
+          'primary-light': '#8fda6f', // Aritii green light
+          'primary-dark': '#5ab82e',  // Aritii green dark
+          'primary-hover': '#5ab82e',
+          'primary-pressed': '#4da11f',
+          'primary-disabled': '#c9e6bb',
+          'secondary-border': '#232f3e',  // Aritii border
+          dark: '#131921'             // Aritii dark
         }
       },
       fontFamily: {

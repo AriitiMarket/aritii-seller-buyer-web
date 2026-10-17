@@ -10,6 +10,8 @@ import { logoutUser } from '@/store/slices/userThunks'
 import { toast } from 'react-toastify'
 import { categoryHref } from '@/shared/categories/categoryHref'
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories'
+import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation'
+import { useDeliveryZones } from '@/shared/hooks/useDeliveryZones'
 
 /**
  * MarketplaceHeader — the ONE shared header for every public shopping page
@@ -41,8 +43,6 @@ const NAV_LINKS = [
   { label: 'Requests', to: '/my-dashboard/requests', match: ['/my-dashboard/requests'], protected: true },
 ]
 
-const DELIVERY_CITIES = ['Addis Ababa', 'Dire Dawa', 'Mekelle', 'Bahir Dar', 'Adama', 'Hawassa']
-
 const MarketplaceHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -57,6 +57,7 @@ const MarketplaceHeader = () => {
   const cartItemCount = cart ? cart.reduce((total, item) => total + Number(item.quantity ?? 1), 0) : 0
   const location = useLocation()
   const { categories } = useCatalogCategories()
+  const { zones, loading: zonesLoading } = useDeliveryZones()
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -113,7 +114,13 @@ const MarketplaceHeader = () => {
         { label: 'Create Account', to: '/sign-up', icon: AiOutlineUser, primary: true },
       ]
 
-  const getDeliveryLocation = () => 'Addis Ababa'
+  const { zoneId: selectedZoneId, cityId: selectedCityId, zoneName, cityName, setLocation } = useDeliveryLocation();
+
+  const getDeliveryLocation = () => {
+    if (zoneName) return zoneName;
+    if (cityName) return cityName;
+    return 'Select location';
+  };
 
   return (
     <>
@@ -171,28 +178,46 @@ const MarketplaceHeader = () => {
                   <AiOutlineSearch size={12} className="text-[#9aa6b2]/60 ml-1" />
                 </button>
                 {deliverToOpen && (
-                  <div className="absolute top-full left-0 mt-1 z-[80] w-64 rounded-md border border-[#232f3e] bg-[#1a1a1a] p-1.5 shadow-lg">
-                    <div className="space-y-1">
-                      <p className="px-2 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
-                        Select delivery location
+                  <div className="absolute top-full left-0 mt-1 z-[80] w-72 rounded-md border border-[#232f3e] bg-[#1a1a1a] p-3 shadow-lg">
+                    <div className="space-y-2.5">
+                      <p className="px-1 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2] border-b border-[#232f3e]">
+                        Delivery zones
                       </p>
-                      {DELIVERY_CITIES.map((city) => (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => setDeliverToOpen(false)}
-                          className="w-full px-3 py-2 text-body-sm text-white transition-colors hover:bg-[#232f3e] rounded-md"
-                        >
-                          {city}
-                        </button>
-                      ))}
+                      <div className="max-h-[240px] overflow-y-auto space-y-1">
+                        {zonesLoading ? (
+                          <div className="px-3 py-4 text-center text-[#9aa6b2] text-sm">Loading zones...</div>
+                        ) : zones.length > 0 ? (
+                          zones.map((zone) => (
+                            <button
+                              key={zone._id || zone.id}
+                              type="button"
+                              onClick={() => {
+                                setLocation({
+                                  zoneId: zone._id || zone.id,
+                                  zoneName: zone.name || zone.title,
+                                });
+                                setDeliverToOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-body-sm transition-colors rounded-md text-left ${
+                                selectedZoneId === (zone._id || zone.id)
+                                  ? 'bg-[#75d04b] text-[#131921] font-medium'
+                                  : 'text-white hover:bg-[#232f3e]'
+                              }`}
+                            >
+                              {zone.name || zone.title}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-4 text-center text-[#9aa6b2] text-sm">No zones available</div>
+                        )}
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
-                          setDeliverToOpen(false)
-                          navigate('/my-dashboard/addresses')
+                          setDeliverToOpen(false);
+                          navigate('/my-dashboard/addresses');
                         }}
-                        className="w-full px-3 py-2 text-body-sm text-[#75d04b] transition-colors hover:bg-[#232f3e] rounded-md font-medium"
+                        className="w-full px-3 py-2 text-body-sm text-[#75d04b] transition-colors hover:bg-[#232f3e] rounded-md font-medium text-left border-t border-[#232f3e]"
                       >
                         Manage addresses →
                       </button>

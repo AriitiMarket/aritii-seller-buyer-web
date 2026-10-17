@@ -16,6 +16,7 @@ export const backend_url = API_BASE_URL;
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000, // 30 second timeout for API requests
 });
 
 setupInterceptors(api);
@@ -28,6 +29,7 @@ setupInterceptors(api);
 const publicApi = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000, // 30 second timeout for public API requests
 });
 
 export { publicApi };

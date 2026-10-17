@@ -124,173 +124,178 @@ const ProductDetailPage = () => {
           }
         />
       ) : data ? (
-        <div className="max-w-6xl mx-auto py-8 px-4">
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left: image gallery (Amazon-style) */}
-            <div className="lg:sticky lg:top-24 flex flex-col gap-4">
-              <div className="relative w-full aspect-square lg:aspect-auto min-h-[500px] bg-market-surface-container-low rounded-lg border border-market-border overflow-hidden">
-                <ProductImage data={data} className="w-full h-full object-contain p-6 lg:p-12" />
-                {availableUnits < 1 && (
-                  <span className="absolute top-3 left-3 market-stock-tag market-stock-tag-low">Out of stock</span>
-                )}
-                {lowStock && (
-                  <span className="absolute top-3 left-3 market-stock-tag market-stock-tag-low">Only {availableUnits} left</span>
-                )}
-              </div>
-              <div className="grid grid-cols-4 gap-2 lg:hidden">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="aspect-square bg-market-surface-container-low rounded-md border border-market-border" />
-                ))}
-              </div>
-            </div>
-
-            {/* Right: buy box */}
-            <div className="flex flex-col lg:flex-col">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <Link to={productsLink} className="market-link market-body-sm mb-2 inline-block">← Back to results</Link>
-                  <h1 className="market-buy-box-title">{data?.name || 'Product'}</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={toggleWishlist}
-                    className="w-10 h-10 rounded-full border border-market-border flex items-center justify-center hover:bg-market-surface-container-high transition-colors"
-                    aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-                  >
-                    {inWishlist ? <AiFillHeart size={20} className="text-market-tertiary" /> : <AiOutlineHeart size={20} />}
-                  </button>
-                  <button
-                    type="button"
-                    className="w-10 h-10 rounded-full border border-market-border flex items-center justify-center hover:bg-market-surface-container-high transition-colors"
-                    aria-label="Share product"
-                  >
-                    <AiOutlineShareAlt size={20} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="market-buy-box">
-                <div className="market-buy-box-rating">
-                  <Rating rating={rating} />
-                  <span className="text-body-sm text-market-on-surface-variant">{soldCount > 0 ? `(${soldCount} bought)` : ''}</span>
-                </div>
-
-                <div className="market-buy-box-row">
-                  <span className="w-10">Shop:</span>
-                  {data?.shop?._id ? (
-                    <Link
-                      to={`/shops/${data.shop._id}`}
-                      className="text-market-primary font-semibold hover:underline transition-colors"
-                    >
-                      {data.shop.name || 'Unknown shop'}
-                    </Link>
-                  ) : (
-                    <span>{data?.shop?.name || 'Unknown shop'}</span>
+        <div className="w-full py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-0">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+              {/* Left: image gallery (Amazon-style) */}
+              <div className="lg:sticky lg:top-24 flex flex-col gap-3 sm:gap-4">
+                <div className="relative w-full aspect-square bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  <ProductImage data={data} className="w-full h-full object-contain p-4 sm:p-6 lg:p-12" />
+                  {availableUnits < 1 && (
+                    <span className="absolute top-3 left-3 inline-block px-3 py-1.5 bg-red-100 text-red-700 text-xs sm:text-sm font-bold rounded">Out of stock</span>
+                  )}
+                  {lowStock && availableUnits >= 1 && (
+                    <span className="absolute top-3 left-3 inline-block px-3 py-1.5 bg-orange-100 text-orange-700 text-xs sm:text-sm font-bold rounded">Only {availableUnits} left</span>
                   )}
                 </div>
-
-                {data?.category && (
-                  <div className="market-buy-box-row">
-                    <span className="w-10">Category:</span>
-                    <Link to={`/products?category=${encodeURIComponent(data.category)}`} className="text-market-secondary hover:underline">{data.category}</Link>
-                  </div>
-                )}
-
-                <div className="market-buy-box-divider" />
-
-                <div className="mb-3">
-                  <span className="text-body-sm font-semibold text-market-on-surface-variant">Price:</span>
-                  <div className="flex items-baseline gap-1 mt-1">
-                    <span className="market-buy-box-price">{formatCurrency(displayPrice) || 'Contact seller'} ETB</span>
-                    {data?.originalPrice && data.originalPrice > data.discountPrice && (
-                      <>
-                        <span className="market-buy-box-list-price">{formatCurrency(data.originalPrice)} ETB</span>
-                        <span className="market-buy-box-saving">{Math.round(((data.originalPrice - data.discountPrice) / data.originalPrice) * 100)}% off</span>
-                      </>
-                    )}
-                  </div>
+                <div className="grid grid-cols-4 gap-2 lg:hidden">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600" />
+                  ))}
                 </div>
-
-                {lowStock && (
-                  <div className="mb-3">
-                    <span className="market-stock-tag market-stock-tag-low">Only {availableUnits} left in stock</span>
-                  </div>
-                )}
-
-                <div className="market-buy-box-row mb-3">
-                  <span className="w-10">
-                    <AiOutlineCheckCircle size={16} className="text-green-500" aria-hidden="true" />
-                  </span>
-                  <span>Fast delivery</span>
-                </div>
-
-                <div className="market-buy-box-row mb-3">
-                  <span className="w-10">
-                    <AiOutlineCheckCircle size={16} className="text-green-500" aria-hidden="true" />
-                  </span>
-                  <span>30-day return policy</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={!inStock}
-                  className={`market-buy-box-cta ${!inStock ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  aria-label={!inStock ? data.name + ' is out of stock' : 'Add ' + data.name + ' to cart'}
-                >
-                  <AiOutlineShoppingCart size={20} className="mr-2" />
-                  {inStock ? 'Add to Cart' : 'Out of stock'}
-                </button>
-
-                <button
-                  type="button"
-                  className="market-buy-box-cta secondary"
-                  disabled={!inStock}
-                >
-                  Buy Now
-                </button>
-
-                <div className="market-buy-box-divider" />
-                <p className="market-body-sm text-market-on-surface-variant">
-                  <span className="font-medium text-market-on-surface">Delivery:</span> Estimated 2-5 business days
-                </p>
-                <p className="market-body-sm text-market-on-surface-variant mt-1">
-                  <span className="font-medium text-market-on-surface">Returns:</span> 30-day return policy
-                </p>
               </div>
 
-              {data?.description && (
-                <div className="mt-6 pt-6 border-t border-market-border">
-                  <h3 className="market-title-md text-market-on-surface mb-3">Product Description</h3>
-                  <p className="market-body-md text-market-on-surface-variant leading-relaxed whitespace-pre-wrap">{data.description}</p>
-                </div>
-              )}
-
-              {/* Related products — items from the same category or shop */}
-              {data && (
-                <div className="mt-10 pt-6 border-t border-market-border">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="market-title-md text-market-on-surface">Related products</h3>
-                    <Link
-                      to={`/products?category=${encodeURIComponent(data.category || '')}`}
-                      className="market-body-sm text-market-primary font-semibold hover:underline"
+              {/* Right: buy box */}
+              <div className="flex flex-col gap-4 sm:gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
+                  <div className="min-w-0">
+                    <Link to={productsLink} className="text-sm text-[#75d04b] hover:text-[#5ac12f] mb-2 inline-block">← Back to results</Link>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#131921] dark:text-white break-words">{data?.name || 'Product'}</h1>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={toggleWishlist}
+                      className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px]"
+                      aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
-                      View all in {data.category || 'this category'} →
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:gap-6 overflow-x-auto pb-4 no-scrollbar">
-                    {relatedProducts.map((p) => (
-                      <ProductCard
-                        key={p._id || p.id}
-                        data={p}
-                        variant="public"
-                        basePath=""
-                      />
-                    ))}
+                      {inWishlist ? <AiFillHeart size={20} className="text-[#75d04b]" /> : <AiOutlineHeart size={20} />}
+                    </button>
+                    <button
+                      type="button"
+                      className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px]"
+                      aria-label="Share product"
+                    >
+                      <AiOutlineShareAlt size={20} />
+                    </button>
                   </div>
                 </div>
-              )}
+
+                {/* Buy Box Card */}
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 space-y-4">
+                  {/* Rating */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <Rating rating={rating} />
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{soldCount > 0 ? `(${soldCount} bought)` : ''}</span>
+                  </div>
+
+                  {/* Shop */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                    <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">Shop:</span>
+                    {data?.shop?._id ? (
+                      <Link
+                        to={`/shops/${data.shop._id}`}
+                        className="text-[#75d04b] font-semibold hover:text-[#5ac12f] transition-colors break-words"
+                      >
+                        {data.shop.name || 'Unknown shop'}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{data?.shop?.name || 'Unknown shop'}</span>
+                    )}
+                  </div>
+
+                  {/* Category */}
+                  {data?.category && (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                      <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">Category:</span>
+                      <Link to={`/products?category=${encodeURIComponent(data.category)}`} className="text-[#75d04b] hover:text-[#5ac12f] hover:underline text-sm break-words">{data.category}</Link>
+                    </div>
+                  )}
+
+                  <hr className="border-gray-200 dark:border-gray-700" />
+
+                  {/* Price */}
+                  <div>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">Price:</span>
+                    <div className="flex flex-wrap items-baseline gap-2 mt-2">
+                      <span className="text-2xl sm:text-3xl font-bold text-[#131921] dark:text-white">{formatCurrency(displayPrice) || 'Contact seller'} ETB</span>
+                      {data?.originalPrice && data.originalPrice > data.discountPrice && (
+                        <>
+                          <span className="text-sm sm:text-base text-gray-500 dark:text-gray-400 line-through">{formatCurrency(data.originalPrice)} ETB</span>
+                          <span className="text-xs sm:text-sm font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">{Math.round(((data.originalPrice - data.discountPrice) / data.originalPrice) * 100)}% off</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {lowStock && availableUnits >= 1 && (
+                    <div className="inline-block px-3 py-1.5 bg-orange-100 text-orange-700 text-xs sm:text-sm font-bold rounded">
+                      Only {availableUnits} left in stock
+                    </div>
+                  )}
+
+                  {/* Benefits */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <AiOutlineCheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Fast delivery</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <AiOutlineCheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">30-day return policy</span>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-200 dark:border-gray-700" />
+
+                  {/* Add to Cart Button */}
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={!inStock}
+                    className={`w-full px-4 py-3 sm:py-4 rounded-lg font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 transition-colors min-h-[44px] ${
+                      inStock
+                        ? 'bg-[#75d04b] hover:bg-[#5ac12f] active:bg-[#4ab01f]'
+                        : 'bg-gray-400 cursor-not-allowed opacity-60'
+                    }`}
+                    aria-label={!inStock ? data.name + ' is out of stock' : 'Add ' + data.name + ' to cart'}
+                  >
+                    <AiOutlineShoppingCart size={20} />
+                    {inStock ? 'Add to Cart' : 'Out of stock'}
+                  </button>
+
+                  {/* Buy Now Button */}
+                  <button
+                    type="button"
+                    className="w-full px-4 py-3 sm:py-4 rounded-lg font-bold text-[#75d04b] border-2 border-[#75d04b] hover:bg-[#75d04b]/10 transition-colors text-sm sm:text-base min-h-[44px]"
+                    disabled={!inStock}
+                  >
+                    Buy Now
+                  </button>
+                </div>
+
+                {/* Description */}
+                {data?.description && (
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#131921] dark:text-white mb-3">Product Description</h3>
+                    <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{data.description}</p>
+                  </div>
+                )}
+
+                {/* Related products */}
+                {relatedProducts.length > 0 && (
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg sm:text-xl font-bold text-[#131921] dark:text-white">Related Products</h3>
+                      <Link
+                        to={`/products?category=${encodeURIComponent(data.category || '')}`}
+                        className="text-xs sm:text-sm text-[#75d04b] font-semibold hover:text-[#5ac12f]"
+                      >
+                        View all in {data.category || 'this category'} →
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                      {relatedProducts.map((p) => (
+                        <ProductCard
+                          key={p._id || p.id}
+                          data={p}
+                          variant="public"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

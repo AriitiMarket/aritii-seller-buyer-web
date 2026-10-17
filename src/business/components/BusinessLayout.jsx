@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import SellerHeader from '@/business/components/SellerHeader/SellerHeader';
-import SellerSidebar from '@/business/components/SellerSidebar/SellerSidebar';
-import SellerMobileDrawer from '@/business/components/SellerMobileDrawer/SellerMobileDrawer';
+import ModernSellerHeader from '@/business/components/SellerHeader/ModernSellerHeader';
+import ModernSellerSidebar from '@/business/components/SellerSidebar/ModernSellerSidebar';
+import ModernSellerMobileDrawer from '@/business/components/SellerMobileDrawer/ModernSellerMobileDrawer';
 import SkipToContent from '@/shared/components/SkipToContent';
 
 /**
  * BusinessLayout - the single layout for every /business/* route.
  *
  * Desktop shell:
- *   ┌────────────────────────────────────┐
- *   │ SellerHeader (fixed height)        │
- *   ├──────────┬─────────────────────────┤
- *   │ Sidebar  │ main (ONLY scrollable)  │
- *   │ (fixed)  │  page content           │
- *   └──────────┴─────────────────────────┘
+ *   ┌────────────────────────────────────────┐
+ *   │ ModernSellerHeader (sticky)            │
+ *   │ - Store switcher, search, metrics bar  │
+ *   │ - Collapse/Expand sidebar toggle       │
+ *   ├──────────┬─────────────────────────────┤
+ *   │ Sidebar  │ main (ONLY scrollable)      │
+ *   │ (fixed)  │ page content                │
+ *   │ (full-ht)│ (transitions on collapse)   │
+ *   └──────────┴─────────────────────────────┘
  *
- * Mobile: off-canvas drawer opened from header hamburger + bottom nav bar.
+ * Mobile: off-canvas drawer + bottom nav bar.
+ * Sidebar collapses to minimize icon strip on desktop.
  */
 const BusinessLayout = ({ flushFooter = false }) => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
   const closeMobileDrawer = () => setMobileDrawerOpen(false);
 
@@ -28,39 +33,46 @@ const BusinessLayout = ({ flushFooter = false }) => {
   }, [location.pathname]);
 
   return (
-    <div className="seller-shell-bg flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-[#0f1419]">
       <SkipToContent />
 
-      {/* Header — fixed row */}
-      <SellerHeader onMenuClick={() => setMobileDrawerOpen(true)} />
+      {/* Header — sticky row with metrics + sidebar toggle */}
+      <ModernSellerHeader 
+        onMenuClick={() => setMobileDrawerOpen(true)}
+        onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        sidebarCollapsed={sidebarCollapsed}
+      />
 
       {/* Mobile Drawer */}
-      <SellerMobileDrawer
+      <ModernSellerMobileDrawer
         isOpen={mobileDrawerOpen}
         onClose={closeMobileDrawer}
       />
 
       {/* Body: fixed sidebar + independently scrollable content */}
       <div className="flex flex-1 min-h-0">
-        {/* Desktop Sidebar */}
-        <aside className="seller-sidebar">
-          <SellerSidebar />
+        {/* Desktop Sidebar — full height, collapsible */}
+        <aside className="hidden lg:block border-r border-gray-200 dark:border-gray-800 h-full transition-all duration-300">
+          <ModernSellerSidebar isCollapsed={sidebarCollapsed} />
         </aside>
 
         {/* Page Content */}
         <main
           id="main-content"
           tabIndex={-1}
-          className="seller-content-enter flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"
+          className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"
           data-testid="business-content"
         >
-          <Outlet />
+          <div className="px-4 sm:px-6 lg:px-8 py-6">
+            <Outlet />
+          </div>
 
           {!flushFooter && (
-            <footer className="mt-8 py-4 px-6 text-center text-xs text-market-on-surface-variant border-t border-market-border bg-white dark:bg-[#1a1f2a]">
+            <footer className="mt-12 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
               <span>© Aritii Market Seller Portal.</span>{' '}
-              <Link className="hover:underline text-market-primary" to="/business/products">Products</Link> ·{' '}
-              <Link className="hover:underline text-market-primary" to="/faq">Help</Link>
+              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/business/products">Products</Link> ·{' '}
+              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/faq">Help</Link> ·{' '}
+              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/business/settings">Settings</Link>
             </footer>
           )}
         </main>

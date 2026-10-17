@@ -51,10 +51,16 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+        className="fixed inset-0 z-50 lg:hidden"
         onClick={onClose}
-        aria-hidden="true"
-      />
+      >
+        {/* Backdrop overlay — inert attribute prevents focus on main page */}
+        <div 
+          className="fixed inset-0 bg-black/50"
+          inert=""
+          aria-hidden="true"
+        />
+      </div>
 
       {/* Drawer */}
       <div

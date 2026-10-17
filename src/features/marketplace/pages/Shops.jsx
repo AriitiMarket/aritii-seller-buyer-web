@@ -73,34 +73,37 @@ const ShopsPage = () => {
 
   const mainContent = (
     <>
-      {/* Amazon-style results header */}
-      <div className="market-shop-results-bar border-b border-market-border pb-3">
-        <div className="market-results-text">
-          <span className="market-results-count">{data.length}</span> shop{data.length !== 1 ? 's' : ''} found
-          {search ? <span> for "{search}"</span> : null}
-          {category ? <span> in {category}</span> : null}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-market-on-surface-variant uppercase tracking-wider hidden sm:inline">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            aria-label="Sort shops"
-            className="px-3 py-1.5 text-sm border border-market-border rounded-button bg-market-surface text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-primary/30"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <Button
-            onClick={refresh}
-            disabled={loading}
-            className="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors disabled:opacity-50 text-sm flex-shrink-0"
-          >
-            Refresh
-          </Button>
+      {/* Results header + Sort dropdown */}
+      <div className="shops-results-bar mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="shops-results-text">
+            <span className="font-semibold text-gray-900 dark:text-white">{data.length}</span>
+            <span className="text-gray-600 dark:text-gray-400"> shop{data.length !== 1 ? 's' : ''} found</span>
+            {search && <span className="text-gray-600 dark:text-gray-400"> for "{search}"</span>}
+            {category && <span className="text-gray-600 dark:text-gray-400"> in {category}</span>}
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hidden sm:inline">Sort:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sort shops"
+              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-[#75d04b]/30 transition-colors"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <Button
+              onClick={refresh}
+              disabled={loading}
+              className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 text-sm flex-shrink-0"
+            >
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -111,13 +114,13 @@ const ShopsPage = () => {
           title="Could not load shops"
           description={error}
           action={
-            <Button onClick={refresh} className="bg-[#75d04b] hover:bg-[#5ac12f] text-white">
+            <Button onClick={refresh} className="bg-[#75d04b] hover:bg-[#5ac12f] text-white rounded-lg">
               Try again
             </Button>
           }
         />
       ) : data.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5">
           {data.map((shop, index) => (
             <ShopCard data={shop} key={shop._id || index} variant={isAuthenticated ? 'default' : 'public'} />
           ))}

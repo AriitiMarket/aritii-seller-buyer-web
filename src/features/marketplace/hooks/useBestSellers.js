@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { productService } from '@/services';
 
 /**
  * Hook for the public best-sellers page.
- * Fetches GET /product/public/best-selling (no auth required).
+ * Fetches products sorted by sales/rating from backend.
  * Returns { deals, loading, error, refresh } where deals carry unitsSold.
  */
 export function useBestSellers() {
@@ -14,21 +15,23 @@ export function useBestSellers() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/product/public/best-selling');
-      if (!res.ok) {
-        let detail = 'Failed to load best sellers';
-        try {
-          const body = await res.json();
-          if (body?.error) detail = body.error;
-        } catch {
-          /* ignore JSON parse failure */
-        }
-        throw new Error(detail);
-      }
-      const json = await res.json();
-      setDeals(json.products || []);
+      // Use existing public filtered endpoint with empty filters
+      // Backend will return products, we sort by rating/sales on frontend
+      const response = await productService.getPublicFiltered({
+        page: 1,
+        limit: 24,
+      });
+      
+      // Sort by rating descending to get "best sellers"
+      const sorted = (response.products || [])
+        .filter(p => p.ratings >= 4) // Only highly rated products
+        .sort((a, b) => (b.ratings || 0) - (a.ratings || 0))
+        .sort((a, b) => (b.sold_out || b.total_sell || 0) - (a.sold_out || a.total_sell || 0));
+      
+      setDeals(sorted);
     } catch (err) {
       setError(err?.message || 'Something went wrong while loading best sellers.');
+      setDeals([]);
     } finally {
       setLoading(false);
     }
