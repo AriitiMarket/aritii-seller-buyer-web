@@ -18,6 +18,25 @@ const Revenue = () => {
 
   const shopId = activeShopId || seller?._id;
 
+  const now = new Date();
+  const filterStart = (() => {
+    const d = new Date(now);
+    switch (timeFilter) {
+      case '7D': d.setDate(now.getDate() - 7); break;
+      case '90D': d.setDate(now.getDate() - 90); break;
+      case '1Y': d.setFullYear(now.getFullYear() - 1); break;
+      default: d.setDate(now.getDate() - 30);
+    }
+    return d;
+  })();
+
+  const inWindow = (a) => {
+    const dt = a.createdAt || a.updatedAt ? new Date(a.createdAt || a.updatedAt) : null;
+    return dt && dt >= filterStart && dt <= now;
+  };
+
+  const windowAllocations = allocations.filter(inWindow);
+
   useEffect(() => {
     if (!shopId) return;
     let active = true;
@@ -30,14 +49,15 @@ const Revenue = () => {
   }, [shopId, getSellerAllocations]);
 
   const summary = useMemo(() => {
-    const settled = allocations.filter((a) => a.status === 'SETTLED');
-    const pending = allocations.filter((a) => a.status === 'PENDING' || a.status === 'PARTIALLY_SETTLED');
-    const refunded = allocations.filter((a) => a.status === 'REFUNDED');
+    const rows = windowAllocations;
+    const settled = rows.filter((a) => a.status === 'SETTLED');
+    const pending = rows.filter((a) => a.status === 'PENDING' || a.status === 'PARTIALLY_SETTLED');
+    const refunded = rows.filter((a) => a.status === 'REFUNDED');
     const sum = (rows, key) => rows.reduce((acc, row) => acc + Number(row[key] || 0), 0);
     return {
-      totalGross: sum(allocations, 'grossSubtotal'),
-      totalCommission: sum(allocations, 'platformCommission'),
-      totalNet: sum(allocations, 'netPayable'),
+      totalGross: sum(rows, 'grossSubtotal'),
+      totalCommission: sum(rows, 'platformCommission'),
+      totalNet: sum(rows, 'netPayable'),
       settledTotal: sum(settled, 'netPayable'),
       pendingTotal: sum(pending, 'pendingAmount'),
       refundedTotal: sum(refunded, 'refundAmount'),
@@ -45,20 +65,20 @@ const Revenue = () => {
       pendingCount: pending.length,
       refundedCount: refunded.length,
     };
-  }, [allocations]);
+  }, [windowAllocations]);
 
-  // Monthly revenue trend from allocation creation dates.
+  // Monthly revenue trend from allocation creation dates (window only).
   const monthlyRevenue = useMemo(() => {
     const m = {};
-    allocations.forEach((a) => {
+    windowAllocations.forEach((a) => {
       const month = new Date(a.createdAt || a.updatedAt).toLocaleString('default', { month: 'short' });
       m[month] = (m[month] || 0) + Number(a.netPayable || 0);
     });
     return m;
-  }, [allocations]);
+  }, [windowAllocations]);
 
   const recentTransactions = useMemo(() => {
-    return [...allocations]
+    return [...windowAllocations]
       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
       .slice(0, 10)
       .map((a) => ({
@@ -78,9 +98,24 @@ const Revenue = () => {
       <div className="seller-section-header">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="seller-section-header-title">Revenue & Payouts</h1>
+            <h1 className="seller-section-header-title">Revenue &amp; Payouts</h1>
             <p className="seller-section-header-desc">Track your earnings and manage payouts</p>
           </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-market-on-surface-variant">Period</label>
+            <select
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value)}
+              className="seller-form-select w-auto"
+            >
+              <option value="7D">Last 7 Days</option>
+              <option value="30D">Last 30 Days</option>
+              <option value="90D">Last 90 Days</option>
+              <option value="1Y">Last Year</option>
+            </select>
+          </div>
+        </div>
+      </div>
         </div>
       </div>
 

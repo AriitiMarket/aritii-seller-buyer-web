@@ -9,6 +9,7 @@ import api from "@/services/api";
 export { authService } from "@/services/auth.service";
 export { productService } from "@/services/product.service";
 export { orderService } from "@/services/order.service";
+export { reportService } from "@/services/order.service";
 export { addressService } from "@/services/address.service";
 export { shopService } from "@/services/shop.service";
 export { sellerService } from "@/services/seller.service";
@@ -50,6 +51,7 @@ class PaymentService {
   }
 }
 export const paymentService = new PaymentService();
+export const { getSellerAllocations } = paymentService;
 
 export { default as api } from "@/services/api";
 
