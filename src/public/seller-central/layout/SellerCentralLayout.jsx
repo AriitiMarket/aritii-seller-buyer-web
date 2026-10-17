@@ -1,6 +1,7 @@
 import React from 'react'
 import SkipToContent from '@/shared/components/SkipToContent'
 import PublicScrollToTop from '@/public/components/PublicScrollToTop'
+import SellerUtilityBar from '../components/SellerUtilityBar'
 import SellerCentralHeader from '../components/SellerCentralHeader'
 import SellerCentralFooter from '../components/SellerCentralFooter'
 
@@ -12,7 +13,9 @@ import SellerCentralFooter from '../components/SellerCentralFooter'
  *
  * Structure:
  *   ┌─────────────────────────────────────┐
- *   │ SellerCentralHeader (fixed)         │
+ *   │ SellerUtilityBar (h-10)             │ ← Shop selector + stats
+ *   ├─────────────────────────────────────┤
+ *   │ SellerCentralHeader (sticky, h-16)  │ ← Logo + nav + actions
  *   ├─────────────────────────────────────┤
  *   │ main (scrollable content)           │
  *   ├─────────────────────────────────────┤
@@ -24,6 +27,9 @@ const SellerCentralLayout = ({ children, hideFooter = false }) => {
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
       <PublicScrollToTop />
       <SkipToContent />
+      
+      {/* Seller Utility Bar with shop selector */}
+      <SellerUtilityBar />
       
       {/* Independent Seller Header */}
       <SellerCentralHeader />
