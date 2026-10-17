@@ -127,8 +127,8 @@ const HomePage = () => {
               Shop
             </Link>
             <Link
-              to="/sell-on-aritii"
-              className="px-8 py-4 bg-[#2f6e4f] hover:bg-[#22462f] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
+              to="/seller"
+              className="px-8 py-4 bg-[#FF9900] hover:bg-[#E68A00] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
             >
               Sell
             </Link>
