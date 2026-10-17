@@ -1,23 +1,25 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AiOutlineArrowLeft } from 'react-icons/ai'
-import PublicHeader from '@/public/components/PublicHeader'
-import PublicFooter from '@/shared/components/Footer'
+import SellerCentralHeader from '@/public/seller-central/components/SellerCentralHeader'
+import SellerCentralFooter from '@/public/seller-central/components/SellerCentralFooter'
 import SkipToContent from '@/shared/components/SkipToContent'
 import PublicScrollToTop from '@/public/components/PublicScrollToTop'
-import { EXPERIENCES } from '@/public/experiences'
 
 /**
  * SellerCenterLayout — shared layout for Seller Center pages.
  *
  * Provides:
- *   - PublicHeader (experience navigation)
+ *   - SellerCentralHeader (independent seller branding)
  *   - SellerCenter sub-navigation (Overview, Benefits, How-It-Works, Workspace)
  *   - Content area
- *   - Footer
+ *   - SellerCentralFooter
  *
  * Each sub-section is a separate route, so users can navigate directly
  * to /seller-center/overview, /seller-center/benefits, etc.
+ *
+ * IMPORTANT: Uses INDEPENDENT header/footer, NOT the shared PublicHeader.
+ * This ensures Seller Center has complete visual isolation from marketplace.
  */
 
 const SELLER_CENTER_SECTIONS = [
@@ -28,7 +30,6 @@ const SELLER_CENTER_SECTIONS = [
 ]
 
 const SellerCenterLayout = ({ children, hideFooter = false }) => {
-  const exp = EXPERIENCES.seller
   const location = useLocation()
 
   const isActive = (paths) =>
@@ -38,7 +39,9 @@ const SellerCenterLayout = ({ children, hideFooter = false }) => {
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
       <PublicScrollToTop />
       <SkipToContent />
-      <PublicHeader />
+      
+      {/* Independent Seller Central Header - NOT the shared PublicHeader */}
+      <SellerCentralHeader />
 
       {/* Seller Center Sub-Navigation */}
       <nav
@@ -56,7 +59,7 @@ const SellerCenterLayout = ({ children, hideFooter = false }) => {
                   to={to}
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors relative ${
                     active
-                      ? `text-white ${exp.button}`
+                      ? `text-white bg-[#FF9900]`
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                   aria-current={active ? 'page' : undefined}
@@ -64,8 +67,7 @@ const SellerCenterLayout = ({ children, hideFooter = false }) => {
                   {label}
                   {active && (
                     <span
-                      className="absolute bottom-0 left-3 right-3 h-[3px] rounded-full"
-                      style={{ backgroundColor: exp.accent }}
+                      className="absolute bottom-0 left-3 right-3 h-[3px] rounded-full bg-[#FF9900]"
                       aria-hidden="true"
                     />
                   )}
@@ -103,7 +105,7 @@ const SellerCenterLayout = ({ children, hideFooter = false }) => {
         {children}
       </main>
 
-      {!hideFooter && <PublicFooter />}
+      {!hideFooter && <SellerCentralFooter />}
     </div>
   )
 }
