@@ -2,100 +2,92 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import SellerCenterLayout from '@/public/sell/layout/SellerCenterLayout';
-import { EXPERIENCES } from '@/public/experiences';
-import ExperiencePageHeader from '@/public/components/ExperiencePageHeader';
 
 /**
  * SellerCenterOverviewPage — /seller-center/overview
  *
  * Introduction to selling on Aritii with hero section and CTA.
  * Users can navigate to Benefits, How It Works, and Workspace pages.
+ *
+ * Uses SellerCenterLayout for independent header/footer and sub-navigation.
+ * NO extra ExperiencePageHeader - let the layout handle navigation.
  */
 const SellerCenterOverviewPage = () => {
-  const exp = EXPERIENCES.seller;
-
   return (
     <SellerCenterLayout>
-      <ExperiencePageHeader
-        experience={exp}
-        breadcrumb={[{ label: 'Home', to: '/' }, { label: 'Sell on Aritii' }]}
-        badge="Seller Experience"
-        title="Sell on Aritii. Grow with your local market."
-        description="Aritii Market gives your business a storefront in front of local buyers, tools to manage products and orders, and a delivery network that moves every order to the customer. You focus on the product — we connect the rest."
-        size="md"
-        visual={(
-          <img
-            src="/seller.png"
-            alt="Aritii Seller Hub with shop management and growth tools"
-            width="1024"
-            height="512"
-            loading="eager"
-            fetchPriority="high"
-            className="block w-full rounded-2xl border border-white/20 shadow-2xl"
-          />
-        )}
-        actions={
-          <>
-            <Link
-              to="/seller-sign-up"
-              className={`group inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold rounded-full text-base transition-colors focus-visible:outline-none focus-visible:ring-2 ${exp.button} ${exp.ring}`}
-            >
-              Start Selling
-              <AiOutlineArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-            </Link>
-            <Link
-              to="/seller-center/benefits"
-              className="inline-flex items-center justify-center px-8 py-3.5 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full text-base border border-gray-300 dark:border-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f6e4f]"
-            >
-              Learn More
-            </Link>
-          </>
-        }
-      />
-
-      {/* Quick highlight section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              title: 'Reach Local Buyers',
-              description: 'Your shop appears in front of customers actively searching for products like yours across Ethiopia.',
-            },
-            {
-              title: 'Manage Everything',
-              description: 'Products, orders, inventory, promotions and analytics — all in one seller dashboard.',
-            },
-            {
-              title: 'Get Paid',
-              description: 'Secure payments and fast payouts. Track your earnings and grow your business with confidence.',
-            },
-          ].map((item) => (
-            <div key={item.title} className="p-6 bg-[#2f6e4f]/5 border border-[#2f6e4f]/20 rounded-xl">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-[#131921] to-[#232f3e] text-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text */}
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Sell on Aritii. Grow with your local market.
+              </h1>
+              <p className="text-lg md:text-xl text-gray-300 mb-8">
+                Aritii Market gives your business a storefront in front of local buyers, tools to manage products and orders, and a delivery network that moves every order to the customer. You focus on the product — we connect the rest.
+              </p>
+              <div className="flex gap-4">
+                <Link
+                  to="/seller-sign-up"
+                  className="px-8 py-4 bg-[#FF9900] hover:bg-[#E68A00] text-white font-bold rounded transition-colors inline-flex items-center gap-2"
+                >
+                  Start Selling
+                  <AiOutlineArrowRight size={18} />
+                </Link>
+                <Link
+                  to="/seller-center/benefits"
+                  className="px-8 py-4 border border-gray-400 text-white hover:bg-white/10 font-bold rounded transition-colors"
+                >
+                  Learn More
+                </Link>
+              </div>
             </div>
-          ))}
+
+            {/* Right: Visual */}
+            <div className="hidden lg:block">
+              <img
+                src="/seller.png"
+                alt="Aritii Seller Hub with shop management and growth tools"
+                width="1024"
+                height="512"
+                loading="eager"
+                fetchPriority="high"
+                className="w-full rounded-2xl border border-white/20 shadow-2xl"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Navigation to other sections */}
-      <section className="bg-[#FDF6EC] dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Ready to dive deeper?
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Explore the benefits, see how it works, and preview your seller workspace.
-            </p>
+      {/* Content */}
+      <section className="py-16 md:py-24 bg-white dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Sell on Aritii?</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">Everything you need to succeed</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Local Reach', description: 'Connect with buyers in your community who want what you sell' },
+              { title: 'Easy Management', description: 'Manage products, orders, and inventory from one dashboard' },
+              { title: 'Integrated Delivery', description: 'Built-in delivery network that handles logistics for you' },
+            ].map((item) => (
+              <div key={item.title} className="p-8 bg-[#F7F7F7] dark:bg-gray-900 rounded-lg border border-[#E7E5E4] dark:border-gray-800">
+                <h3 className="font-bold text-[#0F1111] dark:text-white mb-3">{item.title}</h3>
+                <p className="text-[#565959] dark:text-gray-400">{item.description}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/seller-center/benefits"
-              className="px-6 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
+              className="px-6 py-3 bg-[#FF9900] hover:bg-[#E68A00] text-white font-semibold rounded-lg transition-colors text-center"
             >
-              View Benefits
+              Explore Benefits
             </Link>
             <Link
               to="/seller-center/how-it-works"

@@ -2,23 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineDashboard } from 'react-icons/ai';
 import SellerCenterLayout from '@/public/sell/layout/SellerCenterLayout';
-import { EXPERIENCES } from '@/public/experiences';
 
 /**
  * SellerCenterWorkspacePage — /seller-center/workspace
  *
  * Preview of the seller dashboard and available tools.
+ * Uses independent SellerCenterLayout for header and navigation.
  */
 const SellerCenterWorkspacePage = () => {
-  const exp = EXPERIENCES.seller;
-
   return (
     <SellerCenterLayout>
       {/* Page Header */}
-      <section className="bg-gradient-to-br from-[#20305C] to-[#2f6e4f] text-white py-12 md:py-16">
+      <section className="bg-gradient-to-r from-[#131921] to-[#232f3e] text-white py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <span className="inline-block px-3 py-1 mb-4 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider">
+            <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#FF9900]/20 text-[#FF9900] text-xs font-bold uppercase tracking-wider">
               Your Workspace
             </span>
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
