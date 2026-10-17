@@ -139,16 +139,35 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
             </button>
           </div>
 
-          {/* Center: Logo - Amazon Style */}
-          <Link to="/business" className="flex items-center gap-2.5 flex-shrink-0 absolute left-1/2 transform -translate-x-1/2 hover:opacity-80 transition-opacity">
-            <div className="bg-white rounded-sm p-1">
-              <BrandLogo size="sm" showText={false} linked={false} tone="light" />
-            </div>
-            <div className="flex flex-col hidden sm:flex">
-              <span className="text-sm font-bold text-white">Aritii</span>
-              <span className="text-[10px] text-slate-300 font-medium">Seller Central</span>
-            </div>
-          </Link>
+          {/* Center: Logo + Shop Selector - Amazon Style */}
+          <div className="flex items-center gap-2 flex-shrink-0 flex-1 justify-center">
+            <Link to="/business" className="flex items-center gap-2.5 flex-shrink-0 hover:opacity-80 transition-opacity">
+              <div className="bg-white rounded-sm p-1">
+                <BrandLogo size="sm" showText={false} linked={false} tone="light" />
+              </div>
+              <div className="flex flex-col hidden sm:flex">
+                <span className="text-sm font-bold text-white">Aritii</span>
+                <span className="text-[10px] text-slate-300 font-medium">Seller Central</span>
+              </div>
+            </Link>
+
+            {/* Shop Selector Dropdown */}
+            {shops && shops.length > 1 && (
+              <div className="relative ml-4 hidden sm:block">
+                <button
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-sm"
+                  title="Switch shop"
+                >
+                  <MdStorefront size={16} />
+                  <span className="truncate max-w-[120px]">{storeName}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -250,13 +269,51 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
                 <AiOutlineUser size={20} />
               </button>
 
-              {/* Account Dropdown */}
+              {/* Profile Dropdown */}
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[90]">
-                  <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{seller?.name || 'Seller'}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{seller?.email || 'seller@aritii.local'}</p>
-                  </div>
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[90]">
+                  {/* Shop Selector (if multiple shops) */}
+                  {shops && shops.length > 1 && (
+                    <>
+                      <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Select Shop</h3>
+                        <div className="space-y-1 max-h-32 overflow-y-auto">
+                          {shops.map((shop) => (
+                            <button
+                              key={shop._id}
+                              onClick={() => {
+                                selectShop(shop._id);
+                                setProfileOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left rounded transition-colors ${
+                                activeShopId === shop._id
+                                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 font-medium'
+                                  : 'text-gray-900 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="truncate">{shop.name || 'Unnamed Shop'}</span>
+                                {activeShopId === shop._id && (
+                                  <span className="text-xs">✓</span>
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+                        <Link
+                          to="/business/shops"
+                          className="block px-3 py-2 text-xs text-center text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          + Add New Shop
+                        </Link>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Account Menu Items */}
                   <div className="space-y-1 p-2">
                     <Link
                       to="/business/settings"
