@@ -22,6 +22,10 @@ const FAQPage = lazy(() => import('@/public/platform/pages/FAQ'));
 const PublicEventsPage = lazy(() => import('@/public/platform/pages/Events'));
 const MarketplaceLandingPage = lazy(() => import('@/features/marketplace/pages/MarketplaceLandingPage'));
 const SellOnAritiiPage = lazy(() => import('@/public/sell/pages/SellOnAritii'));
+const SellerCenterOverviewPage = lazy(() => import('@/public/sell/pages/SellerCenterOverview'));
+const SellerCenterBenefitsPage = lazy(() => import('@/public/sell/pages/SellerCenterBenefits'));
+const SellerCenterHowItWorksPage = lazy(() => import('@/public/sell/pages/SellerCenterHowItWorks'));
+const SellerCenterWorkspacePage = lazy(() => import('@/public/sell/pages/SellerCenterWorkspace'));
 const DeliveryExperiencePage = lazy(() => import('@/public/delivery/pages/Delivery'));
 const DeliveryLayout = lazy(() => import('@/features/delivery-provider/components/DeliveryLayout'));
 
@@ -40,6 +44,11 @@ export const PublicRoutes = () => (
     <Route path="/" element={<HomePage />} />
     <Route path="/marketplace" element={<MarketplaceLandingPage />} />
     <Route path="/sell-on-aritii" element={<SellOnAritiiPage />} />
+    {/* Seller Center pages - dedicated sections */}
+    <Route path="/seller-center/overview" element={<SellerCenterOverviewPage />} />
+    <Route path="/seller-center/benefits" element={<SellerCenterBenefitsPage />} />
+    <Route path="/seller-center/how-it-works" element={<SellerCenterHowItWorksPage />} />
+    <Route path="/seller-center/workspace" element={<SellerCenterWorkspacePage />} />
     <Route path="/delivery" element={<DeliveryLayout><DeliveryExperiencePage /></DeliveryLayout>} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/how-it-works" element={<HowItWorksPage />} />
