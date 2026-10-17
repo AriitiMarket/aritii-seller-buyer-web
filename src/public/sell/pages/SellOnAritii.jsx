@@ -11,7 +11,7 @@ import {
   AiOutlineMessage,
   AiOutlineBarChart,
 } from 'react-icons/ai';
-import { PublicLayout } from '@/public/layout/PublicLayout';
+import ExperienceLayout from '@/public/layout/ExperienceLayout';
 import { EXPERIENCES } from '@/public/experiences';
 import ExperiencePageHeader from '@/public/components/ExperiencePageHeader';
 import SellerBenefits from '@/public/sell/components/SellerBenefits';
@@ -30,7 +30,7 @@ const SellOnAritiiPage = () => {
   const exp = EXPERIENCES.seller;
 
   return (
-    <PublicLayout>
+    <ExperienceLayout>
       {/* Standard experience page header — Seller accent */}
       <ExperiencePageHeader
         experience={exp}
@@ -177,7 +177,7 @@ const SellOnAritiiPage = () => {
           </div>
         </div>
       </section>
-    </PublicLayout>
+    </ExperienceLayout>
   );
 };
 
