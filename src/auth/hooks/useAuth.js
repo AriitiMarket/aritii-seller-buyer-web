@@ -26,12 +26,7 @@ import {
 export function useAuth() {
   const dispatch = useDispatch();
 
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const loading = useSelector(selectAuthLoading);
-  const user = useSelector(selectCurrentUser);
-  const error = useSelector(selectAuthError);
-  const isSeller = useSelector(selectIsSeller);
-  const seller = useSelector(selectSeller);
+  
 
   const login = useCallback((emailOrPhone, password) => dispatch(loginUser(emailOrPhone, password)), [dispatch]);
   const register = useCallback((payload) => dispatch(registerUser(payload)), [dispatch]);
