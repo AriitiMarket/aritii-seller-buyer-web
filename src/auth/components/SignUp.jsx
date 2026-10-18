@@ -84,31 +84,95 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, rgba(0,0,0,0.5) 100%)' }}>
-      <div className="relative w-full max-w-md rounded-2xl border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
-        {/* Header */}
-        <div className="px-6 pt-8 pb-4 text-center border-b border-orange-500/10">
-          <div className="mb-3">
-            <svg viewBox="0 0 64 64" className="h-10 w-auto mx-auto" aria-hidden="true">
-              <defs>
-                <linearGradient id="signupGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#fbbf24" />
-                  <stop offset="1" stopColor="#f97316" />
-                </linearGradient>
-              </defs>
-              <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
-              <path d="M32 31 L58 52 L6 52 Z" fill="url(#signupGrad)" />
-            </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm lg:p-0" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, rgba(0,0,0,0.5) 100%)' }}>
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex w-full max-w-6xl h-screen lg:h-auto lg:max-h-[90vh] relative">
+        {/* Left Sidebar - Branding */}
+        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-orange-600 to-orange-800 p-12 flex-col justify-between rounded-l-2xl">
+          <div>
+            <div className="flex items-center gap-3 mb-12">
+              <svg viewBox="0 0 64 64" className="h-12 w-auto" aria-hidden="true">
+                <defs>
+                  <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset="1" stopColor="#f0f0f0" />
+                  </linearGradient>
+                </defs>
+                <path d="M32 6 L58 52 L6 52 Z" fill="#000" />
+                <path d="M32 31 L58 52 L6 52 Z" fill="url(#brandGrad)" />
+              </svg>
+              <div>
+                <p className="text-xl font-bold text-white">Aritii</p>
+                <p className="text-sm text-orange-100">Market</p>
+              </div>
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-4">Create Account</h2>
+            <p className="text-lg text-orange-50 leading-relaxed">Join thousands of buyers, sellers, and delivery partners in Ethiopia's fastest-growing marketplace.</p>
           </div>
-          <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-            {config.badge}
-          </span>
-          <h1 className="text-2xl font-bold text-white mb-1">{config.title}</h1>
-          <p className="text-sm text-gray-400">{config.description}</p>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🛍️</span>
+              <div>
+                <p className="font-semibold text-white">For Buyers</p>
+                <p className="text-sm text-orange-100">Discover local shops and fast delivery</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🏪</span>
+              <div>
+                <p className="font-semibold text-white">For Sellers</p>
+                <p className="text-sm text-orange-100">Grow your business online</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🚚</span>
+              <div>
+                <p className="font-semibold text-white">For Delivery</p>
+                <p className="text-sm text-orange-100">Earn by delivering orders</p>
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Right Form */}
+        <div className="relative w-full lg:w-3/5 rounded-2xl lg:rounded-r-2xl lg:rounded-l-none border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
+          {/* Close Button */}
+          <button
+            onClick={() => navigate('/login')}
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Header */}
+          <div className="px-6 pt-8 pb-4 text-center lg:text-left border-b border-orange-500/10">
+            <div className="flex items-center gap-3 mb-3 lg:hidden justify-center">
+              <svg viewBox="0 0 64 64" className="h-8 w-auto" aria-hidden="true">
+                <defs>
+                  <linearGradient id="signupGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fbbf24" />
+                    <stop offset="1" stopColor="#f97316" />
+                  </linearGradient>
+                </defs>
+                <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
+                <path d="M32 31 L58 52 L6 52 Z" fill="url(#signupGrad)" />
+              </svg>
+              <div>
+                <p className="font-bold text-white">Aritii Market</p>
+              </div>
+            </div>
+            <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+              {config.badge}
+            </span>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{config.title}</h1>
+            <p className="text-sm text-gray-400">{config.description}</p>
+          </div>
+
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-3 overflow-y-auto max-h-[70vh] lg:max-h-none">
           {/* Full Name */}
           <div>
             <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Full Name</label>
@@ -283,12 +347,16 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6 text-center border-t border-orange-500/10 pt-4">
+        <div className="px-6 lg:px-8 pb-6 text-center border-t border-orange-500/10 pt-4">
           <p className="text-sm text-gray-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-orange-400 hover:text-orange-300 font-semibold">
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="text-orange-400 hover:text-orange-300 font-semibold"
+            >
               Log in
-            </Link>
+            </button>
           </p>
         </div>
       </div>
