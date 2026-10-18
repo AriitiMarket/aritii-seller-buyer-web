@@ -116,6 +116,11 @@ export function useBusinessShops() {
     shops,
     activeShop,
     activeShopId: activeShop?._id || null,
+    // Persisted/selected shop id — available synchronously from localStorage even
+    // before the shops list finishes loading. Useful for kicking off dependent
+    // data (e.g. shop products) in parallel with the shops fetch instead of a
+    // strict user → seller → shops → products waterfall.
+    selectedShopId,
     hasMultipleShops: shops.length > 1,
     loading,
     error,

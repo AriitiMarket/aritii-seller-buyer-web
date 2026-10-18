@@ -10,7 +10,7 @@ import { useAuth } from '@/auth/hooks/useAuth';
  * hook seeds it through shopThunks -> shop service -> API client. Dispatches the
  * public thunk for guests and the authenticated thunk for logged-in users.
  */
-export function useShops({ auto = true } = {}) {
+export function useShops({ auto = true, filters = {} } = {}) {
   const dispatch = useDispatch();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { shops = [], shopsLoading: loading, error } = useSelector(
@@ -21,9 +21,9 @@ export function useShops({ auto = true } = {}) {
     if (isAuthenticated) {
       dispatch(getAllShops());
     } else {
-      dispatch(getPublicShops());
+      dispatch(getPublicShops(filters));
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, filters]);
 
   useEffect(() => {
     if (!auto || authLoading) return;
@@ -31,11 +31,11 @@ export function useShops({ auto = true } = {}) {
       if (isAuthenticated) {
         dispatch(getAllShops());
       } else {
-        dispatch(getPublicShops());
+        dispatch(getPublicShops(filters));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auto, authLoading, isAuthenticated, dispatch]);
+  }, [auto, authLoading, isAuthenticated, dispatch, filters]);
 
   return { shops, loading, error, refresh };
 }
@@ -60,6 +60,28 @@ export function filterShops(shops, { search, category } = {}) {
     );
   }
 
+  return filtered;
+}
+
+/** Filter shops by delivery location (zoneId / cityId / regionId). */
+export function filterShopsByLocation(shops, { zoneId, cityId, regionId } = {}) {
+  if (!zoneId && !cityId && !regionId) return shops;
+  let filtered = Array.isArray(shops) ? [...shops] : [];
+  if (zoneId) {
+    filtered = filtered.filter(
+      (shop) => String(shop.zoneId || shop.deliveryZoneId || '').toLowerCase() === String(zoneId).toLowerCase()
+    );
+  }
+  if (cityId) {
+    filtered = filtered.filter(
+      (shop) => String(shop.cityId || shop.deliveryCityId || '').toLowerCase() === String(cityId).toLowerCase()
+    );
+  }
+  if (regionId) {
+    filtered = filtered.filter(
+      (shop) => String(shop.regionId || shop.deliveryRegionId || '').toLowerCase() === String(regionId).toLowerCase()
+    );
+  }
   return filtered;
 }
 

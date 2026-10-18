@@ -3,9 +3,9 @@ import { Link, useLocation } from 'react-router-dom'
 import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from 'react-icons/ai'
 
 /**
- * SellerCentralHeader - Seller Center Navigation Header
+ * SellerCentralHeader - Aritii Seller Center Navigation Header
  *
- * Amazon-inspired design:
+ * Professional design:
  * - Dark slate background (#131921)
  * - Orange accent color (#FF9900)
  * - Responsive logo (text-based for simplicity)

@@ -2,10 +2,10 @@ import { shopService, catalogService } from "@/services";
 
 // ── Public thunks (guest browsing, limited data) ──────────────────────────
 
-export const getPublicShops = () => async (dispatch) => {
+export const getPublicShops = (filters = {}) => async (dispatch) => {
   try {
     dispatch({ type: "getAllShopsRequest" });
-    const shops = await shopService.getPublicAll();
+    const shops = await shopService.getPublicAll(filters);
     dispatch({ type: "getAllShopsSuccess", payload: shops || [] });
   } catch (error) {
     dispatch({

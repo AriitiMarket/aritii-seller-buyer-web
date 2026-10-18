@@ -1,73 +1,43 @@
-import api from "@/services/api";
-
-/**
- * Seller Service
- * Handles seller-specific operations: applications, shop management, statistics, events
- */
+import api from '@/services/api';
 
 export const sellerService = {
-  /**
-   * Submit application to become a seller
-   * @param {Object} applicationData - { name, description, category, businessType }
-   * @returns {Promise} - Application object
-   */
-  async submitApplication(applicationData) {
-    const { data } = await api.post(
-      "/seller-application",
-      applicationData
-    );
-    return data.application || null;
+  // Bulk product operations
+  async bulkProductUpdate(productIds, action) {
+    const { data } = await api.post('/product/bulk', {
+      productIds,
+      action,
+    });
+    return data;
   },
 
-  /**
-   * Get seller application status for the signed-in applicant.
-   *
-   * GET /seller-application is the ADMIN reviewer list (authorize('ADMIN'));
-   * the applicant-facing route is GET /seller-application/me.
-   * @returns {Promise} - The caller's own application, or null
-   */
-  async getMyApplication() {
-    const { data } = await api.get("/seller-application/me");
-    return data.application || null;
+  // Seller returns
+  async getSellerReturns(page = 1, limit = 20, status = null) {
+    const params = new URLSearchParams({ page, limit });
+    if (status) params.append('status', status);
+    
+    const { data } = await api.get(`/return/seller/list?${params.toString()}`);
+    return data;
   },
 
-  // The admin-only approve/reject wrappers that used to live here were removed:
-  // reviewers act from Aritii-admin-web (POST /seller-application/:id/...), and
-  // an applicant account must never carry an approval call.
-
-  // Shop read/write lives in `shop.service` only (getById / updateShopInfo /
-  // updateShopAvatar / getByOwner) — duplicate endpoints here drifted from the
-  // multi-shop contract (missing required `shopId`).
-
-  /**
-   * Create a new event for seller's shop
-   * @param {Object} eventData - { title, description, discount, startDate, endDate }
-   * @returns {Promise} - Created event object
-   */
-  async createEvent(eventData) {
-    const { data } = await api.post("/event/create-event", eventData);
-    return data.event || null;
+  async markReturnPickedUp(returnId) {
+    const { data } = await api.post(`/return/${returnId}/picked-up`, {});
+    return data.return;
   },
 
-  /**
-   * Get all events for a specific shop
-   * @param {string} shopId - Shop ID
-   * @returns {Promise} - Array of events
-   */
-  async getShopEvents(shopId) {
-    const { data } = await api.get(`/event/get-all-events/${shopId}`);
-    return data.events || [];
+  async confirmReturnReceived(returnId) {
+    const { data } = await api.post(`/return/${returnId}/returned`, {});
+    return data.return;
   },
 
-  /**
-   * Delete an event from seller's shop
-   * @param {string} eventId - Event ID
-   * @returns {Promise} - Success message
-   */
-  async deleteEvent(eventId) {
-    const { data } = await api.delete(`/event/delete-shop-event/${eventId}`);
-    return data.message || "Event deleted";
+  // Product backorder/preorder
+  async updateProductInventorySettings(productId, settings) {
+    const { data } = await api.put(`/product/update-product/${productId}`, settings);
+    return data.product;
+  },
+
+  // Get availability with backorder/preorder info
+  async checkProductAvailability(productId) {
+    const { data } = await api.get(`/order/availability/${productId}`);
+    return data.availability;
   },
 };
-
-export default sellerService;

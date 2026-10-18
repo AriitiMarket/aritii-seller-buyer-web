@@ -257,10 +257,43 @@ export const productService = {
   },
 
   /**
+   * Real keyword search against the dedicated `/product/search?q=` endpoint.
+   *
+   * This is the canonical, bounded + paginated search endpoint and it is
+   * requester-aware: guests and signed-in buyers both get the published catalog.
+   * It powers the search bar's live suggestions and signed-in searches, because
+   * `/product/get-all-products` only honours a `search` filter for admins.
+   *
+   * @param {string} q - search term
+   * @param {Object} [options] - { page, limit }
+   * @returns {Promise<Array>} matching products
+   */
+  async searchProducts(q, { page = 1, limit = 20 } = {}) {
+    const term = String(q || '').trim();
+    if (!term) return [];
+    const params = new URLSearchParams({ q: term, page: String(page), limit: String(limit) });
+    const cacheKey = `products:search:${params.toString()}`;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    try {
+      const { data } = await publicApi.get(`/product/search?${params.toString()}`, {
+        skipAuth: true,
+        timeout: 30000,
+      });
+      const products = data.products || [];
+      cache.set(cacheKey, products, 60 * 1000); // 60s — search results are volatile
+      return products;
+    } catch (error) {
+      if (error.code === 'ECONNABORTED') return [];
+      throw error;
+    }
+  },
+
+  /**
    * Get all products for marketplace browsing (authenticated — full fields)
    * @param {Object} options - { page, limit } (optional)
    * @returns {Promise} - Array of products
-   * 
+   *
    * Includes timeout protection to prevent hanging requests.
    */
   async getAll(options = {}) {
@@ -385,6 +418,10 @@ export const productService = {
     const { data } = await api.post("/product/create-product", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    // FIX #14: Invalidate shop products cache when new product created
+    if (data.product?.shopId) {
+      cache.invalidateShopCache(data.product.shopId);
+    }
     cache.invalidateByPattern("products:.*");
     return data.product || null;
   },
@@ -400,8 +437,13 @@ export const productService = {
       `/product/update-product/${productId}`,
       updateData
     );
-    cache.delete(`product:${productId}`);
-    cache.invalidateByPattern("products:.*");
+    // FIX #14: Use new cache invalidation method
+    if (data.product?.shopId) {
+      cache.invalidateProductCache(productId, data.product.shopId);
+    } else {
+      cache.delete(`product:${productId}`);
+      cache.invalidateByPattern("products:.*");
+    }
     return data.product || null;
   },
 
@@ -410,7 +452,10 @@ export const productService = {
    */
   async restock(productId, quantity, note) {
     const { data } = await api.post(`/product/restock/${productId}`, { quantity, note });
-    cache.invalidateByPattern("products:.*");
+    // FIX #14: Invalidate product cache on stock change
+    if (data.product?.shopId) {
+      cache.invalidateProductCache(productId, data.product.shopId);
+    }
     return data.product || null;
   },
 
@@ -420,7 +465,10 @@ export const productService = {
    */
   async adjustStock(productId, quantity, note) {
     const { data } = await api.put(`/product/adjust-stock/${productId}`, { quantity, note });
-    cache.invalidateByPattern("products:.*");
+    // FIX #14: Invalidate product cache on stock change
+    if (data.product?.shopId) {
+      cache.invalidateProductCache(productId, data.product.shopId);
+    }
     return data.product || null;
   },
 

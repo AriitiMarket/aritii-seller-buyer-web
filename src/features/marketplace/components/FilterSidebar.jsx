@@ -1,8 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CategorySidebar from '@/features/marketplace/components/CategorySidebar';
-import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
-import { locationService } from '@/services';
+import LocationSelector from '@/features/marketplace/components/LocationSelector';
 
 /**
  * FilterSidebar - Aritii-style filter sidebar for Products page.
@@ -131,103 +130,6 @@ function RatingFilter({ searchParams, setSearchParams }) {
   );
 }
 
-function DeliveryZoneFilter({ searchParams, setSearchParams }) {
-  const [zones, setZones] = useState([]);
-  const [zonesLoading, setZonesLoading] = useState(false);
-  const { setLocation, clearLocation } = useDeliveryLocation();
-
-  const urlZoneId = searchParams.get('zoneId') || '';
-
-  // Load zones when the sidebar mounts
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      setZonesLoading(true);
-      try {
-        const zoneList = await locationService.listZones();
-        if (active) setZones(zoneList);
-      } catch {
-        if (active) setZones([]);
-      } finally {
-        if (active) setZonesLoading(false);
-      }
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const setParam = (key, value) => {
-    const next = new URLSearchParams(searchParams);
-    if (value === '' || value == null) {
-      next.delete(key);
-    } else {
-      next.set(key, value);
-    }
-    setSearchParams(next, { replace: true });
-  };
-
-  return (
-    <div className="space-y-2">
-      {zonesLoading ? (
-        <div className="text-xs text-gray-400">Loading zones…</div>
-      ) : zones.length === 0 ? (
-        <div className="text-xs text-gray-400">No zones available</div>
-      ) : (
-        <>
-          {zones.map((zone) => {
-            const active = String(urlZoneId) === String(zone._id || zone.id);
-            return (
-              <label
-                key={zone._id || zone.id}
-                className={`flex items-center gap-2 text-sm cursor-pointer px-2 py-1.5 rounded-lg transition-all ${
-                  active
-                    ? 'bg-[#75d04b]/10 font-bold text-[#75d04b] border-l-4 border-[#75d04b]'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-[#75d04b] hover:bg-gray-100 dark:hover:bg-gray-800/50'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="delivery-zone"
-                  checked={active}
-                  onChange={() => {
-                    setLocation({
-                      zoneId: String(zone._id || zone.id),
-                      zoneName: zone.name || '',
-                      cityId: zone.cityId || null,
-                      cityName: zone.cityName || '',
-                    });
-                    setParam('zoneId', String(zone._id || zone.id));
-                    setParam('cityId', zone.cityId || '');
-                  }}
-                  className="accent-[#75d04b]"
-                />
-                <span className="truncate">{zone.name}</span>
-                {zone.cityName && (
-                  <span className="text-xs text-gray-400 ml-auto flex-shrink-0">{zone.cityName}</span>
-                )}
-              </label>
-            );
-          })}
-          {urlZoneId && (
-            <button
-              type="button"
-              onClick={() => {
-                clearLocation();
-                setParam('zoneId', '');
-                setParam('cityId', '');
-              }}
-              className="flex items-center gap-2 w-full text-left text-sm text-[#75d04b] hover:text-[#5ac12f] mt-2 pt-2 border-t border-gray-200/50 font-medium transition-colors"
-            >
-              ✕ Clear location
-            </button>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
 
 const FilterSidebar = ({ products = [], basePath = '/products' }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -236,9 +138,10 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
   const activeFilters = useMemo(() => {
     let count = 0;
     if (searchParams.get('category')) count++;
+    if (searchParams.get('regionId')) count++;
+    if (searchParams.get('zoneId') || searchParams.get('cityId')) count++;
     if (searchParams.get('min') || searchParams.get('max')) count++;
     if (searchParams.get('rating')) count++;
-    if (searchParams.get('zoneId')) count++;
     return count;
   }, [searchParams]);
 
@@ -284,9 +187,24 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
         {/* Category Sidebar */}
         <CategorySidebar products={currentProducts} basePath={basePath} />
 
-        {/* Delivery Zone Filter */}
-        <FilterGroup title="Delivery Zone" defaultOpen={false}>
-          <DeliveryZoneFilter searchParams={searchParams} setSearchParams={setSearchParams} />
+        {/* Delivery Location Filter (Region → City → Zone) via shared LocationSelector */}
+        <FilterGroup title="Delivery Location" defaultOpen={false}>
+          <LocationSelector
+            mode="zone"
+            initialValues={{
+              regionId: searchParams.get('regionId') || '',
+              cityId: searchParams.get('cityId') || '',
+              zoneId: searchParams.get('zoneId') || '',
+            }}
+            onSelect={(sel) => {
+              const next = new URLSearchParams(searchParams);
+              if (sel.regionId) next.set('regionId', sel.regionId); else next.delete('regionId');
+              if (sel.cityId) next.set('cityId', sel.cityId); else next.delete('cityId');
+              if (sel.zoneId) next.set('zoneId', sel.zoneId); else next.delete('zoneId');
+              setSearchParams(next, { replace: true });
+            }}
+            label="Deliver to"
+          />
         </FilterGroup>
 
         {/* Price Range Filter */}

@@ -3,39 +3,39 @@ import { AiOutlineGlobal, AiOutlineShop, AiOutlineBarChart } from 'react-icons/a
 
 /**
  * SellerCentralFeatures - Benefits cards grid
- * 
- * Three core seller benefits in a clean card layout
+ *
+ * Three core seller benefits focused on local commerce
  */
 const SellerCentralFeatures = () => {
   const features = [
     {
       icon: AiOutlineGlobal,
-      title: 'Global Reach',
-      description: 'Access to hundreds of millions of active customers on the Aritii Marketplace. Reach buyers in your local area and expand regionally.',
+      title: 'Local Market Access',
+      description: 'Connect with customers in your community. Reach buyers in your neighborhood, city, and region through one unified marketplace.',
       highlights: [
-        'Local marketplace access',
-        'Customer search visibility',
-        'Regional growth opportunities',
+        'Local customer discovery',
+        'Neighborhood visibility',
+        'Regional expansion',
       ],
     },
     {
       icon: AiOutlineShop,
-      title: 'Fulfillment by Aritii',
-      description: 'Let Aritii handle storage, packing, and shipping. Focus on your products while we manage logistics and customer service.',
+      title: 'Order Fulfillment Support',
+      description: 'Integrated delivery network handles pickup and delivery. Focus on your products while local delivery partners fulfill orders.',
       highlights: [
-        'Warehouse storage',
-        'Order fulfillment',
-        'Customer returns',
+        'Local delivery partners',
+        'Order coordination',
+        'Customer doorstep delivery',
       ],
     },
     {
       icon: AiOutlineBarChart,
-      title: 'Professional Tools & Analytics',
-      description: 'Powerful seller tools to manage inventory, track performance, run promotions, and scale your business with data-driven insights.',
+      title: 'Seller Dashboard & Analytics',
+      description: 'Powerful tools to manage inventory, track performance, run promotions, and grow your business with actionable insights.',
       highlights: [
-        'Sales analytics',
+        'Sales performance tracking',
         'Inventory management',
-        'Marketing tools',
+        'Promotion tools',
       ],
     },
   ]

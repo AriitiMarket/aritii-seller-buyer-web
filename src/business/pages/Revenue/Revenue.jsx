@@ -17,6 +17,7 @@ const Revenue = () => {
   const [loading, setLoading] = useState(false);
 
   const shopId = activeShopId || seller?._id;
+  const sellerUserId = seller?.id || seller?._id;
 
   const now = new Date();
   const filterStart = (() => {
@@ -38,15 +39,15 @@ const Revenue = () => {
   const windowAllocations = allocations.filter(inWindow);
 
   useEffect(() => {
-    if (!shopId) return;
+    if (!sellerUserId) return;
     let active = true;
     setLoading(true);
-    getSellerAllocations(shopId)
+    getSellerAllocations(sellerUserId)
       .then((rows) => { if (active) setAllocations(rows || []); })
       .catch(() => { if (active) setAllocations([]); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [shopId, getSellerAllocations]);
+  }, [sellerUserId, getSellerAllocations]);
 
   const summary = useMemo(() => {
     const rows = windowAllocations;

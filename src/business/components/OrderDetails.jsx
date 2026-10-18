@@ -27,24 +27,25 @@ const OrderDetails = () => {
   const [allocLoading, setAllocLoading] = useState(false);
 
   const { id } = useParams();
-  // Scope orders to the active shop (multi-shop aware); fall back to the
-  // seller's identity id so the backend's order.sellerId ownership check passes.
-  const shopId = activeShopId || seller?._id;
-  // Seller-scoped financial allocation: this seller's row within the buyer order.
-  // Backend enforces ownership — a seller can only ever read their own rows.
-  const sellerId = shopId;
+  // Scope orders to the seller's user UUID (identity ID), not a shop ObjectId,
+  // so the backend's seller-ownership check (sellerId === req.user.id) passes.
+  const sellerUserId = seller?.id || seller?._id;
 
   useEffect(() => {
-    if (shopId) dispatch(getAllOrdersOfShop(shopId));
-  }, [dispatch, shopId]);
+    if (sellerUserId) dispatch(getAllOrdersOfShop(sellerUserId));
+  }, [dispatch, sellerUserId]);
+
+  // Seller-scoped financial allocation: this seller's row within the buyer order.
+  // Backend enforces ownership — a seller can only ever read their own rows.
+  const allocationSellerId = sellerUserId;
 
   // Fetch this seller's allocation for the displayed order. Idempotent and
   // scoped to the seller — never reveals another seller's financials.
   useEffect(() => {
-    if (!id || !sellerId) return;
+    if (!id || !allocationSellerId) return;
     setAllocLoading(true);
     api
-      .get(`/payment/seller-allocations/${sellerId}`, { params: { orderId: id } })
+      .get(`/payment/seller-allocations/${allocationSellerId}`, { params: { orderId: id } })
       .then((res) => {
         const rows = res.data?.allocations || [];
         setAllocation(rows.find((a) => String(a.orderId) === String(id)) || null);
@@ -55,7 +56,7 @@ const OrderDetails = () => {
         setAllocation(null);
       })
       .finally(() => setAllocLoading(false));
-  }, [id, sellerId]);
+  }, [id, allocationSellerId]);
 
   const data = ShopOrders && ShopOrders.find((item) => item._id === id);
   const currentStatus = normalizeStatus(data?.status) || 'Processing';
@@ -75,7 +76,7 @@ const OrderDetails = () => {
         await api.put(`/order/update-order-status/${id}`, { status: next });
       }
       toast.success(next === 'Confirmed' ? 'Order accepted!' : 'Order updated!');
-      if (shopId) dispatch(getAllOrdersOfShop(shopId));
+      if (sellerUserId) dispatch(getAllOrdersOfShop(sellerUserId));
       setStatus('');
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to update order');

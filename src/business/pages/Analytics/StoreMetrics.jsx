@@ -68,13 +68,17 @@ const BusinessStoreMetricsPage = () => {
 
   const { activeShopId } = useBusinessShops()
   const shopId = activeShopId || seller?.id
+  const userId = seller?.id || seller?._id
 
   useEffect(() => {
     if (shopId) {
-      dispatch(getAllOrdersOfShop(shopId))
+      // Pass user ID for orders, shop ID for products
+      if (userId) {
+        dispatch(getAllOrdersOfShop(userId))
+      }
       dispatch(getAllProductsShop(shopId))
     }
-  }, [dispatch, shopId])
+  }, [dispatch, shopId, userId])
 
   if (isLoading || !seller) return (
     <>

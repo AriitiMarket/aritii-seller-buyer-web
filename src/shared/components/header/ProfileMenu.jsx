@@ -98,7 +98,7 @@ export default function ProfileMenu({
           <div 
             className="fixed inset-0 z-40" 
             onClick={close} 
-            inert=""
+            inert
             aria-hidden="true" 
           />
           <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 py-2">

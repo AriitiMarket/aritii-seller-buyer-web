@@ -45,23 +45,27 @@ const AllOrdersOfASingleShop = () => {
 
   const dispatch = useDispatch();
   const shopId = activeShopId || seller?._id;
+  // Always pass the seller's user UUID (seller.id), never a shop ObjectId,
+  // to the seller-orders endpoint — the backend validates ownership by
+  // matching the seller ID against the authenticated user's identity ID.
+  const sellerUserId = seller?.id || seller?._id;
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
   const [acceptingId, setAcceptingId] = useState(null);
 
   useEffect(() => {
-    if (shopId) {
-      dispatch(getAllOrdersOfShop(shopId));
+    if (sellerUserId) {
+      dispatch(getAllOrdersOfShop(sellerUserId));
     }
-  }, [dispatch, shopId]);
+  }, [dispatch, sellerUserId]);
 
   const handleAccept = async (order) => {
     setAcceptingId(order._id);
     try {
       await orderService.updateOrderStatus(order._id, ORDER_STATUSES.CONFIRMED);
       toast.success('Order accepted');
-      if (shopId) dispatch(getAllOrdersOfShop(shopId));
+      if (sellerUserId) dispatch(getAllOrdersOfShop(sellerUserId));
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to accept order');
     } finally {

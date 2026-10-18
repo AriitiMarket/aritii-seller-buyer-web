@@ -34,7 +34,7 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
         {/* Backdrop overlay — inert attribute prevents focus on main page */}
         <div 
           className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-          inert=""
+          inert
           aria-hidden="true"
         />
       </div>

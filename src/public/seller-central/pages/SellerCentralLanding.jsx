@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import SellerCentralLayout from '../layout/SellerCentralLayout'
 import SellerCentralHero from '../components/SellerCentralHero'
 import SellerCentralFeatures from '../components/SellerCentralFeatures'
@@ -9,9 +11,26 @@ import SellerCentralFeatures from '../components/SellerCentralFeatures'
  * Independent Seller Center landing page with complete isolation from
  * marketplace experience. Uses dedicated layout, header, footer, and components.
  *
- * Amazon-inspired design system with Aritii branding.
+ * Professional design system with Aritii branding focused on local commerce.
+ *
+ * Redirects approved sellers to the business dashboard.
  */
 const SellerCentralLandingPage = () => {
+  const navigate = useNavigate()
+  const { isSeller } = useSelector((state) => state.seller || {})
+
+  // Redirect approved sellers to business dashboard
+  useEffect(() => {
+    if (isSeller) {
+      navigate('/business', { replace: true })
+    }
+  }, [isSeller, navigate])
+
+  // Don't render landing page if redirecting
+  if (isSeller) {
+    return null
+  }
+
   return (
     <SellerCentralLayout>
       {/* Hero Section */}

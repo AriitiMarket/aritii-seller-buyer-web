@@ -28,7 +28,19 @@ const BusinessPromotionsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', discountPercent: '', endsAt: '' });
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    code: '',
+    discountType: 'PERCENTAGE',
+    discountPercent: '',
+    fixedAmount: '',
+    maxDiscountAmount: '',
+    minPurchaseAmount: '',
+    totalUsageLimit: '',
+    perBuyerUsageLimit: '',
+    endsAt: '',
+  });
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -85,15 +97,36 @@ const BusinessPromotionsPage = () => {
 
     setSaving(true);
     try {
-      await promotionService.create({
+      const payload = {
         shopId: activeShopId,
         title: form.title.trim(),
         description: form.description.trim(),
-        discountPercent: form.discountPercent ? Number(form.discountPercent) : undefined,
+        code: form.code.trim() || undefined,
+        discountType: form.discountType,
+        discountPercent: form.discountType === 'PERCENTAGE' ? Number(form.discountPercent) || undefined : undefined,
+        fixedAmount: form.discountType === 'FIXED_AMOUNT' ? Number(form.fixedAmount) || undefined : undefined,
+        maxDiscountAmount: form.maxDiscountAmount ? Number(form.maxDiscountAmount) : undefined,
+        minPurchaseAmount: form.minPurchaseAmount ? Number(form.minPurchaseAmount) : undefined,
+        totalUsageLimit: form.totalUsageLimit ? Number(form.totalUsageLimit) : undefined,
+        perBuyerUsageLimit: form.perBuyerUsageLimit ? Number(form.perBuyerUsageLimit) : undefined,
         endsAt: form.endsAt || undefined,
-      });
+      };
+
+      await promotionService.create(payload);
       toast.success('Promotion created');
-      setForm({ title: '', description: '', discountPercent: '', endsAt: '' });
+      setForm({
+        title: '',
+        description: '',
+        code: '',
+        discountType: 'PERCENTAGE',
+        discountPercent: '',
+        fixedAmount: '',
+        maxDiscountAmount: '',
+        minPurchaseAmount: '',
+        totalUsageLimit: '',
+        perBuyerUsageLimit: '',
+        endsAt: '',
+      });
       await load();
     } catch (err) {
       if (err?.response?.status === 404 || err?.response?.status === 501) {
@@ -162,34 +195,118 @@ const BusinessPromotionsPage = () => {
                 placeholder="What is the offer?"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Promo Code (optional)</label>
+              <input
+                type="text"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="e.g. SUMMER2024"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave empty for a shop-only promotion without a code</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+              <select
+                value={form.discountType}
+                onChange={(e) => setForm({ ...form, discountType: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                <option value="PERCENTAGE">Percentage Discount</option>
+                <option value="FIXED_AMOUNT">Fixed Amount</option>
+                <option value="FREE_DELIVERY">Free Delivery</option>
+              </select>
+            </div>
+            {form.discountType === 'PERCENTAGE' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiPercent size={16} />
+                    Discount %
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.discountPercent}
+                    onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Discount (ETB)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.maxDiscountAmount}
+                    onChange={(e) => setForm({ ...form, maxDiscountAmount: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    placeholder="Optional cap"
+                  />
+                </div>
+              </div>
+            )}
+            {form.discountType === 'FIXED_AMOUNT' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                  <FiPercent size={16} />
-                  Discount %
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fixed Amount (ETB)</label>
                 <input
                   type="number"
                   min="0"
-                  max="100"
-                  value={form.discountPercent}
-                  onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
+                  value={form.fixedAmount}
+                  onChange={(e) => setForm({ ...form, fixedAmount: e.target.value })}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   placeholder="0"
                 />
               </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Purchase Amount (ETB)</label>
+              <input
+                type="number"
+                min="0"
+                value={form.minPurchaseAmount}
+                onChange={(e) => setForm({ ...form, minPurchaseAmount: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="0 for no minimum"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                  <FiCalendar size={16} />
-                  Ends on
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Total Usage Limit</label>
                 <input
-                  type="date"
-                  value={form.endsAt}
-                  onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
+                  type="number"
+                  min="0"
+                  value={form.totalUsageLimit}
+                  onChange={(e) => setForm({ ...form, totalUsageLimit: e.target.value })}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                  placeholder="Unlimited"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Per-Buyer Limit</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.perBuyerUsageLimit}
+                  onChange={(e) => setForm({ ...form, perBuyerUsageLimit: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                  placeholder="Unlimited"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                <FiCalendar size={16} />
+                Ends on
+              </label>
+              <input
+                type="date"
+                value={form.endsAt}
+                onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              />
             </div>
             <div className="flex gap-2">
               <Button type="submit" disabled={saving} className="bg-brand-primary text-white disabled:opacity-50">

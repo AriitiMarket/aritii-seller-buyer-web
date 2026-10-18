@@ -150,6 +150,9 @@ const MarketplaceHeader = () => {
                 placeholder="Search products, shops…"
                 ariaLabel="Search products and shops"
                 categories={categories.map((cat) => ({ title: cat.name || cat.title }))}
+                locations={zones}
+                selectedLocationId={selectedZoneId}
+                onLocationChange={(id) => setLocation({ zoneId: id })}
                 className="w-full"
               />
             </div>
@@ -323,6 +326,9 @@ const MarketplaceHeader = () => {
           destination={(term) => `/products?search=${encodeURIComponent(term)}`}
           placeholder="Search products, shops…"
           ariaLabel="Search products and shops"
+          locations={zones}
+          selectedLocationId={selectedZoneId}
+          onLocationChange={(id) => setLocation({ zoneId: id })}
           className="w-full"
         />
       </div>

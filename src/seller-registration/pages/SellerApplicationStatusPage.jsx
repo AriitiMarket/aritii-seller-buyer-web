@@ -50,6 +50,8 @@ export default function SellerApplicationStatusPage() {
   const needsResubmit = application.status === 'REJECTED' || application.status === 'MORE_INFORMATION_REQUIRED';
   const hasStores = storeCount !== null && storeCount > 0;
   const staleDraft = application.status === 'DRAFT' && hasStores;
+  const isApproved = application.status === 'APPROVED' || roleAccess.allowed;
+  const needsShop = isApproved && !hasStores;
 
   const discardDraft = async () => {
     setDiscarding(true);
@@ -145,6 +147,29 @@ export default function SellerApplicationStatusPage() {
             >
               Go to Seller Dashboard
             </Link>
+          </div>
+        )}
+
+        {/* If approved but has no shops, show shop creation option */}
+        {needsShop && (
+          <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <p className="text-sm text-blue-900">
+              <strong>Congratulations! Your seller application is approved.</strong> You can now create your first shop to start selling on Aritii Marketplace.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/business/shops"
+                className="inline-flex rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Create Your Shop
+              </Link>
+              <Link
+                to="/business"
+                className="inline-flex rounded border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800 hover:bg-white"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
           </div>
         )}
       </div>

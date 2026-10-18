@@ -82,8 +82,6 @@ const CategoriesPage = () => {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Categories' }]} />
-
       <div className="categories-page-container">
         {/* Mobile menu trigger */}
         <div className="categories-mobile-trigger">

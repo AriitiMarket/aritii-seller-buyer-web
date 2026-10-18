@@ -31,7 +31,6 @@ export { ShoppingSteps } from '@/features/marketplace/components/ShoppingSteps';
 export { HeroSection } from '@/features/marketplace/components/HeroSection';
 export { TrendingProducts } from '@/features/marketplace/components/TrendingProducts';
 export { Breadcrumbs } from '@/shared/components/Breadcrumbs';
-export { ExperiencePageHeader } from '@/features/marketplace/components/ExperiencePageHeader';export { SubNavBar } from '@/features/marketplace/components/SubNavBar';
 
 // Catalog chrome
 export { default as ProductListItem } from '@/features/marketplace/components/ProductListItem';

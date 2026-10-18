@@ -57,7 +57,7 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
         {/* Backdrop overlay — inert attribute prevents focus on main page */}
         <div 
           className="fixed inset-0 bg-black/50"
-          inert=""
+          inert
           aria-hidden="true"
         />
       </div>

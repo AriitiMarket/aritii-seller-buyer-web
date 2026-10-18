@@ -17,7 +17,7 @@ import { AiOutlineSearch, AiOutlineMenu, AiOutlineUser, AiOutlineLogout } from '
 import RoleSwitcher from '@/shared/components/RoleSwitcher';
 
 /**
- * ModernSellerHeader - Amazon Seller Central style header
+ * ModernSellerHeader - Professional Seller Portal header
  *
  * Features:
  * - Aritii branding + Seller Portal label
@@ -139,7 +139,7 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
             </button>
           </div>
 
-          {/* Center: Logo + Shop Selector - Amazon Style */}
+          {/* Center: Logo + Shop Selector */}
           <div className="flex items-center gap-2 flex-shrink-0 flex-1 justify-center">
             <Link to="/business" className="flex items-center gap-2.5 flex-shrink-0 hover:opacity-80 transition-opacity">
               <div className="bg-white rounded-sm p-1">

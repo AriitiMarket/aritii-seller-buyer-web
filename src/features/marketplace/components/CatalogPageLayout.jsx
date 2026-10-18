@@ -67,8 +67,8 @@ const CatalogPageLayout = ({
             sidebarOpen ? 'lg:w-60' : 'lg:w-0'
           } overflow-hidden transition-all duration-300 ease-in-out`}
         >
-          <div className="sticky top-[104px] max-h-[calc(100vh-7rem)] overflow-y-auto pr-3">
-            <div className="space-y-1">{sidebarContent}</div>
+          <div className="sticky top-[104px] h-[calc(100vh-104px)] overflow-y-auto pr-3">
+            <div className="pt-4 space-y-1">{sidebarContent}</div>
           </div>
         </aside>
 
@@ -84,7 +84,7 @@ const CatalogPageLayout = ({
           {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
           <div
             className="fixed inset-0 bg-black/50"
-            inert=""
+            inert
             aria-hidden="true"
           />
           

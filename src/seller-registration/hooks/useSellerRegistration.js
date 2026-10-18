@@ -16,6 +16,12 @@ export default function useSellerRegistration() {
       setError('');
       return current;
     } catch (err) {
+      // Handle 401 (unauthenticated) gracefully - just set empty application
+      if (err.response?.status === 401) {
+        setApplication(EMPTY_APPLICATION);
+        setError('');
+        return EMPTY_APPLICATION;
+      }
       setError(err.response?.data?.message || 'Unable to load your seller application.');
       throw err;
     } finally {

@@ -89,6 +89,7 @@ const Payment = () => {
       destination: orderData.destination,
       user: user,
       totalPrice: Number(orderData.totalPrice),
+      promoCode: orderData.promoCode || null,
       paymentInfo: {
         type: methods.find((method) => method.key === selectedMethod)?.name || "Cash On Delivery",
         method: selectedMethod,

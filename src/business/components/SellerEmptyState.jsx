@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 /**
  * SellerEmptyState — consistent empty state for seller pages.
+ * Supports both Link (to) and button (onClick) actions.
  */
 const SellerEmptyState = ({ title, description, action, icon }) => {
   return (
@@ -11,9 +12,20 @@ const SellerEmptyState = ({ title, description, action, icon }) => {
       <h3 className="seller-empty-state-title">{title}</h3>
       {description && <p className="seller-empty-state-desc">{description}</p>}
       {action && (
-        <Link to={action.to} className="seller-btn-primary" aria-label={action.label}>
-          {action.label}
-        </Link>
+        action.to ? (
+          <Link to={action.to} className="seller-btn-primary" aria-label={action.label}>
+            {action.label}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={action.onClick}
+            className="seller-btn-primary"
+            aria-label={action.label}
+          >
+            {action.label}
+          </button>
+        )
       )}
     </div>
   );

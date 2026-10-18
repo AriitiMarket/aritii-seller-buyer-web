@@ -22,18 +22,21 @@ const DashboardHero = () => {
   const [timeFilter, setTimeFilter] = useState('7D');
 
   const shopId = activeShopId || seller?._id;
+  const userId = seller?.id || seller?._id;
 
   useEffect(() => {
-    if (shopId) {
+    // Only load data if we have a valid shopId and it's not a draft
+    if (shopId && activeShop && activeShop.status !== 'DRAFT' && activeShop.status !== 'PENDING_APPROVAL') {
       dispatch(getAllProductsShop(shopId));
-      dispatch(getAllOrdersOfShop(shopId));
-      dispatch(getAllEventsShop(shopId));
+      // Pass user ID for orders, not shop ID - backend validates seller ownership
+      if (userId) {
+        dispatch(getAllOrdersOfShop(userId));
+        dispatch(getAllEventsShop(userId));
+      }
     }
-  }, [dispatch, shopId]);
+  }, [dispatch, shopId, activeShop, userId]);
 
-  const isSuspendedShop =
-    activeShop?.status === 'SUSPENDED' || activeShop?.status === 'INACTIVE' || activeShop?.status === 'PENDING_APPROVAL';
-
+  // Move all useMemo hooks before the early return to avoid hooks order issues
   const totalRevenue = useMemo(() =>
     String(
       ShopOrders
@@ -42,6 +45,48 @@ const DashboardHero = () => {
     ),
     [ShopOrders]
   );
+
+  const topProducts = useMemo(() =>
+    [...(shopProducts || [])]
+      .sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0))
+      .slice(0, 5),
+    [shopProducts]
+  );
+
+  const isSuspendedShop =
+    activeShop?.status === 'SUSPENDED' || activeShop?.status === 'INACTIVE' || activeShop?.status === 'PENDING_APPROVAL';
+
+  // Show empty state if no active shop or shop is pending approval
+  if (!activeShop || activeShop.status === 'PENDING_APPROVAL') {
+    return (
+      <div className="space-y-6">
+        <div className="seller-section-header">
+          <h1 className="seller-section-header-title">
+            {activeShop?.status === 'PENDING_APPROVAL' ? 'Shop Pending Approval' : 'No Active Shop'}
+          </h1>
+          <p className="seller-section-header-desc">
+            {activeShop?.status === 'PENDING_APPROVAL'
+              ? 'Your shop is under review. You will be able to manage it once approved.'
+              : 'You need to create a shop to start selling on Aritii Marketplace.'}
+          </p>
+        </div>
+        <SellerEmptyState
+          title={activeShop?.status === 'PENDING_APPROVAL' ? 'Shop Under Review' : 'Create Your First Shop'}
+          description={
+            activeShop?.status === 'PENDING_APPROVAL'
+              ? 'Your shop application is being reviewed by our team. This usually takes 1-3 business days.'
+              : 'Your seller account is approved! Create your first shop to start selling.'
+          }
+          action={
+            activeShop?.status === 'PENDING_APPROVAL'
+              ? { to: '/seller-registration/status', label: 'Check Application Status' }
+              : { to: '/business/shops', label: 'Create Shop' }
+          }
+          icon="🏪"
+        />
+      </div>
+    );
+  }
 
   const totalOrders = ShopOrders?.length || 0;
   const totalProducts = shopProducts?.length || 0;
@@ -71,13 +116,6 @@ const DashboardHero = () => {
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
   };
-
-  const topProducts = useMemo(() =>
-    [...(shopProducts || [])]
-      .sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0))
-      .slice(0, 5),
-    [shopProducts]
-  );
 
   const shopName = activeShop?.name || 'your shop';
 

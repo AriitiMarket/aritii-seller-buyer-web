@@ -33,7 +33,7 @@ const SORT_OPTIONS = [
 
 /**
  * BestSellersBadge Component
- * Displays rank and bestseller status with Amazon-style gold badge
+ * Displays rank and bestseller status with gold badge
  */
 const BestSellersBadge = ({ rank, category }) => {
   return (

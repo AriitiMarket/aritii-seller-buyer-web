@@ -1,15 +1,29 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineDashboard } from 'react-icons/ai';
 import SellerCenterLayout from '@/public/sell/layout/SellerCenterLayout';
+import BusinessDashboardHero from '@/business/components/BusinessDashboardHero';
 
 /**
  * SellerCenterWorkspacePage — /seller-center/workspace
  *
- * Preview of the seller dashboard and available tools.
+ * Shows real seller dashboard for approved sellers, or marketing preview for non-sellers.
  * Uses independent SellerCenterLayout for header and navigation.
  */
 const SellerCenterWorkspacePage = () => {
+  const { isSeller } = useSelector((state) => state.seller || {});
+
+  // Show real dashboard for authenticated approved sellers
+  if (isSeller) {
+    return (
+      <SellerCenterLayout>
+        <BusinessDashboardHero />
+      </SellerCenterLayout>
+    );
+  }
+
+  // Show marketing preview for non-sellers
   return (
     <SellerCenterLayout>
       {/* Page Header */}

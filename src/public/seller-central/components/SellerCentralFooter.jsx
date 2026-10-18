@@ -2,9 +2,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 /**
- * SellerCentralFooter - Independent seller footer
- * 
- * Amazon-inspired dark footer with seller-specific links
+ * SellerCentralFooter - Aritii Seller Center footer
+ *
+ * Professional dark footer with seller-specific links
  */
 const SellerCentralFooter = () => {
   return (

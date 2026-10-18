@@ -8,6 +8,7 @@ import { buildDestination, isUsableAddress } from "@/shared/utils/destination";
 import { useDeliveryLocation } from "@/shared/hooks/useDeliveryLocation";
 import { validateCartForZone } from "@/store/slices/cartThunks";
 import { FiEdit2, FiCheck } from "react-icons/fi";
+import PromoCodeInput from "./PromoCodeInput";
 
 const money = (value) =>
   `${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
@@ -82,6 +83,7 @@ const Checkout = () => {
   const [zoneValidation, setZoneValidation] = useState(null);
   const [validatingZone, setValidatingZone] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
+  const [appliedPromotion, setAppliedPromotion] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -166,7 +168,8 @@ const Checkout = () => {
   );
 
   const shipping = subTotalPrice * 0.03;
-  const totalPrice = (subTotalPrice + shipping).toFixed(2);
+  const discountAmount = appliedPromotion ? appliedPromotion.discountAmount : 0;
+  const totalPrice = (subTotalPrice + shipping - discountAmount).toFixed(2);
 
   const selectedAddress =
     addresses.find((address) => address._id === selectedAddressId) || null;
@@ -210,6 +213,8 @@ const Checkout = () => {
       totalPrice,
       subTotalPrice,
       shipping,
+      discountAmount,
+      promoCode: appliedPromotion ? appliedPromotion.promotion?.code : null,
       shippingAddress: {
         address1: selectedAddress.address1 || "",
         address2: selectedAddress.address2 || "",
@@ -423,6 +428,17 @@ const Checkout = () => {
           <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm h-fit">
             <h3 className="text-lg font-bold text-market-on-surface mb-6">Order Summary</h3>
 
+            {/* Promo Code Input */}
+            <div className="mb-6">
+              <PromoCodeInput
+                cartItems={cart}
+                subtotal={subTotalPrice}
+                onApply={setAppliedPromotion}
+                onRemove={() => setAppliedPromotion(null)}
+                appliedPromotion={appliedPromotion}
+              />
+            </div>
+
             <div className="space-y-3 pb-4 border-b border-market-border">
               <div className="flex justify-between">
                 <span className="text-sm text-market-on-surface-variant">Subtotal ({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
@@ -432,6 +448,12 @@ const Checkout = () => {
                 <span className="text-sm text-market-on-surface-variant">Shipping</span>
                 <span className="text-sm font-semibold text-market-on-surface">{money(shipping)}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="text-sm font-medium">Discount</span>
+                  <span className="text-sm font-semibold">-{money(discountAmount)}</span>
+                </div>
+              )}
             </div>
 
             <div className="mt-4 pt-4 border-b border-market-border pb-4">

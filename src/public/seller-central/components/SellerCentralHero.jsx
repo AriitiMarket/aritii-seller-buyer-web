@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { AiOutlineArrowRight } from 'react-icons/ai'
 
 /**
- * SellerCentralHero - Amazon-inspired hero section
- * 
- * Professional dark hero with strong value proposition
+ * SellerCentralHero - Aritii Seller Central hero section
+ *
+ * Professional dark hero with strong value proposition for local sellers
  */
 const SellerCentralHero = () => {
   return (
@@ -15,40 +15,40 @@ const SellerCentralHero = () => {
           {/* Left: Text Content */}
           <div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Sell on Aritii Marketplace
+              Grow Your Local Business with Aritii
             </h1>
             <p className="text-lg md:text-xl text-[#CCCCCB] mb-8 leading-relaxed">
-              Reach local customers and grow your business. Access millions of buyers looking for exactly what you offer.
+              Connect with customers in your community. Access a growing marketplace of local buyers looking for what you offer.
             </p>
-            
+
             <div className="space-y-4 mb-10">
               <div className="flex items-start gap-4">
                 <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-xs font-bold text-white">✓</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Reach Millions of Customers</p>
-                  <p className="text-sm text-[#CCCCCB]">Connect with active buyers across Aritii's marketplace</p>
+                  <p className="font-semibold">Reach Local Customers</p>
+                  <p className="text-sm text-[#CCCCCB]">Connect with buyers in your neighborhood and city</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-xs font-bold text-white">✓</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Professional Tools to Grow</p>
-                  <p className="text-sm text-[#CCCCCB]">Access analytics, promotions, and seller resources</p>
+                  <p className="font-semibold">Professional Seller Tools</p>
+                  <p className="text-sm text-[#CCCCCB]">Manage products, orders, and analytics from one dashboard</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
                   <span className="text-xs font-bold text-white">✓</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Built-in Fulfillment</p>
-                  <p className="text-sm text-[#CCCCCB]">Integrated delivery network handles orders end-to-end</p>
+                  <p className="font-semibold">Integrated Delivery Network</p>
+                  <p className="text-sm text-[#CCCCCB]">Seamless order fulfillment with local delivery partners</p>
                 </div>
               </div>
             </div>

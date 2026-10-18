@@ -22,6 +22,9 @@ export default function HeaderSearch({
   categories = [],          // [{ title, productCount }] for department dropdown
   selectedCategory = '',    // currently active category
   onCategoryChange,         // (category) => void
+  locations = [],           // [{ _id, name }] delivery zones for location filter
+  selectedLocationId = '',  // currently selected location id
+  onLocationChange,         // (locationId) => void
   dark = false,
 }) {
   const navigate = useNavigate();
@@ -223,6 +226,23 @@ export default function HeaderSearch({
             </select>
           </div>
         )}
+        {locations.length > 0 && (
+          <div className="absolute left-0 top-0 bottom-0 flex items-center border-r border-[#232f3e] bg-[#1f1f1f] rounded-l-full px-2">
+            <select
+              value={selectedLocationId}
+              onChange={(e) => onLocationChange?.(e.target.value)}
+              className={`bg-transparent text-sm cursor-pointer py-1.5 px-2 pr-6 appearance-none ${dark ? 'text-white border border-gray-600 bg-[#1f1f1f]' : 'text-gray-700 dark:text-gray-300 border-transparent bg-transparent'} focus:outline-none focus:ring-0`}
+              aria-label="Deliver to location"
+            >
+              <option value="">All locations</option>
+              {locations.map((loc) => (
+                <option key={loc._id || loc.id} value={loc._id || loc.id}>
+                  {loc.name || loc.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <input
           ref={inputRef}
           type="search"
@@ -231,7 +251,7 @@ export default function HeaderSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => setOpen(true)}
-          className={`w-full px-4 pr-12 py-2 text-sm ${dark ? 'text-white placeholder-gray-500 bg-[#1f1f1f] border-[#2c2c2c] dark:bg-[#1f1f1f] dark:placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'} ${categories.length > 0 ? 'rounded-r-full pl-40' : 'rounded-full'} focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 transition-all duration-200`}
+          className={`w-full px-4 pr-12 py-2 text-sm ${dark ? 'text-white placeholder-gray-500 bg-[#1f1f1f] border-[#2c2c2c] dark:bg-[#1f1f1f] dark:placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'} ${categories.length > 0 || locations.length > 0 ? 'rounded-r-full pl-40' : 'rounded-full'} ${categories.length > 0 && locations.length > 0 ? 'pl-64' : ''} focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 transition-all duration-200`}
           aria-label={ariaLabel}
         />
         <button

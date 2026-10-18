@@ -73,11 +73,13 @@ const Reports = () => {
   }, [shopId, period.start, period.end]);
 
   // Load shop orders for the shop inventory / tables alongside the backend report.
+  // Use the seller's user UUID (identity ID) so the backend's ownership check passes.
+  const sellerUserId = seller?.id || seller?._id;
   useEffect(() => {
-    if (shopId) {
-      dispatch(getAllOrdersOfShop(shopId));
+    if (sellerUserId) {
+      dispatch(getAllOrdersOfShop(sellerUserId));
     }
-  }, [dispatch, shopId]);
+  }, [dispatch, sellerUserId]);
 
   useEffect(() => {
     fetchReport();

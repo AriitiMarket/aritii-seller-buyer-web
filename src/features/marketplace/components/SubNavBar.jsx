@@ -11,8 +11,8 @@ import { toast } from 'react-toastify'
  * marketplace catalog. Sits directly under the main header.
  *
  * Left:  "☰ All" — opens the browse drawer (departments + marketplace links).
- *        The drawer is a LEFT slide-in panel on every screen size (Amazon-style
- *        "All" menu), so the same tap/click target works on mobile and desktop.
+ *        The drawer is a LEFT slide-in panel on every screen size,
+ *        so the same tap/click target works on mobile and desktop.
  * Right: flat experience links (Products · Shops · Categories · Deals · Best Sellers)
  *
  * The active item is underlined in the marketplace accent. On <lg the link row
@@ -115,7 +115,7 @@ const SubNavBar = ({ onOpenAll }) => {
           {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
           <div
             className="fixed inset-0 bg-black/50"
-            inert=""
+            inert
             aria-hidden="true"
           />
           

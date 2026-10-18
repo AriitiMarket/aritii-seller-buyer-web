@@ -3,11 +3,12 @@ import { useSearchParams, Link } from 'react-router-dom';
 import ShopCard from '@/shared/components/ShopCard';
 import CategorySidebar from '@/features/marketplace/components/CategorySidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
+import LocationSelector from '@/features/marketplace/components/LocationSelector';
 import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import Button from '@/components/common/Button';
-import { useShops, filterShops } from '@/shared/hooks/useShops';
+import { useShops, filterShops, filterShopsByLocation } from '@/shared/hooks/useShops';
 import { useAuth } from '@/features/marketplace/hooks/useAuth';
 
 const SORT_OPTIONS = [
@@ -22,11 +23,18 @@ const ShopsPage = () => {
   const [searchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
+  const zoneId = searchParams.get('zoneId') || '';
+  const cityId = searchParams.get('cityId') || '';
+  const regionId = searchParams.get('regionId') || '';
   const [sortBy, setSortBy] = useState('featured');
 
   const { isAuthenticated } = useAuth();
-  const { shops, loading, error, refresh } = useShops();
+  const { shops, loading, error, refresh } = useShops({
+    auto: true,
+    filters: { zoneId, cityId, regionId },
+  });
   const filtered = filterShops(shops, { search, category });
+  const locationFiltered = filterShopsByLocation(filtered, { zoneId, cityId, regionId });
 
   // Live per-category counts for the sidebar and the mobile rail.
   const counts = useMemo(() => {
@@ -39,7 +47,7 @@ const ShopsPage = () => {
   }, [shops]);
 
   const data = useMemo(() => {
-    const list = [...filtered];
+    const list = [...locationFiltered];
     switch (sortBy) {
       case 'rating':
         list.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
@@ -57,19 +65,11 @@ const ShopsPage = () => {
         break;
     }
     return list;
-  }, [filtered, sortBy]);
+  }, [locationFiltered, sortBy]);
 
-  const heading = search ? `Search: "${search}"` : category || 'All Shops';
+  const heading = search ? `Search: "${search}"` : category || regionId || cityId || zoneId || 'All Shops';
 
-  const breadcrumbItems = [
-    { label: 'Home', to: '/' },
-    { label: 'Shops' },
-  ];
-  if (category) {
-    breadcrumbItems.push({ label: category });
-  } else if (search) {
-    breadcrumbItems.push({ label: `Search: "${search}"` });
-  }
+  const breadcrumbItems = [];
 
   const mainContent = (
     <>
@@ -81,6 +81,9 @@ const ShopsPage = () => {
             <span className="text-gray-600 dark:text-gray-400"> shop{data.length !== 1 ? 's' : ''} found</span>
             {search && <span className="text-gray-600 dark:text-gray-400"> for "{search}"</span>}
             {category && <span className="text-gray-600 dark:text-gray-400"> in {category}</span>}
+            {regionId && <span className="text-gray-600 dark:text-gray-400"> in region {regionId}</span>}
+            {cityId && <span className="text-gray-600 dark:text-gray-400"> in city {cityId}</span>}
+            {zoneId && <span className="text-gray-600 dark:text-gray-400"> in zone {zoneId}</span>}
           </div>
           <div className="flex items-center gap-2">
             <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hidden sm:inline">Sort:</label>
@@ -159,7 +162,14 @@ const ShopsPage = () => {
   return (
     <CatalogPageLayout
       breadcrumbItems={breadcrumbItems}
-      sidebarContent={<CategorySidebar basePath="/shops" type="business" title="Shop by Business Type" allLabel="All Shops" counts={counts} />}
+      sidebarContent={(
+        <>
+          <CategorySidebar basePath="/shops" type="business" title="Shop by Business Type" allLabel="All Shops" counts={counts} />
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <LocationSelector mode="zone" initialValues={{ regionId, cityId, zoneId }} label="Deliver to" />
+          </div>
+        </>
+      )}
       mainContent={mainContent}
     />
   );

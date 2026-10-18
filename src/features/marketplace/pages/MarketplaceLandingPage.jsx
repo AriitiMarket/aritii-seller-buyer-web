@@ -21,7 +21,7 @@ import {
 } from 'react-icons/ai';
 import { PublicLayout } from '@/public/layout/PublicLayout';
 import { EXPERIENCES } from '@/public/experiences';
-import ExperiencePageHeader from '@/features/marketplace/components/ExperiencePageHeader';
+import ExperiencePageHeader from '@/public/components/ExperiencePageHeader';
 import ProductCard from '@/shared/components/ProductCard';
 import ShopCard from '@/shared/components/ShopCard';
 import { useAuth } from '@/auth/hooks/useAuth';
@@ -82,93 +82,107 @@ const MarketplaceLandingPage = () => {
 
   return (
     <PublicLayout>
-      {/* Standard experience page header — Marketplace accent */}
-      <ExperiencePageHeader
-        experience={EXPERIENCES.marketplace}
-        breadcrumb={[{ label: 'Home', to: '/' }, { label: 'Marketplace' }]}
-        badge="Marketplace Experience"
-        title="Shop local, discover more"
-        description="The Aritii marketplace is where buyers meet local sellers. Browse products and shops, compare prices and availability, place your order — and follow it all the way to your door."
-        visual={(
-          <img
-            src="/buyer.png"
-            alt="Aritii buyer shopping hub with local product discovery and order tools"
-            width="1024"
-            height="512"
-            loading="eager"
-            fetchPriority="high"
-            className="block w-full rounded-2xl border border-white/20 shadow-2xl"
-          />
-        )}
-        actions={
-          <>
-            <Link
-              to="/products"
-              className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 ${EXPERIENCES.marketplace.button} ${EXPERIENCES.marketplace.ring}`}
-            >
-              Browse all products
-              <AiOutlineArrowRight size={16} />
-            </Link>
-            <Link
-              to="/shops"
-              className="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full text-sm border border-gray-300 dark:border-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
-            >
-              Browse all shops
-            </Link>
-          </>
-        }
-      >
-        {/* Search — part of the standard header composition */}
-        <form onSubmit={handleSubmit} className="mt-8 w-full max-w-xl" role="search">
-          <div className="relative flex items-center bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <input
-              type="search"
-              placeholder="Search products, shops, categories…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 px-5 py-3.5 text-base text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-transparent focus:outline-none rounded-l-xl"
-              aria-label="Search the marketplace"
-            />
-            <button
-              type="submit"
-              className={`px-6 py-3.5 text-white font-semibold rounded-r-xl transition-colors focus-visible:outline-none focus-visible:ring-2 ${EXPERIENCES.marketplace.button} ${EXPERIENCES.marketplace.ring}`}
-              aria-label="Search"
-            >
-              <AiOutlineSearch size={20} />
-            </button>
-          </div>
-        </form>
+      <div className="w-full">
+        {/* Hero Section - Fully Centered */}
+        <section className="relative bg-gradient-to-br from-[#FDF6EC] to-white dark:from-gray-900 dark:to-gray-950 py-16 md:py-24 lg:py-32">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-4xl mx-auto">
+              {/* Title */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                Shop local, discover more
+              </h1>
 
-        {/* Category rail */}
-        {topCategories.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-            <div className="flex items-end justify-between mb-6">
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Shop by category</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Jump straight into what you need</p>
-              </div>
-              <Link to="/categories" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f]">
-                All categories →
-              </Link>
-            </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-              {topCategories.map((cat) => {
-                const name = cat.title || cat;
-                return (
-                  <Link
-                    key={cat._id || name}
-                    to={`/products?category=${encodeURIComponent(name)}`}
-                    className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 text-center hover:-translate-y-1 hover:border-[#75d04b] hover:shadow-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
+              {/* Description */}
+              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                The Aritii marketplace is where buyers meet local sellers. Browse products and shops, compare prices and availability, place your order — and follow it all the way to your door.
+              </p>
+
+              {/* Search Bar */}
+              <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto mb-8" role="search">
+                <div className="relative flex items-center bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                  <input
+                    type="search"
+                    placeholder="Search products, shops, categories…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="flex-1 px-6 py-4 text-base text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-transparent focus:outline-none rounded-l-xl"
+                    aria-label="Search the marketplace"
+                  />
+                  <button
+                    type="submit"
+                    className="px-8 py-4 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-semibold rounded-r-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
+                    aria-label="Search"
                   >
-                    <span className="block w-12 h-12 mx-auto mb-3 rounded-full bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center font-bold group-hover:bg-[#75d04b] group-hover:text-white transition-colors">
-                      {name.slice(0, 1).toUpperCase()}
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-[#75d04b] transition-colors leading-tight block">
-                      {name}
-                    </span>
-                  </Link>
-                );
-              })}
+                    <AiOutlineSearch size={20} />
+                  </button>
+                </div>
+              </form>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  to="/products"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-semibold rounded-full text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b] w-full sm:w-auto justify-center"
+                >
+                  Browse all products
+                  <AiOutlineArrowRight size={18} />
+                </Link>
+                <Link
+                  to="/shops"
+                  className="inline-flex items-center px-8 py-4 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full text-base border border-gray-300 dark:border-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b] w-full sm:w-auto justify-center"
+                >
+                  Browse all shops
+                </Link>
+              </div>
+
+              {/* Hero Image */}
+              <div className="mt-12 relative max-w-4xl mx-auto">
+                <img
+                  src="/buyer.png"
+                  alt="Aritii buyer shopping hub with local product discovery and order tools"
+                  width="1024"
+                  height="512"
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full rounded-2xl border border-white/20 shadow-2xl"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Category Rail */}
+        {topCategories.length > 0 && (
+          <section className="py-12 md:py-16 bg-white dark:bg-gray-950">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+                <div className="text-center sm:text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Shop by category</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Jump straight into what you need</p>
+                </div>
+                <Link to="/categories" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f] text-center sm:text-right">
+                  All categories →
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+                {topCategories.map((cat) => {
+                  const name = cat.title || cat;
+                  return (
+                    <Link
+                      key={cat._id || name}
+                      to={`/products?category=${encodeURIComponent(name)}`}
+                      className="group bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 text-center hover:-translate-y-1 hover:border-[#75d04b] hover:shadow-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
+                    >
+                      <span className="block w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center font-bold text-lg sm:text-xl group-hover:bg-[#75d04b] group-hover:text-white transition-colors">
+                        {name.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#75d04b] transition-colors leading-tight block">
+                        {name}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </section>
         )}
@@ -177,131 +191,145 @@ const MarketplaceLandingPage = () => {
         <ShoppingSteps />
 
         {/* Marketplace Highlights */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {highlights.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.title}
-                  className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+        <section className="py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">Why shop with Aritii?</h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Everything you need for a great shopping experience</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {highlights.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.title}
+                    className="bg-white dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center"
+                  >
+                    <span className="w-14 h-14 sm:w-16 sm:h-16 mb-4 sm:mb-6 rounded-xl bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center mx-auto">
+                      <Icon size={24} />
+                    </span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">{item.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Live Products */}
+        <section className="py-12 md:py-16 bg-white dark:bg-gray-950">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+              <div className="text-center sm:text-left">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                  {search ? `Results for "${search}"` : 'Popular right now'}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  Live from sellers across the marketplace
+                </p>
+              </div>
+              <Link to="/products" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f] text-center sm:text-right">
+                View all products →
+              </Link>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loading variant="inline" label="Loading marketplace…" />
+              </div>
+            ) : error ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300 text-center">
+                {error} —{' '}
+                <Link to="/products" className="font-semibold underline">
+                  try the full catalog
+                </Link>
+              </div>
+            ) : topProducts.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6">
+                {topProducts.map((product, index) => (
+                  <ProductCard
+                    data={product}
+                    key={product._id || index}
+                    variant={isAuthenticated ? 'default' : 'public'}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 p-12 text-center bg-gray-50 dark:bg-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">The shelves are filling up</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                  No products match right now — browse everything or check back soon.
+                </p>
+                <Link
+                  to="/products"
+                  className="inline-block px-6 py-3 bg-[#75d04b] hover:bg-[#5ac12f] text-white rounded-full font-semibold text-sm transition-colors"
                 >
-                  <span className="w-10 h-10 mb-3 rounded-xl bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center">
-                    <Icon size={20} />
-                  </span>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1.5">{item.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
-                </div>
-              );
-            })}
+                  Browse all products
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Live products */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                {search ? `Results for "${search}"` : 'Popular right now'}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Live from sellers across the marketplace
-              </p>
-            </div>
-            <Link to="/products" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f]">
-              View all products →
-            </Link>
-          </div>
-
-          {loading ? (
-            <Loading variant="inline" label="Loading marketplace…" />
-          ) : error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-              {error} —{' '}
-              <Link to="/products" className="font-semibold underline">
-                try the full catalog
-              </Link>
-            </div>
-          ) : topProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
-              {topProducts.map((product, index) => (
-                <ProductCard
-                  data={product}
-                  key={product._id || index}
-                  variant={isAuthenticated ? 'default' : 'public'}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 p-10 text-center">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">The shelves are filling up</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                No products match right now — browse everything or check back soon.
-              </p>
-              <Link
-                to="/products"
-                className="inline-block px-5 py-2.5 bg-[#75d04b] hover:bg-[#5ac12f] text-white rounded-full font-semibold text-sm transition-colors"
-              >
-                Browse all products
-              </Link>
-            </div>
-          )}
-        </section>
-
-        {/* Live shops */}
+        {/* Live Shops */}
         {topShops.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16">
-            <div className="flex items-end justify-between mb-6">
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Featured shops</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Local businesses selling on Aritii</p>
+          <section className="py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+                <div className="text-center sm:text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Featured shops</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Local businesses selling on Aritii</p>
+                </div>
+                <Link to="/shops" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f] text-center sm:text-right">
+                  View all shops →
+                </Link>
               </div>
-              <Link to="/shops" className="text-sm font-semibold text-[#75d04b] hover:text-[#5ac12f]">
-                View all shops →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {topShops.map((shop, index) => (
-                <ShopCard
-                  data={shop}
-                  key={shop._id || index}
-                  variant={isAuthenticated ? 'default' : 'public'}
-                />
-              ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                {topShops.map((shop, index) => (
+                  <ShopCard
+                    data={shop}
+                    key={shop._id || index}
+                    variant={isAuthenticated ? 'default' : 'public'}
+                  />
+                ))}
+              </div>
             </div>
           </section>
         )}
 
-        {/* Buyer sign-in nudge — routes into the existing auth flow, no parallel account system */}
+        {/* Buyer sign-in nudge */}
         {!isAuthenticated && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 md:pb-20">
-            <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 px-5 sm:px-6 py-8 md:py-12 text-center shadow-sm">
-              <AiOutlineShop size={32} className="mx-auto text-[#75d04b] mb-3" aria-hidden="true" />
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                One account to shop everything
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 max-w-xl mx-auto mb-7 text-sm md:text-base">
-                Create a free Aritii account to place orders, save your favourites, message sellers
-                and track deliveries. Browsing stays open — no account needed.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link
-                  to="/sign-up"
-                  className="px-8 py-3.5 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-bold rounded-full transition-colors"
-                >
-                  Create Account
-                </Link>
-                <Link
-                  to="/login"
-                  className="px-8 py-3.5 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full border border-gray-300 dark:border-gray-300 transition-colors"
-                >
-                  Sign In
-                </Link>
+          <section className="py-16 md:py-20 bg-white dark:bg-gray-950">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-gradient-to-br from-[#FDF6EC] to-white dark:from-gray-900 dark:to-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 px-6 sm:px-8 py-10 md:py-14 text-center shadow-lg">
+                <AiOutlineShop size={40} className="mx-auto text-[#75d04b] mb-4" aria-hidden="true" />
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                  One account to shop everything
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 max-w-xl mx-auto mb-8 text-sm md:text-base leading-relaxed">
+                  Create a free Aritii account to place orders, save your favourites, message sellers
+                  and track deliveries. Browsing stays open — no account needed.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    to="/sign-up"
+                    className="px-8 py-4 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-bold rounded-full transition-colors text-base w-full sm:w-auto justify-center"
+                  >
+                    Create Account
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="px-8 py-4 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full border border-gray-300 dark:border-gray-700 transition-colors text-base w-full sm:w-auto justify-center"
+                  >
+                    Sign In
+                  </Link>
+                </div>
               </div>
             </div>
           </section>
         )}
-            </ExperiencePageHeader>
+      </div>
     </PublicLayout>
   );
 };

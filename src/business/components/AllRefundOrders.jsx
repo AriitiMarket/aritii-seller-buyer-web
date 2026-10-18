@@ -15,10 +15,11 @@ const AllRefundOrders = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-  if (seller && seller._id) {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }
-}, [dispatch, seller]);
+    const sellerUserId = seller?.id || seller?._id;
+    if (sellerUserId) {
+      dispatch(getAllOrdersOfShop(sellerUserId));
+    }
+  }, [dispatch, seller]);
 
   // Match any refund-state order after normalization so canonical
   // Refund Requested/Approved/Success/Rejected rows all appear

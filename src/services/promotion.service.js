@@ -54,6 +54,33 @@ export const promotionService = {
     }
   },
 
+  /**
+   * Validate a promo code for checkout.
+   * @param {string} code - The promo code
+   * @param {Array} cartItems - Cart items
+   * @param {number} subtotal - Cart subtotal
+   * @param {string} buyerId - Buyer user ID (optional)
+   * @param {boolean} isFirstOrder - Whether this is the buyer's first order
+   * @returns {Promise<Object>} Validation result
+   */
+  async validateCode(code, cartItems, subtotal, buyerId = null, isFirstOrder = false) {
+    try {
+      const { data } = await api.post('/promotion/validate-code', {
+        code,
+        cartItems,
+        subtotal,
+        buyerId,
+        isFirstOrder,
+      });
+      return data;
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) {
+        return { valid: false, supported: false, message: 'Promotions not available' };
+      }
+      throw error;
+    }
+  },
+
   async create(payload) {
     const { data } = await api.post('/promotion/create-promotion', payload);
     return data;
@@ -67,6 +94,23 @@ export const promotionService = {
   async remove(id) {
     const { data } = await api.delete(`/promotion/delete-promotion/${id}`);
     return data;
+  },
+
+  /**
+   * Get usage statistics for a promotion.
+   * @param {string} promotionId - The promotion ID
+   * @returns {Promise<Object>} Usage statistics
+   */
+  async getStats(promotionId) {
+    try {
+      const { data } = await api.get(`/promotion/stats/${promotionId}`);
+      return data;
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) {
+        return { totalUsed: 0, totalLimit: null, remaining: null, uniqueBuyers: 0 };
+      }
+      throw error;
+    }
   },
 };
 

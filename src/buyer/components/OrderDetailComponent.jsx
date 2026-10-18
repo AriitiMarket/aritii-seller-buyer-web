@@ -231,7 +231,7 @@ const OrderDetailComponent = () => {
         </div>
       </div>
 
-      {/* Amazon-style Timeline */}
+      {/* Delivery Timeline */}
       <div className="bg-white rounded-lg border border-market-border p-6">
         <h2 className="text-lg font-bold text-market-on-surface mb-6">Delivery Timeline</h2>
         <div className="space-y-4">

@@ -87,6 +87,38 @@ class CacheManager {
 
     keysToDelete.forEach(key => this.delete(key));
   }
+
+  /**
+   * FIX #14: Invalidate product-related caches when product is updated
+   * @param {string} productId - Product being updated
+   * @param {string} shopId - Shop owning the product
+   */
+  invalidateProductCache(productId, shopId) {
+    // Invalidate specific product
+    this.delete(`product:${productId}`);
+    this.delete(`/product/get-product/${productId}`);
+    
+    // Invalidate shop products list
+    if (shopId) {
+      this.invalidateByPattern(`shop:products:${shopId}.*`);
+      this.delete(`shop:${shopId}`);
+    }
+    
+    // Invalidate search results and public listings (they may include this product)
+    this.invalidateByPattern(`products:.*`);
+    this.invalidateByPattern(`product:search:.*`);
+  }
+
+  /**
+   * FIX #14: Invalidate shop-related caches when shop is updated
+   * @param {string} shopId - Shop being updated
+   */
+  invalidateShopCache(shopId) {
+    this.delete(`shop:public:${shopId}`);
+    this.delete(`shop:${shopId}`);
+    this.invalidateByPattern(`shops:.*`);
+    this.invalidateByPattern(`shop:products:${shopId}.*`);
+  }
 }
 
 export default new CacheManager();

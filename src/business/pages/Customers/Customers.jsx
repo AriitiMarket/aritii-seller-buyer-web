@@ -15,12 +15,13 @@ const Customers = () => {
   const [sortBy, setSortBy] = useState('recent');
 
   const shopId = activeShopId || seller?._id;
+  const sellerUserId = seller?.id || seller?._id;
 
   useEffect(() => {
-    if (shopId) {
-      dispatch(getAllOrdersOfShop(shopId));
+    if (sellerUserId) {
+      dispatch(getAllOrdersOfShop(sellerUserId));
     }
-  }, [dispatch, shopId]);
+  }, [dispatch, sellerUserId]);
 
   // Aggregate customer data from orders
   const customerData = React.useMemo(() => {

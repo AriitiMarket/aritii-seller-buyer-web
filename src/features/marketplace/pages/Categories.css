@@ -184,12 +184,12 @@
   flex-direction: column;
   width: 280px;
   flex-shrink: 0;
-  padding: 24px 0;
+  padding: 0;
   border-right: 1px solid #e0e0e0;
   background-color: var(--aritii-light);
-  height: 100vh;
+  height: calc(100vh - 64px);
   position: sticky;
-  top: 0;
+  top: 64px;
   overflow-y: auto;
 }
 
@@ -200,7 +200,7 @@
 }
 
 .sidebar-section {
-  padding: 0 16px 24px 16px;
+  padding: 16px 16px 24px 16px;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -448,13 +448,13 @@
 
 .categories-main {
   flex: 1;
-  padding: 24px;
+  padding: 16px;
   overflow-y: auto;
 }
 
 @media (max-width: 1024px) {
   .categories-main {
-    padding: 16px;
+    padding: 12px;
   }
 }
 

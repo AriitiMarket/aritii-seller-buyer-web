@@ -1,0 +1,205 @@
+/* ==========================================================================
+   Customer Portal Login Modal
+   --------------------------------------------------------------------------
+   Pigment-perfect login modal for the Customer Portal experience.
+
+   Layout   : Tailwind CSS (Flexbox / grid)
+   Polish   : dedicated CSS for the glowing gradient border + floating labels
+   Modal    : React createPortal overlay (escape key, body scroll lock)
+   ========================================================================== */
+
+:root {
+  --cp-amber: #f97316;
+  --cp-amber-soft: #fbbf24;
+  --cp-card: rgba(16, 20, 28, 0.94);
+  --cp-edge: rgba(249, 115, 22, 0.16);
+  --cp-placeholder-text: rgba(241, 245, 249, 0.55);
+}
+
+/* ---------- Card ---------- */
+
+.customer-portal-modal {
+  position: relative;
+  border-radius: 16px;
+  background: var(--cp-card);
+  border: 1px solid var(--cp-edge);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.35),
+    0 22px 60px rgba(0, 0, 0, 0.60),
+    0 0 0 5px rgba(249, 115, 22, 0.12),
+    0 0 28px rgba(249, 115, 22, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle glowing gradient border at the card edge.
+   Progressive enhancement: falls back to the solid border + glow shadows.
+*/
+.customer-portal-modal::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.55),
+    rgba(251, 191, 36, 0.20),
+    rgba(249, 115, 22, 0.55)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------- Inputs (floating labels) ---------- */
+
+.customer-portal-field {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.customer-portal-input {
+  width: 100%;
+  height: 52px;
+  background: rgba(8, 10, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #f1f5f9;
+  font: 400 15px/1.25 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  padding: 18px 14px 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  outline: none;
+}
+
+.customer-portal-input::placeholder {
+  color: transparent;
+}
+
+.customer-portal-input:focus {
+  border-color: var(--cp-amber);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.20), 0 0 16px rgba(249, 115, 22, 0.24);
+}
+
+.customer-portal-input:not(:placeholder-shown) + .customer-portal-input-label {
+  color: var(--cp-amber);
+  font-size: 10.5px;
+  transform: translateY(-7px) scale(0.82);
+}
+
+.customer-portal-input-label {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cp-placeholder-text);
+  pointer-events: none;
+  transition: color 0.2s ease, transform 0.2s ease, font-size 0.2s ease;
+}
+
+/* ---------- Checkbox (orange accent) ---------- */
+
+.customer-portal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.customer-portal-checkbox input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.customer-portal-checkmark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #080a0e;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.customer-portal-checkbox input:checked + .customer-portal-checkmark {
+  background: var(--cp-amber);
+  border-color: var(--cp-amber);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.45);
+}
+
+.customer-portal-checkbox input:focus-visible + .customer-portal-checkmark {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.30);
+}
+
+.customer-portal-checkmark::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #0f1114;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.18s ease;
+}
+
+.customer-portal-checkbox input:checked + .customer-portal-checkmark::after {
+  transform: rotate(45deg) scale(1);
+}
+
+/* ---------- Social buttons ---------- */
+
+.customer-portal-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(8, 10, 14, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.customer-portal-social-btn:hover {
+  transform: scale(1.08);
+  background: #080a0e;
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.14);
+}
+
+.customer-portal-social-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.30);
+}
+/* ===== Brand mark & header accent ===== */
+
+.logo-overlap {
+  position: relative;
+  z-index: 2;
+  margin-top: -14px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.14);
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  white-space: nowrap;
+}
+
+

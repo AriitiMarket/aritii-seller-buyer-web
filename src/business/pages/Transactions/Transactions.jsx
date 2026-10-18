@@ -29,32 +29,33 @@ const BusinessTransactionsPage = () => {
   const dispatch = useDispatch();
   const { ShopOrders = [], isLoading } = useSelector((state) => state.order);
   const { activeShop, activeShopId } = useBusinessShops();
+  const { seller } = useSelector((state) => state.seller || {});
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [allocations, setAllocations] = useState([]);
   const [allocsLoading, setAllocsLoading] = useState(false);
 
-  // Seller-scoped identifier: prefer the identity user id, fall back to shop id.
-  const sellerId = activeShopId;
+  // Seller-scoped identifier: prefer the identity user id (UUID), fall back to shop id.
+  const sellerUserId = seller?.id || seller?._id;
 
   useEffect(() => {
-    if (sellerId) dispatch(getAllOrdersOfShop(sellerId));
-  }, [dispatch, sellerId]);
+    if (sellerUserId) dispatch(getAllOrdersOfShop(sellerUserId));
+  }, [dispatch, sellerUserId]);
 
   // Fetch seller-level financial allocations (gross, commission, net payable,
   // settled, pending, refunded). This is the authoritative financial view —
   // orders alone don't show commissions, fees or net payable.
   useEffect(() => {
-    if (!sellerId) return;
+    if (!sellerUserId) return;
     let active = true;
     setAllocsLoading(true);
-    getSellerAllocations(sellerId)
+    getSellerAllocations(sellerUserId)
       .then((rows) => { if (active) setAllocations(rows || []); })
       .catch(() => { if (active) setAllocations([]); })
       .finally(() => { if (active) setAllocsLoading(false); });
     return () => { active = false; };
-  }, [sellerId, getSellerAllocations]);
+  }, [sellerUserId, getSellerAllocations]);
 
   const summary = useMemo(() => {
     const confirmed = allocations.filter((a) => a.status === 'SETTLED');

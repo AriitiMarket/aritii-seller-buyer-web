@@ -2,8 +2,8 @@ import React from 'react'
 import ProductCard from './ProductCard'
 
 /**
- * Amazon-style responsive product grid.
- * 
+ * Responsive product grid.
+ *
  * Responsive breakpoints:
  * - Mobile: 1 column
  * - Tablet (sm): 2 columns

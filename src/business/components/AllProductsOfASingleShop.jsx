@@ -39,7 +39,7 @@ const matchesTabItem = (item, tab) => {
 const AllProductsOfASingleShop = () => {
   const { shopProducts: products = [], isLoading, error } = useSelector((state) => state.products);
   const { seller } = useSelector((state) => state.seller);
-  const { shops, activeShop, activeShopId, hasMultipleShops, selectShop, loading: shopsLoading } = useBusinessShops();
+  const { shops, activeShop, activeShopId, selectedShopId, hasMultipleShops, selectShop, loading: shopsLoading } = useBusinessShops();
 
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -51,9 +51,15 @@ const AllProductsOfASingleShop = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogProduct, setDialogProduct] = useState(null);
 
+  // Prefer the active shop resolved from the shops list, but fall back to the
+  // persisted selected shop id (available synchronously from localStorage) so
+  // the products fetch can start in parallel with the shops fetch instead of
+  // waiting for the full user → seller → shops → products waterfall.
   const shopId = isValidObjectId(activeShopId)
     ? activeShopId
-    : (isValidObjectId(seller?._id) ? seller._id : '');
+    : isValidObjectId(selectedShopId)
+      ? selectedShopId
+      : (isValidObjectId(seller?._id) ? seller._id : '');
   const noShop = !shopsLoading && !shopId;
 
   useEffect(() => {
@@ -91,7 +97,10 @@ const AllProductsOfASingleShop = () => {
     }
   };
 
-  if (isLoading) return <Loader />;
+  // Show a loader while either the shops list or the products are being fetched.
+  // Previously products only started loading after shops resolved, which caused
+  // a noticeable delay on first load; now they load in parallel.
+  if ((isLoading || shopsLoading) && !noShop) return <Loader />;
   if (noShop) {
     return (
       <SellerEmptyState

@@ -42,6 +42,7 @@ const ProductsPage = () => {
   const max = searchParams.get('max') ? Number(searchParams.get('max')) : null;
   const zoneId = searchParams.get('zoneId') || '';
   const cityId = searchParams.get('cityId') || '';
+  const regionId = searchParams.get('regionId') || '';
 
   const { isAuthenticated } = useAuth();
   const { zoneId: selectedZoneId, cityId: selectedCityId, cityName: selectedCityName, zoneName: selectedZoneName, hasZone, setLocation } = useDeliveryLocation();
@@ -51,6 +52,7 @@ const ProductsPage = () => {
     ...(category && { category }),
     ...(shop && { shop }),
     ...(search && { search }),
+    ...(regionId && { regionId }),
     ...(rating && { rating }),
     ...(min !== null && { minPrice: min }),
     ...(max !== null && { maxPrice: max }),
@@ -108,21 +110,11 @@ const ProductsPage = () => {
     return list;
   }, [data, sortBy]);
 
-  const breadcrumbItems = [
-    { label: 'Home', to: '/' },
-    { label: 'Products' },
-  ];
-  if (category) {
-    breadcrumbItems.push({ label: category });
-  } else if (shop) {
-    breadcrumbItems.push({ label: shop });
-  } else if (search) {
-    breadcrumbItems.push({ label: `Search: "${search}"` });
-  }
+  const breadcrumbItems = [];
 
   const mainContent = (
     <>
-      {/* Amazon-style results header: "1–24 of over 2,000 results for ..." */}
+      {/* Results header: "1–24 of over 2,000 results for ..." */}
       {!loading && !error && (
         <div className="market-results-bar">
           <div className="market-results-text">

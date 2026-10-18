@@ -35,8 +35,12 @@ export function useProducts({ auto = true, filters = {} } = {}) {
     };
   }, [filters, hasZone, zoneId, cityId]);
 
-  // Track if we've already initiated a request to prevent duplicates
-  const hasInitiatedRef = useRef(false);
+  // Refetch exactly when the filters CHANGE (e.g. a new ?search= term coming from
+  // the URL), not on every render. The JSON signature absorbs the per-render
+  // identity churn of the `filters` object while still detecting a real change —
+  // so a new search term always triggers a fresh backend query.
+  const filterSignature = JSON.stringify(memoizedFilters);
+  const lastRequestedSignatureRef = useRef(null);
 
   const refresh = useCallback(() => {
     if (isAuthenticated) {
@@ -48,22 +52,11 @@ export function useProducts({ auto = true, filters = {} } = {}) {
 
   useEffect(() => {
     if (!auto || authLoading) return;
-    
-    // Prevent duplicate requests if already initiated or if products exist
-    if (hasInitiatedRef.current || allProducts.length > 0) {
-      return;
-    }
-
-    hasInitiatedRef.current = true;
+    // Already requested these exact filters — skip (dedupe per signature).
+    if (lastRequestedSignatureRef.current === filterSignature) return;
+    lastRequestedSignatureRef.current = filterSignature;
     refresh();
-
-    // Reset the ref after a short delay to allow manual refresh
-    const timeoutId = setTimeout(() => {
-      hasInitiatedRef.current = false;
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [auto, authLoading, allProducts.length, refresh]);
+  }, [auto, authLoading, filterSignature, refresh]);
 
   return { products: allProducts, loading, error, refresh };
 }
