@@ -75,11 +75,7 @@ const Avatar = ({ data, url, src, fallback = PlaceholderAvatar, ...rest }) => {
   return <ImageWithFallback src={resolved} fallback={fallback} {...rest} />;
 };
 
-/** Category image with per-category fallback. */
-const CategoryImage = ({ data, fallback = PlaceholderShop, ...rest }) => {
-  const src = getFirstImage(data) || fallback;
-  return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
-};
+
 
 export default ImageWithFallback;
 export { ProductImage, ShopImage, Avatar, CategoryImage };
