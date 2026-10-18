@@ -171,8 +171,8 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
             <p className="text-sm text-gray-400">{config.description}</p>
           </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-3 overflow-y-auto max-h-[70vh] lg:max-h-none">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-3 overflow-y-auto max-h-[70vh] lg:max-h-none">
           {/* Full Name */}
           <div>
             <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Full Name</label>
@@ -348,6 +348,192 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
 
         {/* Footer */}
         <div className="px-6 lg:px-8 pb-6 text-center border-t border-orange-500/10 pt-4">
+          <p className="text-sm text-gray-400">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="text-orange-400 hover:text-orange-300 font-semibold"
+            >
+              Log in
+            </button>
+          </p>
+        </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden w-full max-w-md rounded-2xl border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden relative" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
+        {/* Close Button */}
+        <button
+          type="button"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
+          aria-label="Close"
+          onClick={() => navigate('/login')}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Header */}
+        <div className="px-6 pt-8 pb-4 text-center border-b border-orange-500/10">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <svg viewBox="0 0 64 64" className="h-8 w-auto" aria-hidden="true">
+              <defs>
+                <linearGradient id="mobileGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#fbbf24" />
+                  <stop offset="1" stopColor="#f97316" />
+                </linearGradient>
+              </defs>
+              <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
+              <path d="M32 31 L58 52 L6 52 Z" fill="url(#mobileGrad)" />
+            </svg>
+            <span className="font-bold text-white">Aritii Market</span>
+          </div>
+          <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+            {config.badge}
+          </span>
+          <h1 className="text-2xl font-bold text-white mb-1">{config.title}</h1>
+          <p className="text-sm text-gray-400">{config.description}</p>
+        </div>
+
+        {/* Mobile Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Full Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Abebe Bikila"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="buyer@example.com"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Phone</label>
+            <div className="flex gap-2">
+              <select className="w-14 px-2 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white text-sm focus:border-orange-500 focus:outline-none transition">
+                <option>+251</option>
+              </select>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="912345678"
+                required
+                disabled={loading}
+                className="flex-1 px-3 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">City</label>
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition"
+            >
+              <option value="">Select city...</option>
+              <option value="addis-ababa">Addis Ababa</option>
+              <option value="dire-dawa">Dire Dawa</option>
+              <option value="harar">Harar</option>
+              <option value="awassa">Awassa</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
+            <div className="relative">
+              <input
+                type={visible ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisible(!visible)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={visibleConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisibleConfirm(!visibleConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer mt-4">
+            <input
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              className="w-5 h-5 rounded accent-orange-500"
+            />
+            <span className="text-sm text-gray-300">
+              I agree to Terms and Privacy
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50"
+          >
+            {loading ? 'Creating...' : config.submit}
+          </button>
+        </form>
+
+        {/* Mobile Footer */}
+        <div className="px-6 pb-6 text-center border-t border-orange-500/10 pt-4">
           <p className="text-sm text-gray-400">
             Already have an account?{' '}
             <button
