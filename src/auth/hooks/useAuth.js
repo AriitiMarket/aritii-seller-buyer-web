@@ -33,7 +33,10 @@ export function useAuth() {
   const isSeller = useSelector(selectIsSeller);
   const seller = useSelector(selectSeller);
 
- 
+  const login = useCallback((emailOrPhone, password) => dispatch(loginUser(emailOrPhone, password)), [dispatch]);
+  const register = useCallback((payload) => dispatch(registerUser(payload)), [dispatch]);
+  const logout = useCallback(() => dispatch(logoutUser()), [dispatch]);
+  const refresh = useCallback(() => dispatch(loadUser()), [dispatch]);
 
   return {
     isAuthenticated,
