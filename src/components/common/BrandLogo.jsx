@@ -30,7 +30,7 @@ const BrandLogo = ({ size = 'md', showText = true, showTagline = true, linked = 
           </span>
           {showTagline && (
             <span className={`hidden sm:block text-[10px] ${tone === 'light' ? 'text-white/70' : 'text-gray-500'} truncate`}>
-              
+              Ethiopia&apos;s Marketplace
             </span>
           )}
         </div>
