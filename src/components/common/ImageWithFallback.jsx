@@ -59,7 +59,11 @@ const ProductImage = ({ data, fallback = PlaceholderProduct, ...rest }) => {
   return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
 };
 
-
+/** Shop avatar / cover image. */
+const ShopImage = ({ data, fallback = PlaceholderShop, ...rest }) => {
+  const src = getFirstImage(data) || fallback;
+  return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
+};
 
 /** Person/seller/customer avatar. Accepts external URLs or storage keys. */
 const Avatar = ({ data, url, src, fallback = PlaceholderAvatar, ...rest }) => {
