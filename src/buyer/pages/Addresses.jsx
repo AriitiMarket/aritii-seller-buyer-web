@@ -7,7 +7,13 @@ import { MdLocationOn, MdAdd, MdDelete, MdEdit } from 'react-icons/md'
 import { RxCross1 } from 'react-icons/rx'
 import LocationSelector from '@/components/common/LocationSelector'
 
-
+const BuyerAddressesPage = () => {
+  const { user, updateUserAddressLoading, deleteUserAddressLoading, addressError } = useSelector((state) => state.user)
+  const dispatch = useDispatch()
+  const [open, setOpen] = useState(false)
+  const [addresses, setAddresses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [editingId, setEditingId] = useState(null)
 
   useEffect(() => {
     const loadAddresses = async () => {
