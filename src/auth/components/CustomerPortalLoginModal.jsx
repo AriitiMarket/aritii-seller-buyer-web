@@ -116,7 +116,7 @@ const CustomerPortalLoginModal = ({
                 className="customer-portal-input"
               />
               <label htmlFor="portal-email" className="customer-portal-input-label">
-                Email or phone number
+                Email
               </label>
             </div>
 

@@ -1,9 +1,9 @@
 /**
  * Auth feature components (forms).
  *
- * NOTE: there is ONE account and ONE login for buyers and sellers. The separate
- * seller-register/shop-login forms were removed by design - /create-shop and
- * /shop-login redirect into the unified flow.
+ * The customer portal login modal lives in
+ * `src/auth/components/CustomerPortalLoginModal` and is the single login for
+ * buyers, sellers, and delivery providers. The legacy full-page Login form is
+ * removed and is no longer re-exported here.
  */
-export { default as Login } from '@/auth/components/Login';
 export { default as SignUp } from '@/auth/components/SignUp';

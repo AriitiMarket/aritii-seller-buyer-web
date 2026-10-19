@@ -1,54 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AiOutlineEyeInvisible, AiOutlineEye, AiOutlineArrowRight } from 'react-icons/ai';
-import { FaShoppingBasket, FaStore, FaTruck } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { createPortal } from 'react-dom';
 import { registerUser } from '@/store/slices/userThunks';
-import { LOGO } from '@/assets';
 
 const ROLE_CONFIG = {
   BUYER: {
-    title: 'Create Buyer Account',
-    description: 'Create your account and start shopping local.',
-    actorIcon: FaShoppingBasket,
-    actorLabel: 'Marketplace',
-    eyebrow: 'For the curious shopper',
-    heroTitle: 'Find something made for you.',
-    heroCopy: 'Discover local makers, everyday essentials, and offers from shops across Ethiopia.',
-    benefits: ['Discover local shops', 'Save your favorites', 'Track every order'],
+    title: 'Create Your Buyer Account',
+    description: 'Sign up to explore local products, manage orders, and enjoy fast delivery.',
+    badge: 'ARIITI MARKET • BUYER ACCOUNT',
     next: '/my-dashboard',
-    submit: 'Create Buyer Account',
-    accent: '#75d04b',
-    hint: null,
+    submit: 'Complete Registration',
   },
   SELLER: {
-    title: 'Create Seller Account',
-    description: 'Create your account, then complete your Seller Application.',
-    actorIcon: FaStore,
-    actorLabel: 'Seller community',
-    eyebrow: 'For local businesses',
-    heroTitle: 'Bring your business to more customers.',
-    heroCopy: 'Build your storefront, manage orders, and grow with a marketplace made for local sellers.',
-    benefits: ['Create your shop profile', 'Manage orders and products', 'Get reviewed before seller access'],
+    title: 'Create Your Seller Account',
+    description: 'Sign up to start selling and reach more customers.',
+    badge: 'ARIITI MARKET • SELLER ACCOUNT',
     next: '/seller-registration',
-    submit: 'Continue to Seller Application',
-    accent: '#2f6e4f',
-    hint: 'Seller access is enabled after your shop application is reviewed and approved.',
+    submit: 'Create Seller Account',
   },
   PROVIDER: {
-    title: 'Create Delivery Provider Account',
-    description: 'Create your account, then apply to join Aritii Delivery.',
-    actorIcon: FaTruck,
-    actorLabel: 'Delivery network',
-    eyebrow: 'For delivery providers',
-    heroTitle: 'Help local orders reach every door.',
-    heroCopy: 'Join a growing delivery network connecting neighborhood shops with customers.',
-    benefits: ['Apply as a delivery provider', 'Share your service details', 'Get reviewed before provider access'],
+    title: 'Create Your Delivery Account',
+    description: 'Sign up to join our delivery network.',
+    badge: 'ARIITI MARKET • DELIVERY ACCOUNT',
     next: '/provider-application',
-    submit: 'Continue to Provider Application',
-    accent: '#20305c',
-    hint: 'Provider access is enabled after your delivery application is reviewed and approved.',
+    submit: 'Create Delivery Account',
   },
 };
 
@@ -62,181 +39,544 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [agree, setAgree] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [visibleConfirm, setVisibleConfirm] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const payload = { name: name.trim(), email: email.trim(), password };
-    if (role !== 'BUYER') payload.registrationType = role;
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!agree) {
+      toast.error('Please agree to Terms of Service');
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    const payload = {
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      phone: phone.trim(),
+      city: city.trim(),
+      registrationType: role,
+    };
 
     try {
       await dispatch(registerUser(payload));
-      if (role === 'BUYER') {
-        toast.success('Buyer account created. Welcome to Aritii Market!');
-        navigate(config.next, { replace: true });
-        return;
-      }
-
-      toast.success(`Account created. Continue with your ${role === 'SELLER' ? 'Seller' : 'Delivery Provider'} application.`);
-      navigate(config.next, {
-        replace: true,
-        state: { from: config.next, isNewRegistration: true, registrationType: role },
-      });
+      toast.success('Account created successfully!');
+      navigate(config.next, { replace: true });
     } catch (error) {
-      const message = error?.response?.data?.message || error?.message || 'Registration failed. Please try again.';
-      const status = error?.response?.status;
-      if (status === 409 || /already exists|duplicate/i.test(message)) {
-        toast.error('An account with these details already exists. Use the shared Login to continue.');
-      } else {
-        toast.error(message);
-      }
+      const message = error?.response?.data?.message || 'Registration failed';
+      toast.error(message);
     }
   };
 
-  return (
-    <main className="min-h-screen bg-[#FDF6EC] px-3 py-5 sm:px-5 sm:py-9 lg:px-6 lg:py-12">
-      <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl lg:grid-cols-[0.95fr_1.05fr]">
-        <aside className="relative overflow-hidden bg-[#20305c] p-4 text-white sm:p-6 lg:flex lg:min-h-full lg:flex-col lg:justify-between lg:p-10">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: config.accent }} aria-hidden="true" />
-          <Link to="/" className="relative inline-flex w-fit rounded-xl bg-white p-2.5 shadow-sm">
-            <img src={LOGO} alt="Aritii Market home" className="h-9 w-auto" />
-          </Link>
-          <div className="relative mt-4 min-h-44 overflow-hidden rounded-2xl border border-white/15 p-5 shadow-lg sm:min-h-52 sm:p-7" style={{ background: `linear-gradient(135deg, ${config.accent} 0%, #20305c 72%)` }}>
-            <div className="pointer-events-none absolute -right-7 -top-12 h-48 w-48 rounded-full border-[24px] border-white/5" aria-hidden="true" />
-            <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/5" aria-hidden="true" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-md">
-                <img src={LOGO} alt="" className="h-full w-full object-contain" />
-              </span>
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm lg:p-0" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, rgba(0,0,0,0.5) 100%)' }}>
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex w-full max-w-6xl h-screen lg:h-auto lg:max-h-[90vh] relative">
+        {/* Left Sidebar - Branding */}
+        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-orange-600 to-orange-800 p-12 flex-col justify-between rounded-l-2xl">
+          <div>
+            <div className="flex items-center gap-3 mb-12">
+              <svg viewBox="0 0 64 64" className="h-12 w-auto" aria-hidden="true">
+                <defs>
+                  <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset="1" stopColor="#f0f0f0" />
+                  </linearGradient>
+                </defs>
+                <path d="M32 6 L58 52 L6 52 Z" fill="#000" />
+                <path d="M32 31 L58 52 L6 52 Z" fill="url(#brandGrad)" />
+              </svg>
               <div>
-                <p className="text-sm font-extrabold tracking-wide text-white">Aritii Market</p>
-                <p className="text-xs font-medium text-white/70">{config.actorLabel}</p>
+                <p className="text-xl font-bold text-white">Aritii</p>
+                <p className="text-sm text-orange-100">Market</p>
               </div>
             </div>
-            <div className="relative mt-5 flex items-center gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-[#a4ee83] shadow-inner sm:h-16 sm:w-16">
-                <config.actorIcon size={29} aria-hidden="true" />
-              </span>
+            <h2 className="text-4xl font-bold text-white mb-4">Create Account</h2>
+            <p className="text-lg text-orange-50 leading-relaxed">Join thousands of buyers, sellers, and delivery partners in Ethiopia's fastest-growing marketplace.</p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🛍️</span>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/65">Your place in Aritii</p>
-                <p className="mt-1 text-lg font-extrabold leading-tight text-white sm:text-xl">{config.eyebrow}</p>
+                <p className="font-semibold text-white">For Buyers</p>
+                <p className="text-sm text-orange-100">Discover local shops and fast delivery</p>
               </div>
             </div>
-            <div className="relative mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/15" aria-hidden="true">
-              <div className="h-full w-2/3 rounded-full bg-[#75d04b]" />
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🏪</span>
+              <div>
+                <p className="font-semibold text-white">For Sellers</p>
+                <p className="text-sm text-orange-100">Grow your business online</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🚚</span>
+              <div>
+                <p className="font-semibold text-white">For Delivery</p>
+                <p className="text-sm text-orange-100">Earn by delivering orders</p>
+              </div>
             </div>
           </div>
-          <div className="relative mt-5 lg:mt-7">
-            <span className="mb-2 inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white/90">
-              {config.eyebrow}
-            </span>
-            <p className="text-2xl font-extrabold leading-tight sm:text-3xl">{config.heroTitle}</p>
-            <p className="mt-2 max-w-lg text-sm leading-6 text-white/75">{config.heroCopy}</p>
-            <ul className="mt-4 flex flex-wrap gap-2" aria-label={`${config.eyebrow} benefits`}>
-              {config.benefits.map((benefit) => (
-                <li key={benefit} className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                  <span className="mr-1.5 text-[#8fe16b]" aria-hidden="true">✓</span>{benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
+        </div>
 
-        <section className="p-6 sm:p-10 lg:p-12">
-          <div className="mb-7">
-            <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider" style={{ color: config.accent, backgroundColor: `${config.accent}18` }}>
-              {role === 'PROVIDER' ? 'Delivery Provider' : role[0] + role.slice(1).toLowerCase()} Registration
+        {/* Right Form */}
+        <div className="relative w-full lg:w-3/5 rounded-2xl lg:rounded-r-2xl lg:rounded-l-none border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
+          {/* Close Button */}
+          <button
+            onClick={() => navigate('/login')}
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Header */}
+          <div className="px-6 pt-8 pb-4 text-center lg:text-left border-b border-orange-500/10">
+            <div className="flex items-center gap-3 mb-3 lg:hidden justify-center">
+              <svg viewBox="0 0 64 64" className="h-8 w-auto" aria-hidden="true">
+                <defs>
+                  <linearGradient id="signupGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fbbf24" />
+                    <stop offset="1" stopColor="#f97316" />
+                  </linearGradient>
+                </defs>
+                <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
+                <path d="M32 31 L58 52 L6 52 Z" fill="url(#signupGrad)" />
+              </svg>
+              <div>
+                <p className="font-bold text-white">Aritii Market</p>
+              </div>
+            </div>
+            <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+              {config.badge}
             </span>
-            <h1 className="text-2xl font-extrabold text-[#20305c] sm:text-3xl">{config.title}</h1>
-            <p className="mt-2 text-sm leading-6 text-gray-600">{config.description}</p>
-            {config.hint && (
-              <p className="mt-4 rounded-xl border px-4 py-3 text-sm leading-5" style={{ color: config.accent, borderColor: `${config.accent}40`, backgroundColor: `${config.accent}0d` }}>
-                {config.hint}
-              </p>
-            )}
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{config.title}</h1>
+            <p className="text-sm text-gray-400">{config.description}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-3 overflow-y-auto max-h-[70vh] lg:max-h-none">
+          {/* Full Name */}
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Full Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Abebe Bikila"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="buyer@example.com"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          {/* Phone + City Grid */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-semibold text-gray-700">Full name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                minLength={2}
-                required
-                disabled={loading}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Your full name"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 disabled:opacity-60"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-gray-700">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                disabled={loading}
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 disabled:opacity-60"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-gray-700">Password</label>
-              <div className="relative">
+              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Phone</label>
+              <div className="flex gap-2">
+                <select className="w-14 px-2 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white text-sm focus:border-orange-500 focus:outline-none transition">
+                  <option>+251</option>
+                </select>
                 <input
-                  id="password"
-                  name="password"
-                  type={visible ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  minLength={8}
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="912345678"
                   required
                   disabled={loading}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="At least 8 characters"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 text-gray-900 outline-none transition focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/20 disabled:opacity-60"
+                  className="flex-1 px-3 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
                 />
-                <button
-                  type="button"
-                  onClick={() => setVisible((current) => !current)}
-                  disabled={loading}
-                  aria-label={visible ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-800"
-                >
-                  {visible ? <AiOutlineEye size={20} /> : <AiOutlineEyeInvisible size={20} />}
-                </button>
               </div>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold text-white transition hover:brightness-95 disabled:cursor-wait disabled:opacity-60"
-              style={{ backgroundColor: config.accent }}
-            >
-              {loading ? 'Creating account…' : config.submit}
-              {!loading && <AiOutlineArrowRight size={17} aria-hidden="true" />}
-            </button>
-          </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+            <div>
+              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">City</label>
+              <select
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition"
+              >
+                <option value="">Select city...</option>
+                <option value="addis-ababa">Addis Ababa</option>
+                <option value="dire-dawa">Dire Dawa</option>
+                <option value="harar">Harar</option>
+                <option value="awassa">Awassa</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
+            <div className="relative">
+              <input
+                type={visible ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisible(!visible)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={visibleConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisibleConfirm(!visibleConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Terms Checkbox */}
+          <label className="flex items-center gap-3 cursor-pointer mt-5">
+            <input
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              className="w-5 h-5 rounded accent-orange-500"
+            />
+            <span className="text-sm text-gray-300">
+              I agree to the{' '}
+              <Link to="#" className="text-orange-400 hover:text-orange-300 font-semibold">
+                Terms of Service
+              </Link>
+              {' '}and{' '}
+              <Link to="#" className="text-orange-400 hover:text-orange-300 font-semibold">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-6 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? 'Creating Account...' : config.submit}
+            {!loading && (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="px-6 py-4 flex items-center gap-3">
+          <div className="flex-1 h-px bg-slate-700" />
+          <span className="text-xs text-gray-500 font-semibold uppercase">or sign up with</span>
+          <div className="flex-1 h-px bg-slate-700" />
+        </div>
+
+        {/* Social Buttons */}
+        <div className="px-6 pb-6 flex justify-center gap-3">
+          <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign up with Google">
+            <GoogleLogo />
+          </a>
+          <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign up with Facebook">
+            <FacebookLogo />
+          </a>
+          <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign up with LinkedIn">
+            <LinkedInLogo />
+          </a>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 lg:px-8 pb-6 text-center border-t border-orange-500/10 pt-4">
+          <p className="text-sm text-gray-400">
             Already have an account?{' '}
-            <Link to="/login" state={{ from: location.state?.from || (role === 'SELLER' ? '/seller-registration' : role === 'PROVIDER' ? '/provider-application' : undefined) }} className="font-bold text-[#20305c] underline underline-offset-2 hover:text-[#75d04b]">
-              Use the shared Login
-            </Link>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="text-orange-400 hover:text-orange-300 font-semibold"
+            >
+              Log in
+            </button>
           </p>
-          <p className="mt-3 text-center text-xs text-gray-500">One Login works for Buyers, Sellers, and Delivery Providers.</p>
-        </section>
+        </div>
+        </div>
       </div>
-    </main>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden w-full max-w-md rounded-2xl border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden relative" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
+        {/* Close Button */}
+        <button
+          type="button"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
+          aria-label="Close"
+          onClick={() => navigate('/login')}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Header */}
+        <div className="px-6 pt-8 pb-4 text-center border-b border-orange-500/10">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <svg viewBox="0 0 64 64" className="h-8 w-auto" aria-hidden="true">
+              <defs>
+                <linearGradient id="mobileGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#fbbf24" />
+                  <stop offset="1" stopColor="#f97316" />
+                </linearGradient>
+              </defs>
+              <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
+              <path d="M32 31 L58 52 L6 52 Z" fill="url(#mobileGrad)" />
+            </svg>
+            <span className="font-bold text-white">Aritii Market</span>
+          </div>
+          <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+            {config.badge}
+          </span>
+          <h1 className="text-2xl font-bold text-white mb-1">{config.title}</h1>
+          <p className="text-sm text-gray-400">{config.description}</p>
+        </div>
+
+        {/* Mobile Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Full Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Abebe Bikila"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="buyer@example.com"
+              required
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Phone</label>
+            <div className="flex gap-2">
+              <select className="w-14 px-2 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white text-sm focus:border-orange-500 focus:outline-none transition">
+                <option>+251</option>
+              </select>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="912345678"
+                required
+                disabled={loading}
+                className="flex-1 px-3 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">City</label>
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition"
+            >
+              <option value="">Select city...</option>
+              <option value="addis-ababa">Addis Ababa</option>
+              <option value="dire-dawa">Dire Dawa</option>
+              <option value="harar">Harar</option>
+              <option value="awassa">Awassa</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
+            <div className="relative">
+              <input
+                type={visible ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisible(!visible)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={visibleConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength="8"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setVisibleConfirm(!visibleConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer mt-4">
+            <input
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              className="w-5 h-5 rounded accent-orange-500"
+            />
+            <span className="text-sm text-gray-300">
+              I agree to Terms and Privacy
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50"
+          >
+            {loading ? 'Creating...' : config.submit}
+          </button>
+        </form>
+
+        {/* Mobile Footer */}
+        <div className="px-6 pb-6 text-center border-t border-orange-500/10 pt-4">
+          <p className="text-sm text-gray-400">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="text-orange-400 hover:text-orange-300 font-semibold"
+            >
+              Log in
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 };
 
+function GoogleLogo() {
+  return (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+    </svg>
+  );
+}
+
+function FacebookLogo() {
+  return (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="#1877F2" />
+      <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.7 10h-2.5v8h-2v-8H9v-2h2V9c0-1.66 1-2.5 2.7-2.5h1.8v1.8h-1c-.52 0-.7.22-.7.7v1.2h2l-.5 2z" />
+    </svg>
+  );
+}
+
+function LinkedInLogo() {
+  return (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="#0A66C2" />
+      <path fill="white" d="M9 8c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm0 14H7V9h2v13zm8-13c-1.657 0-2 1.343-2 3v1h-2v2h2v8h2v-8c0-2 1-3 2-3h1v-2h-1z" />
+    </svg>
+  );
+}
 export default SignUp;
