@@ -13,7 +13,11 @@ const NEXT_STEP = {
   PROVIDER: '/provider-application',
 };
 
-
+const SignUpPage = ({ registrationType = 'BUYER' }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useSelector((state) => state.user);
+  const from = location.state?.from;
 
   useEffect(() => {
     if (!isAuthenticated) return;
