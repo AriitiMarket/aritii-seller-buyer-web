@@ -57,7 +57,17 @@ const Customers = () => {
   }, [ShopOrders]);
 
   // Sort customers
- 
+  const sortedCustomers = React.useMemo(() => {
+    const sorted = [...customerData];
+    if (sortBy === 'recent') {
+      sorted.sort((a, b) => (b.lastOrderDate?.getTime() || 0) - (a.lastOrderDate?.getTime() || 0));
+    } else if (sortBy === 'orders') {
+      sorted.sort((a, b) => b.totalOrders - a.totalOrders);
+    } else if (sortBy === 'spent') {
+      sorted.sort((a, b) => b.totalSpent - a.totalSpent);
+    }
+    return sorted;
+  }, [customerData, sortBy]);
 
   // Filter customers
   const filteredCustomers = React.useMemo(() => {
