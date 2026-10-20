@@ -65,16 +65,7 @@ const BusinessPromotionsPage = () => {
   }, [load]);
 
   // Filter promotions by status
-  const filteredPromotions = React.useMemo(() => {
-    const now = new Date();
-    return promotions.filter((promo) => {
-      if (activeTab === 'all') return true;
-      const endDate = promo.endsAt ? new Date(promo.endsAt) : null;
-      if (activeTab === 'active') return !endDate || endDate > now;
-      if (activeTab === 'scheduled') return endDate && endDate > now;
-      if (activeTab === 'expired') return endDate && endDate <= now;
-      return true;
-    });
+ 
   }, [promotions, activeTab]);
 
   const tabs = [
