@@ -70,15 +70,7 @@ const Customers = () => {
   }, [customerData, sortBy]);
 
   // Filter customers
-  const filteredCustomers = React.useMemo(() => {
-    if (!searchTerm) return sortedCustomers;
-    const term = searchTerm.toLowerCase();
-    return sortedCustomers.filter(
-      (customer) =>
-        customer.name.toLowerCase().includes(term) ||
-        customer.email.toLowerCase().includes(term) ||
-        customer.phone.toLowerCase().includes(term)
-    );
+  
   }, [sortedCustomers, searchTerm]);
 
   const totalCustomers = customerData.length;
