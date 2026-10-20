@@ -17,7 +17,9 @@ const CheckoutPage = () => {
   }, [])
 
   // Always clear a stale cart spinner on mount so a prior failed request
-  
+  // cannot lock this page on "Validating cart items..." forever.
+  useEffect(() => {
+    if (isLoading) dispatch(setCartLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
