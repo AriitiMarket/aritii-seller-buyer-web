@@ -59,6 +59,10 @@ export const loginUser = (email, password) => async (dispatch) => {
   try {
     dispatch({ type: "LoadUserRequest" });
     const result = await authService.login(email, password);
+    if (result?.requires2fa) {
+      dispatch({ type: "LoadUserFail", payload: null });
+      return result;
+    }
     // login() already refreshed the profile; fall back to a fetch only when the
     // token store has nothing (keeps the previous behaviour without the
     // redundant round-trip).
@@ -71,6 +75,24 @@ export const loginUser = (email, password) => async (dispatch) => {
     // Hydrate this account's wishlist (header badge + heart states).
     dispatch(fetchWishlist());
     // Ensure seller capability is resolved for role-based routing
+    await dispatch(loadSeller());
+    return { ...result, user };
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const verify2FALogin = (verificationData) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.verify2FA(verificationData);
+    const user = tokenStore.getUser() || await authService.getCurrentUser();
+    if (user?.role === 'SELLER') {
+      dispatch({ type: "LoadSellerRequest" });
+    }
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    dispatch(fetchWishlist());
     await dispatch(loadSeller());
     return { ...result, user };
   } catch (error) {

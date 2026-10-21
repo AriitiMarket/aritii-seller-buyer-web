@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { loginUser } from '@/store/slices/userThunks';
+import { loginUser, verify2FALogin } from '@/store/slices/userThunks';
 import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import UnifiedLoginModal from '@/auth/components/UnifiedLoginModal';
@@ -31,12 +31,32 @@ const UnifiedLoginPage = ({ role = 'BUYER' }) => {
     setError(null);
     try {
       tokenStore.setLoginRole(role);
-      await dispatch(loginUser(email.trim(), password));
+      const res = await dispatch(loginUser(email.trim(), password));
+      if (res?.requires2fa) {
+        return res;
+      }
       setOpen(false);
+      return res;
     } catch (err) {
       const message = err?.response?.data?.message || err?.message || 'Login failed';
       setError(message);
       toast.error(message);
+      throw err;
+    }
+  };
+
+  const handleVerify2FA = async ({ code, backupCode, tempToken }) => {
+    setError(null);
+    try {
+      tokenStore.setLoginRole(role);
+      const res = await dispatch(verify2FALogin({ code, backupCode, tempToken }));
+      setOpen(false);
+      return res;
+    } catch (err) {
+      const message = err?.response?.data?.message || err?.message || 'Verification failed';
+      setError(message);
+      toast.error(message);
+      throw err;
     }
   };
 
@@ -55,6 +75,7 @@ const UnifiedLoginPage = ({ role = 'BUYER' }) => {
       open={open}
       onClose={() => setOpen(false)}
       onLogin={handleLogin}
+      onVerify2FA={handleVerify2FA}
       onForgot={handleForgot}
       onContactUs={handleContactUs}
       error={error}

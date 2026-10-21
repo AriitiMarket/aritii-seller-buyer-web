@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import authService from '@/services/auth.service'
 import { toast } from 'react-toastify'
 import { MdPerson, MdBusiness, MdNotifications, MdSecurity, MdChevronRight } from 'react-icons/md'
+import TwoFactorSettings from '@/shared/components/TwoFactorSettings'
 
 const BuyerSettingsPage = () => {
   const user = useSelector((state) => state.user?.user)
@@ -225,32 +226,39 @@ const SecuritySection = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
-      <h2 className="text-base font-bold text-market-on-surface mb-5">Security</h2>
-      <form onSubmit={handlePasswordChange} className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Current Password</label>
-          <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-market-on-surface mb-1.5">New Password</label>
-          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Confirm New Password</label>
-          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
-          {confirmPassword && newPassword && confirmPassword !== newPassword && (
-            <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
-          )}
-        </div>
-        <button type="submit" disabled={loading}
-          className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition disabled:opacity-50">
-          {loading ? 'Updating...' : 'Update Password'}
-        </button>
-      </form>
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
+        <h2 className="text-base font-bold text-market-on-surface mb-5">Change Password</h2>
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Current Password</label>
+            <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-market-on-surface mb-1.5">New Password</label>
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Confirm New Password</label>
+            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20" />
+            {confirmPassword && newPassword && confirmPassword !== newPassword && (
+              <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
+            )}
+          </div>
+          <button type="submit" disabled={loading}
+            className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition disabled:opacity-50">
+            {loading ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
+        <h2 className="text-base font-bold text-market-on-surface mb-4">Account Security</h2>
+        <TwoFactorSettings />
+      </div>
     </div>
   )
 }

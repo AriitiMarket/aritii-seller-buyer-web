@@ -7,6 +7,7 @@ const UnifiedLoginModal = ({
   open,
   onClose,
   onLogin,
+  onVerify2FA,
   onForgot,
   onContactUs,
   error,
@@ -18,6 +19,18 @@ const UnifiedLoginModal = ({
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [twoFA, setTwoFA] = useState({ required: false, method: 'TOTP', tempToken: '' });
+  const [twoFACode, setTwoFACode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [twoFAError, setTwoFAError] = useState('');
+
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   useEffect(() => {
     if (!open) return;
@@ -41,11 +54,62 @@ const UnifiedLoginModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setTwoFAError('');
     try {
-      await onLogin?.({ email: email.trim(), password });
+      const res = await onLogin?.({ email: email.trim(), password });
+      if (res?.requires2fa) {
+        setTwoFA({
+          required: true,
+          method: res.method || 'TOTP',
+          tempToken: res.tempToken,
+        });
+        setTwoFACode('');
+        setUseBackupCode(false);
+      }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleVerify2FASubmit = async (e) => {
+    e.preventDefault();
+    if (!twoFACode.trim()) {
+      setTwoFAError('Please enter verification code');
+      return;
+    }
+    setSubmitting(true);
+    setTwoFAError('');
+    try {
+      await onVerify2FA?.({
+        code: useBackupCode ? undefined : twoFACode.trim(),
+        backupCode: useBackupCode ? twoFACode.trim() : undefined,
+        tempToken: twoFA.tempToken,
+      });
+    } catch (err) {
+      setTwoFAError(err.message || 'Verification failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (twoFA.method === 'TOTP' || resendCountdown > 0) return;
+    setSubmitting(true);
+    try {
+      const { authService } = await import('@/services');
+      await authService.resend2FACode({ tempToken: twoFA.tempToken, method: twoFA.method });
+      setResendCountdown(60);
+    } catch (err) {
+      setTwoFAError(err?.message || 'Failed to resend code');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetTwoFA = () => {
+    setTwoFA({ required: false, method: 'TOTP', tempToken: '' });
+    setTwoFACode('');
+    setTwoFAError('');
   };
 
   const roleLabel = {
@@ -133,14 +197,34 @@ const UnifiedLoginModal = ({
           {/* Header */}
           <div className="px-8 pt-8 pb-4 text-center border-b border-orange-500/10">
             <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-              {roleLabel}
+              {twoFA.required ? 'SECURITY VERIFICATION' : roleLabel}
             </span>
-            <h1 id="login-title" className="text-3xl font-bold text-white mb-1">Welcome back</h1>
-            <p className="text-sm text-gray-400">Sign in to access your account and manage your business.</p>
+            <h1 id="login-title" className="text-3xl font-bold text-white mb-1">
+              {twoFA.required ? 'Two-Factor Authentication' : 'Welcome back'}
+            </h1>
+            <p className="text-sm text-gray-400">
+              {twoFA.required ? 'Verify your identity to complete login' : 'Sign in to access your account and manage your business.'}
+            </p>
           </div>
 
           {/* Form Content */}
           <div className="px-8 py-8">
+            {twoFA.required ? (
+              <TwoFAFormView
+                twoFA={twoFA}
+                twoFACode={twoFACode}
+                setTwoFACode={setTwoFACode}
+                useBackupCode={useBackupCode}
+                setUseBackupCode={setUseBackupCode}
+                resendCountdown={resendCountdown}
+                handleResend={handleResend}
+                handleVerify2FASubmit={handleVerify2FASubmit}
+                resetTwoFA={resetTwoFA}
+                submitting={submitting}
+                twoFAError={twoFAError}
+                error={error}
+              />
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {/* Email Field */}
               <div>
@@ -228,40 +312,45 @@ const UnifiedLoginModal = ({
                 )}
               </button>
             </form>
+            )}
 
-            {/* Divider */}
-            <div className="px-0 py-4 flex items-center gap-3">
-              <div className="flex-1 h-px bg-slate-700" />
-              <span className="text-xs text-gray-500 font-semibold uppercase">or continue with</span>
-              <div className="flex-1 h-px bg-slate-700" />
-            </div>
+            {!twoFA.required && (
+              <>
+                {/* Divider */}
+                <div className="px-0 py-4 flex items-center gap-3">
+                  <div className="flex-1 h-px bg-slate-700" />
+                  <span className="text-xs text-gray-500 font-semibold uppercase">or continue with</span>
+                  <div className="flex-1 h-px bg-slate-700" />
+                </div>
 
-            {/* Social Buttons */}
-            <div className="flex justify-center gap-3">
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Google">
-                <GoogleLogo />
-              </a>
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Facebook">
-                <FacebookLogo />
-              </a>
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with LinkedIn">
-                <LinkedInLogo />
-              </a>
-            </div>
+                {/* Social Buttons */}
+                <div className="flex justify-center gap-3">
+                  <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Google">
+                    <GoogleLogo />
+                  </a>
+                  <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Facebook">
+                    <FacebookLogo />
+                  </a>
+                  <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with LinkedIn">
+                    <LinkedInLogo />
+                  </a>
+                </div>
 
-            {/* Footer */}
-            <div className="border-t border-orange-500/10 pt-4 mt-6">
-              <p className="text-sm text-gray-400 text-center">
-                Don't have an account?{' '}
-                <button
-                  type="button"
-                  onClick={onContactUs}
-                  className="text-orange-400 hover:text-orange-300 font-semibold"
-                >
-                  Contact us
-                </button>
-              </p>
-            </div>
+                {/* Footer */}
+                <div className="border-t border-orange-500/10 pt-4 mt-6">
+                  <p className="text-sm text-gray-400 text-center">
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={onContactUs}
+                      className="text-orange-400 hover:text-orange-300 font-semibold"
+                    >
+                      Contact us
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -296,98 +385,226 @@ const UnifiedLoginModal = ({
             <span className="font-bold text-white">Aritii Market</span>
           </div>
           <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-            {roleLabel}
+            {twoFA.required ? 'SECURITY VERIFICATION' : roleLabel}
           </span>
-          <h1 id="login-title" className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-sm text-gray-400">Sign in to your account</p>
+          <h1 id="login-title" className="text-2xl font-bold text-white mb-1">
+            {twoFA.required ? 'Two-Factor Authentication' : 'Welcome back'}
+          </h1>
+          <p className="text-sm text-gray-400">
+            {twoFA.required ? 'Verify your identity to complete login' : 'Sign in to your account'}
+          </p>
         </div>
 
         {/* Form */}
         <div className="px-6 py-6 space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                disabled={submitting}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
-              />
-            </div>
+          {twoFA.required ? (
+            <TwoFAFormView
+              twoFA={twoFA}
+              twoFACode={twoFACode}
+              setTwoFACode={setTwoFACode}
+              useBackupCode={useBackupCode}
+              setUseBackupCode={setUseBackupCode}
+              resendCountdown={resendCountdown}
+              handleResend={handleResend}
+              handleVerify2FASubmit={handleVerify2FASubmit}
+              resetTwoFA={resetTwoFA}
+              submitting={submitting}
+              twoFAError={twoFAError}
+              error={error}
+            />
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                <div>
+                  <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    disabled={submitting}
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+                  />
+                </div>
 
-            <div>
-              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
-              <div className="relative">
-                <input
-                  type={visible ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
+                <div>
+                  <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
+                  <div className="relative">
+                    <input
+                      type={visible ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      disabled={submitting}
+                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setVisible(!visible)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" className="w-4 h-4 rounded accent-orange-500" />
+                    <span className="text-sm text-gray-300">Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={onForgot}
+                    className="text-sm font-semibold text-gray-300 hover:text-orange-400"
+                  >
+                    Forgot?
+                  </button>
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
                   disabled={submitting}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
-                />
+                  className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50"
+                >
+                  {submitting ? 'Signing in...' : 'Sign in'}
+                </button>
+              </form>
+
+              <p className="text-center text-sm text-gray-400 pt-4 border-t border-orange-500/10">
+                Don't have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => setVisible(!visible)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  onClick={onContactUs}
+                  className="text-orange-400 hover:text-orange-300 font-semibold"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
+                  Create one
                 </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded accent-orange-500" />
-                <span className="text-sm text-gray-300">Remember me</span>
-              </label>
-              <button
-                type="button"
-                onClick={onForgot}
-                className="text-sm font-semibold text-gray-300 hover:text-orange-400"
-              >
-                Forgot?
-              </button>
-            </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50"
-            >
-              {submitting ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-gray-400 pt-4 border-t border-orange-500/10">
-            Don't have an account?{' '}
-            <button
-              type="button"
-              onClick={onContactUs}
-              className="text-orange-400 hover:text-orange-300 font-semibold"
-            >
-              Create one
-            </button>
-          </p>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>,
     document.body
   );
 };
+
+function TwoFAFormView({
+  twoFA,
+  twoFACode,
+  setTwoFACode,
+  useBackupCode,
+  setUseBackupCode,
+  resendCountdown,
+  handleResend,
+  handleVerify2FASubmit,
+  resetTwoFA,
+  submitting,
+  twoFAError,
+  error,
+}) {
+  const getPrompt = () => {
+    if (useBackupCode) return 'Enter one of your 8-character backup codes.';
+    if (twoFA.method === 'TOTP') return 'Enter the 6-digit code from your authenticator app (Google Authenticator, Authy, etc.).';
+    if (twoFA.method === 'EMAIL') return 'Enter the 6-digit verification code sent to your email.';
+    return 'Enter the 6-digit verification code sent to your phone.';
+  };
+
+  return (
+    <form onSubmit={handleVerify2FASubmit} className="space-y-4" noValidate>
+      <div className="text-center pb-1">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/20 text-orange-400 mb-2">
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <p className="text-sm text-gray-300">{getPrompt()}</p>
+      </div>
+
+      <div>
+        <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">
+          {useBackupCode ? 'Backup Code' : '6-Digit Verification Code'}
+        </label>
+        <input
+          type="text"
+          maxLength={useBackupCode ? 15 : 6}
+          placeholder={useBackupCode ? 'XXXX-XXXX' : '000000'}
+          value={twoFACode}
+          onChange={(e) => {
+            const val = useBackupCode
+              ? e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
+              : e.target.value.replace(/\D/g, '');
+            setTwoFACode(val);
+          }}
+          disabled={submitting}
+          autoFocus
+          className="w-full text-center tracking-widest text-xl font-mono px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+        />
+      </div>
+
+      {(twoFAError || error) && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>
+          <span>{twoFAError || error}</span>
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={submitting || (!useBackupCode && twoFACode.length !== 6) || (useBackupCode && !twoFACode.trim())}
+        className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+      >
+        {submitting ? 'Verifying...' : 'Verify Code'}
+      </button>
+
+      {twoFA.method !== 'TOTP' && !useBackupCode && (
+        <button
+          type="button"
+          disabled={submitting || resendCountdown > 0}
+          onClick={handleResend}
+          className="w-full py-2 text-sm text-orange-400 hover:text-orange-300 transition disabled:opacity-50"
+        >
+          {resendCountdown > 0 ? `Resend code in ${resendCountdown}s` : 'Resend Code'}
+        </button>
+      )}
+
+      <div className="pt-2 flex flex-col gap-2 text-center text-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setUseBackupCode(!useBackupCode);
+            setTwoFACode('');
+          }}
+          className="text-gray-400 hover:text-orange-400 transition underline"
+        >
+          {useBackupCode ? 'Use 6-digit code instead' : 'Lost access to device? Use a backup code'}
+        </button>
+        <button
+          type="button"
+          onClick={resetTwoFA}
+          className="text-gray-400 hover:text-white transition"
+        >
+          ← Back to Login
+        </button>
+      </div>
+    </form>
+  );
+}
 
 export default UnifiedLoginModal;
 

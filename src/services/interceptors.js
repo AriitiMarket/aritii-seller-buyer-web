@@ -41,6 +41,7 @@ export function attachRequestInterceptor(client) {
   client.interceptors.request.use(
     async (config) => {
       if (config.skipAuth) return config;
+      if (config.headers?.Authorization) return config;
 
       // If we have an access token, use it
       const accessToken = tokenStore.getAccessToken();

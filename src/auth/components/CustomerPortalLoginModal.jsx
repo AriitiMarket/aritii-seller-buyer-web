@@ -55,6 +55,11 @@ const CustomerPortalLoginModal = ({
     };
   }, [open, onClose]);
 
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+    onLogin?.({ email: identifier, password });
+  };
+
   if (!open) return null;
 
   return createPortal(
@@ -101,7 +106,7 @@ const CustomerPortalLoginModal = ({
             Sign in to access your projects and assets.
           </p>
 
-          <form className="mt-6 space-y-4" noValidate>
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div className="customer-portal-field">
               <input
@@ -158,8 +163,8 @@ const CustomerPortalLoginModal = ({
               </label>
               <button
                 type="button"
-                onClick={() => {
-                  e && e.preventDefault();
+                onClick={(e) => {
+                  e?.preventDefault();
                   onForgot?.();
                 }}
                 className="text-sm font-semibold text-white/80 transition hover:text-amber-300 focus:outline-none focus:text-amber-300"
@@ -236,8 +241,8 @@ const CustomerPortalLoginModal = ({
             Don&apos;t have an account?{' '}
             <button
               type="button"
-              onClick={() => {
-                e && e.preventDefault();
+              onClick={(e) => {
+                e?.preventDefault();
                 onContactUs?.();
               }}
               className="font-semibold text-amber-300 transition hover:text-amber-200 focus:outline-none focus:text-amber-200"

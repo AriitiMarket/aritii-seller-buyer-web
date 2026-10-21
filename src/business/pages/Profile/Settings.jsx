@@ -7,6 +7,7 @@ import { FiSettings } from 'react-icons/fi';
 import { MdPerson, MdStore, MdNotifications, MdSecurity, MdChevronRight, MdAccountBalanceWallet } from 'react-icons/md';
 import { paymentService } from '@/services';
 import ShopSettings from '@/business/components/ShopSettings';
+import TwoFactorSettings from '@/shared/components/TwoFactorSettings';
 
 const BusinessSettingsPage = () => {
   const user = useSelector((state) => state.user?.user);
@@ -184,44 +185,51 @@ const SecuritySection = () => {
   };
 
   return (
-    <div className="seller-form-section">
-      <h2 className="seller-form-section-title">Security</h2>
-      <form onSubmit={handlePasswordChange} className="space-y-4">
-        <div className="seller-form-group">
-          <label className="seller-form-label">Current Password</label>
-          <input
-            type="password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            className="seller-form-input"
-          />
-        </div>
-        <div className="seller-form-group">
-          <label className="seller-form-label">New Password</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="seller-form-input"
-          />
-        </div>
-        <div className="seller-form-group">
-          <label className="seller-form-label">Confirm New Password</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="seller-form-input"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="seller-btn-primary"
-        >
-          {loading ? 'Updating…' : 'Update Password'}
-        </button>
-      </form>
+    <div className="space-y-6">
+      <div className="seller-form-section">
+        <h2 className="seller-form-section-title">Change Password</h2>
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div className="seller-form-group">
+            <label className="seller-form-label">Current Password</label>
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="seller-form-input"
+            />
+          </div>
+          <div className="seller-form-group">
+            <label className="seller-form-label">New Password</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="seller-form-input"
+            />
+          </div>
+          <div className="seller-form-group">
+            <label className="seller-form-label">Confirm New Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="seller-form-input"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="seller-btn-primary"
+          >
+            {loading ? 'Updating…' : 'Update Password'}
+          </button>
+        </form>
+      </div>
+
+      <div className="seller-form-section">
+        <h2 className="seller-form-section-title">Two-Factor Authentication (2FA)</h2>
+        <TwoFactorSettings />
+      </div>
     </div>
   );
 };
