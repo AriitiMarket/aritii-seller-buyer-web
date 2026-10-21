@@ -22,7 +22,6 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute';
  */
 const BuyerLayout = lazy(() => import('@/buyer/components/BuyerLayout'));
 // BuyerAccountLayout is aliased to BuyerLayout to eliminate duplication.
-const BuyerAccountLayout = lazy(() => import('@/buyer/components/BuyerLayout'));
 const BuyerOverviewPage = lazy(() => import('@/buyer/pages/Dashboard/Dashboard'));
 const BuyerProfilePage = lazy(() => import('@/buyer/pages/Profile'));
 const BuyerOrdersPage = lazy(() => import('@/buyer/pages/Orders'));
@@ -36,9 +35,12 @@ const BuyerNewRequestPage = lazy(() => import('@/buyer/pages/Requests/NewRequest
 const BuyerRequestWorkspacePage = lazy(() => import('@/buyer/pages/Requests/RequestWorkspace'));
 const BuyerSettingsPage = lazy(() => import('@/buyer/pages/Settings'));
 const BuyerCartPage = lazy(() => import('@/buyer/pages/Cart'));
+const BuyerPaymentMethodsPage = lazy(() => import('@/buyer/pages/PaymentMethods'));
+const BuyerTransactionsPage = lazy(() => import('@/buyer/pages/Transactions'));
 const CheckoutPage = lazy(() => import('@/buyer/pages/Checkout'));
 const OrderSuccessPage = lazy(() => import('@/buyer/pages/OrderSuccess'));
 const PaymentPage = lazy(() => import('@/buyer/pages/Payment'));
+const PaymentReturnPage = lazy(() => import('@/buyer/pages/PaymentReturn'));
 const BuyerOrderDetailPage = lazy(() => import('@/buyer/pages/OrderDetail'));
 const BuyerTrackOrderPage = lazy(() => import('@/buyer/pages/OrderTracking'));
 
@@ -61,6 +63,7 @@ export const BuyerRoutes = () => (
         </ProtectedRoute>
       }
     />
+    <Route path="/payment/return" element={<ProtectedRoute require="BUYER"><PaymentReturnPage /></ProtectedRoute>} />
     <Route
       path="/buyer/requests"
       element={
@@ -90,6 +93,25 @@ export const BuyerRoutes = () => (
       element={
         <ProtectedRoute require="BUYER">
           <BuyerTrackOrderPage />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Payment surfaces. The buyer sidebar links to /payment-methods and
+        /transactions, but neither path had a route — both links 404'd. */}
+    <Route
+      path="/payment-methods"
+      element={
+        <ProtectedRoute require="BUYER">
+          <BuyerPaymentMethodsPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/transactions"
+      element={
+        <ProtectedRoute require="BUYER">
+          <BuyerTransactionsPage />
         </ProtectedRoute>
       }
     />

@@ -55,6 +55,13 @@ export const registerUser = (userData) => async (dispatch) => {
   }
 };
 
+/**
+ * Sign in with credentials.
+ *
+ * The role is NOT part of the request: the Identity Service resolves it from
+ * the account's own role memberships and returns it as `login_role`, which
+ * `authService.login` stores in the token store.
+ */
 export const loginUser = (email, password) => async (dispatch) => {
   try {
     dispatch({ type: "LoadUserRequest" });

@@ -4,6 +4,7 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineRight } from 'react-icons/ai'
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories'
 import CategoryIcon from '@/features/marketplace/components/CategoryIcon'
 import { useAuth } from '@/auth/hooks/useAuth'
+import { useLayout } from '@/app/providers/LayoutContext'
 import { toast } from 'react-toastify'
 
 /**
@@ -22,20 +23,23 @@ import { toast } from 'react-toastify'
 const LINKS = [
   { label: 'Products', to: '/products', match: ['/products', '/product/'] },
   { label: 'Shops', to: '/shops', match: ['/shops', '/shop/'] },
-  { label: 'Categories', to: '/categories', match: ['/categories'] },
+  { label: 'Categories', to: '/categories', match: ['/categories', '/category/'] },
   { label: "Today's Deals", to: '/deals', match: ['/deals'] },
   { label: 'Best Sellers', to: '/best-selling', match: ['/best-selling'] },
   { label: 'Orders', to: '/my-dashboard/orders', match: ['/my-dashboard/orders'], protected: true },
+  { label: 'Saved Items', to: '/my-dashboard/wishlist', match: ['/my-dashboard/wishlist'], protected: true },
   { label: 'Requests', to: '/my-dashboard/requests', match: ['/my-dashboard/requests'], protected: true },
+  { label: 'Customer Service', to: '/help', match: ['/help', '/support', '/faq'] },
 ]
 
 const titleOf = (cat) => (typeof cat === 'string' ? cat : cat?.title || cat?.name || '')
 
-const SubNavBar = ({ onOpenAll }) => {
+const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
   const location = useLocation();
   const [allOpen, setAllOpen] = useState(false);
   const closeRef = useRef(null);
   const { isAuthenticated } = useAuth();
+  const { openLoginModal } = useLayout();
   const { categories, loading } = useCatalogCategories({ type: 'product' });
 
   // Close the browse drawer whenever the route changes (a link was picked).
@@ -63,29 +67,28 @@ const SubNavBar = ({ onOpenAll }) => {
 
   return (
     <nav
-      className="sticky top-16 z-40 w-full bg-market-subnav border-b border-market-subnav-border"
+      className={`sticky ${stickyTopClass} z-40 w-full bg-[#232f3e] border-b border-[#37475a] text-white shadow-sm`}
       aria-label="Marketplace sections"
     >
-      {/* Align to the site container (max-w-7xl + shared gutters) so the rail's
-          items line up exactly with the header logo/search above it. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1 h-10 overflow-x-auto no-scrollbar">
-          {/* All / categories trigger */}
+      {/* Align to the site container (max-w-7xl + shared gutters) */}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div className="flex items-center gap-1 h-9 overflow-x-auto no-scrollbar text-xs">
+          {/* All / categories trigger - Amazon style with hamburger */}
           <button
             type="button"
             onClick={() => {
               setAllOpen((v) => !v);
               onOpenAll?.();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold rounded hover:bg-market-inverse-surface/10 transition-colors whitespace-nowrap flex-shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 font-bold rounded hover:outline hover:outline-1 hover:outline-white transition-all whitespace-nowrap flex-shrink-0 text-white"
             aria-expanded={allOpen}
             aria-haspopup="dialog"
           >
-            <AiOutlineMenu size={16} />
-            All
+            <AiOutlineMenu size={16} className="text-white" />
+            <span>All</span>
           </button>
 
-          <span className="w-px h-5 bg-market-inverse-on-surface/20 mx-1 flex-shrink-0" aria-hidden="true" />
+          <span className="w-px h-4 bg-white/20 mx-1 flex-shrink-0" aria-hidden="true" />
 
           {LINKS.map((item) => {
             const active = isActive(item.match);
@@ -97,10 +100,15 @@ const SubNavBar = ({ onOpenAll }) => {
                 onClick={(e) => {
                   if (item.protected && !isAuthenticated) {
                     e.preventDefault();
-                    toast.error(`Please sign in to ${item.label.toLowerCase()}.`);
+                    toast.info(`Please sign in to access your ${item.label.toLowerCase()}.`);
+                    openLoginModal('BUYER');
                   }
                 }}
-                className={`px-3 py-1.5 text-sm whitespace-nowrap flex-shrink-0 rounded hover:bg-market-inverse-surface/10 transition-colors ${active ? 'font-bold text-market-inverse-on-surface bg-market-inverse-surface/10' : 'text-market-inverse-on-surface/90 hover:text-market-inverse-on-surface'}`}
+                className={`px-2.5 py-1.5 whitespace-nowrap flex-shrink-0 rounded transition-all ${
+                  active
+                    ? 'font-bold text-white bg-white/10 outline outline-1 outline-white/40'
+                    : 'text-gray-200 hover:text-white hover:outline hover:outline-1 hover:outline-white'
+                }`}
               >
                 {item.label}
               </Link>
@@ -197,10 +205,10 @@ const SubNavBar = ({ onOpenAll }) => {
                 Other Portals
               </p>
               <Link
-                to="/seller"
+                to="/seller-center"
                 className="block w-full rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
               >
-                🏪 Become a Seller
+                🏪 Seller Center
               </Link>
               <Link
                 to="/delivery-center"

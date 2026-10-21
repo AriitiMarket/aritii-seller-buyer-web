@@ -1,7 +1,7 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllShops, getPublicShops } from '@/store/slices/shopThunks';
-import { useAuth } from '@/auth/hooks/useAuth';
+import { getPublicShops } from '@/store/slices/shopThunks';
+import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 
 /**
  * useShops - the single way screens read shops.
@@ -12,30 +12,36 @@ import { useAuth } from '@/auth/hooks/useAuth';
  */
 export function useShops({ auto = true, filters = {} } = {}) {
   const dispatch = useDispatch();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { regionId, cityId, zoneId } = useDeliveryLocation();
   const { shops = [], shopsLoading: loading, error } = useSelector(
     (state) => state.shop || {}
   );
 
+  // Callers may pass a fresh `filters` object on every render, so the
+  // effective filters are keyed by their serialised form. That keeps the
+  // memoised filter object (and the `refresh` callback below) stable as long
+  // as the filter *values* do not change.
+  const filterSignature = JSON.stringify({
+    ...filters,
+    regionId: !filters.regionId && regionId ? regionId : undefined,
+    cityId: !filters.cityId && cityId ? cityId : undefined,
+    zoneId: !filters.zoneId && zoneId ? zoneId : undefined,
+  });
+  const appliedFilters = useMemo(() => JSON.parse(filterSignature), [filterSignature]);
+
+  const requestedSignature = useRef(null);
   const refresh = useCallback(() => {
-    if (isAuthenticated) {
-      dispatch(getAllShops());
-    } else {
-      dispatch(getPublicShops(filters));
-    }
-  }, [dispatch, isAuthenticated, filters]);
+    // Marketplace discovery always uses the public, server-filtered shop list
+    // so signed-in buyers see the same approved locations as guests.
+    dispatch(getPublicShops(appliedFilters));
+  }, [dispatch, appliedFilters]);
 
   useEffect(() => {
-    if (!auto || authLoading) return;
-    if (shops.length === 0) {
-      if (isAuthenticated) {
-        dispatch(getAllShops());
-      } else {
-        dispatch(getPublicShops(filters));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auto, authLoading, isAuthenticated, dispatch, filters]);
+    if (!auto) return;
+    if (requestedSignature.current === filterSignature) return;
+    requestedSignature.current = filterSignature;
+    refresh();
+  }, [auto, filterSignature, refresh]);
 
   return { shops, loading, error, refresh };
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import EmptyState from '@/components/common/EmptyState';
 import Loading from '@/components/common/Loading';
 import ShopProfileData from '@/business/components/ShopProfileData';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';

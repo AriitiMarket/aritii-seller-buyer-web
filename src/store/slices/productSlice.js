@@ -5,12 +5,16 @@ const initialState = {
     shopProducts: [],
     allProducts: [],
     currentProduct: null,
+    success: undefined,
+    error: null,
 }
 
 export const productReducer = createReducer(initialState, (builder) => {
     builder
         .addCase("productCreateRequest", (state) => {
             state.isLoading = true;
+            state.error = null; // Clear previous error on new attempt
+            state.success = undefined;
         })
         .addCase("productCreateSuccess", (state, action) => {
             state.isLoading = false;

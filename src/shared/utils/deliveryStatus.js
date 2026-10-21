@@ -202,8 +202,11 @@ export function describeDelivery(delivery) {
     note: delivery.note || '',
     pickup: formatDeliveryAddress(delivery.pickupAddress),
     destination: formatDeliveryAddress(delivery.deliveryAddress || delivery.destinationAddress),
-    itemCount: 0,
-    totalValue: 0,
+    // The parcel snapshot the delivery took at handoff. `paymentAmount` is the
+    // order total and the COD reconciliation anchor, so it is the fallback when
+    // no declared value was captured.
+    itemCount: Number(delivery.itemCount) || 0,
+    totalValue: Number(delivery.totalValue) || Number(delivery.paymentAmount) || 0,
   };
 }
 

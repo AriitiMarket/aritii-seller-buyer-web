@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { DataGrid } from "@mui/x-data-grid";
 import { AiOutlineArrowRight } from "react-icons/ai";
@@ -21,12 +20,11 @@ const AllRefundOrders = () => {
     }
   }, [dispatch, seller]);
 
-  // Match any refund-state order after normalization so canonical
-  // Refund Requested/Approved/Success/Rejected rows all appear
-  // (the old filter only matched legacy spellings → always 0 rows).
-  const refundOrders = (ShopOrders || []).filter((item) =>
-    isRefundStatus(item.status) || normalizeStatus(item.status) === ORDER_STATUSES.DELIVERED
-  );
+  // Refund HISTORY = only orders in a refund state (requested by the buyer and
+  // then approved/rejected — normally by admin). Plain Delivered orders are not
+  // refunds, so they must NOT appear here (they live on the Orders page).
+  // Matching goes through normalizeStatus so legacy spellings are caught too.
+  const refundOrders = (ShopOrders || []).filter((item) => isRefundStatus(item.status));
 
   const columns = [
     { field: "id",
@@ -102,6 +100,15 @@ const AllRefundOrders = () => {
 
 
     
+    if (!isLoading && refundOrders.length === 0) {
+      return (
+        <div className="text-center py-12 px-4">
+          <p className="text-gray-500 text-base mb-1">No refund requests found</p>
+          <p className="text-gray-400 text-sm">When customers request refunds for items from your shop, they will show up here.</p>
+        </div>
+      );
+    }
+
   return (
     <>
     {

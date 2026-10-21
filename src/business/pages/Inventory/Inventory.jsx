@@ -13,13 +13,13 @@ const BusinessInventoryPage = () => {
   const dispatch = useDispatch();
   const { shopProducts = [], isLoading } = useSelector((state) => state.products);
   const { seller } = useSelector((state) => state.seller);
-  const { shops, activeShop, activeShopId, hasMultipleShops, selectShop } = useBusinessShops();
+  const { activeShopId } = useBusinessShops();
   const [filter, setFilter] = useState('ALL');
 
   const [stockFor, setStockFor] = useState(null);
   const [stockQty, setStockQty] = useState('');
   const [stockNote, setStockNote] = useState('');
-  const [movements, setMovements] = useState(null);
+  const [, setMovements] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const shopId = activeShopId || seller?._id;
@@ -49,15 +49,6 @@ const BusinessInventoryPage = () => {
     setStockFor(p); setStockQty(''); setStockNote(''); setMovements(null);
   };
 
-  const loadHistory = async () => {
-    if (!stockFor) return;
-    try {
-      setMovements(await productService.getStockHistory(stockFor._id));
-    } catch (e) {
-      toast.error(e?.response?.data?.message || e?.message || 'Could not load history');
-      setMovements([]);
-    }
-  };
 
   const applyStock = async (mode) => {
     if (!stockFor) return;
@@ -173,55 +164,58 @@ const BusinessInventoryPage = () => {
             icon="📦"
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="seller-data-table">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-sm">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th scope="col">Product</th>
-                  <th scope="col">Available</th>
-                  <th scope="col">Reserved</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Actions</th>
+                <tr className="bg-[#f0f2f2] dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800">
+                  <th scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">Product</th>
+                  <th scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">Available</th>
+                  <th scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">Reserved</th>
+                  <th scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-xs text-gray-800 dark:text-gray-200">
                 {view.map((p) => {
                   const st = availableUnits(p);
                   const status = st < 1 ? 'OUT' : st <= 5 ? 'LOW' : 'IN';
                   return (
-                    <tr key={p._id}>
-                      <td>
+                    <tr key={p._id} className="hover:bg-gray-50 dark:hover:bg-[#232f3e]/40 transition-colors">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded overflow-hidden bg-market-surface-container-low shrink-0">
+                          <div className="w-10 h-10 rounded border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-800 shrink-0">
                             <ProductImage data={p} className="w-full h-full object-cover" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-semibold text-market-on-surface truncate">{p.name}</p>
+                            <p className="font-semibold text-gray-900 dark:text-white truncate">{p.name}</p>
                             {(p.isActive === false || p.status === 'DRAFT' || p.status === 'ARCHIVED') && (
-                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] bg-market-surface-container-low text-market-on-surface-variant">
+                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                                 {p.isActive === false ? 'Unlisted' : p.status === 'ARCHIVED' ? 'Archived' : 'Draft'}
                               </span>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="text-market-on-surface">{st}</td>
-                      <td className="text-market-on-surface">{p.reserved || 0}</td>
-                      <td>
+                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{st}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{p.reserved || 0}</td>
+                      <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${status === 'IN' ? 'bg-green-100 text-green-700' : status === 'LOW' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
                           {status === 'IN' ? 'In stock' : status === 'LOW' ? 'Low stock' : 'Out'}
                         </span>
                       </td>
-                      <td className="flex items-center gap-2">
-                        <button
-                          onClick={() => openStockPanel(p)}
-                          className="text-sm font-medium text-market-primary hover:text-market-primary-hover"
-                        >
-                          Manage stock
-                        </button>
-                        <Link to={`/business/products/${p._id}/edit`} className="text-sm text-market-on-surface-variant hover:text-market-primary">
-                          Edit
-                        </Link>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openStockPanel(p)}
+                            className="text-xs font-semibold text-[#007185] dark:text-[#42a2b3] hover:text-[#c7511f] hover:underline"
+                          >
+                            Manage stock
+                          </button>
+                          <span className="text-gray-300 dark:text-gray-600">|</span>
+                          <Link to={`/business/products/${p._id}/edit`} className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                            Edit
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );

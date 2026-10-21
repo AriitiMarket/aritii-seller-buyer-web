@@ -13,6 +13,7 @@ import {
   MdLogout,
   MdLocationOn,
   MdHelpOutline,
+  MdAccountBalanceWallet,
 } from 'react-icons/md';
 import DELIVERY_NAV_ITEMS from './deliveryNavConfig';
 
@@ -21,11 +22,11 @@ const SIDEBAR_ICONS = {
   MdWorkOutline,
   MdLocalShipping,
   MdInventory,
-  MdWarning,
   MdPerson,
   MdLogout,
   MdLocationOn,
   MdHelpOutline,
+  MdAccountBalanceWallet,
 };
 
 const getNavIcon = (iconName) => SIDEBAR_ICONS[iconName];
@@ -96,8 +97,9 @@ const ProviderSidebar = ({ onClose, className = '' }) => {
           }
 
           const Icon = getNavIcon(item.icon);
-          const isActive =
-            location.pathname === item.to || (item.end && location.pathname === item.to);
+          const isActive = item.end
+            ? location.pathname === item.to
+            : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
 
           return (
             <NavLink

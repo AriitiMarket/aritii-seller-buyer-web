@@ -1,22 +1,19 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getSellerAllocations } from '@/services';
-import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import Loader from '@/components/common/Loading';
-import { FiDollarSign, FiDownload, FiFilter, FiCalendar, FiTrendingUp, FiCreditCard, FiArrowUpRight, FiArrowDownRight, FiMinus } from 'react-icons/fi';
+import { FiDollarSign, FiDownload, FiCreditCard, FiArrowUpRight, FiMinus } from 'react-icons/fi';
 import SafeChart from '@/business/shared/charts/SafeChart';
 
 const money = (value) => Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const Revenue = () => {
   const { seller } = useSelector((state) => state.seller);
-  const { activeShopId } = useBusinessShops();
   const [timeFilter, setTimeFilter] = useState('30D');
   const [transactionFilter, setTransactionFilter] = useState('all');
   const [allocations, setAllocations] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const shopId = activeShopId || seller?._id;
   const sellerUserId = seller?.id || seller?._id;
 
   const now = new Date();
@@ -47,7 +44,7 @@ const Revenue = () => {
       .catch(() => { if (active) setAllocations([]); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [sellerUserId, getSellerAllocations]);
+  }, [sellerUserId]);
 
   const summary = useMemo(() => {
     const rows = windowAllocations;
@@ -90,7 +87,7 @@ const Revenue = () => {
         date: a.createdAt || a.updatedAt,
         description: `Order #${String(a.orderId || '').slice(-8)}`,
       }));
-  }, [allocations]);
+  }, [windowAllocations]);
 
   if (loading && allocations.length === 0) return <Loader />;
 

@@ -12,13 +12,6 @@
  *   Delivery    → logistics slate-teal (fulfillment-focused)
  */
 
-export const BRAND = Object.freeze({
-  primary: '#75d04b',
-  primaryDark: '#5ac12f',
-  primaryDeep: '#4a8f28',
-  ink: '#141414',
-});
-
 export const EXPERIENCES = Object.freeze({
   marketplace: {
     key: 'marketplace',
@@ -73,63 +66,5 @@ export const PLATFORM_EXPERIENCES = Object.freeze([
   EXPERIENCES.seller,
   EXPERIENCES.delivery,
 ]);
-
-/**
- * Sub-navigation (secondary header) per experience.
- *
- * Rendered by ExperienceSubNav under the main header. `match` is the pathname
- * prefix that marks the item active (so /product/:id highlights "All Products"
- * and /shops/:id highlights "Shops"). `hash` items scroll to a section id on
- * the page. `cta` items are the experience's primary action.
- */
-export const EXPERIENCE_SUBNAV = Object.freeze({
-  marketplace: Object.freeze([
-    { label: 'Best Selling', to: '/best-selling' },
-    { label: "Today's Deals", to: '/deals' },
-  ]),
-  seller: Object.freeze([
-    { label: 'Overview', to: '/sell-on-aritii' },
-    { label: 'Benefits', to: '/sell-on-aritii#benefits', hash: 'benefits' },
-    { label: 'Seller Workspace', to: '/sell-on-aritii#seller-workspace', hash: 'seller-workspace' },
-    { label: 'How to Start', to: '/sell-on-aritii#how-it-works', hash: 'how-it-works' },
-    { label: 'Start Selling', to: '/seller-sign-up', match: '/seller-sign-up', cta: true },
-  ]),
-  delivery: Object.freeze([
-    { label: 'Overview', to: '/delivery' },
-    { label: 'How It Works', to: '/delivery#how-it-works', hash: 'how-it-works' },
-    { label: 'Capabilities', to: '/delivery#delivery-capabilities', hash: 'delivery-capabilities' },
-    { label: 'Provider Network', to: '/delivery#providers', hash: 'providers' },
-    { label: 'Tracking', to: '/delivery#tracking', hash: 'tracking' },
-    { label: 'Join Delivery', to: '/delivery-sign-up', cta: true },
-  ]),
-});
-
-/**
- * Mobile drawer — primary level ONLY. The drawer shows these five rows first
- * (plus Sign In / Create Account, appended by the header); tapping an
- * experience row expands its sub-items inline (accordion), sourced from
- * EXPERIENCE_SUBNAV so mobile mirrors the desktop sub-header exactly.
- */
-export const MOBILE_NAV_PRIMARY = Object.freeze([
-  Object.freeze({ to: '/', label: 'Home' }),
-  Object.freeze({ to: '/marketplace', label: 'Marketplace', experienceKey: 'marketplace' }),
-  Object.freeze({ to: '/sell-on-aritii', label: 'Sell on Aritii', experienceKey: 'seller' }),
-  Object.freeze({ to: '/delivery', label: 'Delivery', experienceKey: 'delivery' }),
-]);
-
-/**
- * Resolve the experience for a pathname. Used by the public header (sub-brand
- * label + active accent) and by page headers (badge treatment).
- */
-export function experienceForPath(pathname) {
-  const path = String(pathname || '/');
-  if (path.startsWith('/sell-on-aritii') || path.startsWith('/become-a-seller')) {
-    return EXPERIENCES.seller;
-  }
-  if (path.startsWith('/delivery')) {
-    return EXPERIENCES.delivery;
-  }
-  return EXPERIENCES.marketplace;
-}
 
 export default EXPERIENCES;

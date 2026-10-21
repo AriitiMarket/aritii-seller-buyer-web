@@ -22,7 +22,7 @@ const CheckOutSteps = ({ active = 1 }) => {
         {/* Mobile view: vertical steps */}
         <div className="block md:hidden">
           <div className="space-y-4">
-            {steps.map((step, index) => {
+            {steps.map((step, _index) => {
               const isActive = step.number === active
               const isCompleted = step.number < active
               

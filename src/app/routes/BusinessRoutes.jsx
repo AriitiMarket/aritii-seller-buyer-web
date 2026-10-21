@@ -21,29 +21,28 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute';
  *   /business/requests       product requests from buyers
  *   /business/settings       account + store profile settings
  */
-const BusinessLayout = lazy(() => import('@/business/components/BusinessLayout'));
-const BusinessDashboardPage = lazy(() => import('@/business/pages/Dashboard'));
-const BusinessShopsPage = lazy(() => import('@/business/pages/Shops/Shops'));
-const BusinessShopDetailPage = lazy(() => import('@/business/pages/Shops/ShopDetail'));
-const BusinessProductsPage = lazy(() => import('@/business/pages/Products/Products'));
-const BusinessProductCreatePage = lazy(() => import('@/business/pages/Products/Create'));
-const BusinessProductEditPage = lazy(() => import('@/business/pages/Products/Edit'));
-const BusinessProductDetailPage = lazy(() => import('@/business/pages/Products/Detail'));
-const BusinessInventoryPage = lazy(() => import('@/business/pages/Inventory/Inventory'));
-const BusinessOrdersPage = lazy(() => import('@/business/pages/Orders/Orders'));
-const BusinessOrderDetailPage = lazy(() => import('@/business/pages/Orders/Detail'));
-const BusinessRefundsPage = lazy(() => import('@/business/pages/Orders/Refunds'));
-const BusinessCustomersPage = lazy(() => import('@/business/pages/Customers/Customers'));
-const BusinessRevenuePage = lazy(() => import('@/business/pages/Revenue/Revenue'));
-const BusinessTransactionsPage = lazy(() => import('@/business/pages/Transactions/Transactions'));
-const BusinessPromotionsPage = lazy(() => import('@/business/pages/Promotions/Promotions'));
-const BusinessRequestsPage = lazy(() => import('@/business/pages/Requests/Requests'));
-const BusinessReportsPage = lazy(() => import('@/business/pages/Reports/Reports'));
-const BusinessReviewsPage = lazy(() => import('@/business/pages/Reviews/Reviews'));
-const BusinessEventsPage = lazy(() => import('@/business/pages/Events/Events'));
-const BusinessAnalyticsPage = lazy(() => import('@/business/pages/Analytics/Analytics'));
-const BusinessSettingsPage = lazy(() => import('@/business/pages/Profile/Settings'));
-const BusinessStoreMetricsPage = lazy(() => import('@/business/pages/Analytics/StoreMetrics'));
+const BusinessLayout = lazy(() => import('../../business/components/BusinessLayout.jsx'));
+const BusinessDashboardPage = lazy(() => import('../../business/pages/Dashboard.jsx'));
+const BusinessShopsPage = lazy(() => import('../../business/pages/Shops/Shops.jsx'));
+const BusinessShopDetailPage = lazy(() => import('../../business/pages/Shops/ShopDetail.jsx'));
+const BusinessProductsPage = lazy(() => import('../../business/pages/Products/Products.jsx'));
+const BusinessProductCreatePage = lazy(() => import('../../business/pages/Products/Create.jsx'));
+const BusinessProductEditPage = lazy(() => import('../../business/pages/Products/Edit.jsx'));
+const BusinessProductDetailPage = lazy(() => import('../../business/pages/Products/Detail.jsx'));
+const BusinessInventoryPage = lazy(() => import('../../business/pages/Inventory/Inventory.jsx'));
+const BusinessOrdersPage = lazy(() => import('../../business/pages/Orders/Orders.jsx'));
+const BusinessOrderDetailPage = lazy(() => import('../../business/pages/Orders/Detail.jsx'));
+const BusinessRefundsPage = lazy(() => import('../../business/pages/Orders/Refunds.jsx'));
+const BusinessCustomersPage = lazy(() => import('../../business/pages/Customers/Customers.jsx'));
+const BusinessFinancePage = lazy(() => import('../../business/pages/Finance/Finance.jsx'));
+const BusinessPromotionsPage = lazy(() => import('../../business/pages/Promotions/Promotions.jsx'));
+const BusinessRequestsPage = lazy(() => import('../../business/pages/Requests/Requests.jsx'));
+const BusinessReportsPage = lazy(() => import('../../business/pages/Reports/Reports.jsx'));
+const BusinessReviewsPage = lazy(() => import('../../business/pages/Reviews/Reviews.jsx'));
+const BusinessEventsPage = lazy(() => import('../../business/pages/Events/Events.jsx'));
+const BusinessAnalyticsPage = lazy(() => import('../../business/pages/Analytics/Analytics.jsx'));
+const BusinessSettingsPage = lazy(() => import('../../business/pages/Profile/Settings.jsx'));
+const BusinessStoreMetricsPage = lazy(() => import('../../business/pages/Analytics/StoreMetrics.jsx'));
 
 export const BusinessRoutes = () => (
   <Route
@@ -76,8 +75,17 @@ export const BusinessRoutes = () => (
     <Route path="orders/:id" element={<BusinessOrderDetailPage />} />
     <Route path="refunds" element={<BusinessRefundsPage />} />
     <Route path="customers" element={<BusinessCustomersPage />} />
-    <Route path="revenue" element={<BusinessRevenuePage />} />
-    <Route path="transactions" element={<BusinessTransactionsPage />} />
+    <Route path="finance" element={<BusinessFinancePage />} />
+    {/* Keep older finance URLs usable and open the matching Finance tab. */}
+    <Route path="revenue" element={<Navigate to="/business/finance?tab=revenue" replace />} />
+    <Route path="transactions" element={<Navigate to="/business/finance?tab=transactions" replace />} />
+
+    {/* Payment Management Routes (NEW) */}
+    <Route path="payment-accounts" element={<Navigate to="/business/finance?tab=payment-accounts" replace />} />
+    <Route path="payouts" element={<Navigate to="/business/finance?tab=payouts" replace />} />
+    <Route path="refund-management" element={<Navigate to="/business/finance?tab=refund-management" replace />} />
+    <Route path="returns" element={<Navigate to="/business/finance?tab=returns" replace />} />
+    <Route path="metrics" element={<Navigate to="/business/finance?tab=metrics" replace />} />
 
     {/* Promotions and Events are separate features, each with its own page */}
     <Route path="promotions" element={<BusinessPromotionsPage />} />

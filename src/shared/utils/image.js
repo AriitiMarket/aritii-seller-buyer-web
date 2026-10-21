@@ -121,6 +121,23 @@ export const getFirstImage = (data) => {
     .find(Boolean);
 };
 
+/**
+ * Every resolvable image on a data object, in order and without duplicates —
+ * the gallery of a product detail page.
+ */
+export const getImageGallery = (data) => {
+  if (!data) return [];
+  const seen = new Set();
+  const gallery = [];
+  for (const candidate of getImageCandidates(data)) {
+    const resolved = resolveImageUrl(candidate);
+    if (!resolved || seen.has(resolved)) continue;
+    seen.add(resolved);
+    gallery.push(resolved);
+  }
+  return gallery;
+};
+
 export const getAvatarImage = (data) => {
   if (!data) return null;
   return [data?.avatar, data?.url, data?.shop_avatar, data?.image_Url, data?.image]

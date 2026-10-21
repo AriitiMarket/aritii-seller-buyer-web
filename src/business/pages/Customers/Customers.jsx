@@ -3,18 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import Loader from '@/components/common/Loading';
 import { FiUsers, FiMail, FiPhone, FiMapPin, FiShoppingBag, FiDollarSign, FiSearch } from 'react-icons/fi';
-import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 
 const Customers = () => {
   const { ShopOrders = [], isLoading } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
-  const { activeShopId } = useBusinessShops();
   const dispatch = useDispatch();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 
-  const shopId = activeShopId || seller?._id;
   const sellerUserId = seller?.id || seller?._id;
 
   useEffect(() => {
@@ -23,34 +20,70 @@ const Customers = () => {
     }
   }, [dispatch, sellerUserId]);
 
-  // Aggregate customer data from orders
+  // Aggregate customer data from orders — ONE entry per buyer, no duplicates.
+  // Orders identify their buyer under different keys depending on the checkout
+  // path (top-level `buyerId`, the embedded `user` snapshot's `id`/`_id`, or the
+  // legacy `userId`), so all of them must resolve to the same map key or the
+  // same buyer shows up several times. Orders without any id fall back to
+  // email → phone so they still merge instead of piling up.
   const customerData = React.useMemo(() => {
     const customers = new Map();
 
-    ShopOrders.forEach((order) => {
-      const userId = order.userId || order.user?._id;
-      if (!userId) return;
+    const keyFor = (order) => {
+      const id = order.buyerId || order.user?.id || order.user?._id || order.userId;
+      if (id) return `id:${id}`;
+      const email = (order.user?.email || order.shippingAddress?.email || '').trim().toLowerCase();
+      if (email) return `email:${email}`;
+      const phone = order.user?.phoneNumber || order.destination?.phone || order.shippingAddress?.phone || '';
+      return phone ? `phone:${phone}` : null;
+    };
 
-      const existing = customers.get(userId) || {
-        id: userId,
-        name: order.user?.name || order.shippingAddress?.fullName || 'Unknown',
-        email: order.user?.email || order.shippingAddress?.email || 'N/A',
-        phone: order.shippingAddress?.phone || 'N/A',
-        address: order.shippingAddress?.address || 'N/A',
-        totalOrders: 0,
-        totalSpent: 0,
-        lastOrderDate: null,
-      };
+    ShopOrders.forEach((order) => {
+      const key = keyFor(order);
+      if (!key) return;
+
+      const name = order.user?.name || order.shippingAddress?.fullName || '';
+      const email = order.user?.email || order.shippingAddress?.email || 'N/A';
+      // `destination.phone` is the delivery-contact phone written (and required)
+      // at checkout; `shippingAddress.phone` is the legacy location.
+      const phone = order.user?.phoneNumber || order.destination?.phone || order.shippingAddress?.phone || 'N/A';
+      const address = order.destination?.fullAddress || order.shippingAddress?.address || 'N/A';
+
+      const existing = customers.get(key);
+      const orderDate = new Date(order.createdAt);
+      const hasDate = !Number.isNaN(orderDate.getTime());
+
+      if (!existing) {
+        customers.set(key, {
+          id: key.replace(/^[a-z]+:/, ''),
+          name: name || email || 'Unknown',
+          email,
+          phone,
+          address,
+          totalOrders: 1,
+          totalSpent: Number(order.totalPrice || 0),
+          lastOrderDate: hasDate ? orderDate : null,
+        });
+        return;
+      }
 
       existing.totalOrders += 1;
       existing.totalSpent += Number(order.totalPrice || 0);
-      
-      const orderDate = new Date(order.createdAt);
-      if (!existing.lastOrderDate || orderDate > existing.lastOrderDate) {
-        existing.lastOrderDate = orderDate;
-      }
 
-      customers.set(userId, existing);
+      if (hasDate && (!existing.lastOrderDate || orderDate > existing.lastOrderDate)) {
+        // A newer order refreshes the stored contact snapshot.
+        existing.lastOrderDate = orderDate;
+        if (name) existing.name = name;
+        if (email !== 'N/A') existing.email = email;
+        if (phone !== 'N/A') existing.phone = phone;
+        if (address !== 'N/A') existing.address = address;
+      } else {
+        // Older orders only fill gaps — never overwrite fresher contact data.
+        if (!existing.name && name) existing.name = name;
+        if (existing.email === 'N/A' && email !== 'N/A') existing.email = email;
+        if (existing.phone === 'N/A' && phone !== 'N/A') existing.phone = phone;
+        if (existing.address === 'N/A' && address !== 'N/A') existing.address = address;
+      }
     });
 
     return Array.from(customers.values());

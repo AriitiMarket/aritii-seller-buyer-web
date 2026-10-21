@@ -1,5 +1,29 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import DELIVERY_NAV_ITEMS from './deliveryNavConfig';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * The routes the provider workspace actually declares.
+ *
+ * Read from the route file rather than kept as a hand-written snapshot: a
+ * snapshot silently goes stale the moment a page is added, and then the test
+ * fails on a route that plainly exists (or, worse, passes while the nav
+ * points at a route that does not).
+ */
+function readProviderRoutes() {
+  const source = readFileSync(path.join(here, '../../../app/routes/ProviderRoutes.jsx'), 'utf8');
+  const paths = new Set();
+  for (const match of source.matchAll(/path="([^"]*)"/g)) {
+    const route = match[1];
+    if (!route || route.includes(':')) continue;
+    paths.add(route.startsWith('/') ? route : `/provider/${route}`);
+  }
+  return paths;
+}
 
 describe('deliveryNavConfig', () => {
   it('exports a non-empty array of nav items', () => {
@@ -36,16 +60,9 @@ describe('deliveryNavConfig', () => {
     });
   });
 
-  it('every route exists in ProviderRoutes (path prefix check)', () => {
-    const routePaths = [
-      '/provider',
-      '/provider/available-work',
-      '/provider/deliveries',
-      '/provider/batches',
-      '/provider/operating-area',
-      '/provider/profile',
-      '/provider/warnings',
-    ];
+  it('every route exists in ProviderRoutes', () => {
+    const routePaths = readProviderRoutes();
+    expect(routePaths.size).toBeGreaterThan(0);
     DELIVERY_NAV_ITEMS.forEach((item) => {
       if (item.to) {
         expect(routePaths).toContain(item.to);

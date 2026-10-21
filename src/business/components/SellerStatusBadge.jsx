@@ -21,7 +21,16 @@ const STATUS_CONFIG = {
 };
 
 const SellerStatusBadge = ({ status }) => {
-  const s = normalizeStatus(status) || 'Pending';
+  // Product lifecycle values are uppercase (DRAFT/PUBLISHED/ARCHIVED), while
+  // the order normalizer intentionally only canonicalizes order statuses.
+  // Preserve those product values as their display labels instead of letting
+  // them fall through to the generic Pending badge.
+  const productStatus = {
+    DRAFT: 'Draft',
+    PUBLISHED: 'Published',
+    ARCHIVED: 'Archived',
+  }[String(status || '').trim().toUpperCase()];
+  const s = productStatus || normalizeStatus(status) || 'Pending';
   const config = STATUS_CONFIG[s] || STATUS_CONFIG.Pending;
 
   return (

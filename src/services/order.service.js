@@ -54,10 +54,11 @@ export const orderService = {
    * @param {string} sellerId - Seller's user ID
    * @returns {Promise} - Array of orders for seller's products
    */
-  async getSellerOrders(sellerId) {
-    const { data } = await api.get(
-      `/order/get-all-orders/seller/${sellerId}`
-    );
+  async getSellerOrders(_sellerId) {
+    // Seller pages should use the identity verified from the access token.
+    // `sellerId` is retained for call-site compatibility; profile/shop ids can
+    // differ from the authenticated identity and trigger an avoidable 403.
+    const { data } = await api.get('/order/get-all-orders/seller/me');
     return data.orders || [];
   },
 
@@ -86,8 +87,8 @@ export const orderService = {
     const payload = typeof statusOrPayload === 'object' && statusOrPayload !== null
       ? { status: statusOrPayload.status || statusOrPayload.orderStatus }
       : { status: statusOrPayload };
-    const { data } = await api.put(
-      `/order/update-order-status/${orderId}`,
+    const { data } = await api.patch(
+      `/order/${orderId}/status`,
       payload
     );
     return data.order || null;
@@ -121,7 +122,17 @@ export const orderService = {
   },
 
   async cancelOrder(orderId, reason = 'Order cancelled by customer') {
-    const { data } = await api.post(`/order/cancel/${orderId}`, { reason });
+    const { data } = await api.post(`/order/${orderId}/cancel`, { reason });
+    return data.order || null;
+  },
+
+  /**
+   * Confirm receipt of a delivered order (buyer)
+   * @param {string} orderId - Order ID
+   * @returns {Promise} - Updated order object
+   */
+  async confirmReceipt(orderId) {
+    const { data } = await api.post(`/order/${orderId}/confirm-receipt`);
     return data.order || null;
   },
 };

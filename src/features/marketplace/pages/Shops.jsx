@@ -3,13 +3,15 @@ import { useSearchParams, Link } from 'react-router-dom';
 import ShopCard from '@/shared/components/ShopCard';
 import CategorySidebar from '@/features/marketplace/components/CategorySidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
-import LocationSelector from '@/features/marketplace/components/LocationSelector';
-import Breadcrumbs from '@/shared/components/Breadcrumbs';
+import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
+import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';
+import DeliveryZoneSelector from '@/features/marketplace/components/DeliveryZoneSelector';
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import Button from '@/components/common/Button';
-import { useShops, filterShops, filterShopsByLocation } from '@/shared/hooks/useShops';
-import { useAuth } from '@/features/marketplace/hooks/useAuth';
+import { useShops, filterShops } from '@/shared/hooks/useShops';
+import { useAuth } from '@/auth/hooks/useAuth';
+import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -20,21 +22,24 @@ const SORT_OPTIONS = [
 ];
 
 const ShopsPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
   const zoneId = searchParams.get('zoneId') || '';
   const cityId = searchParams.get('cityId') || '';
   const regionId = searchParams.get('regionId') || '';
+  const { regionId: savedRegionId, regionName: savedRegionName, cityId: savedCityId, cityName: savedCityName, zoneId: savedZoneId, zoneName: savedZoneName, setLocation } = useDeliveryLocation();
+  const selectedRegionId = regionId || savedRegionId || '';
+  const selectedCityId = cityId || savedCityId || '';
+  const selectedZoneId = zoneId || savedZoneId || '';
   const [sortBy, setSortBy] = useState('featured');
 
   const { isAuthenticated } = useAuth();
   const { shops, loading, error, refresh } = useShops({
     auto: true,
-    filters: { zoneId, cityId, regionId },
+    filters: { zoneId: selectedZoneId, cityId: selectedCityId, regionId: selectedRegionId },
   });
   const filtered = filterShops(shops, { search, category });
-  const locationFiltered = filterShopsByLocation(filtered, { zoneId, cityId, regionId });
 
   // Live per-category counts for the sidebar and the mobile rail.
   const counts = useMemo(() => {
@@ -47,7 +52,7 @@ const ShopsPage = () => {
   }, [shops]);
 
   const data = useMemo(() => {
-    const list = [...locationFiltered];
+    const list = [...filtered];
     switch (sortBy) {
       case 'rating':
         list.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
@@ -65,11 +70,13 @@ const ShopsPage = () => {
         break;
     }
     return list;
-  }, [locationFiltered, sortBy]);
+  }, [filtered, sortBy]);
 
-  const heading = search ? `Search: "${search}"` : category || regionId || cityId || zoneId || 'All Shops';
 
-  const breadcrumbItems = [];
+  const breadcrumbItems = [
+    { label: 'Home', to: '/' },
+    { label: 'Shops', to: '/shops' },
+  ];
 
   const mainContent = (
     <>
@@ -81,24 +88,18 @@ const ShopsPage = () => {
             <span className="text-gray-600 dark:text-gray-400"> shop{data.length !== 1 ? 's' : ''} found</span>
             {search && <span className="text-gray-600 dark:text-gray-400"> for "{search}"</span>}
             {category && <span className="text-gray-600 dark:text-gray-400"> in {category}</span>}
-            {regionId && <span className="text-gray-600 dark:text-gray-400"> in region {regionId}</span>}
-            {cityId && <span className="text-gray-600 dark:text-gray-400"> in city {cityId}</span>}
-            {zoneId && <span className="text-gray-600 dark:text-gray-400"> in zone {zoneId}</span>}
+            {selectedRegionId && <span className="text-gray-600 dark:text-gray-400"> in {searchParams.get('regionName') || savedRegionName || 'selected region'}</span>}
+            {selectedCityId && <span className="text-gray-600 dark:text-gray-400">, {searchParams.get('cityName') || savedCityName || 'selected city'}</span>}
+            {selectedZoneId && <span className="text-gray-600 dark:text-gray-400">, delivering to {searchParams.get('zoneName') || savedZoneName || 'selected zone'}</span>}
           </div>
           <div className="flex items-center gap-2">
             <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hidden sm:inline">Sort:</label>
-            <select
+            <CatalogSortSelect
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Sort shops"
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-[#75d04b]/30 transition-colors"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              onChange={setSortBy}
+              options={SORT_OPTIONS}
+              ariaLabel="Sort shops"
+            />
             <Button
               onClick={refresh}
               disabled={loading}
@@ -113,17 +114,13 @@ const ShopsPage = () => {
       {loading ? (
         <Loading variant="inline" label="Loading shops…" />
       ) : error ? (
-        <EmptyState
+        <CatalogErrorState
           title="Could not load shops"
           description={error}
-          action={
-            <Button onClick={refresh} className="bg-[#75d04b] hover:bg-[#5ac12f] text-white rounded-lg">
-              Try again
-            </Button>
-          }
+          onRetry={refresh}
         />
       ) : data.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-5">
           {data.map((shop, index) => (
             <ShopCard data={shop} key={shop._id || index} variant={isAuthenticated ? 'default' : 'public'} />
           ))}
@@ -166,7 +163,26 @@ const ShopsPage = () => {
         <>
           <CategorySidebar basePath="/shops" type="business" title="Shop by Business Type" allLabel="All Shops" counts={counts} />
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <LocationSelector mode="zone" initialValues={{ regionId, cityId, zoneId }} label="Deliver to" />
+          <DeliveryZoneSelector
+            mode="zone"
+            initialValues={{
+              regionId: selectedRegionId,
+              regionName: searchParams.get('regionName') || savedRegionName || '',
+              cityId: selectedCityId,
+              cityName: searchParams.get('cityName') || savedCityName || '',
+              zoneId: selectedZoneId,
+              zoneName: searchParams.get('zoneName') || savedZoneName || '',
+            }}
+            label="Deliver to"
+            onSelect={(selection) => {
+              const next = new URLSearchParams(searchParams);
+              for (const key of ['regionId', 'regionName', 'cityId', 'cityName', 'zoneId', 'zoneName']) {
+                if (selection[key]) next.set(key, selection[key]); else next.delete(key);
+              }
+              setSearchParams(next, { replace: true });
+              setLocation(selection);
+            }}
+          />
           </div>
         </>
       )}

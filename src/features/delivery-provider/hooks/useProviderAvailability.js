@@ -20,11 +20,13 @@ export const useProviderAvailability = () => {
     let cancelled = false;
     providerDeliveryApi
       .getProviderProfile()
-      .then(({ profile }) => {
-        if (!cancelled) setIsOnline(profile?.availability?.isOnline ?? false);
+      .then(({ profile, supported, message }) => {
+        if (cancelled) return;
+        setIsOnline(profile?.availability?.isOnline ?? false);
+        if (!supported) setError(message || 'Provider availability is not available for this account.');
       })
-      .catch(() => {
-        // No provider record yet — default to offline.
+      .catch((err) => {
+        if (!cancelled) setError(apiErrorMessage(err, 'Could not load provider availability'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -32,6 +34,14 @@ export const useProviderAvailability = () => {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // Header and overview mount separate hook instances; publish successful
+  // updates so both status controls stay in step with the same backend value.
+  useEffect(() => {
+    const handleAvailabilityChange = (event) => setIsOnline(Boolean(event.detail?.isOnline));
+    window.addEventListener('provider-availability-change', handleAvailabilityChange);
+    return () => window.removeEventListener('provider-availability-change', handleAvailabilityChange);
   }, []);
 
   const toggleAvailability = useCallback(async () => {
@@ -47,7 +57,9 @@ export const useProviderAvailability = () => {
       const next = !isOnline;
       const result = await providerDeliveryApi.updateAvailability(providerId, next);
       if (result?.success) {
-        setIsOnline(result.provider?.availability?.isOnline ?? next);
+        const online = result.provider?.availability?.isOnline ?? next;
+        setIsOnline(online);
+        window.dispatchEvent(new CustomEvent('provider-availability-change', { detail: { isOnline: online } }));
       } else {
         setError(apiErrorMessage(result.error, 'Failed to update availability'));
       }

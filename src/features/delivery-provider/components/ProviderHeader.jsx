@@ -23,7 +23,7 @@ const ProviderHeader = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
-  const { isOnline, toggling, toggleAvailability: toggle } = useProviderAvailability();
+  const { isOnline, toggling, error: availabilityError, toggleAvailability: toggle } = useProviderAvailability();
 
   const providerName = user?.name || user?.fullName || 'Provider';
 
@@ -52,7 +52,7 @@ const ProviderHeader = ({ onMenuClick }) => {
   // Generate breadcrumb from current path
   const getBreadcrumb = () => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
-    if (pathSegments.length === 0 || pathSegments[0] === 'provider') {
+    if (pathSegments.length === 0 || (pathSegments.length === 1 && pathSegments[0] === 'provider')) {
       return { title: 'Overview', path: '/provider' };
     }
 
@@ -64,9 +64,16 @@ const ProviderHeader = ({ onMenuClick }) => {
       'warnings': { title: 'Warnings & Support', path: '/provider/warnings' },
       'profile': { title: 'Profile & Settings', path: '/provider/profile' },
       'operating-area': { title: 'Operating Area', path: '/provider/operating-area' },
+      'wallet': { title: 'Wallet & Earnings', path: '/provider/wallet' },
     };
 
     const lastSegment = pathSegments[pathSegments.length - 1];
+    if (pathSegments[1] === 'deliveries' && pathSegments.length > 2) {
+      return { title: 'Delivery Details', path: '/provider/deliveries' };
+    }
+    if (pathSegments[1] === 'batches' && pathSegments.length > 2) {
+      return { title: 'Batch Details', path: '/provider/batches' };
+    }
     return pageMap[lastSegment] || { title: lastSegment, path: location.pathname };
   };
 
@@ -135,6 +142,7 @@ const ProviderHeader = ({ onMenuClick }) => {
             {isOnline ? <MdWifi size={18} /> : <MdWifiOff size={18} />}
             <span className="text-sm font-medium">{isOnline ? 'Available' : 'Unavailable'}</span>
           </button>
+          {availabilityError && <span role="alert" className="max-w-24 sm:max-w-48 text-[10px] sm:text-xs text-red-200">{availabilityError}</span>}
 
           {/* Notifications */}
           <Link
@@ -146,12 +154,14 @@ const ProviderHeader = ({ onMenuClick }) => {
           </Link>
 
           {/* Help */}
-          <button
+          <a
+            href="mailto:support@aritii.market?subject=Delivery%20provider%20support"
             aria-label="Help"
+            title="Email provider support"
             className="hidden lg:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]"
           >
             <MdHelpOutline size={22} />
-          </button>
+          </a>
 
           {/* Provider identity */}
           <div

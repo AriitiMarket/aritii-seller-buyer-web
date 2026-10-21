@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Loader from '@/components/common/Loading';
-import { FiStar, FiFilter, FiSearch, FiMessageSquare } from 'react-icons/fi';
+import { FiStar } from 'react-icons/fi';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
-import { SellerStatusBadge, SellerEmptyState } from '@/business/components';
+import { SellerEmptyState } from '@/business/components';
 import { reviewService } from '@/services/review.service';
 
 const Reviews = () => {

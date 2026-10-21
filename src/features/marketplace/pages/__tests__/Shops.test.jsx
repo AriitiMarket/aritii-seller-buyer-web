@@ -24,7 +24,7 @@ vi.mock('@/shared/hooks/useShops', () => ({
     }
     return filtered;
   }),
-  filterShopsByLocation: vi.fn((shops, { zoneId, cityId, regionId } = {}) => shops),
+  filterShopsByLocation: vi.fn((shops, { _zoneId, _cityId, _regionId } = {}) => shops),
 }));
 
 vi.mock('@/auth/hooks/useAuth', () => ({
@@ -40,7 +40,7 @@ vi.mock('@/features/marketplace/components/CategorySidebar', () => ({
 }));
 
 import ShopsPage from '../Shops';
-import { useShops, filterShops, filterShopsByLocation } from '@/shared/hooks/useShops';
+import { useShops, filterShops } from '@/shared/hooks/useShops';
 import { useAuth } from '@/auth/hooks/useAuth';
 
 const mockShops = [
@@ -89,7 +89,7 @@ const mockShops = [
   },
 ];
 
-const renderPage = (auth = {}, shops = mockShops) => {
+const renderPage = (_auth = {}, _shops = mockShops) => {
   const store = createStore(() => ({}));
   const utils = render(
     <ReduxProvider store={store}>
@@ -192,7 +192,8 @@ describe('ShopsPage - Public Shop Discovery', () => {
 
     renderPage();
     expect(screen.getByText(/TechHub Electronics/i)).toBeInTheDocument();
-    expect(screen.getByText(/Latest gadgets and electronics/i)).toBeInTheDocument();
-    expect(screen.getByText(/15/i)).toBeInTheDocument();
+    // ShopCard surfaces the product count and the rating summary.
+    expect(screen.getByText(/15 products/i)).toBeInTheDocument();
+    expect(screen.getByText(/4\.5★/i)).toBeInTheDocument();
   });
 });

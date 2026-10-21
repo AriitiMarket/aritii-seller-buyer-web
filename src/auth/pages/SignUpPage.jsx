@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import SignUp from '@/auth/components/SignUp'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { authService } from '@/services'
 import { tokenStore } from '@/services/tokenStore'

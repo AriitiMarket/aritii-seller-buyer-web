@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import ShopInfo from '@/business/components/ShopInfo';
-import ShopProfileData from '@/business/components/ShopProfileData';
 import AddShopModal from '@/business/components/AddShopModal';
 import Loading from '@/components/common/Loading';
-import EmptyState from '@/components/common/EmptyState';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import { sellerService } from '@/services/seller.service';
 import { SellerEmptyState } from '@/business/components';

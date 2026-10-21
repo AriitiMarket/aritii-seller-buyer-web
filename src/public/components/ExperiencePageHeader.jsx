@@ -23,7 +23,7 @@ import { EXPERIENCES } from '@/public/experiences';
  *     experience={EXPERIENCES.seller}
  *     breadcrumb={[{ label: 'Home', to: '/' }]}
  *     badge="For sellers & businesses"
- *     title="Sell on Ariiti"
+ *     title="Sell on Aritii"
  *     description="…"
  *     actions={<Link to="/become-a-seller">Start Selling</Link>}
  *   />

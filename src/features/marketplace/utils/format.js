@@ -1,22 +1,9 @@
 /**
- * Format utilities for marketplace.
- * Provides currency formatting and date formatting functions.
+ * Marketplace formatting helpers.
+ *
+ * These used to be a second, independent implementation of the shared
+ * formatters in `@/shared/utils/format` — with a different date locale
+ * (en-US vs en-GB) and a different currency suffix convention. One
+ * implementation now owns money and date formatting for the whole app.
  */
-export const formatCurrency = (amount) => {
-  if (amount === undefined || amount === null) return '0 ETB';
-  return `${Number(amount).toLocaleString()} ETB`;
-};
-
-export const formatDate = (date) => {
-  if (!date) return '';
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
-
-export const formatNumber = (number) => {
-  if (number === undefined || number === null) return '0';
-  return Number(number).toLocaleString();
-};
+export { formatCurrency, formatDate, formatDateTime, shortId, initials } from '@/shared/utils/format';

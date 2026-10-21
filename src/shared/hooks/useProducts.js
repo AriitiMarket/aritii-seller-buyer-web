@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllProducts, getPublicProducts } from '@/store/slices/productThunks';
-import { useAuth } from '@/auth/hooks/useAuth';
+import { getPublicProducts } from '@/store/slices/productThunks';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 
 /**
@@ -21,8 +20,7 @@ import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
  */
 export function useProducts({ auto = true, filters = {} } = {}) {
   const dispatch = useDispatch();
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { zoneId, cityId, hasZone } = useDeliveryLocation();
+  const { regionId, cityId, zoneId } = useDeliveryLocation();
   const { allProducts = [], isLoading: loading, error } = useSelector(
     (state) => state.products || {}
   );
@@ -31,9 +29,11 @@ export function useProducts({ auto = true, filters = {} } = {}) {
   const memoizedFilters = useMemo(() => {
     return {
       ...filters,
-      ...(hasZone ? { zoneId, cityId } : {}),
+      ...(!filters.regionId && regionId ? { regionId } : {}),
+      ...(!filters.cityId && cityId ? { cityId } : {}),
+      ...(!filters.zoneId && zoneId ? { zoneId } : {}),
     };
-  }, [filters, hasZone, zoneId, cityId]);
+  }, [filters, regionId, cityId, zoneId]);
 
   // Refetch exactly when the filters CHANGE (e.g. a new ?search= term coming from
   // the URL), not on every render. The JSON signature absorbs the per-render
@@ -43,20 +43,18 @@ export function useProducts({ auto = true, filters = {} } = {}) {
   const lastRequestedSignatureRef = useRef(null);
 
   const refresh = useCallback(() => {
-    if (isAuthenticated) {
-      dispatch(getAllProducts(memoizedFilters));
-    } else {
-      dispatch(getPublicProducts(memoizedFilters));
-    }
-  }, [dispatch, isAuthenticated, memoizedFilters]);
+    // Marketplace discovery always uses the public, server-filtered catalog.
+    // It applies the same visibility rules to guests and signed-in buyers.
+    dispatch(getPublicProducts(memoizedFilters));
+  }, [dispatch, memoizedFilters]);
 
   useEffect(() => {
-    if (!auto || authLoading) return;
+    if (!auto) return;
     // Already requested these exact filters — skip (dedupe per signature).
     if (lastRequestedSignatureRef.current === filterSignature) return;
     lastRequestedSignatureRef.current = filterSignature;
     refresh();
-  }, [auto, authLoading, filterSignature, refresh]);
+  }, [auto, filterSignature, refresh]);
 
   return { products: allProducts, loading, error, refresh };
 }

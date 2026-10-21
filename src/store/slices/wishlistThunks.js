@@ -1,5 +1,6 @@
 import { api } from '@/services';
 import { toast } from 'react-toastify';
+import { tokenStore } from '@/services/tokenStore';
 import {
   setWishlist,
   clearWishlist,
@@ -8,6 +9,7 @@ import {
 } from './wishlistSlice';
 
 const API_BASE = '/wishlist';
+let wishlistFetchPromise = null;
 
 /**
  * Normalize a backend wishlist item so client code can match on the product id
@@ -39,28 +41,43 @@ function persist(items) {
  * 401 (guest) clears local state silently instead of surfacing an error.
  */
 export const fetchWishlist = () => async (dispatch) => {
-  dispatch(setWishlistLoading(true));
-  try {
-    const { data: response } = await api.get(API_BASE);
-    const items = itemsFromResponse(response);
-    dispatch(setWishlist(items));
-    persist(items);
+  // Wishlist is private. Do not issue a guaranteed 401 for guests, and collapse
+  // simultaneous bootstrap/page requests into one network call.
+  if (!tokenStore.getAccessToken() && !tokenStore.getRefreshToken()) {
+    dispatch(clearWishlist());
+    localStorage.removeItem('wishlistItems');
     dispatch(setWishlistError(null));
-    return response?.wishlist || null;
-  } catch (error) {
-    if (error?.response?.status === 401) {
-      dispatch(clearWishlist());
-      localStorage.removeItem('wishlistItems');
-      dispatch(setWishlistError(null));
-    } else {
-      dispatch(
-        setWishlistError(error?.response?.data?.message || 'Failed to load wishlist')
-      );
-    }
-    return null;
-  } finally {
     dispatch(setWishlistLoading(false));
+    return null;
   }
+  if (wishlistFetchPromise) return wishlistFetchPromise;
+
+  dispatch(setWishlistLoading(true));
+  wishlistFetchPromise = (async () => {
+    try {
+      const { data: response } = await api.get(API_BASE);
+      const items = itemsFromResponse(response);
+      dispatch(setWishlist(items));
+      persist(items);
+      dispatch(setWishlistError(null));
+      return response?.wishlist || null;
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        dispatch(clearWishlist());
+        localStorage.removeItem('wishlistItems');
+        dispatch(setWishlistError(null));
+      } else {
+        dispatch(
+          setWishlistError(error?.response?.data?.message || 'Failed to load wishlist')
+        );
+      }
+      return null;
+    } finally {
+      wishlistFetchPromise = null;
+      dispatch(setWishlistLoading(false));
+    }
+  })();
+  return wishlistFetchPromise;
 };
 
 /**

@@ -21,7 +21,7 @@ vi.mock('react-redux', async (importOriginal) => {
 import { useAuth } from '@/auth/hooks/useAuth';
 import DeliveryPortalHeader from './DeliveryPortalHeader';
 
-const renderHeader = (auth = {}) => {
+const renderHeader = (_auth = {}) => {
   const store = createStore(() => ({}));
   const utils = render(
     <ReduxProvider store={store}>

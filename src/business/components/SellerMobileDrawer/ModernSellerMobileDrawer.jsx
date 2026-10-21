@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiX, FiChevronDown } from 'react-icons/fi';
+import React from 'react';
+import { FiX } from 'react-icons/fi';
 import ModernSellerSidebar from '@/business/components/SellerSidebar/ModernSellerSidebar';
 
 /**
@@ -30,20 +30,22 @@ const SellerMobileDrawer = ({ isOpen, onClose }) => {
 
       {/* Drawer */}
       <div
-        className="fixed inset-y-0 left-0 z-[70] w-72 flex flex-col bg-white dark:bg-[#1a1f2a] shadow-2xl border-r border-gray-200 dark:border-gray-800 lg:hidden transform transition-transform duration-300 ease-in-out"
+        className="fixed inset-y-0 left-0 z-[70] w-72 flex flex-col bg-[#131921] shadow-2xl border-r border-[#232f3e] lg:hidden transform transition-transform duration-300 ease-in-out"
         role="dialog"
         aria-label="Mobile navigation"
         aria-modal="true"
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
-          <h2 className="font-bold text-gray-900 dark:text-white text-lg">Menu</h2>
+        <div className="flex items-center justify-between p-3.5 border-b border-[#232f3e] bg-[#0c1015] flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <h2 className="font-bold text-white text-sm">Seller Central</h2>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded text-gray-400 hover:text-white hover:bg-[#232f3e] transition-colors"
             aria-label="Close menu"
           >
-            <FiX size={24} />
+            <FiX size={20} />
           </button>
         </div>
 

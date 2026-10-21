@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { getAllOrdersOfUser } from '@/store/slices/orderThunks'
 import api from '@/services/api'
 import { toast } from 'react-toastify'
-import { BsFillBagFill } from 'react-icons/bs'
-import { Link } from 'react-router-dom'
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai'
 import { RxCross1 } from 'react-icons/rx'
-import { MdShoppingBag, MdArrowBack, MdCheckCircle, MdLocalShipping, MdDone } from 'react-icons/md'
+import { MdShoppingBag, MdArrowBack, MdCheckCircle, MdLocalShipping, MdReceiptLong } from 'react-icons/md'
+import { FiPrinter } from 'react-icons/fi'
 import { resolveImageUrl } from '@/shared/utils/image'
 import { normalizeStatus } from '@/shared/utils/orderStatus'
+import { formatOrderAddress } from '@/shared/utils/destination'
 import OrderDeliveryCard from '@/shared/components/OrderDeliveryCard'
 import '@/buyer/components/UserOrderDetailComponent.css'
 import { PlaceholderProduct } from '@/assets'
@@ -26,6 +26,8 @@ const OrderDetailComponent = () => {
   const [selectedItem, setSelectedItem] = useState(null)
   const [rating, setRating] = useState(1)
   const [activeTab, setActiveTab] = useState('items')
+  const [submitting, setSubmitting] = useState(false)
+  const [confirmingReceipt, setConfirmingReceipt] = useState(false)
 
   const userId = user?.id || user?._id
 
@@ -37,6 +39,12 @@ const OrderDetailComponent = () => {
 
   const data = orders?.find((item) => item._id === id)
   const orderStatus = normalizeStatus(data?.status) || 'Processing'
+  // The order's own destination snapshot — the one place that knows the
+  // region/city/sector hierarchy the delivery was addressed to.
+  const orderAddress = formatOrderAddress(data)
+  // The shop the order was placed with — the only place a buyer can reach the
+  // seller from an order.
+  const sellerId = data?.shop?._id || data?.shopId || (typeof data?.shop === 'string' ? data.shop : null)
 
   const getTimelineStatus = () => {
     const status = String(normalizeStatus(data?.status) || '').toLowerCase()
@@ -134,12 +142,29 @@ const OrderDetailComponent = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
+
+    // Client-side validation
+    if (!rating || rating < 1 || rating > 5) {
+      toast.error('Please select a rating (1-5 stars)')
+      return
+    }
+    if (!comment || comment.trim().length < 10) {
+      toast.error('Review must be at least 10 characters')
+      return
+    }
+    if (!selectedItem?.productId && !selectedItem?._id) {
+      toast.error('Product not found')
+      return
+    }
+
+    setSubmitting(true)
     try {
       const res = await api.put('/product/create-new-review', {
-        user,
+        // Backend gets user from verified token, don't send from frontend
         rating,
-        comment,
-        productId: selectedItem?._id,
+        comment: comment.trim(),
+        productId: selectedItem?.productId || selectedItem?._id,
         orderId: id
       })
       toast.success(res.data.message || 'Review submitted successfully!')
@@ -152,6 +177,8 @@ const OrderDetailComponent = () => {
       toast.error(
         error?.response?.data?.message || error.message || 'Failed to submit review'
       )
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -164,6 +191,20 @@ const OrderDetailComponent = () => {
       if (userId) dispatch(getAllOrdersOfUser(userId))
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to request refund')
+    }
+  }
+
+  const handleConfirmReceipt = async () => {
+    if (confirmingReceipt) return
+    setConfirmingReceipt(true)
+    try {
+      const res = await api.post(`/order/${id}/confirm-receipt`)
+      toast.success(res.data?.message || 'Order receipt confirmed!')
+      if (userId) dispatch(getAllOrdersOfUser(userId))
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to confirm receipt')
+    } finally {
+      setConfirmingReceipt(false)
     }
   }
 
@@ -194,16 +235,51 @@ const OrderDetailComponent = () => {
             <p className="text-sm text-market-on-surface-variant font-medium mb-1">Order ID</p>
             <h1 className="text-2xl font-bold text-market-on-surface">#{data._id?.slice(0, 8)}</h1>
           </div>
-          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm ${
-            orderStatus === 'Delivered' || orderStatus === 'Completed'
-              ? 'bg-green-100 text-green-700'
-              : orderStatus === 'Cancelled'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-yellow-100 text-yellow-700'
-          }`}>
-            {orderStatus === 'Delivered' || orderStatus === 'Completed' ? <MdCheckCircle /> : null}
-            {orderStatus}
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition"
+              title="Print Order Receipt"
+            >
+              <FiPrinter size={15} />
+              <span>Print Receipt</span>
+            </button>
+            <Link
+              to={`/user/track/order/${data._id}`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition"
+            >
+              <MdLocalShipping size={16} />
+              <span>Track</span>
+            </Link>
+            {(orderStatus === 'Delivered' || orderStatus === 'Completed') && (
+              data.buyerConfirmedReceipt ? (
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold">
+                  <MdCheckCircle size={15} />
+                  <span>Receipt Confirmed</span>
+                </span>
+              ) : (
+                <button
+                  onClick={handleConfirmReceipt}
+                  disabled={confirmingReceipt}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-market-primary hover:bg-market-primary-hover text-white rounded-lg text-xs font-semibold transition shadow-sm disabled:opacity-50"
+                  title="Confirm that you have received your order"
+                >
+                  <MdReceiptLong size={15} />
+                  <span>{confirmingReceipt ? 'Confirming...' : 'Confirm Receipt'}</span>
+                </button>
+              )
+            )}
+            <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full font-semibold text-xs ${
+              orderStatus === 'Delivered' || orderStatus === 'Completed'
+                ? 'bg-green-100 text-green-700'
+                : orderStatus === 'Cancelled'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-yellow-100 text-yellow-700'
+            }`}>
+              {orderStatus === 'Delivered' || orderStatus === 'Completed' ? <MdCheckCircle /> : null}
+              {orderStatus}
+            </span>
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
@@ -298,12 +374,13 @@ const OrderDetailComponent = () => {
                   item?.image ||
                   item?.thumbnail
               )
+              const productId = item.productId || item._id
               const qty = item.quantity ?? item.qty ?? 1
               const lineTotal = Number(item.discountPrice || item.price || 0) * qty
               const isEligibleForReview =
                 !item.isReviewed &&
                 normalizeStatus(data.status) === 'Delivered' &&
-                Boolean(item._id || item.productId)
+                Boolean(productId)
 
               return (
                 <div key={index} className="border border-market-border rounded-lg p-4 hover:shadow-md transition">
@@ -314,7 +391,7 @@ const OrderDetailComponent = () => {
                       className="w-24 h-24 object-cover rounded-lg bg-gray-100"
                     />
                     <div className="flex-1">
-                      <Link to={`/product/${item._id}`} className="font-semibold text-market-on-surface hover:text-market-secondary transition line-clamp-2">
+                      <Link to={`/product/${productId}`} className="font-semibold text-market-on-surface hover:text-market-secondary transition line-clamp-2">
                         {item.name}
                       </Link>
                       <p className="text-sm text-market-on-surface-variant mt-1">
@@ -354,11 +431,14 @@ const OrderDetailComponent = () => {
             <h3 className="font-bold text-market-on-surface mb-4">Shipping Address</h3>
             <div className="text-sm text-market-on-surface-variant space-y-1">
               <p className="font-semibold text-market-on-surface">{user?.firstName} {user?.lastName}</p>
-              <p>{data?.shippingAddress?.address1}</p>
-              {data?.shippingAddress?.address2 && <p>{data?.shippingAddress?.address2}</p>}
-              <p>{data?.shippingAddress?.city}, {data?.shippingAddress?.state} {data?.shippingAddress?.zipCode}</p>
-              <p>{data?.shippingAddress?.country}</p>
-              <p className="mt-2">{user?.phoneNumber}</p>
+              {orderAddress.lines.length > 0 ? (
+                orderAddress.lines.map((line, index) => <p key={`${line}-${index}`}>{line}</p>)
+              ) : (
+                <p>No delivery address on this order</p>
+              )}
+              {(orderAddress.phone || user?.phoneNumber) && (
+                <p className="mt-2">{orderAddress.phone || user?.phoneNumber}</p>
+              )}
             </div>
           </div>
 
@@ -403,12 +483,21 @@ const OrderDetailComponent = () => {
             <p className="text-sm text-market-on-surface-variant mb-3">
               Need help with this order?
             </p>
-            <Link
-              to={`/user/contact-seller/${data._id}`}
-              className="inline-flex items-center gap-2 h-11 px-4 bg-market-primary text-market-on-primary rounded-lg font-semibold text-sm hover:bg-market-primary-hover transition"
-            >
-              Contact Seller
-            </Link>
+            {/* The old target (/user/contact-seller/:id) was never a route, so
+                the button led to a 404. The shop page is where a buyer can
+                actually reach the seller. */}
+            {sellerId ? (
+              <Link
+                to={`/shops/${sellerId}`}
+                className="inline-flex items-center gap-2 h-11 px-4 bg-market-primary text-market-on-primary rounded-lg font-semibold text-sm hover:bg-market-primary-hover transition"
+              >
+                Contact Seller
+              </Link>
+            ) : (
+              <p className="text-sm text-market-on-surface-variant">
+                This order has no shop attached — please contact support.
+              </p>
+            )}
           </div>
 
           {/* Return/Refund Section */}
@@ -520,9 +609,14 @@ const OrderDetailComponent = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 h-11 px-4 bg-market-primary text-market-on-primary rounded-lg font-semibold hover:bg-market-primary-hover transition"
+                  disabled={submitting}
+                  className={`flex-1 h-11 px-4 rounded-lg font-semibold transition ${
+                    submitting
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover'
+                  }`}
                 >
-                  Submit Review
+                  {submitting ? 'Submitting...' : 'Submit Review'}
                 </button>
               </div>
             </form>

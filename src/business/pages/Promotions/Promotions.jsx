@@ -7,7 +7,7 @@ import Input from '@/components/common/Input';
 import promotionService from '@/business/services/promotionService';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import { formatDate } from '@/shared/utils/format';
-import { FiPercent, FiCalendar, FiPlus, FiFilter } from 'react-icons/fi';
+import { FiPercent, FiCalendar, FiPlus } from 'react-icons/fi';
 import { MdLocalOffer } from 'react-icons/md';
 
 /**

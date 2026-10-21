@@ -71,7 +71,7 @@ const BuyerAddressesPage = () => {
       {/* Addresses */}
       {loading ? (
         <div className="bg-white rounded-lg p-12 shadow-sm border border-market-border text-center">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-market-border border-t-[#2162a1] rounded-full"></div>
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-market-border border-t-[#2162a1] rounded-full" />
           <p className="text-market-on-surface-variant text-sm mt-4">Loading addresses...</p>
         </div>
       ) : addresses && addresses.length > 0 ? (
@@ -176,7 +176,7 @@ const AddressCard = ({ address, dispatch, onEdit, isDeleting }) => {
   )
 }
 
-const AddressModal = ({ open, setOpen, dispatch, editingId, editingAddress, isLoading }) => {
+const AddressModal = ({ _open, setOpen, dispatch, editingId, editingAddress, isLoading }) => {
   const [addressType, setAddressType] = useState(editingAddress?.addressType || editingAddress?.label || 'Home')
   const [locationData, setLocationData] = useState({
     regionId: editingAddress?.regionId || null,
@@ -201,7 +201,11 @@ const AddressModal = ({ open, setOpen, dispatch, editingId, editingAddress, isLo
     if (!addressType?.trim()) errors.addressType = 'Required'
     if (!locationData.sectorId) errors.location = 'Select location'
     if (!houseBuilding?.trim() && !landmark?.trim() && !description?.trim()) errors.address = 'Required'
-    if (!phone?.trim()) errors.phone = 'Required'
+    // A delivery phone is how the rider reaches the buyer, so it must be a
+    // real number — "present" was the only check, so "abc" was accepted.
+    const digits = String(phone || '').replace(/[^\d]/g, '')
+    if (!digits) errors.phone = 'Required'
+    else if (digits.length < 9 || digits.length > 15) errors.phone = 'Enter a valid phone number'
     return errors
   }
 
@@ -264,18 +268,24 @@ const AddressModal = ({ open, setOpen, dispatch, editingId, editingAddress, isLo
             <select
               value={addressType}
               onChange={(e) => { setAddressType(e.target.value); setValidationErrors({ ...validationErrors, addressType: '' }); }}
-              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20"
+              className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20 ${validationErrors.addressType ? 'border-red-400' : 'border-market-border'}`}
               disabled={isLoading}
             >
               <option value="Home">Home</option>
               <option value="Office">Office</option>
               <option value="Other">Other</option>
             </select>
+            {validationErrors.addressType && (
+              <p className="mt-1 text-xs text-red-600" role="alert">{validationErrors.addressType}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Delivery Location</label>
             <LocationSelector onSelect={setLocationData} initialSelection={locationData} />
+            {validationErrors.location && (
+              <p className="mt-1 text-xs text-red-600" role="alert">{validationErrors.location}</p>
+            )}
           </div>
 
           <div>
@@ -285,9 +295,14 @@ const AddressModal = ({ open, setOpen, dispatch, editingId, editingAddress, isLo
               value={houseBuilding}
               onChange={(e) => { setHouseBuilding(e.target.value); setValidationErrors({ ...validationErrors, address: '' }); }}
               placeholder="House no., building name"
-              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20"
+              className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20 ${validationErrors.address ? 'border-red-400' : 'border-market-border'}`}
               disabled={isLoading}
             />
+            {validationErrors.address && (
+              <p className="mt-1 text-xs text-red-600" role="alert">
+                Add a house/building, a landmark or street directions
+              </p>
+            )}
           </div>
 
           <div>
@@ -321,9 +336,12 @@ const AddressModal = ({ open, setOpen, dispatch, editingId, editingAddress, isLo
               value={phone}
               onChange={(e) => { setPhone(e.target.value); setValidationErrors({ ...validationErrors, phone: '' }); }}
               placeholder="Phone number for delivery"
-              className="w-full px-4 py-2.5 border border-market-border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20"
+              className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:border-market-secondary focus:ring-2 focus:ring-market-secondary/20 ${validationErrors.phone ? 'border-red-400' : 'border-market-border'}`}
               disabled={isLoading}
             />
+            {validationErrors.phone && (
+              <p className="mt-1 text-xs text-red-600" role="alert">{validationErrors.phone}</p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-market-border">

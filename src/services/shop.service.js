@@ -16,8 +16,8 @@ export const shopService = {
    * @returns {Promise} - Array of shop objects (each carries a `delivery` block)
    */
   async getPublicAll(params = {}) {
-    const { zoneId, cityId, limit = 100 } = params;
-    const cacheKey = `shops:public:all:${zoneId || 'none'}:${cityId || 'none'}:${limit}`;
+    const { zoneId, cityId, regionId, limit = 100 } = params;
+    const cacheKey = `shops:public:all:${JSON.stringify({ zoneId, cityId, regionId, limit })}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
@@ -25,6 +25,7 @@ export const shopService = {
     const query = { limit };
     if (zoneId) query.zoneId = zoneId;
     if (cityId) query.cityId = cityId;
+    if (regionId) query.regionId = regionId;
 
     const { data } = await publicApi.get('/shop/public/all', {
       params: query,

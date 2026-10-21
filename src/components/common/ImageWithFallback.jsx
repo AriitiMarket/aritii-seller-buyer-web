@@ -54,9 +54,10 @@ const ImageWithFallback = ({
 };
 
 /** Product image aware of backend image shapes. */
-const ProductImage = ({ data, fallback = PlaceholderProduct, ...rest }) => {
-  const src = getFirstImage(data) || fallback;
-  return <ImageWithFallback src={src} fallback={fallback} {...rest} />;
+const ProductImage = ({ data, src, fallback = PlaceholderProduct, ...rest }) => {
+  const resolved =
+    (src && resolveImageUrl(src)) || getFirstImage(data) || fallback;
+  return <ImageWithFallback src={resolved} fallback={fallback} {...rest} />;
 };
 
 /** Shop avatar / cover image. */

@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import FilterGroup from '@/features/marketplace/components/FilterGroup';
 
 /**
  * CategorySidebar - Product category filter with expandable subcategories
- * 
+ *
  * Features:
  * - Show main categories with product counts
  * - Expandable subcategories
@@ -12,53 +13,28 @@ import { Link, useSearchParams } from 'react-router-dom';
  * - Desktop: Fixed left sidebar
  * - Multiple category selection with counter
  * - Clear all button
- * 
+ *
  * Aritii branding:
  * - #75d04b green highlights
  * - #131921 dark headers
  * - Consistent styling with Categories and Shops pages
  */
 
-function FilterGroup({ title, children, defaultOpen = true, countBadge = null }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border-b border-gray-200 dark:border-gray-700 py-3">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left text-sm font-bold text-[#131921] dark:text-white mb-2"
-        aria-expanded={open}
-      >
-        <span className="flex items-center gap-2">
-          {title}
-          {countBadge && (
-            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-[#75d04b] text-white text-xs font-bold rounded-full">
-              {countBadge}
-            </span>
-          )}
-        </span>
-        <span className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}>⌃</span>
-      </button>
-      {open && <div className="space-y-0 ml-0">{children}</div>}
-    </div>
-  );
-}
-
 function CategoryItem({ name, count, isActive, isSubcategory = false, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-between group ${
+      className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors flex items-center justify-between group ${
         isActive
-          ? 'bg-[#75d04b]/10 font-bold text-[#75d04b] border-l-4 border-[#75d04b]'
-          : 'text-gray-600 dark:text-gray-400 hover:text-[#75d04b] hover:bg-gray-100 dark:hover:bg-gray-800/50'
-      } ${isSubcategory ? 'ml-2 text-xs font-normal border-none' : ''}`}
+          ? 'font-bold text-[#e77600] bg-orange-50/50'
+          : 'text-[#0f1111] dark:text-gray-300 hover:text-[#e77600]'
+      } ${isSubcategory ? 'ml-3 text-[11px] font-normal' : ''}`}
     >
       <span className="truncate">{name}</span>
       {count !== undefined && count > 0 && (
-        <span className={`text-xs font-medium ml-auto flex-shrink-0 ${
-          isActive ? 'text-[#75d04b]' : 'text-gray-400'
+        <span className={`text-[10px] ml-auto flex-shrink-0 ${
+          isActive ? 'text-[#e77600] font-semibold' : 'text-gray-400'
         }`}>
           ({count})
         </span>
@@ -67,7 +43,7 @@ function CategoryItem({ name, count, isActive, isSubcategory = false, onClick })
   );
 }
 
-function ExpandableCategory({ category, isActive, onSelect, onSubcategorySelect }) {
+function ExpandableCategory({ category, isActive, activeSubcategory, onSelect, onSubcategorySelect }) {
   const [expanded, setExpanded] = useState(isActive);
   const hasSubcategories = category.subcategories && category.subcategories.length > 0;
 
@@ -104,7 +80,7 @@ function ExpandableCategory({ category, isActive, onSelect, onSubcategorySelect 
               key={idx}
               name={sub}
               count={undefined}
-              isActive={false}
+              isActive={activeSubcategory === sub}
               isSubcategory={true}
               onClick={() => onSubcategorySelect(category, sub)}
             />
@@ -115,15 +91,40 @@ function ExpandableCategory({ category, isActive, onSelect, onSubcategorySelect 
   );
 }
 
-const CategorySidebar = ({ products = [], basePath = '/products', onCategorySelect = null }) => {
+/**
+ * CategorySidebar props:
+ *   - products    — items used to derive the category list and its counts.
+ *   - counts      — optional pre-computed { name: count } map. When provided it
+ *                   wins over `products` (used by /shops, which groups by the
+ *                   shop's business type instead of a product category).
+ *   - title       — heading of the filter group.
+ *   - allLabel    — label of the "clear filter" row.
+ *   - basePath    — route the "all" row links back to.
+ */
+const CategorySidebar = ({
+  products = [],
+  basePath = '/products',
+  onCategorySelect = null,
+  title = 'Categories',
+  allLabel = 'All Categories',
+  counts = null,
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+  const navigate = useNavigate();
+
   // Get active categories from URL
   const activeCategory = searchParams.get('category') || '';
   const activeSubcategory = searchParams.get('subcategory') || '';
-  
+
   // Parse product categories with counts
   const categoriesWithCounts = useMemo(() => {
+    // Pre-computed counts win (e.g. /shops groups by business type).
+    if (counts) {
+      return Object.entries(counts)
+        .map(([name, count]) => ({ title: name, count, subcategories: [] }))
+        .sort((a, b) => b.count - a.count);
+    }
+
     if (!products || products.length === 0) {
       return [];
     }
@@ -142,7 +143,7 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
       }
       grouped[cat].count++;
       grouped[cat].products.push(product);
-      
+
       // Collect subcategories if available
       if (product.subcategory) {
         grouped[cat].subcategories.add(product.subcategory);
@@ -156,7 +157,11 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
         subcategories: Array.from(cat.subcategories).sort(),
       }))
       .sort((a, b) => b.count - a.count);
-  }, [products]);
+  }, [products, counts]);
+
+  const totalCount = counts
+    ? Object.values(counts).reduce((sum, n) => sum + (Number(n) || 0), 0)
+    : products.length;
 
   // Count selected categories
   const selectedCount = activeCategory ? 1 : 0;
@@ -193,6 +198,11 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
     next.delete('category');
     next.delete('subcategory');
     setSearchParams(next, { replace: true });
+    // Leaving the page the sidebar belongs to (e.g. a "shop type" filter
+    // rendered outside /shops) must return the user to the base route.
+    if (basePath && basePath !== window.location.pathname) {
+      navigate(basePath, { replace: true });
+    }
   };
 
   return (
@@ -219,7 +229,7 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
 
         {/* Categories Filter Group */}
         <FilterGroup
-          title="Categories"
+          title={title}
           defaultOpen={true}
           countBadge={categoriesWithCounts.length}
         >
@@ -239,12 +249,12 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
                     : 'text-gray-600 dark:text-gray-400 hover:text-[#75d04b] hover:bg-gray-100 dark:hover:bg-gray-800/50'
                 }`}
               >
-                All Categories
-                {products.length > 0 && (
+                {allLabel}
+                {totalCount > 0 && (
                   <span className={`text-xs font-medium ml-2 ${
                     !activeCategory ? 'text-[#75d04b]' : 'text-gray-400'
                   }`}>
-                    ({products.length})
+                    ({totalCount})
                   </span>
                 )}
               </button>
@@ -257,6 +267,7 @@ const CategorySidebar = ({ products = [], basePath = '/products', onCategorySele
                     key={category.title || category.name}
                     category={category}
                     isActive={isActive}
+                    activeSubcategory={activeSubcategory}
                     onSelect={handleSelectCategory}
                     onSubcategorySelect={handleSelectSubcategory}
                   />

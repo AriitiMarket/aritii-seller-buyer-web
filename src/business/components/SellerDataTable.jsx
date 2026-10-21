@@ -22,22 +22,22 @@ const SellerDataTable = ({ columns, rows, emptyMessage, emptyAction }) => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="seller-data-table">
+    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-sm">
+      <table className="w-full text-left border-collapse">
         <thead>
-          <tr>
+          <tr className="bg-[#f0f2f2] dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800">
             {columns.map((col) => (
-              <th key={col.key} scope="col">
+              <th key={col.key} scope="col" className="px-4 py-2.5 text-[11px] font-bold text-[#0f1111] dark:text-gray-300 uppercase tracking-wider">
                 {col.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-xs text-gray-800 dark:text-gray-200">
           {rows.map((row) => (
-            <tr key={row._id || row.id || row.name}>
+            <tr key={row._id || row.id || row.name} className="hover:bg-gray-50 dark:hover:bg-[#232f3e]/40 transition-colors">
               {columns.map((col) => (
-                <td key={col.key}>
+                <td key={col.key} className="px-4 py-3">
                   {col.render ? col.render(row) : row[col.key]}
                 </td>
               ))}
