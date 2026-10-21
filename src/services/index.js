@@ -17,6 +17,7 @@ export { userService } from "@/services/user.service";
 export { reviewService } from "@/services/review.service";
 export { locationService } from "@/services/location.service";
 export { deliveryService } from "@/services/delivery.service";
+export { twoFactorService } from "@/services/twoFactor.service";
 export { returnsService } from "@/services/returns.service";
 export {
   walletService,

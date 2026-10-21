@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { loginUser } from '@/store/slices/userThunks';
+import { loginUser, verify2FALogin } from '@/store/slices/userThunks';
 import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import { useLayout } from '@/app/providers/LayoutContext';
@@ -43,7 +43,10 @@ const GlobalLoginModal = () => {
   const handleLogin = async ({ email, password }) => {
     setError(null);
     try {
-      await dispatch(loginUser(email.trim(), password));
+      const res = await dispatch(loginUser(email.trim(), password));
+      if (res?.requires2fa) {
+        return res;
+      }
       closeLoginModal();
       toast.success('Signed in successfully!');
       // The backend decided the role; the destination follows from it. When a
@@ -52,6 +55,7 @@ const GlobalLoginModal = () => {
         loginModalReturnTo ||
         (await authService.loginDestination(tokenStore.getLoginRole()));
       navigate(destination, { replace: true });
+      return res;
     } catch (err) {
       const data = err?.response?.data;
       const msg =
@@ -60,6 +64,29 @@ const GlobalLoginModal = () => {
         'Login failed. Please check your credentials.';
       setError(msg);
       toast.error(msg);
+      throw err;
+    }
+  };
+
+  const handleVerify2FA = async (verificationData) => {
+    setError(null);
+    try {
+      const res = await dispatch(verify2FALogin(verificationData));
+      closeLoginModal();
+      toast.success('Signed in successfully!');
+      const destination =
+        loginModalReturnTo ||
+        (await authService.loginDestination(tokenStore.getLoginRole()));
+      navigate(destination, { replace: true });
+      return res;
+    } catch (err) {
+      const data = err?.response?.data;
+      const msg =
+        data?.message ||
+        err?.message ||
+        'Two-factor verification failed.';
+      setError(msg);
+      throw new Error(msg);
     }
   };
 
@@ -92,6 +119,7 @@ const GlobalLoginModal = () => {
       open={loginModalOpen}
       onClose={handleClose}
       onLogin={handleLogin}
+      onVerify2FA={handleVerify2FA}
       onForgot={handleForgot}
       onContactUs={handleContactUs}
       error={error}

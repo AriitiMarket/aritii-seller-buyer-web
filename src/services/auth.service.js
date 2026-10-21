@@ -183,6 +183,18 @@ export const authService = {
       state: pkce.state,
     }, { skipAuth: true });
     const issued = data.data || data;
+
+    // Handle 2FA challenge
+    if (issued.requires2fa) {
+      discardPkce(pkce);
+      return {
+        requires2fa: true,
+        method: issued.method || 'TOTP',
+        tempToken: issued.tempToken,
+        message: issued.message || 'Two-factor authentication required',
+      };
+    }
+
     if (!issued.code) throw new Error('Authorization code not issued');
 
     const tokens = await exchangeCodeForTokens(issued.code, pkce.codeVerifier);
@@ -197,6 +209,71 @@ export const authService = {
       /* profile fetch is best-effort; tokens are already stored */
     }
     return { ...tokens, loginRole };
+  },
+
+  /**
+   * Verify 2FA challenge code or backup code during login
+   * @param {Object} params
+   * @param {string} [params.code]
+   * @param {string} [params.backupCode]
+   * @param {string} params.tempToken
+   */
+  async verify2FA({ code, backupCode, tempToken }) {
+    const payload = backupCode
+      ? { backupCode: String(backupCode).trim() }
+      : { code: String(code || '').trim() };
+
+    const { data } = await api.post('/auth/verify-2fa', payload, {
+      headers: {
+        Authorization: `Bearer ${tempToken}`,
+      },
+      skipAuth: true,
+    });
+
+    const result = data.data || data;
+    if (!result.access_token) {
+      throw new Error(result.message || 'Verification failed');
+    }
+
+    tokenStore.setTokens({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+      id_token: result.id_token,
+    });
+
+    if (result.user) {
+      tokenStore.setUser(result.user);
+      const role = result.user.role || tokenStore.getLoginRole() || 'BUYER';
+      tokenStore.setLoginRole(role);
+    }
+
+    try {
+      await this.getCurrentUser();
+    } catch (err) {
+      /* best effort */
+    }
+
+    return result;
+  },
+
+  /**
+   * Resend 2FA verification code (EMAIL/SMS only)
+   * @param {Object} params
+   * @param {string} params.tempToken
+   * @param {'EMAIL'|'SMS'} params.method
+   */
+  async resend2FACode({ tempToken, method }) {
+    const { data } = await api.post(
+      '/auth/resend-2fa-code',
+      { method },
+      {
+        headers: {
+          Authorization: `Bearer ${tempToken}`,
+        },
+        skipAuth: true,
+      }
+    );
+    return data.data || data;
   },
 
   /**
