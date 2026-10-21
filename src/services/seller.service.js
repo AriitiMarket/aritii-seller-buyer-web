@@ -10,23 +10,30 @@ export const sellerService = {
     return data;
   },
 
-  // Seller returns
-  async getSellerReturns(page = 1, limit = 20, status = null) {
-    const params = new URLSearchParams({ page, limit });
-    if (status) params.append('status', status);
-    
-    const { data } = await api.get(`/return/seller/list?${params.toString()}`);
+  // Seller returns dashboard (FIX #15)
+  // Backend: GET /returns/shop/:shopId/dashboard
+  async getSellerReturns(shopId) {
+    if (!shopId) throw new Error('Shop ID is required');
+    const { data } = await api.get(`/return/shop/${shopId}/dashboard`);
+    return data;
+  },
+
+  // Seller metrics / KPIs (FIX #13)
+  // Backend: GET /metrics/shop/:shopId?period=daily|weekly|monthly
+  async getSellerMetrics(shopId, params = {}) {
+    if (!shopId) throw new Error('Shop ID is required');
+    const { data } = await api.get(`/metrics/shop/${shopId}`, { params });
     return data;
   },
 
   async markReturnPickedUp(returnId) {
-    const { data } = await api.post(`/return/${returnId}/picked-up`, {});
-    return data.return;
+    const { data } = await api.post(`/return/${returnId}/picked-up`);
+    return data;
   },
 
   async confirmReturnReceived(returnId) {
-    const { data } = await api.post(`/return/${returnId}/returned`, {});
-    return data.return;
+    const { data } = await api.post(`/return/${returnId}/received`);
+    return data;
   },
 
   // Product backorder/preorder
@@ -37,7 +44,13 @@ export const sellerService = {
 
   // Get availability with backorder/preorder info
   async checkProductAvailability(productId) {
-    const { data } = await api.get(`/order/availability/${productId}`);
+    const { data } = await api.get(`/order/product/${productId}/available-stock`);
     return data.availability;
+  },
+
+  // Seller application
+  async getMyApplication() {
+    const { data } = await api.get('/seller-application/me');
+    return data.application;
   },
 };

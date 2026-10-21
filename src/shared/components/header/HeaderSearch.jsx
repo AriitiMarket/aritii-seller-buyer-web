@@ -25,7 +25,6 @@ export default function HeaderSearch({
   locations = [],           // [{ _id, name }] delivery zones for location filter
   selectedLocationId = '',  // currently selected location id
   onLocationChange,         // (locationId) => void
-  dark = false,
 }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -208,39 +207,41 @@ export default function HeaderSearch({
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative" role="search">
+      <form onSubmit={handleSubmit} className="relative flex items-center h-10 w-full rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#e77600] border border-[#232f3e] focus-within:border-transparent transition-all shadow-sm" role="search">
         {categories.length > 0 && (
-          <div className="absolute left-0 top-0 bottom-0 flex items-center border-r border-[#232f3e] bg-[#1f1f1f] rounded-l-full px-2">
+          <div className="relative flex-shrink-0 h-full border-r border-[#37475a] bg-[#232f3e] hover:bg-[#37475a] transition-colors flex items-center">
             <select
-              value={selectedCategory}
+              value={selectedCategory ?? ''}
               onChange={(e) => onCategoryChange?.(e.target.value)}
-              className={`bg-transparent text-sm cursor-pointer py-1.5 px-2 pr-6 appearance-none ${dark ? 'text-white border border-gray-600 bg-[#1f1f1f]' : 'text-gray-700 dark:text-gray-300 border-transparent bg-transparent'} focus:outline-none focus:ring-0`}
+              className="h-full bg-transparent text-xs font-medium cursor-pointer pl-3 pr-7 appearance-none text-gray-200 focus:outline-none"
               aria-label="Search in department"
             >
-              <option value="">All Departments</option>
+              <option value="" className="bg-[#131921] text-white">All</option>
               {categories.map((cat) => (
-                <option key={cat._id || cat.title} value={cat.title}>
+                <option key={cat._id || cat.title} value={cat.title} className="bg-[#131921] text-white">
                   {cat.title}
                 </option>
               ))}
             </select>
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">▼</span>
           </div>
         )}
         {locations.length > 0 && (
-          <div className="absolute left-0 top-0 bottom-0 flex items-center border-r border-[#232f3e] bg-[#1f1f1f] rounded-l-full px-2">
+          <div className="relative flex-shrink-0 h-full border-r border-[#37475a] bg-[#232f3e] hover:bg-[#37475a] transition-colors flex items-center">
             <select
-              value={selectedLocationId}
+              value={selectedLocationId ?? ''}
               onChange={(e) => onLocationChange?.(e.target.value)}
-              className={`bg-transparent text-sm cursor-pointer py-1.5 px-2 pr-6 appearance-none ${dark ? 'text-white border border-gray-600 bg-[#1f1f1f]' : 'text-gray-700 dark:text-gray-300 border-transparent bg-transparent'} focus:outline-none focus:ring-0`}
+              className="h-full bg-transparent text-xs font-medium cursor-pointer pl-3 pr-7 appearance-none text-gray-200 focus:outline-none"
               aria-label="Deliver to location"
             >
-              <option value="">All locations</option>
+              <option value="" className="bg-[#131921] text-white">All locations</option>
               {locations.map((loc) => (
-                <option key={loc._id || loc.id} value={loc._id || loc.id}>
+                <option key={loc._id || loc.id} value={loc._id || loc.id} className="bg-[#131921] text-white">
                   {loc.name || loc.title}
                 </option>
               ))}
             </select>
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">▼</span>
           </div>
         )}
         <input
@@ -251,15 +252,15 @@ export default function HeaderSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => setOpen(true)}
-          className={`w-full px-4 pr-12 py-2 text-sm ${dark ? 'text-white placeholder-gray-500 bg-[#1f1f1f] border-[#2c2c2c] dark:bg-[#1f1f1f] dark:placeholder-gray-600' : 'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'} ${categories.length > 0 || locations.length > 0 ? 'rounded-r-full pl-40' : 'rounded-full'} ${categories.length > 0 && locations.length > 0 ? 'pl-64' : ''} focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 transition-all duration-200`}
+          className={`flex-1 h-full px-4 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none w-full min-w-0`}
           aria-label={ariaLabel}
         />
         <button
           type="submit"
           aria-label="Search"
-          className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 bg-[#75d04b] text-white rounded-full hover:brightness-95 transition-all"
+          className="h-full px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] flex items-center justify-center transition-colors flex-shrink-0 font-bold"
         >
-          <AiOutlineSearch size={16} />
+          <AiOutlineSearch size={19} className="stroke-[1.5]" />
         </button>
       </form>
 

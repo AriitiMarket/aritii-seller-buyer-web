@@ -57,7 +57,7 @@ const journeySteps = [
 
 const HowItWorksSection = () => {
   return (
-    <section className="home-brand-section home-brand-section--flow py-12 md:py-16 bg-[#FDF6EC] dark:bg-gray-950">
+    <section className="home-brand-section home-brand-section--flow py-12 md:py-16 bg-[#EAEDED] dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 md:mb-12">
           <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">

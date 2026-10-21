@@ -12,7 +12,6 @@ import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import {
   ActivityTimeline,
   AttachmentGallery,
-  CLOSED_STATUSES,
   DiscussionThread,
   OPEN_STATUSES,
   OfferCard,
@@ -28,6 +27,7 @@ import {
   offerTotal,
   quantityLabel,
   realtimeNotice,
+  realtimeToastId,
   requestCode,
   requestMatchesSearch,
   specEntries,
@@ -220,7 +220,7 @@ const BusinessRequestsPage = () => {
         );
       }
       if (event.actorId && myId && String(event.actorId) === String(myId)) return;
-      toast.info('A new product request just arrived.');
+      toast.info('A new product request just arrived.', { toastId: realtimeToastId(event) });
       return;
     }
 
@@ -237,7 +237,7 @@ const BusinessRequestsPage = () => {
     scheduleRefresh();
     if (event.actorId && myId && String(event.actorId) === String(myId)) return;
     const notice = realtimeNotice(event);
-    if (notice) toast.info(notice);
+    if (notice) toast.info(notice, { toastId: realtimeToastId(event) });
   }, null);
 
   const handleReply = async ({ text, images = [], replyTo = null }) => {
@@ -549,12 +549,13 @@ const BusinessRequestsPage = () => {
     const isOpen = OPEN_STATUSES.includes(selectedStatus);
     const isAgreed = selectedStatus === 'AGREED';
     const isConverted = selectedStatus === 'CONVERTED';
-    const isClosed = CLOSED_STATUSES.includes(selectedStatus) || isConverted;
     const agreement = agreementOf(selected);
     const confirmed = isAgreementConfirmed(selected);
     const specs = specEntries(selected?.specs);
     const selectedUnit = unitOf(selected);
-    const canConfirm = isOpen && !confirmed && !agreement.sellerConfirmedAt;
+    // Once the buyer accepts an offer, the request moves to AGREED and the
+    // seller still needs to record their side of the agreement.
+    const canConfirm = (isOpen || isAgreed) && !confirmed && !agreement.sellerConfirmedAt;
 
     return (
       <div className="space-y-4">
@@ -822,7 +823,7 @@ const BusinessRequestsPage = () => {
                   <div>
                     <label className="text-xs text-gray-500">Catalogue product to link (optional)</label>
                     <select
-                      value={offerForm.productId}
+                      value={offerForm.productId ?? ''}
                       onChange={(event) => setOfferForm({ ...offerForm, productId: event.target.value })}
                       className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     >
@@ -879,7 +880,7 @@ const BusinessRequestsPage = () => {
                 {shopProducts.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     <select
-                      value={attachProductId}
+                      value={attachProductId ?? ''}
                       onChange={(event) => setAttachProductId(event.target.value)}
                       className="flex-1 min-w-[220px] border border-amber-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     >
@@ -1006,7 +1007,7 @@ const BusinessRequestsPage = () => {
                     ))}
                   </div>
 
-                  {isOpen && !confirmed && (
+                  {(isOpen || isAgreed) && !confirmed && (
                     <div className="flex flex-wrap items-center gap-3">
                       {canConfirm ? (
                         <Button

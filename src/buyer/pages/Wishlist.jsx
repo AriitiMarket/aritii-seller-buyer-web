@@ -52,7 +52,7 @@ const BuyerWishlistPage = () => {
         </div>
         <div className="flex items-center justify-center min-h-[40vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2162a1] mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2162a1] mx-auto mb-4" />
             <p className="text-market-on-surface-variant text-sm">Loading your saved items...</p>
           </div>
         </div>
@@ -171,6 +171,7 @@ const BuyerWishlistPage = () => {
                 {shopName && (
                   <p className="text-[10px] text-market-on-surface-variant mt-1">{shopName}</p>
                 )}
+                {p.unavailable && <p className="text-xs font-semibold text-red-600 mt-2">No longer available</p>}
                 {p.ratings > 0 && (
                   <div className="flex items-center gap-1 mt-1.5">
                     <span className="text-yellow-500 text-[10px]">★</span>
@@ -187,11 +188,11 @@ const BuyerWishlistPage = () => {
                 </div>
                 <button
                   onClick={() => handleAddToCart(p)}
-                  disabled={outOfStock}
+                  disabled={outOfStock || p.unavailable}
                   className="w-full mt-3 px-3 py-2 bg-[#FF9900] text-white rounded-xl text-xs font-semibold hover:bg-[#FFB426] active:bg-[#E68A00] transition flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   <MdShoppingCart size={13} className="text-white" />
-                  {p.inCart ? 'In Your Cart' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {p.unavailable ? 'Unavailable' : p.inCart ? 'In Your Cart' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
               </div>
             </div>

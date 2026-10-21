@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { addressService } from "@/services";
+import { addressService, locationService } from "@/services";
 import { toast } from "react-toastify";
 import EmptyState from "@/components/common/EmptyState";
 import { buildDestination, isUsableAddress } from "@/shared/utils/destination";
+import { deliveryEta } from "@/shared/utils/deliveryPricing";
 import { useDeliveryLocation } from "@/shared/hooks/useDeliveryLocation";
 import { validateCartForZone } from "@/store/slices/cartThunks";
 import { FiEdit2, FiCheck } from "react-icons/fi";
@@ -12,12 +13,6 @@ import PromoCodeInput from "./PromoCodeInput";
 
 const money = (value) =>
   `${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
-
-const getEstimatedDeliveryDate = () => {
-  const date = new Date();
-  date.setDate(date.getDate() + 3);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-};
 
 /**
  * ZoneValidationBanner — explains which cart items cannot be delivered to
@@ -75,21 +70,68 @@ const ZoneValidationBanner = ({ validation, onRemoveItem }) => {
 const Checkout = () => {
   const { user } = useSelector((state) => state.user);
   const { cart } = useSelector((state) => state.cart);
-  const { zoneId, zoneName, cityId, cityName, hasZone, isSelected } =
+  const { zoneId, zoneName, hasZone } =
     useDeliveryLocation();
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [zoneValidation, setZoneValidation] = useState(null);
-  const [validatingZone, setValidatingZone] = useState(false);
-  const [activeStep, setActiveStep] = useState(1);
+  const [, setValidatingZone] = useState(false);
   const [appliedPromotion, setAppliedPromotion] = useState(null);
+  const [deliveryQuotes, setDeliveryQuotes] = useState({});
+  const [loadingDeliveryQuote, setLoadingDeliveryQuote] = useState(false);
+  const [deliveryQuoteError, setDeliveryQuoteError] = useState('');
+  // The delivery ETA is the zone's own rule, returned with the fee quote —
+  // not a fixed "+3 days" guessed by the storefront.
+  const [deliveryEtaText, setDeliveryEtaText] = useState('');
+  const [fulfilmentType, setFulfilmentType] = useState('delivery');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const selectedAddressForQuote = addresses.find((address) => address._id === selectedAddressId) || null;
+  const cartQuantityByShop = (cart || []).reduce((groups, item) => {
+    const shopId = String(item.shopId || item.shop?._id || 'unknown');
+    groups[shopId] = (groups[shopId] || 0) + Number(item.quantity ?? item.qty ?? 1);
+    return groups;
+  }, {});
+  const quoteZoneId = selectedAddressForQuote?.deliveryZoneId || zoneId;
+  const quantitySignature = Object.entries(cartQuantityByShop).sort(([a], [b]) => a.localeCompare(b)).map(([shop, qty]) => `${shop}:${qty}`).join('|');
+
+  useEffect(() => {
+    if (!hasZone || !Object.keys(cartQuantityByShop).length) {
+      setDeliveryQuotes({});
+      setDeliveryEtaText('');
+      return undefined;
+    }
+    let active = true;
+    setLoadingDeliveryQuote(true);
+    setDeliveryQuoteError('');
+    Promise.all(Object.entries(cartQuantityByShop).map(async ([shopId, quantity]) => {
+      const quote = await locationService.quoteDeliveryFee(quoteZoneId, quantity, selectedAddressForQuote?.sectorId || selectedAddressForQuote?.locationId);
+      return [shopId, Number(quote.fee) || 0, quote];
+    }))
+      .then((entries) => {
+        if (!active) return;
+        setDeliveryQuotes(Object.fromEntries(entries.map(([shopId, fee]) => [shopId, fee])));
+        // Every quote is for the same zone, so they share one delivery-time rule.
+        const eta = deliveryEta(entries[0]?.[2]?.estimatedDeliveryTime || null);
+        setDeliveryEtaText(eta.text);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setDeliveryQuotes({});
+        setDeliveryEtaText('');
+        setDeliveryQuoteError(error?.response?.data?.message || 'Delivery fee could not be calculated. Please check your delivery zone.');
+      })
+      .finally(() => { if (active) setLoadingDeliveryQuote(false); });
+    return () => { active = false; };
+  // quantitySignature captures quantity changes without depending on a new cart array identity.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasZone, quoteZoneId, selectedAddressForQuote?.sectorId, selectedAddressForQuote?.locationId, quantitySignature]);
 
   useEffect(() => {
     if (!cart || cart.length === 0 || !hasZone) {
@@ -162,27 +204,44 @@ const Checkout = () => {
     );
   }
 
-  const subTotalPrice = cart.reduce(
-    (acc, item) => acc + (item.quantity ?? item.qty ?? 1) * Number(item.price || item.discountPrice || 0),
-    0
-  );
-
-  const shipping = subTotalPrice * 0.03;
-  const discountAmount = appliedPromotion ? appliedPromotion.discountAmount : 0;
+  const moneyRound = (value) => Math.round(Number(value || 0) * 100) / 100;
+  const subtotalByShop = new Map();
+  for (const item of cart) {
+    const shopId = String(item.shopId || item.shop?._id || 'unknown');
+    const lineTotal = moneyRound((item.quantity ?? item.qty ?? 1) * Number(item.price || item.discountPrice || 0));
+    subtotalByShop.set(shopId, moneyRound((subtotalByShop.get(shopId) || 0) + lineTotal));
+  }
+  const subTotalPrice = moneyRound([...subtotalByShop.values()].reduce((sum, amount) => sum + amount, 0));
+  const shipping = fulfilmentType === 'pickup' ? 0 : moneyRound(Object.values(deliveryQuotes).reduce((sum, amount) => sum + Number(amount || 0), 0));
+  const eligibleFreeDeliveryShops = new Map();
+  if (appliedPromotion?.isFreeDelivery) {
+    for (const item of cart) {
+      const itemShopId = String(item.shopId || item.shop?._id || '');
+      const promotion = appliedPromotion.promotion || {};
+      if (!promotion.isPlatformWide && itemShopId !== String(promotion.shopId)) continue;
+      if (appliedPromotion.eligibleProducts?.length && !appliedPromotion.eligibleProducts.includes(String(item.productId || item._id))) continue;
+      if (appliedPromotion.eligibleCategories?.length && !appliedPromotion.eligibleCategories.includes(String(item.categoryId || ''))) continue;
+      const lineTotal = moneyRound((item.quantity ?? item.qty ?? 1) * Number(item.price || item.discountPrice || 0));
+      eligibleFreeDeliveryShops.set(itemShopId, moneyRound((eligibleFreeDeliveryShops.get(itemShopId) || 0) + lineTotal));
+    }
+  }
+  const freeDeliverySavings = fulfilmentType === 'pickup' ? 0 : moneyRound([...eligibleFreeDeliveryShops.keys()].reduce((sum, shopId) => sum + Number(deliveryQuotes[shopId] || 0), 0));
+  const discountAmount = appliedPromotion
+    ? (appliedPromotion.isFreeDelivery ? freeDeliverySavings : Number(appliedPromotion.discountAmount) || 0)
+    : 0;
   const totalPrice = (subTotalPrice + shipping - discountAmount).toFixed(2);
 
-  const selectedAddress =
-    addresses.find((address) => address._id === selectedAddressId) || null;
+  const selectedAddress = selectedAddressForQuote;
 
   const paymentSubmit = () => {
-    if (!hasZone) {
+    if (fulfilmentType === 'delivery' && !hasZone) {
       toast.error(
         "Please select your delivery city and zone before checking out."
       );
       return;
     }
 
-    if (zoneValidation && zoneValidation.valid === false) {
+    if (fulfilmentType === 'delivery' && zoneValidation && zoneValidation.valid === false) {
       const incompatible = zoneValidation.items?.filter(
         (i) => i.eligible === false
       );
@@ -197,11 +256,11 @@ const Checkout = () => {
       }
     }
 
-    if (!selectedAddress) {
+    if (fulfilmentType === 'delivery' && !selectedAddress) {
       toast.error("Please choose your delivery address!");
       return;
     }
-    if (!isUsableAddress(selectedAddress)) {
+    if (fulfilmentType === 'delivery' && !isUsableAddress(selectedAddress)) {
       toast.error(
         "That address has no delivery sector or contact phone. Please update it on your Addresses page."
       );
@@ -210,21 +269,22 @@ const Checkout = () => {
 
     const orderData = {
       cart,
+      fulfilmentType,
       totalPrice,
       subTotalPrice,
       shipping,
       discountAmount,
       promoCode: appliedPromotion ? appliedPromotion.promotion?.code : null,
-      shippingAddress: {
+      shippingAddress: fulfilmentType === 'delivery' ? {
         address1: selectedAddress.address1 || "",
         address2: selectedAddress.address2 || "",
         zipCode: selectedAddress.zipCode || "",
         country: selectedAddress.regionName || selectedAddress.country || "",
         city: selectedAddress.cityName || selectedAddress.city || "",
-      },
-      destination: buildDestination(selectedAddress),
-      deliveryZoneId: zoneId,
-      deliveryZoneName: zoneName,
+      } : {},
+      destination: fulfilmentType === 'delivery' ? buildDestination(selectedAddress) : {},
+      deliveryZoneId: fulfilmentType === 'delivery' ? quoteZoneId : null,
+      deliveryZoneName: fulfilmentType === 'delivery' ? (selectedAddress.deliveryZoneName || zoneName) : '',
       user,
     };
 
@@ -251,7 +311,16 @@ const Checkout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-6">
+            <section className="bg-white rounded-lg border border-market-border p-5">
+              <h3 className="font-bold text-market-on-surface mb-3">How would you like to receive your order?</h3>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={() => setFulfilmentType('delivery')} className={`px-4 py-3 rounded-lg border ${fulfilmentType === 'delivery' ? 'border-market-primary bg-market-primary/5' : 'border-market-border'}`}>Deliver to my address</button>
+                <button type="button" onClick={() => setFulfilmentType('pickup')} className={`px-4 py-3 rounded-lg border ${fulfilmentType === 'pickup' ? 'border-market-primary bg-market-primary/5' : 'border-market-border'}`}>Pickup from store</button>
+              </div>
+              {fulfilmentType === 'pickup' && <p className="text-sm text-gray-600 mt-3">Pickup is available only from shops that have enabled collection. The shop will provide its collection details with your order.</p>}
+            </section>
             {/* Step 1: Delivery Address */}
+            {fulfilmentType === 'delivery' && <>
             <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-market-primary text-market-on-primary flex items-center justify-center font-bold">
@@ -373,12 +442,15 @@ const Checkout = () => {
                     <span className="text-2xl">📦</span>
                     <div>
                       <p className="text-sm font-semibold text-green-900">Estimated Delivery</p>
-                      <p className="text-sm text-green-700">{getEstimatedDeliveryDate()}</p>
+                      <p className="text-sm text-green-700">
+                        {loadingDeliveryQuote ? 'Calculating…' : deliveryEtaText || 'Delivery time confirmed at checkout'}
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+            </>}
 
             {/* Step 2: Order Review */}
             <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
@@ -433,6 +505,7 @@ const Checkout = () => {
               <PromoCodeInput
                 cartItems={cart}
                 subtotal={subTotalPrice}
+                shipping={shipping}
                 onApply={setAppliedPromotion}
                 onRemove={() => setAppliedPromotion(null)}
                 appliedPromotion={appliedPromotion}
@@ -445,9 +518,10 @@ const Checkout = () => {
                 <span className="text-sm font-semibold text-market-on-surface">{money(subTotalPrice)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-market-on-surface-variant">Shipping</span>
-                <span className="text-sm font-semibold text-market-on-surface">{money(shipping)}</span>
+                <span className="text-sm text-market-on-surface-variant">{fulfilmentType === 'pickup' ? 'Pickup' : 'Shipping'}</span>
+                <span className="text-sm font-semibold text-market-on-surface">{fulfilmentType === 'pickup' ? 'Free' : loadingDeliveryQuote ? 'Calculating…' : shipping === 0 ? 'Free' : money(shipping)}</span>
               </div>
+              {deliveryQuoteError && <p role="alert" className="text-xs text-red-600">{deliveryQuoteError}</p>}
               {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span className="text-sm font-medium">Discount</span>
@@ -465,9 +539,9 @@ const Checkout = () => {
 
             <button
               onClick={paymentSubmit}
-              disabled={!selectedAddress}
+              disabled={(fulfilmentType === 'delivery' && (!selectedAddress || loadingDeliveryQuote || Boolean(deliveryQuoteError)))}
               className={`mt-6 w-full h-11 rounded-lg text-sm font-semibold transition flex items-center justify-center ${
-                selectedAddress
+                fulfilmentType === 'pickup' || (selectedAddress && !loadingDeliveryQuote && !deliveryQuoteError)
                   ? 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover shadow-sm'
                   : 'bg-market-surface-container-low text-market-on-surface-variant cursor-not-allowed'
               }`}

@@ -1,199 +1,67 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import PortalFooter from '@/public/components/PortalFooter';
 
 /**
- * DeliveryPortalFooter - Independent delivery footer
- * 
- * Logistics and delivery partner-specific links
+ * DeliveryPortalFooter — the Delivery Center portal footer.
+ *
+ * Thin configuration wrapper around the shared `PortalFooter`.
+ *
+ * The "Getting Started" column links to sections of the page that renders the
+ * footer, so the anchor map is supplied by the page. Everything else points at
+ * routes that exist.
  */
-const DeliveryPortalFooter = () => {
-  return (
-    <footer className="bg-[#131921] text-[#CCCCCB] mt-16 border-t border-[#232F3E]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Footer Content */}
-        <div className="py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          {/* Column 1: Getting Started */}
-          <div>
-            <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wide">
-              Getting Started
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/delivery-sign-up"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Apply to Deliver
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="#ways-to-deliver"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Ways to Deliver
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#vehicle-requirements"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Vehicle Requirements
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#earnings"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Earnings & Pay
-                </a>
-              </li>
-            </ul>
-          </div>
+export const deliveryFooterColumns = ({
+  waysToDeliver = '/delivery#how-it-works',
+  vehicleRequirements = '/delivery#services',
+  earnings = '/delivery#why',
+  safety = '/faq',
+} = {}) => [
+  {
+    title: 'Getting Started',
+    links: [
+      { label: 'Apply to Deliver', to: '/delivery-sign-up' },
+      { label: 'Ways to Deliver', to: waysToDeliver },
+      { label: 'Vehicle Requirements', to: vehicleRequirements },
+      { label: 'Earnings & Pay', to: earnings },
+    ],
+  },
+  {
+    title: 'Policies & Safety',
+    links: [
+      { label: 'Delivery Partner Terms', to: '/terms' },
+      { label: 'Safety Guidelines', to: safety },
+      { label: 'Background Checks', to: '/faq' },
+      { label: 'Insurance Information', to: '/faq' },
+    ],
+  },
+  {
+    title: 'Support',
+    links: [
+      { label: 'Partner Support', to: '/faq' },
+      { label: 'FAQs', to: '/faq' },
+      { label: 'Contact Us', to: '/contact' },
+      { label: 'Driver Community', to: '/events' },
+    ],
+  },
+  {
+    title: 'About Aritii',
+    links: [
+      { label: 'About Us', to: '/about' },
+      { label: 'Our Mission', to: '/about' },
+      { label: 'How It Works', to: '/how-it-works' },
+      { label: 'Events', to: '/events' },
+    ],
+  },
+];
 
-          {/* Column 2: Policies & Safety */}
-          <div>
-            <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wide">
-              Policies & Safety
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Delivery Partner Terms
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Safety Guidelines
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Background Checks
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Insurance Information
-                </Link>
-              </li>
-            </ul>
-          </div>
+const DeliveryPortalFooter = ({ columns = deliveryFooterColumns() }) => (
+  <PortalFooter
+    accent="#00A8E1"
+    accentHover="#5FD4F0"
+    columns={columns}
+    accountLabel="Sign in to Delivery Center"
+    signInRole="PROVIDER"
+  />
+);
 
-          {/* Column 3: Support */}
-          <div>
-            <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wide">
-              Support
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Partner Support
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  FAQs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Driver Community
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: Company */}
-          <div>
-            <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wide">
-              About Aritii
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Our Mission
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="text-[#CCCCCB] hover:text-white transition-colors duration-150"
-                >
-                  Careers
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="py-6 border-t border-[#232F3E] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[#CCCCCB]">© 2026 Aritii Market</span>
-          </div>
-
-          {/* Partner Account Link */}
-          <Link
-            to="/login"
-            className="text-sm text-[#00A8E1] hover:text-[#5FD4F0] font-medium transition-colors duration-150"
-          >
-            Sign in to Delivery Center
-          </Link>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-export default DeliveryPortalFooter
+export default DeliveryPortalFooter;

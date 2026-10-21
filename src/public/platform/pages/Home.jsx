@@ -1,202 +1,203 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineShop, AiOutlineGlobal, AiOutlineHeart, AiOutlineStar } from 'react-icons/ai';
+import {
+  AiOutlineShop,
+  AiOutlineGlobal,
+  AiOutlineHeart,
+  AiOutlineStar,
+  AiOutlineSafety,
+  AiOutlineThunderbolt,
+  AiOutlineCustomerService,
+} from 'react-icons/ai';
 import { PublicLayout } from '@/public/layout/PublicLayout';
 import { HeroSection } from '@/public/marketplace/components/HeroSection';
-import { PlatformRolesSection } from '@/public/platform/components/PlatformRolesSection';
+import AmazonCategoryGrid from '@/public/marketplace/components/AmazonCategoryGrid';
 import { TrendingProducts } from '@/features/marketplace/components/TrendingProducts';
+import FeaturedShopsRow from '@/features/marketplace/components/FeaturedShopsRow';
+import { PlatformRolesSection } from '@/public/platform/components/PlatformRolesSection';
 import { HowItWorksSection } from '@/public/platform/components/HowItWorksSection';
 
 /**
- * PUBLIC HOMEPAGE - Marketplace discovery page
+ * PUBLIC HOMEPAGE - Amazon-Style Marketplace Discovery
  *
- * A focused e-commerce marketplace homepage that presents Aritii as one
- * platform for local commerce — buyers, sellers and delivery services — and
- * helps users discover products, shops, and categories.
+ * Implements Amazon shopping patterns:
+ * - Immersive Hero with floating 4-quadrant feature cards (categories limited to 4 per card)
+ * - Trending Products limited to top 5 with direct marketplace details links
+ * - Featured Local Shops limited to top 4 with direct storefront links
+ * - Connected Ecosystem: Buyers, Sellers, and Delivery Partners
  */
 const HomePage = () => {
   return (
     <PublicLayout>
-      <div className="home-page-scroll">
+      <div className="home-page-scroll bg-[#EAEDED] dark:bg-[#0f1419] min-h-screen">
         <div className="relative z-10">
-      {/* Hero with search */}
-      <HeroSection />
+          {/* Amazon-style Hero */}
+          <HeroSection />
 
-      {/* Three connected experiences: buyers, sellers, delivery */}
-      <PlatformRolesSection />
+          {/* Floating Category & Deal Grid (Amazon 4-quadrant cards, limited to 4 per card) */}
+          <AmazonCategoryGrid />
 
-      {/* How Aritii Works */}
-      <HowItWorksSection />
+          {/* Featured Products & Deals (Limited to 5 with direct marketplace /product/:id link) */}
+          <TrendingProducts />
 
-      {/* Trending products */}
-      <TrendingProducts />
+          {/* Featured Verified Shops (Limited to 4 with direct storefront /shop/:id link) */}
+          <FeaturedShopsRow />
 
-      {/* Local Commerce Focus Section */}
-      <section className="home-brand-section home-brand-section--community py-12 md:py-16 bg-[#FDF6EC] dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 md:mb-12">
-            <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
-              Local Commerce Focus
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Built for Local Communities
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
-              Aritii strengthens local economies by connecting buyers with sellers in their communities.
-            </p>
-          </div>
+          {/* Amazon-Style Value Proposition / Fast Delivery Banner */}
+          <section className="py-6 bg-white dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800 my-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="flex flex-col items-center p-3">
+                  <div className="w-10 h-10 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center mb-2">
+                    <AiOutlineThunderbolt size={22} />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#0F1111] dark:text-white">Fast Local Delivery</h4>
+                  <p className="text-[11px] text-[#565959] dark:text-gray-400">Same-day options across key zones</p>
+                </div>
+                <div className="flex flex-col items-center p-3">
+                  <div className="w-10 h-10 rounded-full bg-[#00A8E1]/10 text-[#00A8E1] flex items-center justify-center mb-2">
+                    <AiOutlineSafety size={22} />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#0F1111] dark:text-white">Secure Checkout</h4>
+                  <p className="text-[11px] text-[#565959] dark:text-gray-400">Protected payments & easy refunds</p>
+                </div>
+                <div className="flex flex-col items-center p-3">
+                  <div className="w-10 h-10 rounded-full bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center mb-2">
+                    <AiOutlineShop size={22} />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#0F1111] dark:text-white">Verified Local Sellers</h4>
+                  <p className="text-[11px] text-[#565959] dark:text-gray-400">Direct from community artisans & shops</p>
+                </div>
+                <div className="flex flex-col items-center p-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center mb-2">
+                    <AiOutlineCustomerService size={22} />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#0F1111] dark:text-white">Dedicated Support</h4>
+                  <p className="text-[11px] text-[#565959] dark:text-gray-400">24/7 assistance for orders & sellers</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: AiOutlineShop, title: 'Local Sellers', description: 'Support businesses in your community by shopping from local shops and sellers.' },
-              { icon: AiOutlineGlobal, title: 'Local Products', description: 'Discover products made and sourced locally, reducing delivery distances.' },
-              { icon: AiOutlineHeart, title: 'Accessible Shopping', description: 'Easy-to-use platform that works for everyone, regardless of technical expertise.' },
-              { icon: AiOutlineArrowRight, title: 'Connected Delivery', description: 'Seamless integration with local delivery services for reliable order fulfillment.' },
-              { icon: AiOutlineShop, title: 'Trusted Marketplace', description: 'Verified sellers and secure transactions create a safe shopping environment.' },
-              { icon: AiOutlineStar, title: 'Growing Businesses', description: 'Tools and insights that help local sellers grow and reach more customers.' },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="flex items-start gap-4 p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
-                  <span className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#75d04b]/10 flex items-center justify-center text-[#5ac12f]">
-                    <Icon size={24} />
-                  </span>
+          {/* Three connected experiences: buyers, sellers, delivery */}
+          <PlatformRolesSection />
+
+          {/* How Aritii Works */}
+          <HowItWorksSection />
+
+          {/* Local Commerce Community Focus */}
+          <section className="py-12 md:py-16 bg-white dark:bg-[#1a222d] border-t border-gray-200 dark:border-gray-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-10 md:mb-12">
+                <span className="inline-block px-3 py-1 mb-3 rounded-full bg-[#FF9900]/10 text-[#FF9900] text-xs font-bold uppercase tracking-wider">
+                  Community Marketplace
+                </span>
+                <h2 className="text-2xl md:text-3xl font-bold text-[#0F1111] dark:text-white mb-2">
+                  Built for Ethiopian Businesses & Shoppers
+                </h2>
+                <p className="text-[#565959] dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
+                  Aritii combines modern e-commerce standards with deep local support.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { icon: AiOutlineShop, title: 'Local Sellers', description: 'Support independent businesses and artisanal creators right in your city.' },
+                  { icon: AiOutlineGlobal, title: 'Authentic Sourcing', description: 'Discover genuine goods made and sourced locally without excessive markups.' },
+                  { icon: AiOutlineHeart, title: 'Frictionless Shopping', description: 'Clean Amazon-inspired navigation, clear filters, and instant search.' },
+                  { icon: AiOutlineThunderbolt, title: 'Connected Delivery', description: 'Real-time assignment to riders for fast, door-to-door handoffs.' },
+                  { icon: AiOutlineSafety, title: 'Buyer Protection', description: 'Escrow payments and transparent returns protect every purchase.' },
+                  { icon: AiOutlineStar, title: 'Seller Growth Tools', description: 'Analytics, inventory alerts, and instant payouts empower merchants.' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.title}
+                      className="flex items-start gap-4 p-5 bg-[#F7F7F7] dark:bg-gray-850 rounded-lg border border-gray-200 dark:border-gray-800"
+                    >
+                      <span className="flex-shrink-0 w-11 h-11 rounded-lg bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-[#FF9900]">
+                        <Icon size={22} />
+                      </span>
+                      <div>
+                        <h3 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">{item.title}</h3>
+                        <p className="text-xs text-[#565959] dark:text-gray-400 leading-relaxed">{item.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* Amazon-Style Explore Selling & Delivering Banners */}
+          <section className="bg-[#EAEDED] dark:bg-[#0f1419] py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Seller Box */}
+                <div className="p-8 bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-lg flex flex-col justify-between shadow-sm">
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#FF9900]">Sell On Aritii</span>
+                    <h3 className="text-2xl font-bold text-[#0F1111] dark:text-white mt-1 mb-3">
+                      Start selling with zero upfront listing fees
+                    </h3>
+                    <p className="text-sm text-[#565959] dark:text-gray-400 mb-6">
+                      Join thousands of vendors reaching buyers nationwide. Get multi-shop management, inventory alerts, and prompt payouts directly to your Ethiopian bank account.
+                    </p>
+                  </div>
+                  <div>
+                    <Link
+                      to="/seller-center"
+                      className="inline-block py-2.5 px-6 bg-[#FF9900] hover:bg-[#E68A00] text-white text-sm font-bold rounded-md shadow-sm transition-colors"
+                    >
+                      Explore Seller Central
+                    </Link>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* Trust / Reliability Section */}
-      <section className="home-brand-section home-brand-section--trust py-12 md:py-16 bg-[#FDF6EC] dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 md:mb-12">
-            <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
-              Why Choose Aritii
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Built on Trust and Reliability
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
-              We've designed every part of Aritii to create a reliable, transparent marketplace for everyone.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: AiOutlineShop, title: 'Secure Platform', description: 'Secure payments and protected transactions keep everyone safe.' },
-              { icon: AiOutlineGlobal, title: 'Clear Order Flow', description: 'Transparent process from order to delivery with status updates.' },
-              { icon: AiOutlineStar, title: 'Seller Visibility', description: 'Verified shops with profiles, ratings, and product catalogs.' },
-              { icon: AiOutlineArrowRight, title: 'Connected Delivery', description: 'Integrated delivery network with tracking and updates.' },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="text-center p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
-                  <span className="inline-flex w-14 h-14 rounded-full bg-[#75d04b]/10 text-[#5ac12f] items-center justify-center mb-4">
-                    <Icon size={28} />
-                  </span>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
+                {/* Delivery Box */}
+                <div className="p-8 bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-lg flex flex-col justify-between shadow-sm">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#00A8E1]">Deliver With Us</span>
+                    <h3 className="text-2xl font-bold text-[#0F1111] dark:text-white mt-1 mb-3">
+                      Deliver packages and earn on your schedule
+                    </h3>
+                    <p className="text-sm text-[#565959] dark:text-gray-400 mb-6">
+                      Be your own boss. Deliver packages for local shops using your bike, motorcycle, or car with guaranteed transparent compensation and daily settlement.
+                    </p>
+                  </div>
+                  <div>
+                    <Link
+                      to="/delivery-center"
+                      className="inline-block py-2.5 px-6 bg-[#00A8E1] hover:bg-[#0087B8] text-white text-sm font-bold rounded-md shadow-sm transition-colors"
+                    >
+                      Join Delivery Partner Network
+                    </Link>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+              </div>
+            </div>
+          </section>
 
-      {/* Seller Center Navigation Section */}
-      <section className="bg-white dark:bg-gray-950 py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Explore Selling on Aritii
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Learn how to grow your business with Aritii's tools and reach
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link
-              to="/seller-center/overview"
-              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
-            >
-              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Overview</h3>
-              <p className="text-sm text-[#565959] dark:text-gray-400">
-                Introduction to selling on Aritii and getting started
+          {/* Amazon-style Sign In CTA Bar for visitors */}
+          <section className="bg-white dark:bg-[#131921] py-8 border-t border-gray-200 dark:border-gray-800 text-center">
+            <div className="max-w-md mx-auto px-4">
+              <p className="text-xs text-[#0F1111] dark:text-white mb-2 font-medium">
+                See personalized recommendations
               </p>
-            </Link>
-
-            <Link
-              to="/seller-center/benefits"
-              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
-            >
-              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Benefits</h3>
-              <p className="text-sm text-[#565959] dark:text-gray-400">
-                Discover what Aritii offers to help you succeed
+              <Link
+                to="/login"
+                className="block w-full py-2 bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] text-xs font-bold rounded-md shadow-sm transition-colors mb-2"
+              >
+                Sign In
+              </Link>
+              <p className="text-[11px] text-[#565959] dark:text-gray-400">
+                New customer?{' '}
+                <Link to="/sign-up" className="text-[#007185] dark:text-[#42a2b3] hover:underline">
+                  Start here.
+                </Link>
               </p>
-            </Link>
-
-            <Link
-              to="/seller-center/how-it-works"
-              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
-            >
-              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">How It Works</h3>
-              <p className="text-sm text-[#565959] dark:text-gray-400">
-                Step-by-step guide from registration to first sale
-              </p>
-            </Link>
-
-            <Link
-              to="/seller-center/workspace"
-              className="p-6 bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/5 border border-[#FF9900]/20 rounded-lg hover:shadow-md transition-shadow"
-            >
-              <h3 className="font-bold text-[#0F1111] dark:text-white mb-2">Workspace</h3>
-              <p className="text-sm text-[#565959] dark:text-gray-400">
-                Preview your business dashboard and management tools
-              </p>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="home-brand-section home-brand-section--community py-16 md:py-20 bg-[#FDF6EC] dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to be part of Aritii?
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8 text-sm md:text-lg">
-            Join thousands of buyers, sellers, and delivery providers who are already part of Ethiopia's growing local commerce platform.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/marketplace"
-              className="px-8 py-4 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
-            >
-              Shop
-            </Link>
-            <Link
-              to="/seller"
-              className="px-8 py-4 bg-[#FF9900] hover:bg-[#E68A00] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
-            >
-              Sell
-            </Link>
-            <Link
-              to="/delivery-center"
-              className="px-8 py-4 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold rounded-full text-base transition-colors flex items-center justify-center gap-2"
-            >
-              Deliver
-            </Link>
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
         </div>
       </div>
     </PublicLayout>

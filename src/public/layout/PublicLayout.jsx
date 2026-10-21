@@ -1,6 +1,5 @@
 import React from 'react'
 import MarketplaceHeader from "@/public/components/MarketplaceHeader"
-import TopUtilityBar from "@/public/components/TopUtilityBar"
 import SubNavBar from '@/features/marketplace/components/SubNavBar'
 import PublicFooter from '@/shared/components/Footer'
 import SkipToContent from '@/shared/components/SkipToContent'
@@ -10,12 +9,11 @@ import PublicScrollToTop from '@/public/components/PublicScrollToTop'
  * PublicLayout — for pages visible to anyone (no login required).
  *
  * Chrome stack (mobile-first):
- *   1. TopUtilityBar — h-10 (40px), location selector + portal links
- *   2. MarketplaceHeader — sticky, h-16 (64px)
- *   3. SubNavBar — sticky top-16 (40px); the responsive secondary nav with
+ *   1. MarketplaceHeader — sticky h-14 (56px)
+ *   2. SubNavBar — sticky below the header at 88px (36px); the responsive secondary nav with
  *      the left slide-in "All" browse drawer. Pass `hideSubNav` to opt out
  *      (e.g. full-bleed campaign pages).
- *   4. Page content
+ *   3. Page content
  */
 const PublicLayout = ({ 
   children, 
@@ -26,9 +24,8 @@ const PublicLayout = ({
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
       <PublicScrollToTop />
       <SkipToContent />
-      <TopUtilityBar />
       <MarketplaceHeader />
-      {!hideSubNav && <SubNavBar />}
+      {!hideSubNav && <SubNavBar stickyTopClass="top-12" />}
       
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none bg-white dark:bg-gray-950">{children}</main>
       {!hideFooter && <PublicFooter />}

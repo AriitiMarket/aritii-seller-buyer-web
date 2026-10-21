@@ -22,11 +22,11 @@ import {
   RequestTabs,
   WORKSPACE_TABS,
   agreementOf,
-  currentOfferOf,
   isAgreementConfirmed,
   offerTotal,
   quantityLabel,
   realtimeNotice,
+  realtimeToastId,
   requestCode,
   specEntries,
   statusOf,
@@ -73,6 +73,7 @@ export default function RequestWorkspacePage() {
   const [newMessageCount, setNewMessageCount] = useState(0);
 
   const [confirming, setConfirming] = useState(false);
+  const [acceptingOffer, setAcceptingOffer] = useState(false);
   const [counterOpen, setCounterOpen] = useState(false);
   const [counter, setCounter] = useState({ quantity: '', unit: '', unitPrice: '', note: '' });
   const [counterSaving, setCounterSaving] = useState(false);
@@ -151,7 +152,7 @@ export default function RequestWorkspacePage() {
     scheduleRefresh();
     if (event.actorId && myId && String(event.actorId) === String(myId)) return;
     const notice = realtimeNotice(event);
-    if (notice) toast.info(notice);
+    if (notice) toast.info(notice, { toastId: realtimeToastId(event) });
   }, id);
 
   const handleSendMessage = async ({ text, images = [], replyTo = null }) => {
@@ -180,21 +181,23 @@ export default function RequestWorkspacePage() {
   };
 
   const handleAcceptOffer = async () => {
+    setAcceptingOffer(true);
     try {
-      await requestService.acceptOffer(id);
-      toast.success('Offer accepted — confirm the agreement to finalise the deal.');
+      const updated = await requestService.acceptOffer(id);
+      setRequest(updated);
       setActiveTab('agreement');
-      loadRequest();
+      toast.success('Offer accepted — your confirmation is recorded. The seller must confirm next.');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Could not accept offer');
+    } finally {
+      setAcceptingOffer(false);
     }
   };
 
   const handleConfirmAgreement = async () => {
     setConfirming(true);
     try {
-      await requestService.confirmAgreement(id);
-      const updated = await requestService.get(id);
+      const updated = await requestService.confirmAgreement(id);
       setRequest(updated);
       if (isAgreementConfirmed(updated)) {
         toast.success('Both sides confirmed — the agreement is final.');
@@ -338,10 +341,10 @@ export default function RequestWorkspacePage() {
   const isClosed = CLOSED_STATUSES.includes(status) || isConverted;
   const canCancel = CANCELLABLE_STATUSES.includes(status);
   const canConfirm =
-    isActive &&
+    (isActive || isAgreed) &&
     !confirmed &&
     !agreement.buyerConfirmedAt &&
-    Boolean(activeOffer || acceptedOffer);
+    Boolean(agreement.terms || activeOffer || acceptedOffer || isAgreed);
   const counterTotal =
     Number.isFinite(Number(counter.quantity)) && Number.isFinite(Number(counter.unitPrice))
       ? Number(counter.quantity) * Number(counter.unitPrice)
@@ -375,9 +378,9 @@ export default function RequestWorkspacePage() {
     <div className={`flex flex-col sm:flex-row gap-2 w-full sm:w-auto ${className}`}>
       {activeOffer && isActive && (
         <>
-          <Button onClick={handleAcceptOffer} className="bg-market-primary text-market-on-primary hover:bg-market-primary-hover">
+          <Button onClick={handleAcceptOffer} disabled={acceptingOffer} className="bg-market-primary text-market-on-primary hover:bg-market-primary-hover">
             <FiCheckCircle className="w-4 h-4 mr-2" />
-            Accept Offer
+            {acceptingOffer ? 'Accepting…' : 'Accept Offer'}
           </Button>
           <button
             type="button"
@@ -713,10 +716,11 @@ export default function RequestWorkspacePage() {
                   <>
                     <Button
                       onClick={handleAcceptOffer}
+                      disabled={acceptingOffer}
                       className="bg-market-primary text-market-on-primary hover:bg-market-primary-hover"
                     >
                       <FiCheckCircle className="w-4 h-4 mr-2" />
-                      Accept Offer
+                      {acceptingOffer ? 'Accepting…' : 'Accept Offer'}
                     </Button>
                     <button
                       type="button"
@@ -962,7 +966,7 @@ export default function RequestWorkspacePage() {
                     ))}
                   </div>
 
-                  {isActive && !confirmed && (
+                  {(isActive || isAgreed) && !confirmed && (
                     <div className="flex flex-wrap items-center gap-3">
                       {canConfirm ? (
                         <Button

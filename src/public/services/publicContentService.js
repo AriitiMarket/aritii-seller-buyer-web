@@ -1,5 +1,3 @@
-import { productService } from '@/services/product.service';
-import { shopService } from '@/services/shop.service';
 import { catalogService } from '@/services/catalog.service';
 
 /**
@@ -38,42 +36,13 @@ function curate(items, limit) {
 
 export const publicContentService = {
   /**
-   * Featured products for the homepage.
-   * @param {number} limit - Number of products to fetch (default: 6)
-   * @returns {Promise<Array>} - Array of product objects
-   */
-  async getFeaturedProducts(limit = 6) {
-    const products = await productService.getPublicAll();
-    return curate(products, limit);
-  },
-
-  /**
-   * Featured shops for the homepage.
-   * @param {number} limit - Number of shops to fetch (default: 6)
-   * @returns {Promise<Array>} - Array of shop objects
-   */
-  async getFeaturedShops(limit = 6) {
-    const shops = await shopService.getPublicAll();
-    return curate(shops, limit);
-  },
-
-  /**
-   * Featured events for the homepage.
+   * Featured events for the public pages.
    * @param {number} limit - Number of events to fetch (default: 3)
    * @returns {Promise<Array>} - Array of event objects
    */
   async getFeaturedEvents(limit = 3) {
     const events = await catalogService.getEvents();
     return curate(events, limit);
-  },
-
-  /**
-   * Promotions have no backend module yet (the gateway exposes no /promotion
-   * route), so this reports "nothing available" rather than inventing offers.
-   * @returns {Promise<Array>} - Always empty until the backend lands
-   */
-  async getFeaturedPromotions() {
-    return [];
   },
 };
 

@@ -4,7 +4,7 @@ import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import { reportService } from '@/services';
 import Loader from '@/components/common/Loading';
 import {
-  FiFileText, FiDownload, FiCalendar, FiFilter, FiBarChart2, FiDollarSign,
+  FiFileText, FiDownload, FiBarChart2, FiDollarSign,
   FiShoppingBag, FiUsers, FiRefreshCw, FiAlertCircle,
 } from 'react-icons/fi';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
@@ -28,7 +28,7 @@ const formatMoney = (value, currency = 'ETB') => {
 const Reports = () => {
   const { ShopOrders = [], isLoading: ordersLoading } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
-  const { activeShopId, hasMultipleShops } = useBusinessShops();
+  const { activeShopId } = useBusinessShops();
   const dispatch = useDispatch();
 
   const [dateRange, setDateRange] = useState('30D');

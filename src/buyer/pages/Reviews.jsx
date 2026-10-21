@@ -63,7 +63,7 @@ const BuyerReviewsPage = () => {
           <p className="text-sm text-market-on-surface-variant mt-1">Reviews you've written on Aritii Market</p>
         </div>
         <div className="bg-white rounded-lg p-12 shadow-sm border border-market-border text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#2162a1] mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#2162a1] mx-auto" />
           <p className="text-market-on-surface-variant text-sm mt-4">Loading reviews...</p>
         </div>
       </div>

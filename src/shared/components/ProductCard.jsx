@@ -1,34 +1,32 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiFillHeart, AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 import { ProductImage } from '@/components/common/ImageWithFallback'
-import Loading from '@/components/common/Loading'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistThunks'
 import { addTocart, updateCartQuantity } from '@/store/slices/cartThunks'
 import { toast } from 'react-toastify'
 import Ratings from '@/components/common/Ratings'
+import { useLayout } from '@/app/providers/LayoutContext'
 
 const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const [click, setClick] = useState(false)
-  const [navigating, setNavigating] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
 
-  // Delay before force-navigating to the product detail page so a loading
-  // state can be shown to the user after they click a product.
-  const PRODUCT_CLICK_DELAY_MS = 800
-
+  // Navigate to the product detail page immediately, remembering where the
+  // user came from so the detail page can offer a "back" link. (The card used
+  // to wait 800ms and flash a loading placeholder before navigating, which
+  // made the grid feel broken and differed from ProductListItem.)
   const handleProductClick = (event, path) => {
     event.preventDefault()
-    setNavigating(true)
-    setTimeout(() => {
-      navigate(path)
-    }, PRODUCT_CLICK_DELAY_MS)
+    navigate(path, { state: { from: `${location.pathname}${location.search}` } })
   }
   const { wishlist } = useSelector((state) => state.wishlist || {})
   const { cart } = useSelector((state) => state.cart || {})
   const { isAuthenticated } = useSelector((state) => state.user || {})
+  const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
 
@@ -100,13 +98,6 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const bestSeller = soldCount > 10
 
   // Format rating display: "4.5★ (234 reviews)"
-  const ratingDisplay = rating ? `${rating}★ (${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})` : ''
-
-  // Show a loading state while the click-delay waits before force-navigating
-  // to the product detail page.
-  if (navigating) {
-    return <Loading variant="inline" label="Loading product…" />
-  }
 
   return (
     <article className='market-amazon-product-card group'>
@@ -137,7 +128,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           
           {/* Sale badge - top left */}
           {isOnSale && (
-            <span className='absolute top-2 left-2 inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold tracking-tight uppercase bg-[#75d04b] text-white shadow-md'>
+            <span className='absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-tight uppercase bg-[#cc0c39] text-white shadow-sm'>
               {Math.round(((originalPrice - displayPrice) / originalPrice) * 100)}% off
             </span>
           )}
@@ -151,15 +142,15 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           
           {/* Stock status - top left (only if not sale badge) */}
           {!isOnSale && lowStock && availableUnits > 0 && (
-            <span className='absolute top-2 left-2 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight uppercase bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 shadow-md'>
-              Only {availableUnits} left
+            <span className='absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-tight uppercase bg-[#b12704] text-white shadow-sm'>
+              Limited deal
             </span>
           )}
           
           {/* Best seller badge - top right */}
           {bestSeller && (
-            <span className='absolute top-2 right-2 inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold tracking-tight uppercase bg-orange-500 text-white shadow-md'>
-              Best seller
+            <span className='absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold tracking-tight uppercase bg-[#e67a00] text-white shadow-sm'>
+              #1 Best Seller
             </span>
           )}
           
@@ -197,57 +188,61 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           </div>
         )}
 
-        {/* Price section: with strikethrough original and savings badge */}
+        {/* Price section: Amazon-style prominent price with fractional formatting */}
         <div className='mb-1.5'>
-          <div className='flex items-center gap-2 flex-wrap'>
-            <span className='text-lg font-bold text-[#131921] dark:text-white'>{Number(displayPrice).toLocaleString()} ETB</span>
+          <div className='flex items-baseline gap-1.5 flex-wrap'>
+            <span className='text-xs font-semibold text-[#565959] self-start mt-0.5'>ETB</span>
+            <span className='text-xl font-extrabold text-[#0f1111] dark:text-white leading-none tracking-tight'>
+              {Number(displayPrice).toLocaleString()}
+            </span>
             {isOnSale && (
-              <>
-                <span className='text-xs line-through text-[#6b7280]'>{Number(originalPrice).toLocaleString()} ETB</span>
-              </>
+              <span className='text-xs text-[#565959] line-through ml-1'>
+                {Number(originalPrice).toLocaleString()} ETB
+              </span>
             )}
           </div>
         </div>
 
-        {/* Stock status badge */}
+        {/* Delivery / In stock cue - Amazon style */}
         {inStock && !lowStock && (
-          <p className='text-xs font-semibold text-green-700 dark:text-green-400 mb-1.5 inline-block px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded'>
-            ✓ In stock
+          <p className='text-xs font-medium text-[#007600] dark:text-green-400 mb-2'>
+            In Stock
           </p>
         )}
         {lowStock && inStock && (
-          <p className='text-xs font-semibold text-red-700 dark:text-red-400 mb-1.5 inline-block px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded'>
-            Only {availableUnits} left
+          <p className='text-xs font-bold text-[#b12704] mb-2'>
+            Only {availableUnits} left in stock - order soon.
           </p>
         )}
         {!inStock && (
-          <p className='text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 inline-block px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded'>
-            Out of stock
+          <p className='text-xs font-semibold text-gray-500 mb-2'>
+            Currently unavailable
           </p>
         )}
 
-        {/* Add to cart button or link */}
+        {/* Add to cart button or sign in - Amazon style yellow/amber button */}
         {!isPublic ? (
           <button
             type='button'
             onClick={AddToCartHandler}
             disabled={!inStock}
-            className={`w-full mt-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-200 min-h-[44px] ${
+            className={`w-full mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full font-medium text-xs transition-colors duration-150 shadow-sm ${
               inStock
-                ? 'bg-[#75d04b] text-white hover:bg-[#5ac12f] active:scale-95 shadow-sm hover:shadow-md'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700'
+                ? 'bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] text-[#0f1111] border border-[#fcd200]'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
             }`}
             aria-label={!inStock ? name + ' is out of stock' : 'Add ' + name + ' to cart'}
           >
-            <AiOutlineShoppingCart size={18} /> Add to cart
+            <AiOutlineShoppingCart size={15} /> Add to Cart
           </button>
         ) : (
-          <Link
-            to='/login'
-            className='w-full mt-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm text-[#75d04b] border-2 border-[#75d04b] hover:bg-[#75d04b] hover:text-white transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px]'
+          <button
+            type='button'
+            onClick={() => openLoginModal('BUYER')}
+            className='w-full mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full font-medium text-xs text-[#0f1111] bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] transition-colors duration-150 shadow-sm'
           >
             Sign in to buy
-          </Link>
+          </button>
         )}
       </div>
     </article>

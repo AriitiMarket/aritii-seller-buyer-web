@@ -100,7 +100,8 @@ class CacheManager {
     
     // Invalidate shop products list
     if (shopId) {
-      this.invalidateByPattern(`shop:products:${shopId}.*`);
+      // Fix: cache key format is `products:shop:${shopId}:active|all`
+      this.invalidateByPattern(`products:shop:${shopId}.*`);
       this.delete(`shop:${shopId}`);
     }
     
@@ -117,7 +118,8 @@ class CacheManager {
     this.delete(`shop:public:${shopId}`);
     this.delete(`shop:${shopId}`);
     this.invalidateByPattern(`shops:.*`);
-    this.invalidateByPattern(`shop:products:${shopId}.*`);
+    // Fix: cache key format is `products:shop:${shopId}:active|all`
+    this.invalidateByPattern(`products:shop:${shopId}.*`);
   }
 }
 

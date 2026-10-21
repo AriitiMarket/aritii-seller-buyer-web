@@ -34,7 +34,7 @@ function normalizeCartItem(data) {
  * If the item already exists in the cart, the backend merges quantities.
  * The frontend prevents the duplicate add UI-side and instead increments.
  */
-export const addTocart = (data) => async (dispatch, getState) => {
+export const addTocart = (data) => async (dispatch, _getState) => {
   dispatch(setCartLoading(true));
 
   if (!data || !(data._id || data.id || data.productId)) {
@@ -70,7 +70,7 @@ export const addTocart = (data) => async (dispatch, getState) => {
 /**
  * Update cart item quantity via backend.
  */
-export const updateCartQuantity = (productId, newQuantity) => async (dispatch, getState) => {
+export const updateCartQuantity = (productId, newQuantity) => async (dispatch, _getState) => {
   dispatch(setCartLoading(true));
 
   if (!productId || newQuantity < 1) {

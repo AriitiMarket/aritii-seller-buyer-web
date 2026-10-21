@@ -4,6 +4,7 @@ import { MdLocalShipping, MdHelpOutline } from 'react-icons/md';
 import { AiOutlineMenu, AiOutlineUser } from 'react-icons/ai';
 import BrandLogo from '@/components/common/BrandLogo';
 import { useAuth } from '@/auth/hooks/useAuth';
+import { useLayout } from '@/app/providers/LayoutContext';
 import { useDispatch } from 'react-redux';
 import { logoutUser } from '@/store/slices/userThunks';
 import { toast } from 'react-toastify';
@@ -16,6 +17,20 @@ const DELIVERY_NAV = [
   { label: 'Help & Support', to: '/delivery', hash: 'help' },
 ];
 
+/**
+ * Is a nav item the current one?
+ *
+ * One definition for the desktop header and the mobile drawer — the two used
+ * to carry their own copy, which drifted the moment either changed.
+ */
+const isActiveNavItem = (item, location) => {
+  const base = item.to.split('#')[0];
+  if (location.pathname !== base) return location.pathname.startsWith(`${base}/`);
+  return item.hash
+    ? location.hash === `#${item.hash}` || (item.hash === 'overview' && !location.hash)
+    : !location.hash;
+};
+
 const DeliveryPortalHeader = () => {
   const { isAuthenticated, loading, user } = useAuth();
   const dispatch = useDispatch();
@@ -24,6 +39,7 @@ const DeliveryPortalHeader = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const { openLoginModal } = useLayout();
 
   const providerCapability =
     user?.capabilities?.includes('PROVIDER') || user?.role === 'PROVIDER';
@@ -44,11 +60,7 @@ const DeliveryPortalHeader = () => {
     }
   };
 
-  const isActive = (to) => {
-    const path = location.pathname;
-    const base = to.split('#')[0];
-    return path === base || path.startsWith(base + '/');
-  };
+  const isActive = (item) => isActiveNavItem(item, location);
   const accountItems = (
     <>
       <div className="px-4 py-2 text-[11px] uppercase tracking-wider text-gray-400">
@@ -76,14 +88,17 @@ const DeliveryPortalHeader = () => {
         </>
       ) : (
         <>
-          <Link
-            to="/login"
-            onClick={() => setAccountOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              setAccountOpen(false);
+              openLoginModal('PROVIDER');
+            }}
             className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
           >
             <AiOutlineUser size={18} />
             Sign in
-          </Link>
+          </button>
           <Link
             to="/delivery-sign-up"
             onClick={() => setAccountOpen(false)}
@@ -95,11 +110,10 @@ const DeliveryPortalHeader = () => {
       )}
       <div className="border-t border-gray-100 pt-4">
         <p className="px-4 py-2 text-[11px] uppercase tracking-wider text-gray-400">
-          Not available yet
+          Provider earnings
         </p>
         <p className="px-4 pb-2 text-xs text-gray-500">
-          Earnings and payment summaries appear here once your provider account
-          is active. Payments are in Ethiopian Birr (ETB).
+          Approved providers can review earnings and request payouts from the signed-in Delivery Workspace. Amounts are shown in Ethiopian Birr (ETB).
         </p>
       </div>
     </>
@@ -131,7 +145,7 @@ const DeliveryPortalHeader = () => {
               to={item.to + (item.hash || '')}
               onClick={() => setMobileOpen(false)}
               className={`px-3 py-2.5 rounded-lg transition-colors ${
-                isActive(item.to)
+                isActive(item)
                   ? 'bg-[#2563eb]/10 text-[#2563eb] font-semibold border border-[#2563eb]/20'
                   : 'text-gray-600 hover:text-[#2563eb] hover:bg-gray-50'
               }`}
@@ -194,10 +208,12 @@ const DeliveryPortalHeader = () => {
 const DeliveryPortalMobileDrawer = ({
   isOpen,
   onClose,
-  accountOpen,
-  setAccountOpen,
+  _accountOpen,
+  _setAccountOpen,
   accountItems,
 }) => {
+  const location = useLocation();
+  const isActive = (item) => isActiveNavItem(item, location);
   if (!isOpen) return null;
 
   return (
@@ -209,6 +225,9 @@ const DeliveryPortalMobileDrawer = ({
       />
       <div
         className="fixed inset-y-0 left-0 z-50 w-full md:w-[75%] max-w-md bg-white shadow-2xl md:hidden flex flex-col transform transition-transform duration-300 ease-in-out"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Delivery portal navigation"
         style={{ transform: isOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
@@ -230,11 +249,11 @@ const DeliveryPortalMobileDrawer = ({
               key={item.label}
               to={item.to + (item.hash || '')}
               onClick={onClose}
-              className="block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive(item.to)
+              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                isActive(item)
                   ? 'bg-[#2563eb]/10 text-[#2563eb] font-semibold border border-[#2563eb]/20'
                   : 'text-gray-600 hover:text-[#2563eb] hover:bg-gray-50'
-              }"
+              }`}
             >
               {item.label}
             </Link>

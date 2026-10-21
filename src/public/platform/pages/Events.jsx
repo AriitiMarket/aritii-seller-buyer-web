@@ -37,7 +37,7 @@ const EventsPage = () => {
         {isLoading ? (
           <Loading variant="inline" label="Loading events…" />
         ) : allEvents && allEvents.length > 0 ? (
-          <EventsSection />
+          <EventsSection events={allEvents} limit={allEvents.length} />
         ) : (
           <EmptyState
             title="No events right now"

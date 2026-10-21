@@ -20,7 +20,7 @@ const BuyerLayout = () => {
       <BuyerHeader />
 
       {/* ===== Marketplace subnav — department rail below header ===== */}
-      <SubNavBar />
+      <SubNavBar stickyTopClass="top-16" />
 
       <div className="flex-1 overflow-y-auto pb-16 lg:pb-0">
         <main id="main-content" tabIndex={-1} className="outline-none">

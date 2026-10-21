@@ -20,6 +20,7 @@ const AboutPage = lazy(() => import('@/public/platform/pages/About'));
 const HowItWorksPage = lazy(() => import('@/public/platform/pages/HowItWorks'));
 const FAQPage = lazy(() => import('@/public/platform/pages/FAQ'));
 const PublicEventsPage = lazy(() => import('@/public/platform/pages/Events'));
+const LegalPage = lazy(() => import('@/public/platform/pages/Legal'));
 const MarketplaceLandingPage = lazy(() => import('@/features/marketplace/pages/MarketplaceLandingPage'));
 const SellOnAritiiPage = lazy(() => import('@/public/sell/pages/SellOnAritii'));
 const SellerCentralLandingPage = lazy(() => import('@/public/seller-central/pages/SellerCentralLanding'));
@@ -37,7 +38,6 @@ const CategoriesPage = lazy(() => import('@/features/marketplace/pages/Categorie
 const ShopsPage = lazy(() => import('@/features/marketplace/pages/Shops'));
 const ShopDetailsPage = lazy(() => import('@/buyer/pages/ShopDetail'));
 const DealsPage = lazy(() => import('@/features/marketplace/pages/DealsPage'));
-const SearchResultsPage = lazy(() => import('@/features/marketplace/pages/Products'));  // kept from public
 
 export const PublicRoutes = () => (
   <>
@@ -45,8 +45,9 @@ export const PublicRoutes = () => (
     <Route path="/" element={<HomePage />} />
     <Route path="/marketplace" element={<MarketplaceLandingPage />} />
     <Route path="/sell-on-aritii" element={<SellOnAritiiPage />} />
-    {/* Independent Seller Central Landing */}
-    <Route path="/seller" element={<SellerCentralLandingPage />} />
+    {/* Seller Center landing has its own horizontal navigation header. */}
+    <Route path="/seller-center" element={<SellerCentralLandingPage />} />
+    <Route path="/seller" element={<Navigate to="/seller-center" replace />} />
     {/* Seller Center pages - dedicated sections */}
     <Route path="/seller-center/overview" element={<SellerCenterOverviewPage />} />
     <Route path="/seller-center/benefits" element={<SellerCenterBenefitsPage />} />
@@ -58,6 +59,12 @@ export const PublicRoutes = () => (
     <Route path="/how-it-works" element={<HowItWorksPage />} />
     <Route path="/faq" element={<FAQPage />} />
     <Route path="/events" element={<PublicEventsPage />} />
+    {/* Aliases for the help entry points used by the header and the footer */}
+    <Route path="/help" element={<Navigate to="/faq" replace />} />
+    <Route path="/support" element={<Navigate to="/faq" replace />} />
+    <Route path="/privacy" element={<LegalPage doc="privacy" />} />
+    <Route path="/terms" element={<LegalPage doc="terms" />} />
+    <Route path="/cookie" element={<LegalPage doc="cookie" />} />
 
     {/* Catalog browsing - public, no auth required */}
     <Route element={<PublicCatalogLayout />}>
@@ -66,8 +73,10 @@ export const PublicRoutes = () => (
       <Route path="/categories" element={<CategoriesPage />} />
       <Route path="/shops" element={<ShopsPage />} />
       <Route path="/shops/:id" element={<ShopDetailsPage />} />
+      <Route path="/shop/:id" element={<Navigate to="/shops/:id" replace />} />
       <Route path="/deals" element={<DealsPage />} />
       <Route path="/best-selling" element={<BestSellersPage />} />
+      <Route path="/new-arrivals" element={<Navigate to="/products?sort=newest" replace />} />
       <Route path="/search" element={<Navigate to="/products" replace />} />
     </Route>
   </>

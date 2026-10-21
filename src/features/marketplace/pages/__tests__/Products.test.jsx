@@ -110,7 +110,7 @@ describe('DealsPage - Today\'s Deals', () => {
 
   it('renders product cards for each deal', () => {
     renderPage();
-    const headings = screen.getAllByText("Today's Deals");
+    const headings = screen.getAllByText("Today's Lightning Deals");
     expect(headings.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Smart Watch Pro/i)).toBeInTheDocument();
     expect(screen.getByText(/Wireless Headphones/i)).toBeInTheDocument();

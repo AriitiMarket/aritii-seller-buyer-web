@@ -105,34 +105,43 @@ export default function BuyerRequestsPage() {
   const hasActiveFilters = Boolean(query.trim() || statusFilter || dateFilter !== 'any');
 
   return (
-    <div className="space-y-6 px-4 md:px-6">
+    <div className="min-h-full bg-market-surface-dim px-3 py-4 sm:px-4 md:px-6 md:py-5">
+      <div className="mx-auto max-w-[1440px] space-y-4 md:space-y-5">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold" style={{ color: ARITII_DARK }}>
-            Product Requests
-          </h1>
-          <p className="text-market-on-surface-variant text-sm mt-2">
-            Request a product, negotiate an offer with the seller, then create the order when you agree.
-          </p>
+      <div className="relative overflow-hidden rounded-xl border border-market-border bg-white px-4 py-4 shadow-sm sm:px-5 md:px-6 md:py-5">
+        <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full bg-[#75d04b]/10 blur-3xl" />
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-market-secondary">Buyer workspace</p>
+            <h1 className="text-2xl font-bold tracking-tight text-market-on-surface md:text-3xl">Product Requests</h1>
+            <p className="mt-1.5 max-w-xl text-sm leading-5 text-market-on-surface-variant">
+              Ask a seller for what you need, compare offers, and place your order once you agree.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-medium text-market-on-surface-variant">
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">1. Describe your product</span>
+              <span className="text-market-secondary">→</span>
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">2. Agree on an offer</span>
+              <span className="text-market-secondary">→</span>
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">3. Create your order</span>
+            </div>
+          </div>
+          <Link
+            to="/my-dashboard/requests/new"
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-market-primary px-4 text-sm font-semibold text-market-on-primary shadow-sm transition hover:bg-market-primary-hover focus:outline-none focus:ring-2 focus:ring-market-primary focus:ring-offset-2"
+          >
+            <FiPlus size={18} />
+            Request a product
+          </Link>
         </div>
-        <Link
-          to="/my-dashboard/requests/new"
-          className="shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 text-white rounded-lg font-semibold hover:opacity-90 transition"
-          style={{ backgroundColor: ARITII_GREEN }}
-        >
-          <FiPlus size={18} />
-          Request Product
-        </Link>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-market-border p-3 md:p-4 overflow-x-auto">
+      <div className="rounded-xl border border-market-border bg-white px-2.5 py-2 shadow-sm md:px-4">
         <RequestTabs tabs={BUYER_TABS} counts={counts} active={activeTab} onChange={setActiveTab} />
       </div>
 
       {/* Search | Status | Date - Mobile responsive */}
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col gap-2 rounded-xl border border-market-border bg-white p-2.5 shadow-sm sm:flex-row sm:items-center md:p-3">
         <div className="relative flex-1">
           <FiSearch
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -143,16 +152,16 @@ export default function BuyerRequestsPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search requests, products or sellers…"
             aria-label="Search requests"
-            className="w-full pl-10 pr-4 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+                className="w-full pl-10 pr-4 py-2.5 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-11"
             style={{ '--tw-ring-color': ARITII_GREEN }}
           />
         </div>
-        <div className="flex gap-2 md:gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
           <select
-            value={statusFilter}
+            value={statusFilter ?? ''}
             onChange={(event) => setStatusFilter(event.target.value)}
             aria-label="Filter by status"
-            className="flex-1 md:flex-none px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+            className="min-w-0 sm:w-40 px-2.5 py-2 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-10"
             style={{ '--tw-ring-color': ARITII_GREEN }}
           >
             {STATUS_FILTER_OPTIONS.map((option) => (
@@ -162,10 +171,10 @@ export default function BuyerRequestsPage() {
             ))}
           </select>
           <select
-            value={dateFilter}
+            value={dateFilter ?? 'any'}
             onChange={(event) => setDateFilter(event.target.value)}
             aria-label="Filter by date"
-            className="flex-1 md:flex-none px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 transition h-11"
+            className="min-w-0 sm:w-36 px-2.5 py-2 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-10"
             style={{ '--tw-ring-color': ARITII_GREEN }}
           >
             {DATE_FILTERS.map((option) => (
@@ -209,7 +218,7 @@ export default function BuyerRequestsPage() {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           {visible.map((request) => {
             const status = statusOf(request);
             const activeOffer = (request.offers || []).find((offer) => offer.status === 'ACTIVE');
@@ -219,9 +228,9 @@ export default function BuyerRequestsPage() {
             const offer = activeOffer || acceptedOffer;
             
             return (
-              <article
+            <article
                 key={request._id}
-                className="bg-white border border-market-border rounded-lg p-4 md:p-6 hover:shadow-md transition"
+                className="group rounded-xl border border-market-border bg-white p-4 shadow-sm transition hover:border-[#75d04b]/50 hover:shadow-md md:p-5"
               >
                 {/* Request Header */}
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
@@ -312,6 +321,7 @@ export default function BuyerRequestsPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }

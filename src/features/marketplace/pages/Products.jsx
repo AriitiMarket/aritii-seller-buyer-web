@@ -17,24 +17,25 @@ import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
-import Button from '@/components/common/Button';
-import { useProducts, useFilteredProducts } from '@/shared/hooks/useProducts';
+import { useProducts } from '@/shared/hooks/useProducts';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
-import { useAuth } from '@/features/marketplace/hooks/useAuth';
+import { useAuth } from '@/auth/hooks/useAuth';
+import { PRODUCT_SORT_OPTIONS, sortProducts } from '@/features/marketplace/utils/sortProducts';
+import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
+import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';
 
-const sortOptions = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Avg. Customer Review' },
-  { value: 'newest', label: 'Newest Arrivals' },
-];
+const sortOptions = PRODUCT_SORT_OPTIONS.filter(
+  (option) => option.value !== 'best-sellers'
+);
 
 const ProductsPage = () => {
-  const [searchParams] = useSearchParams();
-  const [sortBy, setSortBy] = useState('featured');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sortBy, setSortBy] = useState(
+    () => searchParams.get('sort') || 'featured'
+  );
   const [viewMode, setViewMode] = useState('grid'); // 'list' | 'grid'
   const category = searchParams.get('category') || '';
+  const subcategory = searchParams.get('subcategory') || '';
   const shop = searchParams.get('shop') || '';
   const search = searchParams.get('search') || '';
   const rating = Number(searchParams.get('rating') || 0);
@@ -45,14 +46,17 @@ const ProductsPage = () => {
   const regionId = searchParams.get('regionId') || '';
 
   const { isAuthenticated } = useAuth();
-  const { zoneId: selectedZoneId, cityId: selectedCityId, cityName: selectedCityName, zoneName: selectedZoneName, hasZone, setLocation } = useDeliveryLocation();
+  const { regionName: selectedRegionName, cityName: selectedCityName, zoneName: selectedZoneName, hasLocation, setLocation } = useDeliveryLocation();
 
   // Build filter object for backend
   const filters = {
     ...(category && { category }),
+    ...(subcategory && { subcategory }),
     ...(shop && { shop }),
     ...(search && { search }),
     ...(regionId && { regionId }),
+    ...(cityId && { cityId }),
+    ...(zoneId && { zoneId }),
     ...(rating && { rating }),
     ...(min !== null && { minPrice: min }),
     ...(max !== null && { maxPrice: max }),
@@ -66,51 +70,43 @@ const ProductsPage = () => {
 
   // Sync URL zone params into Redux state so the cart/checkout share the same zone.
   useEffect(() => {
-    if (zoneId || cityId) {
+    if (zoneId || cityId || regionId) {
       setLocation({
-        zoneId: zoneId || selectedZoneId,
-        zoneName: searchParams.get('zoneName') || selectedZoneName,
-        cityId: cityId || selectedCityId,
-        cityName: searchParams.get('cityName') || selectedCityName,
+        regionId: regionId || undefined,
+        regionName: searchParams.get('regionName') || undefined,
+        zoneId: zoneId || undefined,
+        zoneName: searchParams.get('zoneName') || undefined,
+        cityId: cityId || undefined,
+        cityName: searchParams.get('cityName') || undefined,
       });
     }
-  }, [zoneId, cityId, selectedZoneId, selectedZoneName, selectedCityName, setLocation, searchParams]);
+  }, [zoneId, cityId, regionId, setLocation, searchParams]);
 
   // Frontend-side data is already filtered by backend, so no need for useFilteredProducts
-  const data = products || [];
+  const data = useMemo(() => products || [], [products]);
 
-  const heading = search ? `Search: "${search}"` : category || shop || 'All Products';
-  const zoneHint = hasZone
-    ? `Delivering to ${selectedZoneName}${selectedCityName ? `, ${selectedCityName}` : ''}`
+  const zoneHint = hasLocation
+    ? `Delivering to ${selectedZoneName || selectedCityName || selectedRegionName || 'your selected area'}`
     : 'All zones';
 
   const handleSortChange = (value) => {
     setSortBy(value);
+    // Keep the sort in the URL so shared/linked views (/new-arrivals) can
+    // preselect it.
+    const next = new URLSearchParams(searchParams);
+    if (value === 'featured') next.delete('sort');
+    else next.set('sort', value);
+    setSearchParams(next, { replace: true });
   };
 
   // Apply the selected sort to the filtered list.
-  const sortedData = useMemo(() => {
-    const list = [...data];
-    switch (sortBy) {
-      case 'price-low':
-        list.sort((a, b) => (a.discountPrice || 0) - (b.discountPrice || 0));
-        break;
-      case 'price-high':
-        list.sort((a, b) => (b.discountPrice || 0) - (a.discountPrice || 0));
-        break;
-      case 'rating':
-        list.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
-        break;
-      case 'newest':
-        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        break;
-      default:
-        break;
-    }
-    return list;
-  }, [data, sortBy]);
+  const sortedData = useMemo(() => sortProducts(data, sortBy), [data, sortBy]);
 
-  const breadcrumbItems = [];
+  const breadcrumbItems = [
+    { label: 'Home', to: '/' },
+    { label: 'Products', to: '/products' },
+    ...(category ? [{ label: category }] : []),
+  ];
 
   const mainContent = (
     <>
@@ -129,7 +125,7 @@ const ProductsPage = () => {
             {shop ? (
               <span> from {shop}</span>
             ) : null}
-            {hasZone && (
+            {hasLocation && (
               <span> • delivering to {zoneHint}</span>
             )}
           </div>
@@ -155,18 +151,12 @@ const ProductsPage = () => {
               </button>
             </div>
             <span className="text-xs font-semibold text-market-on-surface-variant uppercase tracking-wider hidden sm:inline">Sort by:</span>
-            <select
+            <CatalogSortSelect
               value={sortBy}
-              onChange={(e) => handleSortChange(e.target.value)}
-              aria-label="Sort products"
-              className="px-3 py-1.5 text-sm border border-market-border rounded-button bg-market-surface text-market-on-surface focus:outline-none focus:ring-2 focus:ring-market-primary/30"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              onChange={handleSortChange}
+              options={sortOptions}
+              ariaLabel="Sort products"
+            />
           </div>
         </div>
       )}
@@ -174,21 +164,17 @@ const ProductsPage = () => {
       {loading ? (
         <Loading variant="inline" label="Loading products…" />
       ) : error ? (
-        <EmptyState
+        <CatalogErrorState
           title="Could not load products"
           description={error}
-          action={
-            <Button onClick={refresh} className="bg-[#75d04b] hover:bg-[#5ac12f] text-white">
-              Try again
-            </Button>
-          }
+          onRetry={refresh}
         />
       ) : data.length > 0 ? (
         <div
           className={
             viewMode === 'list'
               ? 'bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700'
-              : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5'
+              : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-5'
           }
         >
           {sortedData.map((product, index) => (

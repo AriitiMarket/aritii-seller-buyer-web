@@ -9,7 +9,7 @@ const money = (value) =>
 const PromoCodeInput = ({ cartItems, subtotal, onApply, onRemove, appliedPromotion }) => {
   const [code, setCode] = useState('');
   const [validating, setValidating] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   const handleApply = async (e) => {
     e.preventDefault();
@@ -27,7 +27,9 @@ const PromoCodeInput = ({ cartItems, subtotal, onApply, onRemove, appliedPromoti
       );
 
       if (result.valid) {
-        toast.success(`Promo code applied! You saved ${money(result.discountAmount)}`);
+        toast.success(result.isFreeDelivery
+          ? 'Promo code applied! Free delivery is included in your checkout estimate.'
+          : `Promo code applied! You saved ${money(result.discountAmount)}`);
         onApply(result);
         setCode('');
         setExpanded(false);
@@ -44,6 +46,7 @@ const PromoCodeInput = ({ cartItems, subtotal, onApply, onRemove, appliedPromoti
 
   const handleRemove = () => {
     onRemove();
+    setExpanded(true);
     toast.info('Promo code removed');
   };
 
@@ -60,7 +63,9 @@ const PromoCodeInput = ({ cartItems, subtotal, onApply, onRemove, appliedPromoti
                 {appliedPromotion.promotion?.title || 'Promo Applied'}
               </p>
               <p className="text-xs text-green-700">
-                Code: {appliedPromotion.promotion?.code} • Save {money(appliedPromotion.discountAmount)}
+                Code: {appliedPromotion.promotion?.code} • {appliedPromotion.isFreeDelivery
+                  ? 'Free delivery'
+                  : `Save ${money(appliedPromotion.discountAmount)}`}
               </p>
             </div>
           </div>

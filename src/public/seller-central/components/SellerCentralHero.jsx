@@ -1,96 +1,151 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { AiOutlineArrowRight } from 'react-icons/ai'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { AiOutlineArrowRight, AiOutlineCheckCircle, AiOutlineCalculator } from 'react-icons/ai';
+import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
- * SellerCentralHero - Aritii Seller Central hero section
- *
- * Professional dark hero with strong value proposition for local sellers
+ * SellerCentralHero - Amazon Seller Central Style Hero
+ * Features high-contrast dark theme, bold orange CTA, and key seller stats + seller.png visual.
  */
 const SellerCentralHero = () => {
+  const { openLoginModal } = useLayout();
+
   return (
-    <section className="bg-[#131921] text-white py-16 md:py-24">
+    <section id="overview" className="bg-[#131921] text-white py-12 md:py-18 border-b border-[#232F3E]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Text Content */}
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Grow Your Local Business with Aritii
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* Left: Text Content & Value Prop */}
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#232F3E] text-[#FF9900] text-xs font-bold uppercase tracking-wider mb-4 border border-[#37475A]">
+              <span>★</span> Ethiopian Local Sellers Program
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-4">
+              Sell on Aritii.
+              <span className="block text-[#FF9900]">Reach millions of buyers.</span>
             </h1>
-            <p className="text-lg md:text-xl text-[#CCCCCB] mb-8 leading-relaxed">
-              Connect with customers in your community. Access a growing marketplace of local buyers looking for what you offer.
+
+            <p className="text-base sm:text-lg text-[#CCCCCB] mb-6 leading-relaxed max-w-xl">
+              Turn your storefront into an online business. List your products, reach verified buyers across Ethiopia, and let our logistics partners handle prompt door-to-door delivery.
             </p>
 
-            <div className="space-y-4 mb-10">
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-xs font-bold text-white">✓</span>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-8">
+              <div className="flex items-start gap-2.5">
+                <AiOutlineCheckCircle className="text-[#FF9900] text-lg flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold">Reach Local Customers</p>
-                  <p className="text-sm text-[#CCCCCB]">Connect with buyers in your neighborhood and city</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">0% Upfront Listing Cost</h4>
+                  <p className="text-[11px] text-[#999999]">Only pay when you make a sale</p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-xs font-bold text-white">✓</span>
-                </div>
+              <div className="flex items-start gap-2.5">
+                <AiOutlineCheckCircle className="text-[#FF9900] text-lg flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold">Professional Seller Tools</p>
-                  <p className="text-sm text-[#CCCCCB]">Manage products, orders, and analytics from one dashboard</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">Instant Bank Payouts</h4>
+                  <p className="text-[11px] text-[#999999]">Direct deposits to Telebirr, CBE & more</p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded-full bg-[#FF9900] flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-xs font-bold text-white">✓</span>
-                </div>
+              <div className="flex items-start gap-2.5">
+                <AiOutlineCheckCircle className="text-[#FF9900] text-lg flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold">Integrated Delivery Network</p>
-                  <p className="text-sm text-[#CCCCCB]">Seamless order fulfillment with local delivery partners</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">Built-in Delivery Network</h4>
+                  <p className="text-[11px] text-[#999999]">Automated rider dispatch & route tracking</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <AiOutlineCheckCircle className="text-[#FF9900] text-lg flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">Dedicated Seller Central</h4>
+                  <p className="text-[11px] text-[#999999]">Inventory, orders, & customer insights</p>
                 </div>
               </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 to="/seller-sign-up"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#FF9900] hover:bg-[#E68A00] text-white font-bold rounded transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#FF9900] hover:bg-[#E68A00] text-[#111111] font-bold text-sm rounded shadow-md transition-colors"
               >
-                Start Selling Now
-                <AiOutlineArrowRight size={20} />
+                Sign up to sell
+                <AiOutlineArrowRight size={18} />
               </Link>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#CCCCCB] text-white font-bold rounded hover:border-white hover:bg-white/5 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
+              <button
+                type="button"
+                onClick={() => openLoginModal('SELLER')}
+                className="inline-flex items-center justify-center px-6 py-3.5 border border-[#565959] hover:border-white text-white font-semibold text-sm rounded bg-[#232F3E] hover:bg-[#37475A] transition-colors"
               >
-                Sign in to Account
-              </Link>
+                Log in to Seller Central
+              </button>
             </div>
           </div>
 
-          {/* Right: Visual (placeholder) */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full aspect-square max-w-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF9900]/20 to-[#FF9900]/5 rounded-2xl" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-32 h-32 rounded-2xl bg-[#FF9900]/10 border-2 border-[#FF9900] flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-16 h-16 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
+          {/* Right: Seller Image & Amazon Seller Central Metric Preview Card */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Visual Seller Banner */}
+            <div className="relative rounded-xl overflow-hidden border border-[#232F3E] shadow-2xl group">
+              <img
+                src="/seller.png"
+                alt="Aritii Local Seller managing orders in store"
+                className="w-full h-48 sm:h-56 object-cover object-center group-hover:scale-102 transition-transform duration-500"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#131921] via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                <span className="px-2.5 py-1 bg-[#131921]/90 backdrop-blur-sm border border-[#232F3E] text-white text-[11px] font-bold rounded">
+                  Ethiopia Verified Sellers
+                </span>
+                <span className="text-[10px] text-[#FF9900] font-semibold bg-[#131921]/90 px-2 py-0.5 rounded">
+                  ★ Top Rated Hub
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Metrics & Snapshot */}
+            <div className="bg-[#1A222D] border border-[#232F3E] rounded-xl p-5 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-[#232F3E]">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded bg-[#FF9900] flex items-center justify-center text-[#111111] font-black text-xs">
+                    A
                   </div>
-                  <p className="text-[#CCCCCB] font-semibold">Ready to grow your business?</p>
+                  <div>
+                    <h3 className="text-xs font-bold text-white">Live Store Snapshot</h3>
+                    <p className="text-[10px] text-[#999999]">Addis Artisan Roasters</p>
+                  </div>
                 </div>
+                <span className="px-2 py-0.5 bg-green-950 border border-green-700/60 text-green-400 text-[10px] font-bold rounded-full">
+                  Online
+                </span>
+              </div>
+
+              {/* KPIs */}
+              <div className="grid grid-cols-2 gap-2.5 my-3">
+                <div className="bg-[#131921] p-2.5 rounded border border-[#232F3E]">
+                  <p className="text-[10px] text-[#999999]">Today's Sales</p>
+                  <p className="text-base font-bold text-[#FF9900]">14,250 ETB</p>
+                  <p className="text-[9px] text-green-400">↑ 18% vs yesterday</p>
+                </div>
+                <div className="bg-[#131921] p-2.5 rounded border border-[#232F3E]">
+                  <p className="text-[10px] text-[#999999]">Orders to Ship</p>
+                  <p className="text-base font-bold text-white">8 Orders</p>
+                  <p className="text-[9px] text-[#999999]">4 assigned to rider</p>
+                </div>
+              </div>
+
+              <div className="bg-[#232F3E] p-2.5 rounded-lg flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <AiOutlineCalculator className="text-[#FF9900] text-sm" />
+                  <span className="text-[11px] text-gray-200">5% - 8% Commission Tiers</span>
+                </div>
+                <a href="#pricing" className="text-[11px] font-bold text-[#FF9900] hover:underline">
+                  Fee Tiers →
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default SellerCentralHero
+export default SellerCentralHero;

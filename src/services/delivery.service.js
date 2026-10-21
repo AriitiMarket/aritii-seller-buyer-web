@@ -27,6 +27,20 @@ const NOT_AVAILABLE = (error) =>
   error?.response?.status === 404 || error?.response?.status === 501;
 
 export const deliveryService = {
+  async getProviderWallet() {
+    const { data } = await api.get('/delivery/provider-wallet/me');
+    return data;
+  },
+
+  async saveProviderPayoutAccount(account) {
+    const { data } = await api.put('/delivery/provider-wallet/me/payout-account', account);
+    return data;
+  },
+
+  async requestProviderPayout(amount) {
+    const { data } = await api.post('/delivery/provider-wallet/me/payouts', { amount });
+    return data.payout;
+  },
   /** Delivery assignments (paged). Filters: status, providerId, page, limit. */
   async getAssignments(params = {}) {
     try {
@@ -56,6 +70,23 @@ export const deliveryService = {
       reason,
     });
     return data?.assignment || null;
+  },
+
+  /**
+   * Move a delivery forward on the assignment the provider holds:
+   * `pickup` → `in_transit` → `delivered`.
+   *
+   * The grouped (multi-order) dispatch flow has its own endpoints; this is the
+   * equivalent for a SINGLE assignment, so a rider with one order is not left
+   * unable to progress it.
+   */
+  async advanceAssignment(assignmentId, status, extra = {}) {
+    const { data } = await api.post(`/delivery/assignment/${assignmentId}/advance`, {
+      status,
+      note: extra.note || '',
+      proofOfDelivery: extra.proofOfDelivery || extra.proof || undefined,
+    });
+    return data?.delivery || data;
   },
 
   /** Shipments — the delivery queue. Filters: status, sellerId, buyerId, providerId. */
@@ -94,6 +125,25 @@ export const deliveryService = {
       return { delivery: data?.delivery || null, supported: true };
     } catch (error) {
       if (NOT_AVAILABLE(error)) return { delivery: null, supported: false };
+      throw error;
+    }
+  },
+
+  /**
+   * The delivery's own history — the milestone timeline plus the tracking
+   * events the provider recorded. This is what makes a buyer's tracking screen
+   * show the parcel's real journey instead of only the order's status.
+   */
+  async getDeliveryHistory(deliveryId) {
+    try {
+      const { data } = await api.get(`/delivery/delivery/${deliveryId}/history`);
+      return {
+        timeline: data?.timeline || [],
+        trackingEvents: data?.trackingEvents || [],
+        supported: true,
+      };
+    } catch (error) {
+      if (NOT_AVAILABLE(error)) return { timeline: [], trackingEvents: [], supported: false };
       throw error;
     }
   },

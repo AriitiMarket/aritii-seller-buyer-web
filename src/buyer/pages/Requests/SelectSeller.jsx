@@ -99,7 +99,7 @@ export default function SelectSellerPage() {
           />
         </div>
         <select
-          value={category}
+          value={category ?? ''}
           onChange={(event) => setCategory(event.target.value)}
           aria-label="Filter by category"
           className="sm:w-56 px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"

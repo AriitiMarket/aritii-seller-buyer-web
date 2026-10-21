@@ -28,6 +28,7 @@ const ActiveDeliveryPage = lazy(() => import('@/features/delivery-provider/pages
 const WarningsPage = lazy(() => import('@/features/delivery-provider/pages/Warnings'));
 const ProviderProfilePage = lazy(() => import('@/features/delivery-provider/pages/ProviderProfile'));
 const OperatingAreaPage = lazy(() => import('@/features/delivery-provider/pages/OperatingArea'));
+const ProviderWalletPage = lazy(() => import('@/features/delivery-provider/pages/Wallet'));
 
 export const ProviderRoutes = () => (
   <Route
@@ -48,6 +49,7 @@ export const ProviderRoutes = () => (
     <Route path="warnings" element={<WarningsPage />} />
     <Route path="profile" element={<ProviderProfilePage />} />
     <Route path="operating-area" element={<OperatingAreaPage />} />
+    <Route path="wallet" element={<ProviderWalletPage />} />
   </Route>
 );
 

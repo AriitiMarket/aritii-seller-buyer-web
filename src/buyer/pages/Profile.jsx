@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Avatar } from '@/components/common/ImageWithFallback'
 import { AiOutlineCamera } from 'react-icons/ai'
 import { toast } from 'react-toastify'
-import { loadUser, updateUserInformation, updateUserAvatar } from '@/store/slices/userThunks'
+import { updateUserInformation, updateUserAvatar } from '@/store/slices/userThunks'
 import { MdEdit } from 'react-icons/md'
 
 const BuyerProfilePage = () => {

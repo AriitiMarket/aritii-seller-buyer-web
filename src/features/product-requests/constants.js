@@ -455,3 +455,9 @@ export function realtimeNotice(event) {
       return null;
   }
 }
+
+/** Stable toast key so duplicate delivery of one socket event only pops once. */
+export function realtimeToastId(event) {
+  if (!event?.type || !event?.requestId || !event?.at) return undefined;
+  return `request:${event.type}:${event.requestId}:${event.at}`;
+}

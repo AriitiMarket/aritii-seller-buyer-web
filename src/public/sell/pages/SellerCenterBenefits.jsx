@@ -1,109 +1,107 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AiOutlineArrowRight, AiOutlineCheck } from 'react-icons/ai';
+import {
+  AiOutlineCheck,
+  AiOutlineSafetyCertificate,
+  AiOutlineLineChart,
+  AiOutlineRocket,
+} from 'react-icons/ai';
 import SellerCenterLayout from '@/public/sell/layout/SellerCenterLayout';
 import SellerBenefits from '@/public/sell/components/SellerBenefits';
+import SellerPageHero from '@/public/sell/components/SellerPageHero';
 
 /**
  * SellerCenterBenefitsPage — /seller-center/benefits
- *
- * Detailed benefits of selling on Aritii.
- * Uses independent SellerCenterLayout for header and navigation.
+ * Amazon Seller Central Benefits page with structured feature pillars.
  */
 const SellerCenterBenefitsPage = () => {
   return (
     <SellerCenterLayout>
-      {/* Page Header */}
-      <section className="bg-gradient-to-r from-[#131921] to-[#232f3e] text-white py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#FF9900]/20 text-[#FF9900] text-xs font-bold uppercase tracking-wider">
-              Seller Benefits
-            </span>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything you need to grow your business
-            </h1>
-            <p className="text-lg text-white/90">
-              Aritii gives you the tools, reach, and support to turn local customers into loyal shoppers.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Amazon-style Hero Header */}
+      <SellerPageHero
+        badge="Seller Central Benefits"
+        title="Powerful tools designed to scale your business"
+        description="From inventory controls and batch SKU updates to express local delivery and direct bank settlements, Aritii equips your business to succeed."
+      />
 
-      {/* Benefits Grid */}
+      {/* Main Benefits Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <SellerBenefits />
       </section>
 
-      {/* Detailed Benefits */}
-      <section className="bg-white dark:bg-gray-900 py-12 md:py-16 border-t border-gray-100 dark:border-gray-800">
+      {/* Deep-Dive Amazon Feature Comparisons */}
+      <section className="bg-white dark:bg-[#1a222d] py-14 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-10 text-center">
-            Why sellers choose Aritii
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              {
-                title: 'Local Market Advantage',
-                description: 'Tap into customers actively looking for products in your community. Skip international shipping delays.',
-                items: ['Local customer focus', 'Shorter delivery times', 'Community trust'],
-              },
-              {
-                title: 'Simple Tools',
-                description: 'No coding required. Manage your entire shop with intuitive, easy-to-use tools.',
-                items: ['Easy product uploads', 'One-click pricing', 'Inventory tracking'],
-              },
-              {
-                title: 'Built-in Delivery',
-                description: "Orders automatically connect to Aritii's delivery network. Focus on packing, we handle delivery.",
-                items: ['Automatic fulfillment', 'Real-time tracking', 'Customer visibility'],
-              },
-              {
-                title: 'Grow Your Sales',
-                description: 'Reach more customers through promotions, analytics, and seller support.',
-                items: ['Sales reports', 'Promotion tools', 'Buyer insights'],
-              },
-            ].map((benefit) => (
-              <div key={benefit.title} className="p-8 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{benefit.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-5">{benefit.description}</p>
-                <ul className="space-y-2">
-                  {benefit.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5">
-                      <AiOutlineCheck className="text-[#2f6e4f] flex-shrink-0 mt-0.5" size={18} aria-hidden="true" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F1111] dark:text-white mb-2">
+              Advanced Seller Central Capabilities
+            </h2>
+            <p className="text-xs sm:text-sm text-[#565959] dark:text-gray-400">
+              Enterprise-grade infrastructure built for Ethiopian commerce
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="bg-[#FDF6EC] dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 py-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to start selling?
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
-            See how the onboarding works and preview your seller workspace.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/seller-center/how-it-works"
-              className="px-8 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              How It Works
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-[#F7F7F7] dark:bg-gray-850">
+              <div className="w-10 h-10 rounded-lg bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center mb-4">
+                <AiOutlineSafetyCertificate size={22} />
+              </div>
+              <h3 className="font-bold text-base text-[#0F1111] dark:text-white mb-2">
+                Order Hold & SLA Protection
+              </h3>
+              <p className="text-xs text-[#565959] dark:text-gray-400 leading-relaxed mb-3">
+                Built-in order hold statuses and real-time SLA countdowns keep you in control of fulfillment times and protect your seller rating.
+              </p>
+              <ul className="text-xs text-[#565959] dark:text-gray-400 space-y-1.5">
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> Automated SLA breach alerts</li>
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> Order priority tagging (VIP/Urgent)</li>
+              </ul>
+            </div>
+
+            <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-[#F7F7F7] dark:bg-gray-850">
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center mb-4">
+                <AiOutlineLineChart size={22} />
+              </div>
+              <h3 className="font-bold text-base text-[#0F1111] dark:text-white mb-2">
+                Real-Time Financial Ledger
+              </h3>
+              <p className="text-xs text-[#565959] dark:text-gray-400 leading-relaxed mb-3">
+                Full transparency into your earnings, platform commissions, pending wallet balances, and completed bank payouts.
+              </p>
+              <ul className="text-xs text-[#565959] dark:text-gray-400 space-y-1.5">
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> One-click payout requests</li>
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> Automated invoice generation</li>
+              </ul>
+            </div>
+
+            <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-[#F7F7F7] dark:bg-gray-850">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 text-[#00A8E1] flex items-center justify-center mb-4">
+                <AiOutlineRocket size={22} />
+              </div>
+              <h3 className="font-bold text-base text-[#0F1111] dark:text-white mb-2">
+                Promotions & Product Requests
+              </h3>
+              <p className="text-xs text-[#565959] dark:text-gray-400 leading-relaxed mb-3">
+                Create promotional discount codes and respond directly to buyer custom product inquiries submitted on the marketplace.
+              </p>
+              <ul className="text-xs text-[#565959] dark:text-gray-400 space-y-1.5">
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> Custom coupon builder</li>
+                <li className="flex items-center gap-1.5"><AiOutlineCheck className="text-green-600" /> Direct quotation to customer requests</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CTA Banner */}
+          <div className="mt-12 p-8 rounded-xl bg-[#232F3E] text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold mb-1">Ready to unlock these seller benefits?</h3>
+              <p className="text-xs text-[#CCCCCB]">Create your account in under 5 minutes with zero upfront listing fees.</p>
+            </div>
             <Link
               to="/seller-sign-up"
-              className={`group inline-flex items-center justify-center gap-2 px-8 py-3 font-bold rounded-lg transition-colors ${exp.button}`}
+              className="py-3 px-6 bg-[#FF9900] hover:bg-[#E68A00] text-[#111111] font-bold text-xs rounded transition-colors whitespace-nowrap"
             >
-              Start Selling
-              <AiOutlineArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+              Sign Up Now →
             </Link>
           </div>
         </div>

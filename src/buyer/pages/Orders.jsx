@@ -3,12 +3,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { getAllOrdersOfUser, cancelOrder } from '@/store/slices/orderThunks'
 import { ProductImage } from '@/components/common/ImageWithFallback'
-import { MdShoppingBag, MdSearch, MdLocalShipping, MdSwapVert } from 'react-icons/md'
+import { MdShoppingBag, MdSearch, MdSwapVert } from 'react-icons/md'
 import { AiOutlineClose } from 'react-icons/ai'
 import { toast } from 'react-toastify'
-import { getOrderStatus, isOrderDelivered, isOrderCancelled, isOrderInProgress, isOrderCancellable, isOrderTrackable, formatPrice, formatDate } from '@/buyer/utils/orderUtils'
+import { getOrderStatus, isOrderDelivered, isOrderCancelled, isOrderInProgress, isOrderTrackable } from '@/buyer/utils/orderUtils'
 import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus'
-import { getDeliveryStatus } from '@/shared/utils/deliveryStatus'
 
 // Aritii Brand Colors
 const ARITII_GREEN = '#75d04b'
@@ -189,7 +188,7 @@ const BuyerOrdersPage = () => {
       {/* Orders Grid - Full width cards mobile */}
       {loading ? (
         <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 mx-auto" style={{ borderTopColor: ARITII_GREEN }}></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 mx-auto" style={{ borderTopColor: ARITII_GREEN }} />
           <p className="text-market-on-surface-variant text-sm mt-6">Loading your orders...</p>
         </div>
       ) : error ? (
@@ -268,7 +267,7 @@ const BuyerOrdersPage = () => {
                     <div>
                       <p className="text-market-on-surface-variant font-medium">Total</p>
                       <p className="font-bold" style={{ color: ARITII_GREEN }}>
-                        ETB {Number(order.total || order.amount || 0).toLocaleString()}
+                        ETB {Number(order.totalPrice ?? order.total ?? order.amount ?? 0).toLocaleString()}
                       </p>
                     </div>
                   </div>

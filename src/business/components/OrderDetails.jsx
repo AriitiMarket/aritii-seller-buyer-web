@@ -4,22 +4,23 @@ import { useParams, Link } from 'react-router-dom';
 import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import api from '@/services/api';
 import { toast } from 'react-toastify';
-import { AiOutlineShoppingCart } from 'react-icons/ai';
-import { Link as RouterLink } from 'react-router-dom';
-import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import {
-  ALLOWED_TRANSITIONS,
   normalizeStatus,
   nextStatusesFor,
   isRefundStatus,
 } from '@/shared/utils/orderStatus';
-import OrderDeliveryCard from '@/shared/components/OrderDeliveryCard';
-import { SellerStatusBadge } from '@/business/components';
+import { ProductImage } from '@/components/common/ImageWithFallback';
+import { 
+  SellerStatusBadge,
+  OrderNotesTab,
+  OrderHoldBadge,
+  OrderPriorityBadge,
+  OrderSLAStatus
+} from '@/business/components';
 
 const OrderDetails = () => {
   const { ShopOrders, isLoading } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller || {});
-  const { activeShopId } = useBusinessShops();
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -72,8 +73,10 @@ const OrderDetails = () => {
     try {
       if (isRefund) {
         await api.put(`/order/order-refund-success/${id}`, { status: next });
+      } else if (next === 'Confirmed') {
+        await api.post(`/order/${id}/confirm`);
       } else {
-        await api.put(`/order/update-order-status/${id}`, { status: next });
+        await api.patch(`/order/${id}/status`, { status: next });
       }
       toast.success(next === 'Confirmed' ? 'Order accepted!' : 'Order updated!');
       if (sellerUserId) dispatch(getAllOrdersOfShop(sellerUserId));
@@ -109,7 +112,7 @@ const OrderDetails = () => {
 
   return (
     <div className="seller-shell-bg min-h-screen space-y-6">
-      <div className="seller-section-header">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] p-5 shadow-xs">
         <div className="flex items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <Link to="/business/orders" className="inline-flex items-center gap-1 text-sm text-market-primary hover:underline">
@@ -124,20 +127,23 @@ const OrderDetails = () => {
         </div>
       </div>
 
+      {/* New Phase 1 Indicators */}
+      <div className="max-w-3xl space-y-4">
+        <OrderHoldBadge orderId={id} />
+        <OrderPriorityBadge orderId={id} />
+        <OrderSLAStatus orderId={id} />
+      </div>
+
       <div className="max-w-3xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <div className="seller-form-section">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] p-5 shadow-xs">
               <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Items</h3>
-              <div className="divide-y divide-market-border">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {(data.cart || data.products || data.items || []).map((item, idx) => (
                   <div key={idx} className="p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded overflow-hidden bg-market-surface-container-low shrink-0">
-                      <img
-                        src={Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || '/assets/images/placeholders/product-placeholder.svg')}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-12 h-12 rounded overflow-hidden bg-market-surface-container-low shrink-0 border border-gray-200 dark:border-gray-700">
+                      <ProductImage data={item} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-market-on-surface">{item.name}</p>
@@ -152,7 +158,7 @@ const OrderDetails = () => {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-market-border pt-4 mt-4 flex justify-end">
+              <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-4 flex justify-end">
                 <p className="font-bold text-market-on-surface">
                   Total: ETB {Number(data.totalPrice || 0).toLocaleString()}
                 </p>
@@ -161,10 +167,10 @@ const OrderDetails = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="seller-form-section">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] p-5 shadow-xs">
               <h3 className="text-lg font-bold text-market-on-surface mb-4">Order Status</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-market-surface-container-low rounded-lg border border-gray-100 dark:border-gray-800">
                   <span className="text-sm text-market-on-surface-variant">Current status</span>
                   <SellerStatusBadge status={data.status} />
                 </div>
@@ -212,7 +218,7 @@ const OrderDetails = () => {
             {/* Seller payout — this seller's allocation within the buyer order. Never exposes
                  another seller's financials; backend enforces ownership per sellerId. */}
             {allocation || allocLoading ? (
-              <div className="seller-form-section mt-6">
+              <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] p-5 shadow-xs mt-6">
                 <h3 className="text-lg font-bold text-market-on-surface mb-4">Seller Payout</h3>
                 {allocLoading ? (
                   <p className="text-sm text-market-on-surface-variant">Calculating your share…</p>
@@ -289,6 +295,9 @@ const OrderDetails = () => {
                 </div>
               </div>
             </div>
+
+            {/* Order Notes - Phase 1 */}
+            <OrderNotesTab orderId={id} />
           </div>
         </div>
       </div>

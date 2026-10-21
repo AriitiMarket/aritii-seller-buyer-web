@@ -14,10 +14,8 @@
  */
 import React, { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import Breadcrumbs from '@/shared/components/Breadcrumbs'
 import Loading from '@/components/common/Loading'
 import EmptyState from '@/components/common/EmptyState'
-import CategoryIcon from '@/features/marketplace/components/CategoryIcon'
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories'
 import './Categories.css'
 
@@ -27,8 +25,6 @@ const CategoriesPage = () => {
   const active = searchParams.get('category') || ''
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState({})
-  const [priceFilter, setPriceFilter] = useState('all')
-  const [ratingFilter, setRatingFilter] = useState('all')
 
   // Normalize categories into a consistent shape with subcategories
   const categories = useMemo(() => {
@@ -44,7 +40,6 @@ const CategoriesPage = () => {
     }))
   }, [rawCategories])
 
-  const totalCount = useMemo(() => categories.reduce((sum, c) => sum + c.count, 0), [categories])
 
   // Featured categories (first 3 marked as featured, or fallback to first 3)
   const featuredCategories = useMemo(() => {
@@ -71,11 +66,6 @@ const CategoriesPage = () => {
     }))
   }
 
-  const clearFilters = () => {
-    setPriceFilter('all')
-    setRatingFilter('all')
-  }
-
   const getCategoryImage = (category) => {
     return category.image || `https://via.placeholder.com/400x300?text=${encodeURIComponent(category.title)}`
   }
@@ -92,7 +82,7 @@ const CategoriesPage = () => {
             aria-haspopup="dialog"
             aria-expanded={sidebarOpen}
           >
-            <span>☰ Filters</span>
+            <span>☰ Categories</span>
             <span className="badge-small">{Object.keys(groupedCategories).length}</span>
           </button>
         </div>
@@ -110,61 +100,18 @@ const CategoriesPage = () => {
         {sidebarOpen && (
           <div className="categories-mobile-drawer">
             <div className="drawer-header">
-              <h2>Filters & Categories</h2>
+              <h2>Categories</h2>
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
                 className="drawer-close"
-                aria-label="Close filters"
+                aria-label="Close categories"
               >
                 ✕
               </button>
             </div>
             
             <div className="drawer-content">
-              {/* Filter section */}
-              <div className="filter-section">
-                <div className="filter-header">
-                  <h3>Filters</h3>
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="clear-filters-btn"
-                  >
-                    Clear All
-                  </button>
-                </div>
-
-                <div className="filter-group">
-                  <label className="filter-label">Price Range</label>
-                  <select
-                    value={priceFilter}
-                    onChange={(e) => setPriceFilter(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Prices</option>
-                    <option value="0-50">Under $50</option>
-                    <option value="50-100">$50 - $100</option>
-                    <option value="100-500">$100 - $500</option>
-                    <option value="500+">$500+</option>
-                  </select>
-                </div>
-
-                <div className="filter-group">
-                  <label className="filter-label">Rating</label>
-                  <select
-                    value={ratingFilter}
-                    onChange={(e) => setRatingFilter(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Ratings</option>
-                    <option value="4+">4+ Stars</option>
-                    <option value="3+">3+ Stars</option>
-                    <option value="2+">2+ Stars</option>
-                  </select>
-                </div>
-              </div>
-
               {/* Categories section */}
               <div className="categories-section">
                 <h3>Categories</h3>
@@ -215,49 +162,6 @@ const CategoriesPage = () => {
         <div className="categories-content-wrapper">
           {/* Left sidebar — desktop only */}
           <aside className="categories-sidebar">
-            {/* Filter section */}
-            <div className="sidebar-section">
-              <div className="sidebar-section-header">
-                <h3>Filters</h3>
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="clear-filters-link"
-                >
-                  Clear
-                </button>
-              </div>
-
-              <div className="filter-group">
-                <label className="filter-label">Price Range</label>
-                <select
-                  value={priceFilter}
-                  onChange={(e) => setPriceFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Prices</option>
-                  <option value="0-50">Under $50</option>
-                  <option value="50-100">$50 - $100</option>
-                  <option value="100-500">$100 - $500</option>
-                  <option value="500+">$500+</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label className="filter-label">Rating</label>
-                <select
-                  value={ratingFilter}
-                  onChange={(e) => setRatingFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Ratings</option>
-                  <option value="4+">4+ Stars</option>
-                  <option value="3+">3+ Stars</option>
-                  <option value="2+">2+ Stars</option>
-                </select>
-              </div>
-            </div>
-
             {/* Categories section */}
             <div className="sidebar-section">
               <h3 className="sidebar-section-title">Categories</h3>

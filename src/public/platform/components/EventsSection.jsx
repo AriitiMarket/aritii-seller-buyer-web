@@ -3,21 +3,32 @@ import { Link } from 'react-router-dom';
 import { publicContentService } from '@/public/services/publicContentService';
 
 /**
- * EventsSection - Upcoming events for the public homepage.
+ * EventsSection - Upcoming events for the public pages.
  *
  * Events are an INDEPENDENT feature (own service, own model — see docs/ARCHITECTURE.md).
- * This section only reads the publicly visible, featured events returned by the
+ * This section only renders the publicly visible, featured events returned by the
  * backend (`showOnPublic` + `featured`). It renders nothing when there are no
  * publicly curated events, so no mock events ever reach production.
+ *
+ * `events` — the list to render. The events page passes the list it already
+ * fetched into Redux, so the page does not request the same endpoint twice
+ * (the page's "no events" state and the section's list used to disagree).
+ * When the prop is omitted the section fetches the list itself.
  */
-const EventsSection = () => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+const EventsSection = ({ events: eventsProp = null, limit = 3 }) => {
+  const [events, setEvents] = useState(eventsProp || []);
+  const [loading, setLoading] = useState(!eventsProp);
 
   useEffect(() => {
+    if (eventsProp) {
+      setEvents(eventsProp);
+      setLoading(false);
+      return undefined;
+    }
+
     let active = true;
     publicContentService
-      .getFeaturedEvents(3)
+      .getFeaturedEvents(limit)
       .then((items) => {
         if (active) setEvents(items);
       })
@@ -30,12 +41,12 @@ const EventsSection = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [eventsProp, limit]);
 
   if (loading || events.length === 0) return null;
 
   return (
-    <section className="py-10 md:py-14 bg-[#FDF6EC] dark:bg-gray-950">
+    <section className="py-10 md:py-14 bg-[#EAEDED] dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>

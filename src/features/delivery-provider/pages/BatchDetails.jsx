@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MdArrowBack, MdStore, MdLocationOn, MdInventory, MdRoute } from 'react-icons/md';
+import { MdArrowBack, MdStore, MdLocationOn, MdInventory, MdRoute, MdPhone, MdCheck } from 'react-icons/md';
 import { useProviderBatches } from '../hooks/useProviderBatches';
 import { deliveryService } from '@/services/delivery.service';
 import { toast } from 'react-toastify';
@@ -155,7 +155,7 @@ const BatchDetails = () => {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900">Batch Details</h1>
           <p className="text-gray-600 mt-1">
-            {shortReference(batch.id)} • {batch.count} order{batch.count > 1 ? 's' : ''}
+            {batch.reference || shortReference(batch.id)} • {batch.count} order{batch.count > 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -193,7 +193,7 @@ const BatchDetails = () => {
             <p className="font-semibold text-gray-900">
               {assignments.filter(a => {
                 const s = normalizeDeliveryStatus(a.status);
-                return s === DELIVERY_STATUSES.ASSIGNED || s === DELIVERY_STATUSES.PICKUP || s === DELIVERY_STATUSES.IN_TRANSIT;
+                return s === DELIVERY_STATUSES.ASSIGNED || s === DELIVERY_STATUSES.REASSIGNED || s === DELIVERY_STATUSES.PICKUP || s === DELIVERY_STATUSES.IN_TRANSIT;
               }).length}
             </p>
           </div>
@@ -202,6 +202,131 @@ const BatchDetails = () => {
             <p className="font-semibold text-gray-900">{formatDeliveryTime(batch.createdAt)}</p>
           </div>
         </div>
+      </div>
+
+      {/* Pickup Tasks - Multi-Shop Separate Collection */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Pickup Tasks (Multi-Shop Collection)</h2>
+          <span className="text-xs font-medium text-gray-500">
+            {(batch.pickupPlan || []).filter((s) => s.completed).length} of {(batch.pickupPlan || []).length} completed
+          </span>
+        </div>
+
+        {(!batch.pickupPlan || batch.pickupPlan.length === 0) ? (
+          <p className="text-gray-500 text-center py-4">No pickup stops planned</p>
+        ) : (
+          <div className="space-y-4">
+            {(batch.pickupPlan || []).map((stop, index) => {
+              const isStopCompleted = Boolean(stop.completed);
+              return (
+                <div
+                  key={stop.sellerId || index}
+                  className={`p-4 rounded-lg border-2 transition ${
+                    isStopCompleted ? 'border-green-200 bg-green-50' : 'border-blue-200 bg-white'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          isStopCompleted ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'
+                        }`}
+                      >
+                        {isStopCompleted ? <MdCheck size={14} /> : stop.sequence || index + 1}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{stop.shopName || stop.sellerName || 'Shop'}</h3>
+                        <p className="text-xs text-gray-500">
+                          {formatDeliveryAddress(stop.address) || 'Address not specified'}
+                        </p>
+                        {(stop.contactPhone || stop.address?.contactPhone) && (
+                          <p className="text-xs text-blue-600 flex items-center gap-1 mt-0.5">
+                            <MdPhone size={12} />
+                            {stop.contactPhone || stop.address?.contactPhone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        isStopCompleted ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {isStopCompleted ? 'Collected' : 'Pending Collection'}
+                    </span>
+                  </div>
+
+                  {/* Product items verification */}
+                  {Array.isArray(stop.items) && stop.items.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <p className="text-xs font-medium text-gray-600 mb-2">Items to Inspect & Collect:</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {stop.items.map((item, itemIdx) => (
+                          <div
+                            key={itemIdx}
+                            className="flex items-center gap-3 p-2 bg-gray-50 rounded border border-gray-200 text-xs"
+                          >
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-10 h-10 object-cover rounded flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-gray-400 flex-shrink-0">
+                                <MdInventory size={16} />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-gray-900 truncate">{item.name}</p>
+                              <div className="flex items-center gap-2 text-gray-500 text-[11px] mt-0.5">
+                                <span>Qty: <strong>{item.quantity}</strong> {item.unit || 'pcs'}</span>
+                                <span>•</span>
+                                <span>Condition: <span className="text-green-700">{item.condition || 'good'}</span></span>
+                              </div>
+                              {item.collectedQuantity !== undefined && item.collectedQuantity !== item.quantity && (
+                                <p className="text-[11px] text-amber-600 mt-0.5">
+                                  Collected: {item.collectedQuantity}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Discrepancies if any */}
+                  {Array.isArray(stop.discrepancies) && stop.discrepancies.length > 0 && (
+                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                      <strong>Discrepancies reported:</strong>
+                      <ul className="list-disc pl-4 mt-1">
+                        {stop.discrepancies.map((d, dIdx) => (
+                          <li key={dIdx}>{d.reason || JSON.stringify(d)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Quick pickup confirmation button per stop */}
+                  {batchStatus === 'picking_up' && !isStopCompleted && (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        onClick={() => handleBatchAction('confirmDispatchPickup', batch.id, stop.sellerId)}
+                        disabled={actioning}
+                        className="px-3 py-1.5 bg-[#75d04b] hover:bg-[#5ac12f] text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center gap-1"
+                      >
+                        <MdCheck size={14} />
+                        <span>{actioning ? 'Confirming...' : `Confirm Pickup from ${stop.shopName || stop.sellerName}`}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Delivery Stops */}
@@ -215,7 +340,7 @@ const BatchDetails = () => {
             {assignments.map((assignment, index) => {
               const status = normalizeDeliveryStatus(assignment.status);
               const isCompleted = status === DELIVERY_STATUSES.DELIVERED;
-              const isCurrent = !isCompleted && (status === DELIVERY_STATUSES.ASSIGNED || status === DELIVERY_STATUSES.PICKUP || status === DELIVERY_STATUSES.IN_TRANSIT);
+              const isCurrent = !isCompleted && (status === DELIVERY_STATUSES.ASSIGNED || status === DELIVERY_STATUSES.REASSIGNED || status === DELIVERY_STATUSES.PICKUP || status === DELIVERY_STATUSES.IN_TRANSIT);
               
               return (
                 <div

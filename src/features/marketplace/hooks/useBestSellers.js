@@ -22,11 +22,17 @@ export function useBestSellers() {
         limit: 24,
       });
       
-      // Sort by rating descending to get "best sellers"
+      // Rank by units sold, then by rating. Unrated products are kept — the
+      // previous `ratings >= 4` filter hid every new/unrated product from the
+      // page, and nothing in the API returns a `unitsSold` field, so the
+      // "Best Sellers" sort had nothing to sort on.
       const sorted = (response.products || [])
-        .filter(p => p.ratings >= 4) // Only highly rated products
+        .map((p) => ({
+          ...p,
+          unitsSold: p.sold_out ?? p.total_sell ?? 0,
+        }))
         .sort((a, b) => (b.ratings || 0) - (a.ratings || 0))
-        .sort((a, b) => (b.sold_out || b.total_sell || 0) - (a.sold_out || a.total_sell || 0));
+        .sort((a, b) => b.unitsSold - a.unitsSold);
       
       setDeals(sorted);
     } catch (err) {

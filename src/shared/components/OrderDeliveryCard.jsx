@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { orderService } from '@/services';
 import { deliveryService } from '@/services/delivery.service';
 import { describeDelivery, explainNoDelivery } from '@/shared/utils/deliveryStatus';
 import { formatCurrency, formatDateTime } from '@/shared/utils/format';
+import DeliveryTimeline from '@/shared/components/DeliveryTimeline';
 import { BsTruck, BsGeoAlt, BsExclamationCircle, BsArrowRepeat } from 'react-icons/bs';
 import { FiRefreshCw } from 'react-icons/fi';
 
@@ -38,11 +39,13 @@ export default function OrderDeliveryCard({
   className = '',
   title = 'Delivery',
 }) {
-  const [state, setState] = useState({ loading: true, delivery: null, error: '' });
+  const [state, setState] = useState({ loading: true, delivery: null, error: '', timeline: [], trackingEvents: [] });
+  const requestInFlight = useRef(false);
 
-  const load = useCallback(async () => {
-    if (!orderId) return;
-    setState((prev) => ({ ...prev, loading: true, error: '' }));
+  const load = useCallback(async ({ silent = false } = {}) => {
+    if (!orderId || requestInFlight.current) return;
+    requestInFlight.current = true;
+    setState((prev) => ({ ...prev, loading: silent ? prev.loading : true, error: '' }));
     try {
       let delivery = null;
       try {
@@ -56,18 +59,49 @@ export default function OrderDeliveryCard({
         const { delivery: bridgeDelivery } = await orderService.getOrderDelivery(orderId);
         delivery = bridgeDelivery || null;
       }
-      setState({ loading: false, delivery, error: '' });
+
+      // The delivery's own history — the parcel's real journey. A failure here
+      // must not hide the delivery itself, so it degrades to an empty timeline.
+      let timeline = [];
+      let trackingEvents = [];
+      if (delivery && delivery._id) {
+        try {
+          const history = await deliveryService.getDeliveryHistory(delivery._id);
+          timeline = history.timeline || [];
+          trackingEvents = history.trackingEvents || [];
+        } catch {
+          timeline = [];
+          trackingEvents = [];
+        }
+      }
+
+      setState({ loading: false, delivery, error: '', timeline, trackingEvents });
     } catch (err) {
       setState({
         loading: false,
         delivery: null,
         error: err?.response?.data?.message || 'Delivery information is unavailable right now.',
+        timeline: [],
+        trackingEvents: [],
       });
+    } finally {
+      requestInFlight.current = false;
     }
   }, [orderId]);
 
   useEffect(() => {
     load();
+    // Keep an open order page current without requiring a manual refresh.
+    // Pause in background tabs to avoid unnecessary requests.
+    const refresh = () => {
+      if (document.visibilityState === 'visible') load({ silent: true });
+    };
+    const timer = window.setInterval(refresh, 30_000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
   }, [load]);
 
   const view = describeDelivery(state.delivery);
@@ -141,6 +175,12 @@ export default function OrderDeliveryCard({
               <span>{view.note}</span>
             </div>
           )}
+
+          <DeliveryTimeline
+            timeline={state.timeline}
+            trackingEvents={state.trackingEvents}
+            status={view.status}
+          />
 
           <p className="text-xs text-gray-500">
             Delivery progress is reported by the provider network; the order status follows it.

@@ -5,7 +5,7 @@
  * both the desktop sidebar (ProviderSidebar) and the mobile drawer
  * (ProviderMobileDrawer). Items are ordered by operational frequency:
  * overview first, then the core delivery work loop (assignments → deliveries →
- * batches), then operating area, earnings (documented as a backend gap), and
+ * batches), then operating area and wallet earnings, and
  * finally account/support actions.
  *
  * Every `to` route exists in ProviderRoutes.jsx. Permission-sensitive items are
@@ -49,6 +49,12 @@ export const DELIVERY_NAV_ITEMS = Object.freeze([
     label: 'Operating Area',
     to: '/provider/operating-area',
     icon: 'MdLocationOn',
+  },
+
+  {
+    label: 'Wallet & Earnings',
+    to: '/provider/wallet',
+    icon: 'MdAccountBalanceWallet',
   },
 
   {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { getAllOrdersOfUser } from '@/store/slices/orderThunks'
@@ -14,20 +14,35 @@ import {
 import '@/buyer/components/TrackOrder.css'
 
 const TrackOrder = () => {
-  const { orders } = useSelector((state) => state.order)
+  const { orders, buyerOrdersLoading } = useSelector((state) => state.order)
   const { user } = useSelector((state) => state.user)
   const dispatch = useDispatch()
   const { id } = useParams()
   // Identity users carry `id` (UUID); `_id` is the Mongo-style fallback.
   const userId = user?.id || user?._id
+  // The order list is still loading — say so. Showing "Order not found" while
+  // the request is in flight told buyers their real order did not exist.
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (userId) {
-      dispatch(getAllOrdersOfUser(userId))
+    if (!userId) {
+      setLoading(false)
+      return undefined
+    }
+    let active = true
+    setLoading(true)
+    Promise.resolve(dispatch(getAllOrdersOfUser(userId)))
+      .catch(() => null)
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
     }
   }, [dispatch, userId])
 
   const data = orders?.find((item) => item._id === id)
+  const isLoading = loading || Boolean(buyerOrdersLoading)
 
   // Canonical order statuses only — the mirror of the Commerce state machine
   // (shared/utils/orderStatus.js). The previous map was keyed by statuses no
@@ -106,6 +121,20 @@ const TrackOrder = () => {
         message: `Order status: ${canonical}`,
         className: 'status-processing'
       }
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="track-order-container">
+        <div className="track-status-card status-processing">
+          <div className="status-icon">
+            <BsHourglassSplit size={48} className="animate-pulse" />
+          </div>
+          <h2 className="status-title">Loading your order</h2>
+          <p className="status-message">Fetching the latest status for this order…</p>
+        </div>
+      </div>
     )
   }
 

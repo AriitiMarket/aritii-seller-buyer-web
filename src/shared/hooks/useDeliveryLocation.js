@@ -7,6 +7,7 @@
  * filtering, cart validation, checkout gating) should use this hook rather
  * than reading localStorage directly.
  */
+import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setDeliveryLocation,
@@ -15,22 +16,25 @@ import {
 
 export function useDeliveryLocation() {
   const dispatch = useDispatch();
-  const { cityId, cityName, zoneId, zoneName, loading, error } = useSelector(
+  const { regionId, regionName, cityId, cityName, zoneId, zoneName, loading, error } = useSelector(
     (state) => state.deliveryLocation || {}
   );
 
-  const setLocation = (location) => {
+  const setLocation = useCallback((location) => {
     dispatch(setDeliveryLocation(location));
-  };
+  }, [dispatch]);
 
-  const clearLocation = () => {
+  const clearLocation = useCallback(() => {
     dispatch(clearDeliveryLocation());
-  };
+  }, [dispatch]);
 
   const hasZone = Boolean(zoneId);
-  const isSelected = Boolean(cityId || zoneId);
+  const hasLocation = Boolean(regionId || cityId || zoneId);
+  const isSelected = hasLocation;
 
   return {
+    regionId,
+    regionName,
     cityId,
     cityName,
     zoneId,
@@ -38,6 +42,7 @@ export function useDeliveryLocation() {
     loading,
     error,
     hasZone,
+    hasLocation,
     isSelected,
     setLocation,
     clearLocation,

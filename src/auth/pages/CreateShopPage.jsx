@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
+
 
 // The standalone seller-register form has been removed. Sellers use their ONE
 // Aritii account; creating a shop is part of the seller onboarding center

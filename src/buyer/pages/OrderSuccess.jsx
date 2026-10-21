@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiCheckCircle, FiArrowRight, FiHelpCircle } from "react-icons/fi";
 import Footer from '@/shared/components/Footer';
@@ -29,6 +29,12 @@ const Success = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId') || 'N/A';
+  const orderGroupId = searchParams.get('orderGroupId');
+  const sellerOrderCount = Math.max(1, Number(searchParams.get('sellerOrders')) || 1);
+  const pickupCodes = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('pendingPickupCodes') || '[]'); }
+    catch { return []; }
+  })[0];
 
   return (
     <div className="w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -42,15 +48,25 @@ const Success = () => {
             </div>
           </div>
 
+          {pickupCodes.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 mb-8 text-left">
+              <h3 className="font-semibold text-amber-900 mb-2">Your pickup code</h3>
+              <p className="text-sm text-amber-800 mb-3">Show the code for your order when collecting it from the shop.</p>
+              {pickupCodes.map((entry) => (
+                <p key={entry.orderId} className="text-sm text-amber-900">Order #{entry.orderId}: <strong className="font-mono text-lg tracking-widest">{entry.code}</strong></p>
+              ))}
+            </div>
+          )}
+
           {/* Success Message */}
           <h1 className="text-3xl font-bold text-market-on-surface mb-3">
-            Order Placed Successfully!
+            Order placed successfully
           </h1>
           <p className="text-lg text-market-on-surface-variant mb-2">
             Thank you for your purchase.
           </p>
           <p className="text-sm text-market-on-surface-variant mb-8">
-            Your order has been confirmed. You'll receive a detailed confirmation email shortly with all the order information.
+            Your order is waiting for seller confirmation. You can follow its progress from My Orders.
           </p>
 
           {/* Order Info Card - WITH REAL ORDER ID */}
@@ -59,13 +75,25 @@ const Success = () => {
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                 <FiCheckCircle className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
-              <h3 className="text-lg font-semibold text-green-900">Order Confirmed</h3>
+              <h3 className="text-lg font-semibold text-green-900">Checkout received</h3>
             </div>
-            <p className="text-sm text-green-700 mb-2">
-              <span className="font-semibold">Order ID:</span> #{orderId}
-            </p>
+            {orderGroupId ? (
+              <>
+                <p className="text-sm text-green-700 mb-2">
+                  <span className="font-semibold">Checkout ID:</span> #{orderGroupId}
+                </p>
+                <p className="text-sm text-green-700 mb-2">
+                  {sellerOrderCount} seller {sellerOrderCount === 1 ? 'order' : 'orders'} created
+                </p>
+                <p className="text-xs text-green-700 mb-2">First order ID: #{orderId}</p>
+              </>
+            ) : (
+              <p className="text-sm text-green-700 mb-2">
+                <span className="font-semibold">Order ID:</span> #{orderId}
+              </p>
+            )}
             <p className="text-sm text-green-700">
-              A confirmation email has been sent to your registered email address.
+              You can view every seller order from My Orders.
             </p>
           </div>
 

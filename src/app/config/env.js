@@ -10,7 +10,7 @@
  * (the API is served under the same host in every deployed environment), then
  * the local development gateway.
  */
-const DEFAULT_API_URL = 'http://localhost:8000/api';
+const DEFAULT_API_URL = 'http://localhost:3000/api';
 
 function normalizeApiUrl(value) {
   const raw = String(value ?? '').trim();

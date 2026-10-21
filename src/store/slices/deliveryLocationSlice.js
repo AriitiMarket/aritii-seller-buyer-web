@@ -8,7 +8,7 @@
  * * cart validation (items from shops not serving the zone are flagged)
  *   * checkout gating (one order = one validated delivery zone)
  *
- * Shape: { cityId, cityName, zoneId, zoneName, loading, error }
+ * Shape: { regionId, regionName, cityId, cityName, zoneId, zoneName, loading, error }
  */
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -22,7 +22,7 @@ function loadFromStorage() {
     if (
       parsed &&
       typeof parsed === 'object' &&
-      (parsed.zoneId || parsed.cityId)
+      (parsed.zoneId || parsed.cityId || parsed.regionId)
     ) {
       return parsed;
     }
@@ -35,6 +35,8 @@ function loadFromStorage() {
 const saved = loadFromStorage();
 
 const initialState = {
+  regionId: saved ? saved.regionId : null,
+  regionName: saved ? saved.regionName : null,
   cityId: saved ? saved.cityId : null,
   cityName: saved ? saved.cityName : null,
   zoneId: saved ? saved.zoneId : null,
@@ -49,16 +51,28 @@ export const deliveryLocationSlice = createSlice({
   reducers: {
     /** Persist the buyer's chosen city + zone. */
     setDeliveryLocation: (state, action) => {
-      const { cityId, cityName, zoneId, zoneName } = action.payload;
-      state.cityId = cityId;
-      state.cityName = cityName;
-      state.zoneId = zoneId;
-      state.zoneName = zoneName;
+      const next = { ...state, ...action.payload };
+      for (const key of ['regionId', 'regionName', 'cityId', 'cityName', 'zoneId', 'zoneName']) {
+        next[key] = next[key] || null;
+      }
+      state.regionId = next.regionId;
+      state.regionName = next.regionName;
+      state.cityId = next.cityId;
+      state.cityName = next.cityName;
+      state.zoneId = next.zoneId;
+      state.zoneName = next.zoneName;
       state.error = null;
       try {
         localStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ cityId, cityName, zoneId, zoneName })
+          JSON.stringify({
+            regionId: next.regionId,
+            regionName: next.regionName,
+            cityId: next.cityId,
+            cityName: next.cityName,
+            zoneId: next.zoneId,
+            zoneName: next.zoneName,
+          })
         );
       } catch {
         // storage unavailable — keep in memory only
@@ -66,6 +80,8 @@ export const deliveryLocationSlice = createSlice({
     },
     /** Clear the selected location (logout / user wants to re-pick). */
     clearDeliveryLocation: (state) => {
+      state.regionId = null;
+      state.regionName = null;
       state.cityId = null;
       state.cityName = null;
       state.zoneId = null;

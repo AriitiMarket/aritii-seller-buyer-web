@@ -36,7 +36,7 @@ const experiences = [
     key: 'sellers',
     image: '/seller.png',
     imageAlt: 'A local seller managing an Aritii shop',
-    accent: '#2f6e4f',
+    accent: '#FF9900',
     tint: 'bg-white dark:bg-gray-900',
     eyebrow: 'Seller Experience',
     icon: AiOutlineShop,
@@ -50,7 +50,7 @@ const experiences = [
       'Handle orders, fulfilment and buyer conversations',
       'Connect every order to the delivery network',
     ],
-    cta: { label: 'Sell on Aritii', to: '/sell-on-aritii' },
+    cta: { label: 'Explore Seller Central', to: '/seller-center' },
   },
   {
     key: 'delivery',
@@ -70,13 +70,13 @@ const experiences = [
       'Follow active deliveries in progress',
       'Run day-to-day delivery operations',
     ],
-    cta: { label: 'Delivery Services', to: '/delivery-center' },
+    cta: { label: 'Join Delivery Network', to: '/delivery-center' },
   },
 ];
 
 const PlatformRolesSection = () => {
   return (
-    <section id="ariiti-ecosystem" className="home-brand-section home-brand-section--commerce py-12 md:py-16 bg-[#FDF6EC] dark:bg-gray-950 scroll-mt-24">
+    <section id="ariiti-ecosystem" className="home-brand-section home-brand-section--commerce py-12 md:py-16 bg-[#EAEDED] dark:bg-gray-950 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">
