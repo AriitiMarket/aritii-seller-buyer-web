@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Store from '@/store';
 import { loadUser, loadSeller } from '@/store/slices/userThunks';
 import { fetchWishlist } from '@/store/slices/wishlistThunks';
+import { useLayout } from '@/app/providers/LayoutContext';
 
 let bootstrapped = false;
 
@@ -22,11 +22,11 @@ let bootstrapped = false;
  * Wishlist page is visited.
  *
  * Also listens for the `auth:unauthorized` event (dispatched by the API
- * interceptors on unrecoverable 401) and navigates to /login via React Router —
+ * interceptors on unrecoverable 401) and opens the ONE global login modal —
  * never a hard window.location reload.
  */
 export function useAppBootstrap() {
-  const navigate = useNavigate();
+  const { openLoginModal } = useLayout();
 
   useEffect(() => {
     if (bootstrapped) return;
@@ -46,11 +46,11 @@ export function useAppBootstrap() {
 
     // Handle token-expired / unauthorized events from the API layer.
     const onUnauthorized = () => {
-      navigate('/login', { replace: true });
+      openLoginModal('BUYER', window.location.pathname + window.location.search);
     };
     window.addEventListener('auth:unauthorized', onUnauthorized);
     return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
-  }, [navigate]);
+  }, [openLoginModal]);
 }
 
 export default useAppBootstrap;

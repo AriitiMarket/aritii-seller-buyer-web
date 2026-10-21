@@ -593,3 +593,35 @@
     width: 100%;
   }
 }
+
+/* Print Receipt Stylesheet */
+@media print {
+  header,
+  footer,
+  nav,
+  .buyer-header,
+  .print\\:hidden,
+  button,
+  .delivery-tracking,
+  .review-modal {
+    display: none !important;
+  }
+
+  body,
+  .w-full,
+  .min-h-screen {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .border {
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+  }
+
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+}

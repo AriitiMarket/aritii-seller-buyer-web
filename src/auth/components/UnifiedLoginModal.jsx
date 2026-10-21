@@ -1,8 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
-import './UnifiedLoginModal.css';
+import BrandLogo from '@/shared/components/BrandLogo';
 
+/**
+ * UnifiedLoginModal — the ONE login UI for the whole application.
+ *
+ * The role is NOT chosen here. The Identity Service resolves the account's
+ * role server-side from its role memberships (`user_roles`) and returns it as
+ * `login_role`, so the modal only collects credentials. The `role` prop is a
+ * contextual HINT (it picks the badge and the sign-up link) — it is never
+ * sent to the backend as the sign-in role.
+ */
 const UnifiedLoginModal = ({
   open,
   onClose,
@@ -13,11 +21,28 @@ const UnifiedLoginModal = ({
   role = 'BUYER',
 }) => {
   const dialogRef = useRef(null);
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const ROLE_CONFIG = {
+    BUYER: {
+      label: 'Buyer',
+      badge: 'SHOP & BUY',
+      next: '/my-dashboard',
+    },
+    SELLER: {
+      label: 'Seller',
+      badge: 'SELL ON ARITII',
+      next: '/seller-registration',
+    },
+    PROVIDER: {
+      label: 'Delivery Provider',
+      badge: 'DELIVER WITH ARITII',
+      next: '/provider-application',
+    },
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -48,18 +73,13 @@ const UnifiedLoginModal = ({
     }
   };
 
-  const roleLabel = {
-    BUYER: 'BUYER PORTAL',
-    SELLER: 'SELLER PORTAL',
-    PROVIDER: 'DELIVERY PORTAL',
-  }[role] || 'CUSTOMER PORTAL';
+  const config = ROLE_CONFIG[role] || ROLE_CONFIG.BUYER;
 
   if (!open) return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm lg:p-0"
-      style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, rgba(0,0,0,0.5) 100%)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#131921]/80 p-4 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}
@@ -67,211 +87,16 @@ const UnifiedLoginModal = ({
       aria-modal="true"
       aria-labelledby="login-title"
     >
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex w-full max-w-6xl h-auto max-h-[90vh] relative">
-        {/* Left Sidebar - Branding */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-orange-600 to-orange-800 p-12 flex-col justify-between rounded-l-2xl">
-          <div>
-            <div className="flex items-center gap-3 mb-12">
-              <svg viewBox="0 0 64 64" className="h-12 w-auto" aria-hidden="true">
-                <defs>
-                  <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stopColor="#fff" />
-                    <stop offset="1" stopColor="#f0f0f0" />
-                  </linearGradient>
-                </defs>
-                <path d="M32 6 L58 52 L6 52 Z" fill="#000" />
-                <path d="M32 31 L58 52 L6 52 Z" fill="url(#brandGrad)" />
-              </svg>
-              <div>
-                <p className="text-xl font-bold text-white">Aritii</p>
-                <p className="text-sm text-orange-100">Market</p>
-              </div>
-            </div>
-            <h2 className="text-4xl font-bold text-white mb-4">Welcome Back</h2>
-            <p className="text-lg text-orange-50 leading-relaxed">Sign in to access your account, manage orders, and continue your journey with Aritii Market.</p>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">✓</span>
-              <div>
-                <p className="font-semibold text-white">Secure Login</p>
-                <p className="text-sm text-orange-100">Fast and safe access to your account</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">✓</span>
-              <div>
-                <p className="font-semibold text-white">Multi-Role Support</p>
-                <p className="text-sm text-orange-100">One account for buyer, seller, or delivery</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">✓</span>
-              <div>
-                <p className="font-semibold text-white">24/7 Access</p>
-                <p className="text-sm text-orange-100">Always connected to your marketplace</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Form */}
-        <div ref={dialogRef} className="relative w-full lg:w-3/5 rounded-2xl lg:rounded-r-2xl lg:rounded-l-none border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
-          {/* Close Button */}
-          <button
-            type="button"
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Header */}
-          <div className="px-8 pt-8 pb-4 text-center border-b border-orange-500/10">
-            <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-              {roleLabel}
-            </span>
-            <h1 id="login-title" className="text-3xl font-bold text-white mb-1">Welcome back</h1>
-            <p className="text-sm text-gray-400">Sign in to access your account and manage your business.</p>
-          </div>
-
-          {/* Form Content */}
-          <div className="px-8 py-8">
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {/* Email Field */}
-              <div>
-                <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email</label>
-                <input
-                  autoComplete="email"
-                  id="unified-email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={submitting}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
-                />
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
-                <div className="relative">
-                  <input
-                    autoComplete="current-password"
-                    id="unified-password"
-                    name="password"
-                    type={visible ? 'text' : 'password'}
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setVisible(!visible)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember + Forgot */}
-              <div className="flex items-center justify-between gap-3 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded accent-orange-500" />
-                  <span className="text-sm text-gray-300">Remember me</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={onForgot}
-                  className="text-sm font-semibold text-gray-300 hover:text-orange-400 transition"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200 flex items-center gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 8v4M12 16h.01" />
-                  </svg>
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full mt-6 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {submitting ? 'Signing in...' : 'Sign in'}
-                {!submitting && (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="px-0 py-4 flex items-center gap-3">
-              <div className="flex-1 h-px bg-slate-700" />
-              <span className="text-xs text-gray-500 font-semibold uppercase">or continue with</span>
-              <div className="flex-1 h-px bg-slate-700" />
-            </div>
-
-            {/* Social Buttons */}
-            <div className="flex justify-center gap-3">
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Google">
-                <GoogleLogo />
-              </a>
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with Facebook">
-                <FacebookLogo />
-              </a>
-              <a href="#" onClick={(e) => e.preventDefault()} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700 hover:border-orange-500/50 flex items-center justify-center transition" aria-label="Sign in with LinkedIn">
-                <LinkedInLogo />
-              </a>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-orange-500/10 pt-4 mt-6">
-              <p className="text-sm text-gray-400 text-center">
-                Don't have an account?{' '}
-                <button
-                  type="button"
-                  onClick={onContactUs}
-                  className="text-orange-400 hover:text-orange-300 font-semibold"
-                >
-                  Contact us
-                </button>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Layout */}
-      <div className="lg:hidden w-full max-w-md rounded-2xl border border-orange-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(249, 115, 22, 0.15)' }}>
+      {/* Centered Modal Card */}
+      <div
+        ref={dialogRef}
+        className="relative w-full max-w-md rounded-2xl border border-[#232f3e] bg-[#1a222d] shadow-2xl overflow-hidden"
+        style={{ boxShadow: '0 20px 45px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(249, 115, 22, 0.1)' }}
+      >
         {/* Close Button */}
         <button
           type="button"
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white transition"
+          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-800/60 hover:bg-slate-700 border border-slate-600/60 flex items-center justify-center text-gray-300 hover:text-white transition"
           aria-label="Close"
           onClick={onClose}
         >
@@ -280,62 +105,74 @@ const UnifiedLoginModal = ({
           </svg>
         </button>
 
-        {/* Header */}
-        <div className="px-6 pt-8 pb-4 text-center border-b border-orange-500/10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <svg viewBox="0 0 64 64" className="h-8 w-auto" aria-hidden="true">
-              <defs>
-                <linearGradient id="mobileGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#fbbf24" />
-                  <stop offset="1" stopColor="#f97316" />
-                </linearGradient>
-              </defs>
-              <path d="M32 6 L58 52 L6 52 Z" fill="#0f1114" />
-              <path d="M32 31 L58 52 L6 52 Z" fill="url(#mobileGrad)" />
-            </svg>
-            <span className="font-bold text-white">Aritii Market</span>
+        {/* Top Header with small icon / brand mark */}
+        <div className="px-6 pt-7 pb-4 text-center border-b border-[#232f3e]">
+          <div className="flex items-center justify-center mb-3">
+            <BrandLogo size="md" showText showTagline tone="light" />
           </div>
-          <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-            {roleLabel}
+          <span className="inline-block mb-2 text-[11px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20">
+            {config.badge}
           </span>
-          <h1 id="login-title" className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-sm text-gray-400">Sign in to your account</p>
+          <h1 id="login-title" className="text-2xl font-bold text-white tracking-tight">Sign in</h1>
+          <p className="text-xs text-gray-400 mt-0.5">Welcome back! Sign in to continue</p>
         </div>
 
-        {/* Form */}
-        <div className="px-6 py-6 space-y-4">
+        {/* Form Content */}
+        <div className="px-6 py-6 sm:px-8">
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {/* Email Field */}
             <div>
-              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Email</label>
+              <label className="text-xs font-semibold text-gray-200 uppercase tracking-wider mb-1.5 block">
+                Email or mobile phone number
+              </label>
               <input
+                autoComplete="email"
+                id="unified-email"
+                name="email"
                 type="email"
+                required
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
                 disabled={submitting}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50"
+                className="w-full px-3.5 py-2.5 bg-[#131921] border border-[#37475a] rounded-lg text-white placeholder-gray-500 focus:border-[#e77600] focus:ring-2 focus:ring-[#e77600]/30 focus:outline-none transition text-sm disabled:opacity-50"
               />
             </div>
 
+            {/* Password Field */}
             <div>
-              <label className="text-xs font-bold text-orange-400 uppercase tracking-wide mb-2 block">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-gray-200 uppercase tracking-wider block">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={onForgot}
+                  className="text-xs font-medium text-[#febd69] hover:text-[#f3a847] hover:underline transition"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
+                  autoComplete="current-password"
+                  id="unified-password"
+                  name="password"
                   type={visible ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
                   disabled={submitting}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none transition disabled:opacity-50 pr-10"
+                  className="w-full px-3.5 py-2.5 bg-[#131921] border border-[#37475a] rounded-lg text-white placeholder-gray-500 focus:border-[#e77600] focus:ring-2 focus:ring-[#e77600]/30 focus:outline-none transition text-sm disabled:opacity-50 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setVisible(!visible)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  aria-label={visible ? 'Hide password' : 'Show password'}
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
@@ -343,45 +180,86 @@ const UnifiedLoginModal = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            {/* Remember Me */}
+            <div className="flex items-center pt-1">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded accent-orange-500" />
-                <span className="text-sm text-gray-300">Remember me</span>
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-600 bg-[#131921] text-[#e77600] focus:ring-[#e77600]"
+                />
+                <span className="text-xs text-gray-300">Keep me signed in</span>
               </label>
-              <button
-                type="button"
-                onClick={onForgot}
-                className="text-sm font-semibold text-gray-300 hover:text-orange-400"
-              >
-                Forgot?
-              </button>
             </div>
 
+            {/* Error Message */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200">
-                {error}
+              <div className="bg-[#dc2626]/10 border border-[#dc2626]/30 rounded-lg p-3 text-xs text-[#fca5a5] flex items-center gap-2">
+                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4M12 16h.01" />
+                </svg>
+                <span>{error}</span>
               </div>
             )}
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-300 hover:to-orange-400 text-black font-bold rounded-lg transition disabled:opacity-50"
+              className="w-full mt-4 py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] active:bg-[#e77600] text-[#131921] font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-sm"
             >
               {submitting ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 pt-4 border-t border-orange-500/10">
-            Don't have an account?{' '}
+          {/* Divider */}
+          <div className="px-0 py-4 flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#232f3e]" />
+            <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">or sign in with</span>
+            <div className="flex-1 h-px bg-[#232f3e]" />
+          </div>
+
+          {/* Social Buttons */}
+          <div className="flex justify-center gap-3">
             <button
               type="button"
-              onClick={onContactUs}
-              className="text-orange-400 hover:text-orange-300 font-semibold"
+              onClick={(e) => e.preventDefault()}
+              className="w-10 h-10 rounded-full bg-[#131921] border border-[#37475a] hover:border-gray-400 flex items-center justify-center transition"
+              aria-label="Sign in with Google"
             >
-              Create one
+              <GoogleLogo />
             </button>
-          </p>
+            <button
+              type="button"
+              onClick={(e) => e.preventDefault()}
+              className="w-10 h-10 rounded-full bg-[#131921] border border-[#37475a] hover:border-gray-400 flex items-center justify-center transition"
+              aria-label="Sign in with Facebook"
+            >
+              <FacebookLogo />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => e.preventDefault()}
+              className="w-10 h-10 rounded-full bg-[#131921] border border-[#37475a] hover:border-gray-400 flex items-center justify-center transition"
+              aria-label="Sign in with LinkedIn"
+            >
+              <LinkedInLogo />
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-[#232f3e] pt-4 mt-5 text-center">
+            <p className="text-xs text-gray-400">
+              New to Aritii?{' '}
+              <button
+                type="button"
+                onClick={() => onContactUs?.(role)}
+                className="text-[#febd69] hover:text-[#f3a847] font-semibold hover:underline"
+              >
+                Create your account
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>,

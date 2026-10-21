@@ -22,17 +22,10 @@ function processQueue(error, token = null) {
   failedQueue = [];
 }
 
-let navigateFn = null;
-
-export function setNavigate(fn) {
-  navigateFn = fn;
-}
-
 function notifyUnauthorized() {
   if (typeof window === 'undefined') return;
-  if (window.location.pathname === '/login') return;
   // Dispatch the custom event; the app-level listener in useAppBootstrap
-  // handles the React Router navigation. Never do a hard window.location
+  // opens the ONE global login modal. Never do a hard window.location
   // redirect here — that bypasses the router and reloads the whole page.
   window.dispatchEvent(new CustomEvent('auth:unauthorized'));
 }

@@ -5,8 +5,9 @@ import { ProductImage } from '@/components/common/ImageWithFallback'
 import Ratings from '@/components/common/Ratings'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistThunks'
-import { addTocart } from '@/store/slices/cartThunks'
+import { addTocart, updateCartQuantity } from '@/store/slices/cartThunks'
 import { toast } from 'react-toastify'
+import { useLayout } from '@/app/providers/LayoutContext'
 
 const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const dispatch = useDispatch()
@@ -14,6 +15,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const { cart } = useSelector((state) => state.cart || {})
   const { isAuthenticated } = useSelector((state) => state.user || {})
   const [inWishlist, setInWishlist] = useState(false)
+  const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
 
@@ -146,12 +148,13 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
           </p>
 
           {isPublic ? (
-            <Link
-              to="/login"
+            <button
+              type="button"
+              onClick={() => openLoginModal('BUYER')}
               className="mt-3 w-full text-center px-3 py-2 market-btn-primary text-market-on-primary"
             >
               Sign in to buy
-            </Link>
+            </button>
           ) : (
             <button
               type="button"

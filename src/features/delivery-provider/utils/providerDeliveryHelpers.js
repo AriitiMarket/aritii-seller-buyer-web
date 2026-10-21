@@ -13,6 +13,7 @@ import {
   formatDeliveryAddress,
   deliveryReference,
 } from '@/shared/utils/deliveryStatus';
+import { formatCurrency } from '@/shared/utils/format';
 
 // Re-export for convenience
 export {
@@ -48,6 +49,7 @@ export const apiErrorMessage = (err, fallback = 'Something went wrong. Please tr
  * Get delivery status label using the shared utility
  */
 export const getDeliveryStatusLabel = (status) => {
+  if (String(status || '').toLowerCase() === DELIVERY_STATUSES.REASSIGNED) return 'Reassigned to you';
   const statusInfo = getDeliveryStatus(status);
   return statusInfo.label;
 };
@@ -59,6 +61,15 @@ export const getDeliveryStatusColor = (status) => {
   const statusInfo = getDeliveryStatus(status);
   return statusInfo.tone;
 };
+
+/** Assignment statuses belong to the offer workflow, not delivery progress. */
+export const getAssignmentStatusLabel = (status) => ({
+  pending: 'Awaiting your response',
+  accepted: 'Accepted',
+  rejected: 'Declined',
+  expired: 'Expired',
+  cancelled: 'Cancelled',
+}[String(status || '').toLowerCase()] || status || 'Unknown');
 
 /**
  * Get batch status label
@@ -165,17 +176,16 @@ export const calculateEstimatedTime = (distance, averageSpeed = 30) => {
 };
 
 /**
- * Format currency for display
+ * Format currency for display.
+ *
+ * Delegates to the shared formatter so every surface renders money the same
+ * way. The delivery copy used its own `Intl.NumberFormat` implementation,
+ * which produced a different string from the rest of the app.
+ *
+ * Re-exported through a local binding (not `export { x } from '...'`) so the
+ * default export object below can reference it.
  */
-export const formatCurrency = (amount, currency = 'ETB') => {
-  if (amount === null || amount === undefined) return '0 ETB';
-  return new Intl.NumberFormat('en-ET', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
+export { formatCurrency };
 
 /**
  * Format phone number for display

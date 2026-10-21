@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdLocalShipping, MdOutlineAssignment, MdRoute, MdInventory } from 'react-icons/md';
+import { MdRoute, MdInventory } from 'react-icons/md';
 import { useProviderBatches } from '../hooks/useProviderBatches';
 import {
   BATCH_STATUS,
@@ -16,7 +16,24 @@ import {
  * Batches - shows provider's assigned delivery batches for efficient route planning.
  */
 const Batches = () => {
-  const { batches, count, loading, error, supported, acceptBatch } = useProviderBatches();
+  const [page, setPage] = useState(1);
+  const [acceptingId, setAcceptingId] = useState(null);
+  const { batches, count, totalPages, loading, error, supported, acceptBatch } = useProviderBatches({ page, limit: 50 });
+
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const handleAccept = async (batchId) => {
+    setAcceptingId(batchId);
+    try {
+      await acceptBatch(batchId);
+    } catch {
+      // The hook exposes the backend error in the page alert.
+    } finally {
+      setAcceptingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -53,7 +70,7 @@ const Batches = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Batches</h1>
         <p className="text-gray-600 mt-1">
-          {count} batch{count !== 1 ? 'es' : ''} available
+          {count} assigned batch{count !== 1 ? 'es' : ''}
         </p>
       </div>
 
@@ -85,7 +102,7 @@ const Batches = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-sm font-mono text-gray-500">
-                      {shortReference(batch.id)}
+                      {batch.reference || shortReference(batch.id)}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBatchStatusColor(batch.status)}`}>
                       {getBatchStatusLabel(batch.status)}
@@ -93,7 +110,7 @@ const Batches = () => {
                   </div>
 
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Delivery Batch {shortReference(batch.id)}
+                    Delivery Batch {batch.reference || shortReference(batch.id)}
                   </h3>
 
                   <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
@@ -133,16 +150,26 @@ const Batches = () => {
                   </Link>
                   {batch.status === BATCH_STATUS.AVAILABLE && (
                     <button
-                      onClick={() => acceptBatch(batch.id)}
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+                      onClick={() => handleAccept(batch.id)}
+                      disabled={acceptingId === batch.id}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition disabled:opacity-50"
                     >
-                      Accept Batch
+                      {acceptingId === batch.id ? 'Accepting…' : 'Accept Batch'}
                     </button>
                   )}
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} className="rounded border px-3 py-1.5 text-sm disabled:opacity-50">Previous</button>
+            <button type="button" disabled={page >= totalPages || loading} onClick={() => setPage((current) => Math.min(totalPages, current + 1))} className="rounded border px-3 py-1.5 text-sm disabled:opacity-50">Next</button>
+          </div>
         </div>
       )}
     </div>

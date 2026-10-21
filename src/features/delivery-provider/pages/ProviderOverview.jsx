@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdWorkOutline, MdLocalShipping, MdTrendingUp, MdWifi, MdWifiOff } from 'react-icons/md';
-import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import { useAvailableWork } from '../hooks/useAvailableWork';
-import { useProviderDelivery } from '../hooks/useProviderDelivery';
+import { useProviderBatches } from '../hooks/useProviderBatches';
 import { useProviderAvailability } from '../hooks/useProviderAvailability';
-import {
-  DELIVERY_STATUSES,
-  normalizeDeliveryStatus,
-  countByStatus,
-  apiErrorMessage,
-} from '../utils/providerDeliveryHelpers';
-
-/** Statuses that mean the rider is currently carrying the delivery. */
-const IN_FLIGHT_STATUSES = [
-  DELIVERY_STATUSES.ASSIGNED,
-  DELIVERY_STATUSES.REASSIGNED,
-  DELIVERY_STATUSES.PICKUP,
-  DELIVERY_STATUSES.IN_TRANSIT,
-];
+import { providerDeliveryApi } from '../services/providerDeliveryApi';
 
 /**
  * ProviderOverview - the main dashboard for delivery providers.
@@ -29,26 +14,30 @@ const IN_FLIGHT_STATUSES = [
  */
 const ProviderOverview = () => {
   const { user } = useSelector((state) => state.user);
-  const { isOnline, toggling, toggleAvailability } = useProviderAvailability();
+  const { isOnline, toggling, toggleAvailability, error: availabilityError } = useProviderAvailability();
+  const [metrics, setMetrics] = useState({ activeDeliveries: 0, completedToday: 0, supported: false });
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
 
-  // Fetch available work
-  const { assignments, count: availableCount, loading: loadingWork, supported: workSupported } = useAvailableWork();
+  useEffect(() => {
+    let cancelled = false;
+    providerDeliveryApi.getProviderDeliveryMetrics().then((result) => {
+      if (!cancelled) setMetrics(result);
+    }).finally(() => {
+      if (!cancelled) setLoadingMetrics(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
-  // Fetch provider's deliveries
-  const { deliveries, loading: loadingDeliveries, supported: deliveriesSupported } = useProviderDelivery(null, {
-    limit: 10,
-  });
-
-  // Calculate stats from real data
-  const statusCounts = countByStatus(deliveries);
-  const activeDeliveries = IN_FLIGHT_STATUSES.reduce(
-    (sum, key) => sum + (statusCounts[key] || 0),
-    0
+  // The work offered to this rider: the dispatch batches that are still
+  // waiting for their answer. (The legacy single-assignment collection is not
+  // what the platform dispatches, so counting it always showed zero.)
+  const { batches, loading: loadingWork, supported: workSupported } = useProviderBatches({ page: 1, limit: 50 });
+  const availableCount = useMemo(
+    () => batches.filter((batch) => batch.originalStatus === 'waiting_acceptance').length,
+    [batches],
   );
-  const completedToday = deliveries.filter(d => {
-    const status = normalizeDeliveryStatus(d.status);
-    return status === DELIVERY_STATUSES.DELIVERED && new Date(d.updatedAt || d.createdAt).toDateString() === new Date().toDateString();
-  }).length;
+
+  const { activeDeliveries, completedToday } = metrics;
 
   return (
     <div className="space-y-6">
@@ -73,6 +62,9 @@ const ProviderOverview = () => {
           {isOnline ? 'Online' : 'Offline'}
         </button>
       </div>
+
+      {availabilityError && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{availabilityError}</p>}
+      {!loadingMetrics && workSupported && !metrics.supported && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Delivery metrics are currently unavailable from the delivery service.</p>}
 
       {/* Availability Notice */}
       {!isOnline && (
@@ -111,7 +103,7 @@ const ProviderOverview = () => {
             <div>
               <p className="text-sm text-gray-500">Active Deliveries</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {loadingDeliveries ? '...' : deliveriesSupported ? activeDeliveries : 'N/A'}
+                {loadingMetrics ? '...' : metrics.supported ? activeDeliveries : 'N/A'}
               </p>
             </div>
             <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center">
@@ -128,7 +120,7 @@ const ProviderOverview = () => {
             <div>
               <p className="text-sm text-gray-500">Completed Today</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {loadingDeliveries ? '...' : deliveriesSupported ? completedToday : 'N/A'}
+                {loadingMetrics ? '...' : metrics.supported ? completedToday : 'N/A'}
               </p>
             </div>
             <div className="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center">
@@ -243,7 +235,7 @@ const ProviderOverview = () => {
       </div>
 
       {/* Service Unavailable Notice */}
-      {!workSupported && !deliveriesSupported && (
+      {!workSupported && !metrics.supported && !loadingMetrics && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <p className="text-sm text-amber-800">
             <strong>Delivery Service Unavailable:</strong> The delivery service is not responding. Some features may be limited.

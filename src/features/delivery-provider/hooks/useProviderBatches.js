@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { providerDeliveryApi } from '../services/providerDeliveryApi';
 
 /**
@@ -9,11 +9,26 @@ export const useProviderBatches = (params = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchBatches = async () => {
+  // Callers pass a fresh object literal on every render, so the request
+  // parameters are keyed by their serialised form rather than by reference.
+  const paramsKey = JSON.stringify(params);
+  const routeId = params.routeId;
+
+  const fetchBatches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await providerDeliveryApi.getProviderBatches(params);
+      if (routeId) {
+        const result = await providerDeliveryApi.getBatchDetails(routeId);
+        setData({
+          batches: result.batch ? [result.batch] : [],
+          count: result.batch ? 1 : 0,
+          supported: result.supported !== false,
+        });
+        if (!result.success) setError(result.error || new Error('Batch not found'));
+        return;
+      }
+      const response = await providerDeliveryApi.getProviderBatches(JSON.parse(paramsKey));
       setData(response);
     } catch (err) {
       setError(err);
@@ -21,11 +36,11 @@ export const useProviderBatches = (params = {}) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [paramsKey, routeId]);
 
   useEffect(() => {
     fetchBatches();
-  }, [JSON.stringify(params)]);
+  }, [fetchBatches]);
 
   const acceptBatch = async (batchId) => {
     try {
@@ -35,6 +50,26 @@ export const useProviderBatches = (params = {}) => {
     } catch (err) {
       setError(err);
       console.error('Failed to accept batch:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Decline a batch that was offered to this rider.
+   *
+   * Declining releases the orders back to the ready pool, so it is the mirror
+   * image of accepting — the service rejects a decline that is not legal from
+   * the batch's current status, and the page shows that message.
+   */
+  const rejectBatch = async (batchId, reason = '') => {
+    try {
+      const result = await providerDeliveryApi.rejectDispatchBatch(batchId, reason);
+      if (!result?.success) throw result?.error || new Error('Could not decline this assignment');
+      await fetchBatches();
+      return result;
+    } catch (err) {
+      setError(err);
+      console.error('Failed to decline batch:', err);
       throw err;
     }
   };
@@ -56,11 +91,13 @@ export const useProviderBatches = (params = {}) => {
     data,
     batches: data.batches || [],
     count: data.count || 0,
+    totalPages: data.totalPages || 1,
     supported: data.supported !== false,
-    batch: params.routeId ? (data.batches || []).find((item) => String(item.id) === String(params.routeId)) || null : null,
+    batch: routeId ? (data.batches || []).find((item) => String(item.id) === String(routeId)) || null : null,
     loading,
     error,
     acceptBatch,
+    rejectBatch,
     getBatch,
     refetch: fetchBatches,
     runBatchAction,

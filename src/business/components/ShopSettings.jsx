@@ -5,11 +5,12 @@ import { Avatar } from '@/components/common/ImageWithFallback';
 import { PlaceholderAvatar } from '@/assets';
 import shopService from '@/services/shop.service';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
+import SellerEmptyState from '@/business/components/SellerEmptyState';
 
 const ShopSettings = () => {
-  const { shops, activeShop, activeShopId, hasMultipleShops, selectShop, loading, error, refresh } = useBusinessShops();
+  const { shops, activeShop, activeShopId, loading, error, refresh } = useBusinessShops();
 
-  const [avatar, setAvatar] = useState(null);
+  const [, setAvatar] = useState(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');

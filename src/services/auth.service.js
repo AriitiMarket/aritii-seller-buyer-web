@@ -48,12 +48,19 @@ function readRegistrationType(userData) {
  * which silently drops a File value (a serialized File is `{}`). Sending
  * FormData explicitly as `multipart/form-data` lets the browser set the real
  * boundary, so the avatar is actually uploaded.
+ *
+ * `skipAuth` keeps the credential endpoints out of the session machinery: they
+ * are called without a session, and a 401 there means "those credentials are
+ * wrong", not "the session expired".
  */
 function postRegistration(path, payload) {
   if (isFormDataPayload(payload)) {
-    return api.post(path, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post(path, payload, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      skipAuth: true,
+    });
   }
-  return api.post(path, payload);
+  return api.post(path, payload, { skipAuth: true });
 }
 
 async function exchangeCodeForTokens(code, codeVerifier) {
@@ -62,7 +69,7 @@ async function exchangeCodeForTokens(code, codeVerifier) {
     code,
     code_verifier: codeVerifier,
     client_id: CLIENT_ID,
-  });
+  }, { skipAuth: true });
   const result = data.data || data;
   if (!result.access_token) {
     throw new Error('Token exchange failed');
@@ -157,7 +164,12 @@ export const authService = {
    * Log in with email or phone + password through the shared authorization
    * endpoint. Identity resolves the account's role and access.
    *
-   * @param {string} emailOrPhone
+   * The role is NOT sent from the client: the Identity Service derives it from
+   * the account's own role memberships (`user_roles`) and returns it as
+   * `login_role`. Sending a client-chosen role could only ever 403 the login
+   * (role_mismatch) for an account that legitimately holds a different role.
+   *
+   * @param {string} email
    * @param {string} password
    */
   async login(email, password) {
@@ -169,13 +181,13 @@ export const authService = {
       code_challenge_method: pkce.codeChallengeMethod,
       client_id: CLIENT_ID,
       state: pkce.state,
-    });
+    }, { skipAuth: true });
     const issued = data.data || data;
     if (!issued.code) throw new Error('Authorization code not issued');
 
     const tokens = await exchangeCodeForTokens(issued.code, pkce.codeVerifier);
     discardPkce(pkce);
-    // Remember the chosen role for this session (used by the route guards).
+    // The role the session actually signs in as, resolved server-side.
     const loginRole = issued.login_role || 'BUYER';
     tokenStore.setLoginRole(loginRole);
     // Populate the user profile from the freshly issued access token.

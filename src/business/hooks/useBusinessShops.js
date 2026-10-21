@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import shopService from '@/services/shop.service';
 
 const SELECTED_SHOP_KEY = 'aritii.business.selectedShopId';
+const SELECTED_SHOP_EVENT = 'aritii:business-shop-selected';
 
 /** Module-level cache: prevents repeated 404s from /shop/getseller across remounts */
 let _ownerShopsCache = null;
@@ -102,9 +103,26 @@ export function useBusinessShops() {
     }
   }, [shops, selectedShopId]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const syncSelection = (event) => {
+      const shopId = event?.detail?.shopId || window.localStorage.getItem(SELECTED_SHOP_KEY);
+      if (shopId) setSelectedShopId(shopId);
+    };
+    window.addEventListener(SELECTED_SHOP_EVENT, syncSelection);
+    window.addEventListener('storage', syncSelection);
+    return () => {
+      window.removeEventListener(SELECTED_SHOP_EVENT, syncSelection);
+      window.removeEventListener('storage', syncSelection);
+    };
+  }, []);
+
   const selectShop = useCallback((shopId) => {
     setSelectedShopId(shopId);
-    if (typeof window !== 'undefined') window.localStorage.setItem(SELECTED_SHOP_KEY, shopId);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(SELECTED_SHOP_KEY, shopId);
+      window.dispatchEvent(new CustomEvent(SELECTED_SHOP_EVENT, { detail: { shopId } }));
+    }
   }, []);
 
   const activeShop = useMemo(

@@ -56,6 +56,15 @@ export const locationService = {
     const { data } = await publicApi.get('/delivery/zone/public', { skipAuth: true });
     return data.zones || [];
   },
+
+  /** Server-calculated checkout fee for a zone and shipment item quantity. */
+  async quoteDeliveryFee(zoneId, quantity, locationId) {
+    const { data } = await publicApi.get('/delivery/zone/fee-quote', {
+      params: { zoneId: zoneId || undefined, locationId: locationId || undefined, quantity },
+      skipAuth: true,
+    });
+    return data;
+  },
 };
 
 export default locationService;

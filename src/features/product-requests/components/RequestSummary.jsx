@@ -33,7 +33,6 @@ const RequestSummary = ({ request, buyerName, sellerName }) => {
   const acceptedOffer = acceptedOfferOf(request);
   const agreement = agreementOf(request);
   const confirmed = isAgreementConfirmed(request);
-  const unit = unitOf(request, currentOffer);
 
   const requestedPrice =
     request.targetPrice != null ? formatCurrency(request.targetPrice) : 'Not specified';

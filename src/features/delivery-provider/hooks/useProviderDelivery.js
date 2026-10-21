@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { providerDeliveryApi } from '../services/providerDeliveryApi';
 
 /**
@@ -8,36 +8,46 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
   const [delivery, setDelivery] = useState(null);
   const [deliveries, setDeliveries] = useState([]);
   const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [supported, setSupported] = useState(true);
 
-  const fetchDeliveries = async () => {
+  // Callers pass a fresh object literal on every render, so the request
+  // parameters are keyed by their serialised form rather than by reference.
+  const paramsKey = JSON.stringify(params);
+
+  const fetchDeliveries = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await providerDeliveryApi.getProviderDeliveries(params);
+      const response = await providerDeliveryApi.getProviderDeliveries(JSON.parse(paramsKey));
       setDeliveries(response.deliveries || []);
       setTotal(response.total ?? response.deliveries?.length ?? 0);
+      setTotalPages(response.totalPages ?? 1);
       setSupported(response.supported !== false);
+      setError(response.error || null);
     } catch (err) {
       setError(err);
       console.error('Failed to fetch deliveries:', err);
       setSupported(false);
+      setTotal(0);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  };
+  }, [paramsKey]);
 
-  const fetchDeliveryDetails = async () => {
+  const fetchDeliveryDetails = useCallback(async () => {
     if (!deliveryId) return;
-    
+
     try {
       setLoading(true);
       setError(null);
       const response = await providerDeliveryApi.getDeliveryDetails(deliveryId);
       setDelivery(response.delivery || null);
-      setSupported(true);
+      setSupported(response.supported !== false);
+      setError(response.error || null);
     } catch (err) {
       setError(err);
       console.error('Failed to fetch delivery details:', err);
@@ -45,7 +55,7 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [deliveryId]);
 
   useEffect(() => {
     if (deliveryId) {
@@ -53,7 +63,7 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     } else {
       fetchDeliveries();
     }
-  }, [deliveryId, JSON.stringify(params)]);
+  }, [deliveryId, fetchDeliveries, fetchDeliveryDetails]);
 
   const respondToAssignment = async (assignmentId, accepted, reason = '') => {
     try {
@@ -85,9 +95,9 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     }
   };
 
-  const confirmCod = async (id, amount) => {
+  const confirmCod = async (id, amount, proof = {}) => {
     try {
-      const response = await providerDeliveryApi.confirmCodCollection(id, amount);
+      const response = await providerDeliveryApi.confirmCodCollection(id, amount, proof);
       if (response.success) {
         if (deliveryId === id) {
           await fetchDeliveryDetails();
@@ -127,6 +137,7 @@ export const useProviderDelivery = (deliveryId = null, params = {}) => {
     deliveries,
     count: deliveries.length,
     total,
+    totalPages,
     loading,
     error,
     supported,

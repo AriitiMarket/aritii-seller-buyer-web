@@ -1,35 +1,20 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { IoRefresh } from 'react-icons/io5';
-import { MdFilterList } from 'react-icons/md';
 import ProductCard from '@/shared/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
-import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
-import Button from '@/components/common/Button';
 import { useBestSellers } from '@/features/marketplace/hooks/useBestSellers';
+import { sortProducts, productCategoryTitle, PRODUCT_SORT_OPTIONS } from '@/features/marketplace/utils/sortProducts';
+import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
+import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';
 import './BestSellersPage.css';
 
-// Constants
-const CATEGORIES = [
-  { value: 'all', label: 'All Categories' },
-  { value: 'electronics', label: 'Electronics' },
-  { value: 'books', label: 'Books' },
-  { value: 'clothing', label: 'Clothing & Apparel' },
-  { value: 'home', label: 'Home & Kitchen' },
-  { value: 'sports', label: 'Sports & Outdoors' },
-  { value: 'beauty', label: 'Beauty & Personal Care' },
-  { value: 'toys', label: 'Toys & Games' },
-  { value: 'other', label: 'Other' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'best-sellers', label: 'Best Sellers', icon: '★' },
-  { value: 'price-low-high', label: 'Price: Low to High', icon: '↑' },
-  { value: 'price-high-low', label: 'Price: High to Low', icon: '↓' },
-  { value: 'newest', label: 'Newest Arrivals', icon: '⚡' },
-];
+// The shared catalog sort vocabulary — this page uses the ranking options.
+const SORT_OPTIONS = PRODUCT_SORT_OPTIONS.filter((option) =>
+  ['best-sellers', 'price-low', 'price-high', 'newest'].includes(option.value)
+);
 
 /**
  * BestSellersBadge Component
@@ -70,15 +55,11 @@ const SalesVolume = ({ unitsSold }) => {
  * Header Component with filters and sorting
  */
 const BestSellersHeader = ({
-  category,
-  onCategoryChange,
   sortBy,
   onSortChange,
   onRefresh,
   loading,
 }) => {
-  const [showMobileFilter, setShowMobileFilter] = useState(false);
-
   return (
     <div className="bestsellers-header">
       {/* Title and Description */}
@@ -104,81 +85,22 @@ const BestSellersHeader = ({
 
       {/* Desktop Filters and Sort */}
       <div className="bestsellers-controls">
-        {/* Category Filter */}
-        <div className="filter-group hidden sm:flex">
-          <label htmlFor="category-filter" className="filter-label">
-            Category:
-          </label>
-          <select
-            id="category-filter"
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            className="filter-select"
-            aria-label="Filter by category"
-          >
-            {CATEGORIES.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {/* Sort Options */}
         <div className="filter-group">
           <label htmlFor="sort-select" className="filter-label">
             Sort:
           </label>
-          <select
+          <CatalogSortSelect
             id="sort-select"
             value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={onSortChange}
+            options={SORT_OPTIONS}
+            ariaLabel="Sort best sellers"
             className="filter-select"
-            aria-label="Sort best sellers"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
-        {/* Mobile Filter Toggle */}
-        <button
-          onClick={() => setShowMobileFilter(!showMobileFilter)}
-          className="mobile-filter-toggle sm:hidden"
-          aria-label="Toggle filters"
-        >
-          <MdFilterList size={20} />
-        </button>
       </div>
-
-      {/* Mobile Filter Panel */}
-      {showMobileFilter && (
-        <div className="mobile-filter-panel">
-          <div className="filter-group flex-col">
-            <label htmlFor="mobile-category" className="filter-label">
-              Category
-            </label>
-            <select
-              id="mobile-category"
-              value={category}
-              onChange={(e) => {
-                onCategoryChange(e.target.value);
-                setShowMobileFilter(false);
-              }}
-              className="filter-select"
-            >
-              {CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -211,7 +133,6 @@ const BestSellersGrid = ({ products }) => {
           <ProductCard
             data={product}
             variant="public"
-            basePath="/best-selling"
           />
 
           {/* Sales Volume Badge */}
@@ -258,8 +179,6 @@ const BestSellersContent = ({
   loading,
   error,
   refresh,
-  category,
-  onCategoryChange,
   sortBy,
   onSortChange,
 }) => {
@@ -267,8 +186,6 @@ const BestSellersContent = ({
     return (
       <div className="bestsellers-container">
         <BestSellersHeader
-          category={category}
-          onCategoryChange={onCategoryChange}
           sortBy={sortBy}
           onSortChange={onSortChange}
           onRefresh={refresh}
@@ -283,24 +200,15 @@ const BestSellersContent = ({
     return (
       <div className="bestsellers-container">
         <BestSellersHeader
-          category={category}
-          onCategoryChange={onCategoryChange}
           sortBy={sortBy}
           onSortChange={onSortChange}
           onRefresh={refresh}
           loading={loading}
         />
-        <EmptyState
+        <CatalogErrorState
           title="Could not load best sellers"
           description={error}
-          action={
-            <Button
-              onClick={refresh}
-              className="bg-[#75d04b] hover:bg-[#5ac12f] text-white"
-            >
-              Try again
-            </Button>
-          }
+          onRetry={refresh}
         />
       </div>
     );
@@ -310,8 +218,6 @@ const BestSellersContent = ({
     return (
       <div className="bestsellers-container">
         <BestSellersHeader
-          category={category}
-          onCategoryChange={onCategoryChange}
           sortBy={sortBy}
           onSortChange={onSortChange}
           onRefresh={refresh}
@@ -328,8 +234,6 @@ const BestSellersContent = ({
   return (
     <div className="bestsellers-container">
       <BestSellersHeader
-        category={category}
-        onCategoryChange={onCategoryChange}
         sortBy={sortBy}
         onSortChange={onSortChange}
         onRefresh={refresh}
@@ -345,68 +249,29 @@ const BestSellersContent = ({
  */
 const BestSellersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [category, setCategory] = useState(searchParams.get('category') || 'all');
+  const category = searchParams.get('category') || 'all';
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'best-sellers');
 
   const { deals, loading, error, refresh } = useBestSellers();
 
-  // Filter products by category
+  // Filter products by category — the public payload returns the category
+  // either as a string or as an object, so it is normalised first.
   const filteredProducts = useMemo(() => {
     if (category === 'all') {
       return deals;
     }
+    const wanted = category.toLowerCase();
     return deals.filter(
       (product) =>
-        product.category?.toLowerCase() === category.toLowerCase() ||
+        productCategoryTitle(product).toLowerCase() === wanted ||
         product.categorySlug === category
     );
   }, [deals, category]);
 
-  // Sort products
-  const sortedProducts = useMemo(() => {
-    const list = [...filteredProducts];
-
-    switch (sortBy) {
-      case 'best-sellers':
-        list.sort((a, b) => (b.unitsSold ?? 0) - (a.unitsSold ?? 0));
-        break;
-      case 'price-low-high':
-        list.sort((a, b) => {
-          const priceA = a.discountPrice ?? a.price ?? 0;
-          const priceB = b.discountPrice ?? b.price ?? 0;
-          return priceA - priceB;
-        });
-        break;
-      case 'price-high-low':
-        list.sort((a, b) => {
-          const priceA = a.discountPrice ?? a.price ?? 0;
-          const priceB = b.discountPrice ?? b.price ?? 0;
-          return priceB - priceA;
-        });
-        break;
-      case 'newest':
-        list.sort((a, b) => new Date(b.createdAt ?? 0) - new Date(a.createdAt ?? 0));
-        break;
-      default:
-        break;
-    }
-
-    return list;
-  }, [filteredProducts, sortBy]);
-
-  // Handle category change with URL update
-  const handleCategoryChange = useCallback(
-    (newCategory) => {
-      setCategory(newCategory);
-      const params = new URLSearchParams(searchParams);
-      if (newCategory === 'all') {
-        params.delete('category');
-      } else {
-        params.set('category', newCategory);
-      }
-      setSearchParams(params);
-    },
-    [searchParams, setSearchParams]
+  // Sort products — shared comparator so the price fallbacks match /products.
+  const sortedProducts = useMemo(
+    () => sortProducts(filteredProducts, sortBy),
+    [filteredProducts, sortBy]
   );
 
   // Handle sort change with URL update
@@ -425,8 +290,8 @@ const BestSellersPage = () => {
   );
 
   const breadcrumbItems = [
-    { label: 'Best Sellers', to: '/best-selling' },
-    { label: 'Best Selling Products', active: true },
+    { label: 'Home', to: '/' },
+    { label: 'Best Sellers' },
   ];
 
   return (
@@ -439,8 +304,6 @@ const BestSellersPage = () => {
           loading={loading}
           error={error}
           refresh={refresh}
-          category={category}
-          onCategoryChange={handleCategoryChange}
           sortBy={sortBy}
           onSortChange={handleSortChange}
         />

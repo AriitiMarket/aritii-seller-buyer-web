@@ -1,6 +1,10 @@
 import api, { publicApi } from "@/services/api";
 import cache from "@/services/cache";
 
+// A body carrying files must go out as multipart so multer can read it.
+// (axios drops the header itself and lets the browser set the boundary.)
+const MULTIPART_CONFIG = { headers: { "Content-Type": "multipart/form-data" } };
+
 /**
  * Product Service
  * Handles product browsing (buyers), creation, and management (sellers)
@@ -92,6 +96,7 @@ export const productService = {
   async getPublicFiltered(filters = {}) {
     const {
       category,
+      subcategory,
       minPrice,
       maxPrice,
       rating,
@@ -106,6 +111,7 @@ export const productService = {
     // Build cache key from filters
     const cacheKey = `products:public:filtered:${JSON.stringify({
       category,
+      subcategory,
       minPrice,
       maxPrice,
       rating,
@@ -122,10 +128,10 @@ export const productService = {
     }
 
     // Build query params - only if at least one filter is specified
-    const hasFilters = category || minPrice || maxPrice || rating || search || shop || zoneId || cityId;
     const params = new URLSearchParams();
     
     if (category) params.append('category', category);
+    if (subcategory) params.append('subcategory', subcategory);
     if (minPrice) params.append('minPrice', minPrice);
     if (maxPrice) params.append('maxPrice', maxPrice);
     if (rating) params.append('rating', rating);
@@ -136,7 +142,7 @@ export const productService = {
     if (page && page > 1) params.append('page', page);
     if (limit && limit !== 24) params.append('limit', limit);
 
-    const url = hasFilters ? `/product/public/filtered?${params.toString()}` : `/product/public/all?${params.toString()}`;
+    const url = `/product/public/all?${params.toString()}`;
     
     try {
       const { data } = await publicApi.get(url, { 
@@ -158,7 +164,6 @@ export const productService = {
     } catch (error) {
       // If 404 or 400, endpoint doesn't exist - fall back to public all endpoint
       if (error.response?.status === 400 || error.response?.status === 404) {
-        console.warn('Filtered endpoint unavailable, falling back to getPublicAll');
         const fallbackResult = await this.getPublicPage({
           page,
           limit,
@@ -248,7 +253,7 @@ export const productService = {
     if (zoneId) params.append('zoneId', zoneId);
     if (cityId) params.append('cityId', cityId);
 
-    const url = `/product/public/categories?${params.toString()}`;
+    const url = `/category?${params.toString()}`;
     const { data } = await publicApi.get(url, { skipAuth: true });
 
     const categories = data.categories || [];
@@ -415,9 +420,7 @@ export const productService = {
    * @returns {Promise} - Created product object
    */
   async create(formData) {
-    const { data } = await api.post("/product/create-product", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await api.post("/product/create-product", formData, MULTIPART_CONFIG);
     // FIX #14: Invalidate shop products cache when new product created
     if (data.product?.shopId) {
       cache.invalidateShopCache(data.product.shopId);
@@ -429,13 +432,19 @@ export const productService = {
   /**
    * Update product details (seller only)
    * @param {string} productId - Product ID
-   * @param {Object} updateData - { name, description, price, discountPrice, stock, category }
+   * @param {Object|FormData} updateData - plain fields, or FormData when
+   *        images are uploaded/removed (multipart: `productImg` files,
+   *        `imageUrls` refs, `clearImages`)
    * @returns {Promise} - Updated product object
    */
   async update(productId, updateData) {
+    // A FormData body must go out as multipart so the files reach multer.
+    const isMultipart =
+      typeof FormData !== 'undefined' && updateData instanceof FormData;
     const { data } = await api.put(
       `/product/update-product/${productId}`,
-      updateData
+      updateData,
+      isMultipart ? MULTIPART_CONFIG : undefined
     );
     // FIX #14: Use new cache invalidation method
     if (data.product?.shopId) {

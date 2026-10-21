@@ -60,19 +60,19 @@ const BusinessLayout = ({ flushFooter = false }) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"
+          className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none bg-[#f8f9fa] dark:bg-[#0f1419]"
           data-testid="business-content"
         >
-          <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-24 lg:pb-8">
             <Outlet />
           </div>
 
           {!flushFooter && (
-            <footer className="mt-12 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-              <span>© Aritii Market Seller Portal.</span>{' '}
-              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/business/products">Products</Link> ·{' '}
-              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/faq">Help</Link> ·{' '}
-              <Link className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium" to="/business/settings">Settings</Link>
+            <footer className="mt-12 py-5 px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#131921]">
+              <span>© Aritii Market Seller Central.</span>{' '}
+              <Link className="hover:text-[#e77600] dark:hover:text-[#febd69] transition-colors font-medium ml-2" to="/business/products">Products</Link> ·{' '}
+              <Link className="hover:text-[#e77600] dark:hover:text-[#febd69] transition-colors font-medium" to="/help">Help</Link> ·{' '}
+              <Link className="hover:text-[#e77600] dark:hover:text-[#febd69] transition-colors font-medium" to="/business/settings">Settings</Link>
             </footer>
           )}
         </main>

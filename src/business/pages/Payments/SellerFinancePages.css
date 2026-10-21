@@ -1,0 +1,223 @@
+.seller-payouts-page,
+.seller-refund-management-page {
+  min-width: 0;
+  display: grid;
+  gap: 1.25rem;
+  color: #172033;
+}
+
+.seller-payouts-page .page-header h1,
+.seller-refund-management-page .page-header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.seller-payouts-page .page-header p,
+.seller-refund-management-page .page-header p {
+  margin-top: .3rem;
+  color: #64748b;
+  font-size: .9rem;
+}
+
+.seller-payouts-page .wallet-section,
+.seller-payouts-page .stats-grid,
+.seller-refund-management-page .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: .8rem;
+}
+
+.seller-payouts-page .wallet-card,
+.seller-payouts-page .stat-card,
+.seller-refund-management-page .stat-card,
+.seller-payouts-page .form-card,
+.seller-payouts-page .payout-card,
+.seller-refund-management-page .refund-item-card,
+.seller-payouts-page .empty-state,
+.seller-refund-management-page .empty-state {
+  min-width: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.seller-payouts-page .wallet-card {
+  display: flex;
+  min-height: 11rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #eff6ff, #fff 72%);
+  border-color: #dbeafe;
+}
+
+.seller-payouts-page .wallet-header h2,
+.seller-payouts-page .form-card h2 {
+  margin: 0;
+  color: #334155;
+  font-size: .9rem;
+  font-weight: 650;
+}
+
+.seller-payouts-page .wallet-amount {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+}
+
+.seller-payouts-page .wallet-amount .currency {
+  color: #64748b;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.seller-payouts-page .wallet-amount .amount {
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 750;
+  letter-spacing: -.04em;
+}
+
+.seller-payouts-page .stat-card,
+.seller-refund-management-page .stat-card {
+  padding: 1rem 1.1rem;
+}
+
+.seller-payouts-page .stat-icon,
+.seller-refund-management-page .stat-icon {
+  float: right;
+  font-size: 1.15rem;
+}
+
+.seller-payouts-page .stat-label,
+.seller-refund-management-page .stat-label {
+  color: #64748b;
+  font-size: .8rem;
+  font-weight: 550;
+}
+
+.seller-payouts-page .stat-value,
+.seller-refund-management-page .stat-value {
+  margin-top: .4rem;
+  color: #0f172a;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.seller-payouts-page .btn,
+.seller-refund-management-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border-radius: .65rem;
+  padding: .6rem .95rem;
+  font-size: .85rem;
+  font-weight: 650;
+  transition: background-color .15s ease, border-color .15s ease;
+  cursor: pointer;
+}
+
+.seller-payouts-page .btn-primary,
+.seller-refund-management-page .btn-primary {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+.seller-payouts-page .btn-primary:hover,
+.seller-refund-management-page .btn-primary:hover { background: #1d4ed8; }
+
+.seller-payouts-page .btn-secondary,
+.seller-refund-management-page .btn-secondary {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+}
+
+.seller-payouts-page .btn-secondary:hover,
+.seller-refund-management-page .btn-secondary:hover { background: #f8fafc; }
+
+.seller-payouts-page .btn:disabled,
+.seller-refund-management-page .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.seller-payouts-page .form-card { padding: 1.25rem; }
+.seller-payouts-page .payout-request-form form { display: grid; gap: 1rem; margin-top: 1rem; }
+.seller-payouts-page .form-group { display: grid; gap: .4rem; }
+.seller-payouts-page .form-group label,
+.seller-refund-management-page .filter-group label { color: #334155; font-size: .83rem; font-weight: 600; }
+.seller-payouts-page input,
+.seller-payouts-page select,
+.seller-payouts-page textarea,
+.seller-refund-management-page select,
+.seller-refund-management-page textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: .65rem;
+  background: white;
+  padding: .65rem .75rem;
+  color: #0f172a;
+  font: inherit;
+  font-size: .88rem;
+  outline: none;
+}
+.seller-payouts-page input:focus,
+.seller-payouts-page select:focus,
+.seller-payouts-page textarea:focus,
+.seller-refund-management-page select:focus,
+.seller-refund-management-page textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgb(59 130 246 / 12%); }
+.seller-payouts-page .form-group small { color: #64748b; font-size: .75rem; }
+.seller-payouts-page .form-actions,
+.seller-refund-management-page .modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; }
+
+.seller-payouts-page .payout-card { padding: 1rem 1.1rem; }
+.seller-payouts-page .payout-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .8rem; }
+.seller-payouts-page .payout-header h3 { color: #0f172a; font-size: 1.05rem; font-weight: 700; }
+.seller-payouts-page .payout-header p { margin-top: .2rem; color: #64748b; font-size: .82rem; }
+.seller-payouts-page .payout-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .55rem 1rem; margin-top: .9rem; border-top: 1px solid #f1f5f9; padding-top: .8rem; }
+.seller-payouts-page .detail { display: flex; min-width: 0; justify-content: space-between; gap: .75rem; color: #64748b; font-size: .78rem; }
+.seller-payouts-page .detail span:last-child { overflow: hidden; color: #334155; text-overflow: ellipsis; }
+.seller-payouts-page .detail.error span:last-child { color: #b91c1c; }
+.seller-payouts-page .monospace { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.seller-refund-management-page .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; }
+.seller-refund-management-page .filter-group select { width: auto; min-width: 10rem; }
+.seller-refund-management-page .refunds-list { display: grid; gap: .7rem; }
+.seller-refund-management-page .refund-item-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: .9rem; padding: 1rem; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+.seller-refund-management-page .refund-item-card:hover { border-color: #bfdbfe; box-shadow: 0 4px 12px rgb(15 23 42 / 6%); }
+.seller-refund-management-page .refund-info { min-width: 0; }
+.seller-refund-management-page .refund-info h4 { overflow: hidden; color: #0f172a; font-size: .9rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.seller-refund-management-page .refund-info p { margin-top: .2rem; color: #64748b; font-size: .78rem; }
+.seller-refund-management-page .refund-amount { white-space: nowrap; color: #0f172a; font-size: .9rem; font-weight: 700; }
+.seller-refund-management-page .badge { display: inline-flex; border-radius: 999px; padding: .28rem .6rem; font-size: .7rem; font-weight: 650; }
+.seller-refund-management-page .status-warning { background: #fffbeb; color: #b45309; }
+.seller-refund-management-page .status-success { background: #ecfdf5; color: #047857; }
+.seller-refund-management-page .status-error { background: #fef2f2; color: #b91c1c; }
+.seller-refund-management-page .status-undefined { background: #eff6ff; color: #1d4ed8; }
+.seller-refund-management-page .expand-btn { border: 0; background: transparent; color: #64748b; font-size: 1.2rem; }
+.seller-payouts-page .empty-state,
+.seller-refund-management-page .empty-state { padding: 2.5rem 1rem; color: #64748b; text-align: center; }
+.seller-payouts-page .alert-error,
+.seller-refund-management-page .alert-error { display: flex; justify-content: space-between; gap: .8rem; border: 1px solid #fecaca; border-radius: .8rem; background: #fef2f2; padding: .85rem 1rem; color: #b91c1c; font-size: .85rem; cursor: pointer; }
+.seller-payouts-page .loading-state,
+.seller-refund-management-page .loading-state { border: 1px solid #e2e8f0; border-radius: .9rem; background: white; padding: 2rem; color: #64748b; text-align: center; }
+.seller-refund-management-page .modal-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; overflow-y: auto; background: rgb(15 23 42 / 45%); padding: 1rem; }
+.seller-refund-management-page .modal-content { width: min(100%, 36rem); max-height: calc(100vh - 2rem); overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 1rem; background: white; padding: 1.25rem; box-shadow: 0 20px 50px rgb(15 23 42 / 18%); }
+.seller-refund-management-page .modal-content h2,
+.seller-refund-management-page .modal-content h3 { color: #0f172a; font-size: 1.1rem; font-weight: 700; }
+.seller-refund-management-page .modal-close { float: right; border: 0; background: transparent; color: #64748b; font-size: 1.2rem; }
+.seller-refund-management-page .detail-grid { display: grid; gap: .75rem; margin: 1rem 0; color: #475569; font-size: .85rem; overflow-wrap: anywhere; }
+.seller-refund-management-page .modal-content textarea { margin: 1rem 0; resize: vertical; }
+
+@media (max-width: 560px) {
+  .seller-refund-management-page .refund-item-card { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .seller-refund-management-page .refund-amount { grid-column: 2; }
+  .seller-refund-management-page .expand-btn { grid-column: 3; grid-row: 1 / span 2; }
+}

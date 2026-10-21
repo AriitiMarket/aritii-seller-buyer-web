@@ -110,18 +110,20 @@ const BusinessStoreMetricsPage = () => {
   // Revenue only from Delivered orders (normalized so legacy spellings merge);
   // never count Processing/Cancelled/Refund toward revenue.
   const succeeded = windowOrders.filter((o) => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED)
-  const revenue = succeeded.reduce((s, o) => s + (Number(o.totalPrice) || 0), 0)
+  const revenue = succeeded.reduce((s, o) => s + Number(o.subtotal ?? Math.max(0, Number(o.totalPrice) - Number(o.shippingFee || 0))), 0)
   const lowStock = shopProducts.filter((p) => Number(p.stock) <= 5 && Number(p.stock) > 0)
   const outOfStock = shopProducts.filter((p) => Number(p.stock) === 0)
 
   // Best sellers: aggregate quantity by product from order cart lines (window only).
   const soldMap = new Map()
-  windowOrders.forEach((o) => (o.cart || []).forEach((li) => {
+  succeeded.forEach((o) => (o.cart || []).forEach((li) => {
     const id = li.productId || li.product || li._id || 'unknown'
     const nm = li.name || 'Product'
-    const quantity = Number(li.quantity) || 1
-    const cur = soldMap.get(id) || { name: nm, quantity: 0 }
+    const quantity = Number(li.quantity ?? li.qty) || 1
+    const unitPrice = Number(li.discountPrice ?? li.price ?? 0)
+    const cur = soldMap.get(id) || { name: nm, quantity: 0, revenue: 0 }
     cur.quantity += quantity
+    cur.revenue += unitPrice * quantity
     soldMap.set(id, cur)
   }))
   const bestSellers = [...soldMap.values()].sort((a, b) => b.quantity - a.quantity).slice(0, 5)
@@ -222,7 +224,7 @@ const BusinessStoreMetricsPage = () => {
                     </span>
                     <span className="text-gray-800 font-medium">{b.name}</span>
                   </div>
-                  <span className="text-green-700 font-bold text-lg">{b.quantity} sold</span>
+                  <span className="text-right text-green-700 font-bold">{b.quantity} sold<br /><small className="text-xs">ETB {b.revenue.toLocaleString()}</small></span>
                 </div>
               ))}
             </div>

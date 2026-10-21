@@ -1,9 +1,7 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { useState , useEffect} from 'react'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
-import { useDispatch } from 'react-redux'
 import { createProduct } from '@/store/slices/productThunks';
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 import { toast } from 'react-toastify'
@@ -15,7 +13,7 @@ const CreateProduct = () => {
     // Category model uses `title` (not `name`) — the hook fetches the product
     // list on mount so the select is never empty when the seller opens the form.
     const { categories } = useCatalogCategories({ type: 'product' });
-    const {isLoading, success, error} = useSelector((state) => state.products);
+    const { isLoading, success, error } = useSelector((state) => state.products);
     const { activeShopId, loading: shopsLoading } = useBusinessShops();
 
   const navigate = useNavigate();
@@ -33,25 +31,20 @@ const CreateProduct = () => {
   const [discountPrice, setDiscountPrice] = useState("");
   const [stock, setStock] = useState("");
   const [lowStockThreshold, setLowStockThreshold] = useState("5");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (error) {
       toast.error(error);
     }
     if (success) {
+      toast.success('Product created successfully! It\'s saved as a draft.');
       navigate("/business/products");
       // Clear the flag so reopening this form does not fire the effect again
       // on mount and instantly bounce the seller back out.
       dispatch({ type: "productCreateReset" });
     }
   }, [error, success, navigate, dispatch]);
-
-  // Also reset on entry: a success left over from an older session lifecycle
-  // must not redirect before the seller has submitted anything.
-  useEffect(() => {
-    dispatch({ type: "productCreateReset" });
-    return () => dispatch({ type: "productCreateReset" });
-  }, [dispatch]);
 
 
 
@@ -130,7 +123,8 @@ const CreateProduct = () => {
     newForm.append("shopId", shopIdForCreate);
 
     // Success toast fires from the `success` effect — not before the server responds.
-    dispatch(createProduct(newForm));
+    setIsSubmitting(true);
+    dispatch(createProduct(newForm)).finally(() => setIsSubmitting(false));
   };
 
 
@@ -202,7 +196,7 @@ const CreateProduct = () => {
             className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter your product description..."
-          ></textarea>
+           />
         </div>
 
 
@@ -254,7 +248,7 @@ const CreateProduct = () => {
 
         <br />
         <div>
-          <label className="pb-2">SKU (unique within your shop)</label>
+          <label className="pb-2">SKU <span className="text-gray-400 text-xs">(optional, must be unique per shop)</span></label>
           <input
             type="text"
             name="sku"
@@ -415,8 +409,9 @@ const CreateProduct = () => {
           <div>
             <input
               type="submit"
-              value="Create"
-              className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              value={isSubmitting ? "Creating..." : "Create"}
+              disabled={isSubmitting || isLoading}
+              className={`mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${isSubmitting || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
           </div>
         </div>

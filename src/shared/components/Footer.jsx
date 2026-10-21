@@ -3,36 +3,36 @@ import { Link } from 'react-router-dom'
 import BrandLogo from '@/components/common/BrandLogo'
 
 const Footer = () => {
+  // Every link below must resolve to a real route (see src/app/routes/*).
   const footerLinks = {
     'Get to Know Us': [
       { label: 'About Us', to: '/about' },
-      { label: 'Careers', to: '/careers' },
-      { label: 'Press Releases', to: '/press' },
       { label: 'How It Works', to: '/how-it-works' },
+      { label: 'Events', to: '/events' },
+      { label: 'Help & FAQ', to: '/faq' },
     ],
     'Make Money with Us': [
       { label: 'Sell on Aritii', to: '/sell-on-aritii' },
-      { label: 'Become a Seller', to: '/seller-registration' },
-      { label: 'Open a Shop', to: '/sell-on-aritii' },
-      { label: 'Become an Affiliate', to: '/affiliate' },
-      { label: 'Advertise Your Products', to: '/advertise' },
-      { label: 'Self-Publish with Us', to: '/publish' },
-      { label: 'Delivery Partners', to: '/delivery' },
+      { label: 'Become a Seller', to: '/seller-sign-up' },
+      { label: 'Seller Center', to: '/seller-center' },
+      { label: 'Open a Shop', to: '/create-shop' },
+      { label: 'Delivery Partners', to: '/delivery-center' },
     ],
-    'Payment Options': [
-      { label: 'Aritii Gift Cards', to: '/gift-cards' },
-      { label: 'Shop with Points', to: '/points' },
-      { label: 'Reload Your Balance', to: '/reload' },
-      { label: 'Payment Methods', to: '/payment-methods' },
+    'Shop With Us': [
+      { label: 'All Products', to: '/products' },
+      { label: 'Categories', to: '/categories' },
+      { label: "Today's Deals", to: '/deals' },
+      { label: 'Best Sellers', to: '/best-selling' },
+      { label: 'New Arrivals', to: '/new-arrivals' },
+      { label: 'All Shops', to: '/shops' },
     ],
     'Let Us Help You': [
       { label: 'Your Account', to: '/my-dashboard/profile' },
       { label: 'Your Orders', to: '/my-dashboard/orders' },
-      { label: 'Shipping Rates & Policies', to: '/shipping' },
-      { label: 'Delivery Rates & Policies', to: '/shipping' },
-      { label: 'Returns & Replacements', to: '/returns' },
-      { label: 'Manage Your Content', to: '/content' },
-      { label: 'Help', to: '/help' },
+      { label: 'Your Wish List', to: '/my-dashboard/wishlist' },
+      { label: 'Your Cart', to: '/my-dashboard/cart' },
+      { label: 'Contact Us', to: '/contact' },
+      { label: 'Help & FAQ', to: '/faq' },
     ],
   }
 

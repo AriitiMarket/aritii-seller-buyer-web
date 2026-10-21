@@ -21,9 +21,25 @@ const CatalogPageLayout = ({
   sidebarContent,
   mainContent,
 }) => {
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [isDesktop, setIsDesktop] = React.useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  );
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const drawerCloseRef = React.useRef(null);
+
+  // Mount the sidebar content in exactly one place: inline on desktop, or in
+  // the drawer on smaller screens. This avoids duplicate filter components
+  // (and duplicate location selectors) being active at the same time.
+  React.useEffect(() => {
+    const media = window.matchMedia('(min-width: 1024px)');
+    const onChange = (event) => {
+      setIsDesktop(event.matches);
+      if (event.matches) setDrawerOpen(false);
+    };
+    setIsDesktop(media.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   // Mobile drawer behaviours: focus close button, lock body scroll, Escape.
   React.useEffect(() => {
@@ -41,7 +57,7 @@ const CatalogPageLayout = ({
   }, [drawerOpen]);
 
   return (
-    <div className="pb-8">
+    <div className="pb-8 lg:-mx-8">
       {/* Breadcrumbs — below the sub-nav (layout provides the top spacing) */}
       {breadcrumbItems && <Breadcrumbs items={breadcrumbItems} />}
 
@@ -59,18 +75,15 @@ const CatalogPageLayout = ({
         </button>
       </div>
 
-      {/* Main flex layout: Sidebar on left (desktop), content on right */}
+      {/* Main flex layout: one sidebar instance on desktop, content on right */}
       <div className="flex gap-0 lg:gap-6 px-3 sm:px-4 lg:px-0">
-        {/* Left FilterSidebar — sticky, full height on desktop */}
-        <aside
-          className={`hidden lg:flex lg:flex-col lg:flex-shrink-0 ${
-            sidebarOpen ? 'lg:w-60' : 'lg:w-0'
-          } overflow-hidden transition-all duration-300 ease-in-out`}
-        >
-          <div className="sticky top-[104px] h-[calc(100vh-104px)] overflow-y-auto pr-3">
-            <div className="pt-4 space-y-1">{sidebarContent}</div>
-          </div>
-        </aside>
+        {isDesktop && (
+          <aside className="sticky top-[124px] flex h-[calc(100vh-124px)] w-60 flex-shrink-0 flex-col self-start">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-3">
+              <div className="pt-4 space-y-1">{sidebarContent}</div>
+            </div>
+          </aside>
+        )}
 
         {/* Main content area — takes remaining space */}
         <main className="flex-1 min-w-0">
@@ -79,7 +92,7 @@ const CatalogPageLayout = ({
       </div>
 
       {/* ===== Mobile filters drawer — LEFT slide-in overlay ===== */}
-      {drawerOpen && (
+      {!isDesktop && drawerOpen && (
         <div className="fixed inset-0 z-[65] lg:hidden" onClick={() => setDrawerOpen(false)}>
           {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
           <div
@@ -114,7 +127,7 @@ const CatalogPageLayout = ({
             </div>
 
             {/* Sidebar content — scrollable */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-0">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 space-y-0">
               {sidebarContent}
             </div>
 

@@ -13,5 +13,11 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.js',
+    // The suite renders heavy pages (catalog, delivery, portal modal) in
+    // parallel workers. The default 5s budget is too tight on a loaded
+    // machine and produced flaky "test timed out" failures for tests that
+    // pass in isolation.
+    testTimeout: 20000,
+    hookTimeout: 20000,
   },
 });

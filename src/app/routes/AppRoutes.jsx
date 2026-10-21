@@ -11,7 +11,7 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute';
 import PageLoader from '@/app/routes/PageLoader';
 import ErrorBoundary from '@/components/layout/ErrorBoundary';
 import { useAppBootstrap } from '@/shared/hooks/useAppBootstrap';
-import AuthNavigator from '@/shared/components/AuthNavigator';
+import GlobalLoginModal from '@/auth/components/GlobalLoginModal';
 
 const NotFound = lazy(() => import('@/public/NotFound'));
 
@@ -39,8 +39,8 @@ const AppRoutes = () => (
   <ErrorBoundary>
     <BrowserRouter>
       <BootstrapListener />
+      <GlobalLoginModal />
       <ToastContainer position="top-right" />
-      <AuthNavigator />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* PUBLIC WEBSITE + CATALOG */}

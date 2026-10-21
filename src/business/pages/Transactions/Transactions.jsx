@@ -4,8 +4,8 @@ import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import { getSellerAllocations } from '@/services';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import Loader from '@/components/common/Loading';
-import { FiDollarSign, FiClock, FiRefreshCw, FiSearch, FiCreditCard, FiMinus, FiPlus } from 'react-icons/fi';
-import { SellerStatusBadge, SellerEmptyState } from '@/business/components';
+import { FiDollarSign, FiClock, FiCreditCard, FiMinus, FiPlus } from 'react-icons/fi';
+import { SellerEmptyState } from '@/business/components';
 
 const money = (value) => `${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
 
@@ -28,7 +28,7 @@ const STATUS_LABELS = {
 const BusinessTransactionsPage = () => {
   const dispatch = useDispatch();
   const { ShopOrders = [], isLoading } = useSelector((state) => state.order);
-  const { activeShop, activeShopId } = useBusinessShops();
+  const { activeShop } = useBusinessShops();
   const { seller } = useSelector((state) => state.seller || {});
 
   const [statusFilter, setStatusFilter] = useState('all');
@@ -55,7 +55,7 @@ const BusinessTransactionsPage = () => {
       .catch(() => { if (active) setAllocations([]); })
       .finally(() => { if (active) setAllocsLoading(false); });
     return () => { active = false; };
-  }, [sellerUserId, getSellerAllocations]);
+  }, [sellerUserId]);
 
   const summary = useMemo(() => {
     const confirmed = allocations.filter((a) => a.status === 'SETTLED');

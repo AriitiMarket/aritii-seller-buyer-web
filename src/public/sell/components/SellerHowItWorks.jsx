@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import { AiOutlineArrowRight } from 'react-icons/ai';
 
 const SellerHowItWorks = () => {
   const steps = [

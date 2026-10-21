@@ -1,11 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
 import { getAllEventsShop, deleteEvent } from '@/store/slices/eventThunks';
 import { AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Loader from '@/components/common/Loading';
-import { toast } from 'react-toastify';
 import '@/business/components/AllEvents.css';
 
 

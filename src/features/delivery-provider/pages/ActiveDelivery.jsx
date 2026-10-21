@@ -24,15 +24,21 @@ import { toast } from 'react-toastify';
  */
 const ActiveDelivery = () => {
   const { id } = useParams();
-  const { delivery, loading, error, supported, updateStatus, confirmCod, getTracking } = useProviderDelivery(id);
+  const { delivery, loading, error, supported, updateStatus, confirmCod } = useProviderDelivery(id);
   const [updating, setUpdating] = useState(false);
   const [showCodConfirm, setShowCodConfirm] = useState(false);
   const [codAmount, setCodAmount] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [photoReference, setPhotoReference] = useState('');
+  const [signatureReference, setSignatureReference] = useState('');
   const [batch, setBatch] = useState(null);
   const [batchLoading, setBatchLoading] = useState(false);
 
   const status = normalizeDeliveryStatus(delivery?.status);
   const progress = calculateDeliveryProgress(delivery?.status);
+  const proofRules = delivery?.proofRules || {};
+  const codRequired = delivery?.paymentMethod === 'COD';
+  const completionProofRequired = codRequired || proofRules.requireConfirmation || proofRules.requirePhoto || proofRules.requireSignature;
 
   // Fetch the batch this delivery belongs to (if any) to gate rider actions.
   useEffect(() => {
@@ -94,17 +100,33 @@ const ActiveDelivery = () => {
 
   const handleCodConfirm = async (e) => {
     e.preventDefault();
-    if (!codAmount || isNaN(codAmount)) {
+    if (codRequired && (!codAmount || isNaN(codAmount))) {
       toast.error('Please enter a valid amount');
       return;
     }
+    const proof = {};
+    if (proofRules.requireConfirmation) {
+      if (!recipientName.trim()) {
+        toast.error('Enter the recipient name to confirm delivery');
+        return;
+      }
+      proof.confirmed = true;
+      proof.recipientName = recipientName.trim();
+    }
+    if (proofRules.requirePhoto) proof.photoReference = photoReference.trim();
+    if (proofRules.requireSignature) proof.signatureReference = signatureReference.trim();
     setUpdating(true);
     try {
-      const response = await confirmCod(id, parseFloat(codAmount));
+      const response = codRequired
+        ? await confirmCod(id, parseFloat(codAmount), proof)
+        : await updateStatus(id, DELIVERY_STATUSES.DELIVERED, { proofOfDelivery: proof });
       if (response.success) {
-        toast.success('Delivery completed and cash confirmed');
+        toast.success(codRequired ? 'Delivery completed and cash confirmed' : 'Delivery completed with proof');
         setShowCodConfirm(false);
         setCodAmount('');
+        setRecipientName('');
+        setPhotoReference('');
+        setSignatureReference('');
       } else {
         toast.error(response.message || apiErrorMessage(response.error, 'Failed to confirm COD'));
       }
@@ -138,8 +160,8 @@ const ActiveDelivery = () => {
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
           <p className="text-amber-800">
-            {!supported 
-              ? 'Delivery Service Unavailable: The delivery service is not responding. Delivery details cannot be loaded at this time.'
+            {!supported
+              ? `Delivery details could not be loaded: ${apiErrorMessage(error, 'The delivery service is not responding.')}`
               : 'Delivery not found. The delivery may have been removed or you may not have access to it.'}
           </p>
         </div>
@@ -344,7 +366,7 @@ const ActiveDelivery = () => {
 
           {!batchLoading && !batch && delivery?.assignmentId && (
             <div className="px-4 py-2.5 bg-amber-50 text-amber-800 rounded-lg font-medium text-sm">
-              This delivery is not part of a batch. Contact operations for assistance.
+              This is a single delivery (not a grouped run). Accept it from Available work, then progress it here.
             </div>
           )}
 
@@ -359,7 +381,9 @@ const ActiveDelivery = () => {
             </button>
           )}
 
-          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.ASSIGNED && (
+          {/* A single assignment is progressed exactly like a batch one — the
+              assignment's own advance route handles it. */}
+          {!batchLoading && (batch || delivery?.assignmentId) && [DELIVERY_STATUSES.ASSIGNED, DELIVERY_STATUSES.REASSIGNED].includes(status) && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.PICKUP)}
               disabled={updating}
@@ -370,7 +394,7 @@ const ActiveDelivery = () => {
             </button>
           )}
 
-          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.PICKUP && (
+          {!batchLoading && (batch || delivery?.assignmentId) && status === DELIVERY_STATUSES.PICKUP && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.IN_TRANSIT)}
               disabled={updating}
@@ -381,7 +405,7 @@ const ActiveDelivery = () => {
             </button>
           )}
 
-          {!batchLoading && batch && batch.status !== 'waiting_acceptance' && status === DELIVERY_STATUSES.IN_TRANSIT && (
+          {!batchLoading && (batch || delivery?.assignmentId) && status === DELIVERY_STATUSES.IN_TRANSIT && !completionProofRequired && (
             <button
               onClick={() => handleStatusUpdate(DELIVERY_STATUSES.DELIVERED)}
               disabled={updating}
@@ -392,13 +416,24 @@ const ActiveDelivery = () => {
             </button>
           )}
 
+          {!batchLoading && (batch || delivery?.assignmentId) && status === DELIVERY_STATUSES.IN_TRANSIT && completionProofRequired && (
+            <button
+              onClick={() => setShowCodConfirm(true)}
+              disabled={updating}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <MdCheck size={18} />
+              {codRequired ? 'Confirm COD & Complete' : 'Submit Proof & Complete'}
+            </button>
+          )}
+
           {status === DELIVERY_STATUSES.DELIVERED && (
             <div className="px-4 py-2.5 bg-green-50 text-green-700 rounded-lg font-medium">
               ✓ Delivery Completed
             </div>
           )}
 
-          {!batchLoading && !['assigned', 'pickup', 'in_transit', 'delivered'].includes(status) && (
+          {!batchLoading && !['assigned', 'reassigned', 'pickup', 'in_transit', 'delivered'].includes(status) && (
             <div className="px-4 py-2.5 bg-gray-50 text-gray-600 rounded-lg font-medium text-sm">
               This delivery is being handled by operations.
             </div>
@@ -410,16 +445,17 @@ const ActiveDelivery = () => {
       {showCodConfirm && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm COD &amp; Complete Delivery</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Delivery Completion</h3>
             <p className="text-sm text-gray-600 mb-4">
-              This records the cash you collected and marks the delivery complete.
+              Submit the proof required by this delivery before completing it.
             </p>
             <form onSubmit={handleCodConfirm}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              {codRequired && <div className="mb-4">
+                <label htmlFor="cod-amount" className="block text-sm font-medium text-gray-700 mb-2">
                   Amount Collected (ETB)
                 </label>
                 <input
+                  id="cod-amount"
                   type="number"
                   step="0.01"
                   value={codAmount}
@@ -428,7 +464,19 @@ const ActiveDelivery = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#75d04b] focus:border-transparent"
                   required
                 />
-              </div>
+              </div>}
+              {proofRules.requireConfirmation && <div className="mb-4">
+                <label htmlFor="cod-recipient" className="block text-sm font-medium text-gray-700 mb-2">Recipient name</label>
+                <input id="cod-recipient" value={recipientName} onChange={(event) => setRecipientName(event.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2" required />
+              </div>}
+              {proofRules.requirePhoto && <div className="mb-4">
+                <label htmlFor="cod-photo" className="block text-sm font-medium text-gray-700 mb-2">Photo proof URL or reference</label>
+                <input id="cod-photo" value={photoReference} onChange={(event) => setPhotoReference(event.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2" required />
+              </div>}
+              {proofRules.requireSignature && <div className="mb-4">
+                <label htmlFor="cod-signature" className="block text-sm font-medium text-gray-700 mb-2">Signature proof URL or reference</label>
+                <input id="cod-signature" value={signatureReference} onChange={(event) => setSignatureReference(event.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2" required />
+              </div>}
               <div className="flex gap-3">
                 <button
                   type="submit"

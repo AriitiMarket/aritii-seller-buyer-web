@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SellerRegistrationStepper from '@/seller-registration/components/SellerRegistrationStepper';
-import SellerApplicationSummary from '@/seller-registration/components/SellerApplicationSummary';
 import SellerTypeForm from '@/seller-registration/forms/SellerTypeForm';
 import BusinessInformationForm from '@/seller-registration/forms/BusinessInformationForm';
 import LocationInformationForm from '@/seller-registration/forms/LocationInformationForm';

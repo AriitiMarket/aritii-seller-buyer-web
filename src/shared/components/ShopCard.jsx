@@ -23,14 +23,16 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
 
+  // Guests have no account to follow a shop with, so the public variant drops
+  // the follow action (mirrors ProductCard, which hides the wishlist button).
+  const isPublic = variant === 'public';
+
   if (!data) return null;
 
-  const isPublic = variant === 'public';
 
   const name = data.name || "Aritii Shop";
   const id = data._id || data.id;
   const address = data.address || "";
-  const zipCode = data.zipCode || "";
   const city = data.city || data.cityName || "";
   const zone = data.zone || data.zoneName || "";
 
@@ -145,33 +147,35 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
         {/* Spacer for flex layout */}
         <div className="flex-1" />
 
-        {/* Visit Shop Button - Large, Green (#75d04b) with 44px min height */}
+        {/* Visit Shop Button - Amazon style Amber / Gold Button */}
         <Link
           to={shopPath}
-          className="w-full px-4 py-3 mb-3 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-bold rounded-lg text-center transition-colors duration-200 transform hover:scale-105 active:scale-95 min-h-[44px] flex items-center justify-center"
+          className="w-full px-4 py-2 mb-2 bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] text-[#0f1111] font-bold rounded-full text-center transition-colors text-xs shadow-sm flex items-center justify-center min-h-[36px]"
         >
-          Visit Shop
+          Visit Store
         </Link>
 
-        {/* Action Buttons - 44px minimum height */}
+        {/* Action Buttons */}
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setIsFollowing(!isFollowing)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors duration-200 min-h-[44px] ${
-              isFollowing
-                ? 'bg-[#75d04b] text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
-            title={isFollowing ? 'Following' : 'Follow this shop'}
-          >
-            <AiOutlineHeart size={18} />
-            <span className="hidden sm:inline">Follow</span>
-          </button>
+          {!isPublic && (
+            <button
+              type="button"
+              onClick={() => setIsFollowing(!isFollowing)}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full font-medium text-xs transition-colors border ${
+                isFollowing
+                  ? 'bg-gray-200 border-gray-400 text-gray-800'
+                  : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
+              }`}
+              title={isFollowing ? 'Following' : 'Follow this shop'}
+            >
+              <AiOutlineHeart size={18} />
+              <span className="hidden sm:inline">Follow</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setIsComparing(!isComparing)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors duration-200 min-h-[44px] ${
+            className={`${isPublic ? 'w-full' : 'flex-1'} flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors duration-200 min-h-[44px] ${
               isComparing
                 ? 'bg-[#75d04b] text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'

@@ -1,100 +1,90 @@
-import React from 'react'
-import { AiOutlineGlobal, AiOutlineShop, AiOutlineBarChart } from 'react-icons/ai'
+import React from 'react';
+import {
+  MdOutlineStorefront,
+  MdOutlineInventory2,
+  MdOutlineLocalShipping,
+  MdOutlinePayments,
+  MdOutlineInsights,
+  MdOutlineShield,
+} from 'react-icons/md';
 
 /**
- * SellerCentralFeatures - Benefits cards grid
- *
- * Three core seller benefits focused on local commerce
+ * SellerCentralFeatures - Amazon Seller feature grid
+ * Highlights fulfillment, payments, metrics, and security.
  */
 const SellerCentralFeatures = () => {
   const features = [
     {
-      icon: AiOutlineGlobal,
-      title: 'Local Market Access',
-      description: 'Connect with customers in your community. Reach buyers in your neighborhood, city, and region through one unified marketplace.',
-      highlights: [
-        'Local customer discovery',
-        'Neighborhood visibility',
-        'Regional expansion',
-      ],
+      icon: MdOutlineStorefront,
+      title: 'Digital Storefront',
+      description: 'Custom shop profile, banner, brand story, and product catalog that look professional across desktop and mobile.',
     },
     {
-      icon: AiOutlineShop,
-      title: 'Order Fulfillment Support',
-      description: 'Integrated delivery network handles pickup and delivery. Focus on your products while local delivery partners fulfill orders.',
-      highlights: [
-        'Local delivery partners',
-        'Order coordination',
-        'Customer doorstep delivery',
-      ],
+      icon: MdOutlineInventory2,
+      title: 'Real-Time Stock Management',
+      description: 'Automated stock reservation on orders, low-stock notifications, and batch inventory updates to avoid overselling.',
     },
     {
-      icon: AiOutlineBarChart,
-      title: 'Seller Dashboard & Analytics',
-      description: 'Powerful tools to manage inventory, track performance, run promotions, and grow your business with actionable insights.',
-      highlights: [
-        'Sales performance tracking',
-        'Inventory management',
-        'Promotion tools',
-      ],
+      icon: MdOutlineLocalShipping,
+      title: 'Fulfillment by Aritii (FBA)',
+      description: 'Automatic rider dispatch, trackable order status, and instant delivery notifications right to your customers.',
     },
-  ]
+    {
+      icon: MdOutlinePayments,
+      title: 'Fast, Flexible Payouts',
+      description: 'Receive earnings directly into Commercial Bank of Ethiopia (CBE), Telebirr, Awash, or your designated bank.',
+    },
+    {
+      icon: MdOutlineInsights,
+      title: 'Advanced Analytics & Reports',
+      description: 'Track daily revenue, best sellers, customer retention, return rates, and profit margins through clean dashboards.',
+    },
+    {
+      icon: MdOutlineShield,
+      title: 'Seller Protection & Verification',
+      description: 'Protected payments, dispute resolution support, verified buyer accounts, and anti-fraud order screening.',
+    },
+  ];
 
   return (
-    <section className="bg-white dark:bg-gray-950 py-16 md:py-24">
+    <section id="benefits" className="py-16 md:py-24 bg-white dark:bg-[#0f1419] scroll-mt-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mb-16 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0F1111] dark:text-white mb-4">
-            Why Sell on Aritii?
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#FF9900] bg-[#FF9900]/10 px-3 py-1 rounded-full">
+            Why Sell on Aritii
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F1111] dark:text-white mt-3 mb-4">
+            Everything you need to sell, deliver, and scale
           </h2>
-          <p className="text-lg text-[#565959] dark:text-gray-400 max-w-2xl mx-auto">
-            Get the tools, reach, and support you need to build a successful business on our marketplace.
+          <p className="text-base text-[#565959] dark:text-gray-400">
+            Engineered with the same high-standard seller tools used by global e-commerce leaders, tailored for local Ethiopian trade.
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-          {features.map((feature) => {
-            const Icon = feature.icon
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, idx) => {
+            const Icon = feature.icon;
             return (
               <div
-                key={feature.title}
-                className="bg-white dark:bg-gray-900 border border-[#E7E5E4] dark:border-gray-800 rounded-lg p-8 hover:shadow-lg transition-shadow duration-200"
+                key={idx}
+                className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-[#F7F7F7] dark:bg-[#1a222d] hover:border-[#FF9900] dark:hover:border-[#FF9900] transition-colors group"
               >
-                {/* Icon */}
-                <div className="w-16 h-16 bg-[#F7F7F7] dark:bg-gray-800 rounded-lg flex items-center justify-center mb-6">
-                  <Icon className="w-8 h-8 text-[#FF9900]" />
+                <div className="w-12 h-12 rounded-lg bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-[#FF9900] mb-5 group-hover:scale-110 transition-transform">
+                  <Icon size={26} />
                 </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold text-[#0F1111] dark:text-white mb-3">
+                <h3 className="text-lg font-bold text-[#0F1111] dark:text-white mb-2">
                   {feature.title}
                 </h3>
-
-                {/* Description */}
-                <p className="text-[#565959] dark:text-gray-400 text-sm mb-6 leading-relaxed">
+                <p className="text-sm text-[#565959] dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
-
-                {/* Highlights */}
-                <ul className="space-y-3">
-                  {feature.highlights.map((highlight) => (
-                    <li key={highlight} className="flex items-start gap-3">
-                      <span className="text-[#FF9900] font-bold mt-1">•</span>
-                      <span className="text-sm text-[#0F1111] dark:text-gray-300">
-                        {highlight}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default SellerCentralFeatures
+export default SellerCentralFeatures;

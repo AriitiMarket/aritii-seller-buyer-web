@@ -1,7 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import Loading from '@/components/common/Loading';
+import { useLayout } from '@/app/providers/LayoutContext';
+
+/**
+ * SignInRequired — what a protected route renders while the visitor is not
+ * signed in.
+ *
+ * The login form itself is the ONE global modal; this is only the fallback
+ * behind it, so dismissing the modal leaves a sensible page (and a button to
+ * ask for the modal again) instead of a blank screen.
+ */
+const SignInRequired = ({ onSignIn }) => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+      Please sign in to continue
+    </h2>
+    <p className="max-w-md text-sm text-gray-600 dark:text-gray-300">
+      This page is only available to signed-in accounts.
+    </p>
+    <button
+      type="button"
+      onClick={onSignIn}
+      className="rounded-lg bg-[#75d04b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5ac12f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#75d04b]/50"
+    >
+      Sign in
+    </button>
+  </div>
+);
 
 /**
  * ProtectedRoute - the frontend route guard for every authenticated domain.
@@ -25,15 +52,35 @@ import Loading from '@/components/common/Loading';
  * provider workspace, so both gate on the PROVIDER capability. Gating DELIVERY
  * on the seller capability (as this guard used to) made /delivery unreachable
  * for providers and wrongly admitted sellers.
+ *
+ * There is no login PAGE: an unauthenticated visitor gets the ONE global login
+ * modal, and `redirectTo` (when given) is where they land afterwards.
  */
 const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => {
   const location = useLocation();
   const { loading, isAuthenticated, user } = useSelector((state) => state.user || {});
   const { isLoading: sellerLoading, isSeller } = useSelector((state) => state.seller || {});
+  const { openLoginModal } = useLayout();
 
   const needsBusiness = require === 'BUSINESS';
   const needsBuyer = require === 'BUYER';
   const needsProvider = require === 'PROVIDER' || require === 'DELIVERY';
+
+  // The role the visitor would land in once signed in — a HINT for the modal's
+  // badge and sign-up link only. The session's real role comes from the backend.
+  const modalRole = needsBusiness ? 'SELLER' : needsProvider ? 'PROVIDER' : 'BUYER';
+
+  // Some routes hand visitors a sign-up page instead of a sign-in prompt
+  // (e.g. the provider application); those never show the modal.
+  const needsSignIn = !isAuthenticated && !redirectTo;
+
+  // Ask for credentials instead of bouncing to a (now removed) login page.
+  useEffect(() => {
+    if (needsSignIn && !loading) {
+      openLoginModal(modalRole, location.pathname + location.search);
+    }
+  }, [needsSignIn, loading, modalRole, location.pathname, location.search, openLoginModal]);
+
 
   const hasSellerCapability = isSeller;
   const hasProviderCapability =
@@ -59,7 +106,13 @@ const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo || '/login'} replace state={{ from: location.pathname }} />;
+    // Some routes hand visitors a sign-up page instead of a sign-in prompt
+    // (e.g. the provider application). Everything else asks for credentials in
+    // the ONE global login modal, keeping the visitor on the URL they wanted.
+    if (redirectTo) {
+      return <Navigate to={redirectTo} replace state={{ from: location.pathname }} />;
+    }
+    return <SignInRequired onSignIn={() => openLoginModal(modalRole, location.pathname + location.search)} />;
   }
 
   if (needsBusiness && !hasSellerCapability) {

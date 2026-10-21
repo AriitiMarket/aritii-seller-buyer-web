@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllProductsShop, deleteProduct, transitionProduct } from '@/store/slices/productThunks';
-import { AiOutlineEye, AiOutlineDelete, AiOutlineEdit, AiOutlineSearch, AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineUndo } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineDelete, AiOutlineEdit, AiOutlineUndo } from 'react-icons/ai';
 import { Link, useSearchParams } from 'react-router-dom';
 import Loader from '@/components/common/Loading';
+import { ProductImage } from '@/components/common/ImageWithFallback';
 import { toast } from 'react-toastify';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import { MdInventory2, MdOutlineArchive } from 'react-icons/md';
-import { FiPackage, FiDollarSign } from 'react-icons/fi';
-import { SellerStatusBadge, SellerSearchAndFilters, SellerEmptyState, SellerConfirmationDialog } from '@/business/components';
-import { SellerDataTable } from '@/business/components';
+import { SellerStatusBadge, SellerSearchAndFilters, SellerEmptyState, SellerConfirmationDialog, SellerDataTable } from '@/business/components';
 
 const isValidObjectId = (value) => /^[a-f0-9]{24}$/i.test(String(value || ''));
 
@@ -39,15 +38,14 @@ const matchesTabItem = (item, tab) => {
 const AllProductsOfASingleShop = () => {
   const { shopProducts: products = [], isLoading, error } = useSelector((state) => state.products);
   const { seller } = useSelector((state) => state.seller);
-  const { shops, activeShop, activeShopId, selectedShopId, hasMultipleShops, selectShop, loading: shopsLoading } = useBusinessShops();
+  const { activeShopId, selectedShopId, loading: shopsLoading } = useBusinessShops();
 
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const searchQ = searchParams.get('search') || '';
   const [searchTerm, setSearchTerm] = useState(searchQ);
   const [tab, setTab] = useState('all');
-  const [stockFilter, setStockFilter] = useState('all');
-  const [pendingDelete, setPendingDelete] = useState(null);
+  const [stockFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogProduct, setDialogProduct] = useState(null);
 
@@ -64,7 +62,8 @@ const AllProductsOfASingleShop = () => {
 
   useEffect(() => {
     if (shopId) {
-      dispatch(getAllProductsShop(shopId));
+      // includeInactive=true so seller sees their DRAFT/ARCHIVED products in "All" and "Unavailable" tabs
+      dispatch(getAllProductsShop(shopId, { includeInactive: true }));
     }
   }, [dispatch, shopId]);
 
@@ -136,7 +135,7 @@ const AllProductsOfASingleShop = () => {
     { key: 'image', label: 'Image', render: (p) => (
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded overflow-hidden bg-market-surface-container-low shrink-0">
-          <img src={Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : '/assets/images/placeholders/product-placeholder.svg'} alt={p.name} className="w-full h-full object-cover" />
+          <ProductImage data={p} alt={p.name} className="w-full h-full object-cover" />
         </div>
         <div className="min-w-0">
           <p className="font-semibold text-market-on-surface truncate">{p.name}</p>

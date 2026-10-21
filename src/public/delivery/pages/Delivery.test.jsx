@@ -27,7 +27,7 @@ import DeliveryPage from './Delivery';
 import api from '@/services/api';
 import { useAuth } from '@/auth/hooks/useAuth';
 
-const renderPage = (auth = {}, apiGet = {}) => {
+const renderPage = (_auth = {}, _apiGet = {}) => {
   const store = createStore(() => ({}));
   const utils = render(
     <ReduxProvider store={store}>
@@ -57,7 +57,7 @@ describe('DeliveryPage', () => {
 
     renderPage();
     expect(
-      screen.getByText(/Deliver Locally\. Grow with Ariiti Market\./i)
+      screen.getByText(/Deliver Locally\. Grow with Aritii Market\./i)
     ).toBeInTheDocument();
     expect(screen.getAllByText(/Get Started/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Sign In/i).length).toBeGreaterThanOrEqual(1);
@@ -77,10 +77,12 @@ describe('DeliveryPage', () => {
 
     renderPage();
     expect(screen.getByText(/How Delivery Works/i)).toBeInTheDocument();
-    expect(screen.getByText(/Delivery Services/i)).toBeInTheDocument();
-    expect(screen.getByText(/Why Deliver with Ariiti Market\?/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Delivery Services/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Why Deliver with Aritii Market\?/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Operating Areas/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/Getting Started/i)).toBeInTheDocument();
+    // The page renders a "Getting Started" section heading and a matching
+    // card heading, so the assertion must allow more than one match.
+    expect(screen.getAllByText(/Getting Started/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Help & Support/i)).toBeInTheDocument();
   });
 

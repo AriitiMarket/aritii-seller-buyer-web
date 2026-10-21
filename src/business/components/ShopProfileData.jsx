@@ -1,10 +1,8 @@
-import React from 'react'
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import styles from '@/styles/styles'
 import ProductCard from '@/shared/components/ProductCard'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import { getAllProductsShop } from '@/store/slices/productThunks'
 import { getAllEventsShop } from '@/store/slices/eventThunks'
 // import Loader from '../common/Loader.jsx'
@@ -118,7 +116,7 @@ const ShopProfileData = ({ isOwner, shopId }) => {
       {active === 3 && (
         <div className="w-full">
           {allReviews &&
-            allReviews.map((item, index) => (
+            allReviews.map((item, _index) => (
               <div className="w-full flex my-4">
                 <Avatar
                   url={item.user?.avatar?.url}

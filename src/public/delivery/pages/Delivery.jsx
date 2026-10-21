@@ -4,8 +4,32 @@ import { AiOutlineArrowRight, AiOutlineCheck, AiOutlineMobile } from 'react-icon
 import { MdLocalShipping, MdStore } from 'react-icons/md';
 import api from '@/services/api';
 import DeliveryFlowVisual from '@/public/delivery/components/DeliveryFlowVisual';
-import DeliveryLandingLayout from '../layout/DeliveryLandingLayout';
+import DeliveryPortalLayout from '@/public/delivery-center/layout/DeliveryPortalLayout';
+import { deliveryFooterColumns } from '@/public/delivery-center/components/DeliveryPortalFooter';
 import { useAuth } from '@/auth/hooks/useAuth';
+import { useLayout } from '@/app/providers/LayoutContext';
+
+/**
+ * Delivery page (/delivery) — the delivery experience explained to buyers and
+ * prospective delivery partners.
+ *
+ * The header navigation and the footer anchors point at the sections this
+ * page renders.
+ */
+const DELIVERY_NAV = [
+  { label: 'Overview', to: '#overview' },
+  { label: 'How It Works', to: '#how-it-works' },
+  { label: 'Delivery Services', to: '#services' },
+  { label: 'Coverage', to: '#operating-areas' },
+  { label: 'Get Started', to: '#getting-started' },
+];
+
+const DELIVERY_FOOTER_COLUMNS = deliveryFooterColumns({
+  waysToDeliver: '#how-it-works',
+  vehicleRequirements: '#services',
+  earnings: '#why',
+  safety: '#help',
+});
 
 const EXPLANATORY_STEPS = [
   {
@@ -39,7 +63,7 @@ const SERVICE_CARDS = [
   {
     title: 'Aritii Delivery Network',
     description:
-      "Ariiti's own delivery fleet. Riders receive assignments, run local routes and zones, and complete deliveries across coverage areas.",
+      "Aritii's own delivery fleet. Riders receive assignments, run local routes and zones, and complete deliveries across coverage areas.",
     tag: 'Platform network',
   },
   {
@@ -87,6 +111,7 @@ const WHY_DELIVER_CARDS = [
 
 const DeliveryPage = () => {
   const { isAuthenticated, loading } = useAuth();
+  const { openLoginModal } = useLayout();
   const [operatingAreas, setOperatingAreas] = useState([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [locationsError, setLocationsError] = useState(null);
@@ -117,7 +142,7 @@ const DeliveryPage = () => {
   const regions = topLevel.slice(0, 6);
 
   return (
-    <DeliveryLandingLayout>
+    <DeliveryPortalLayout navItems={DELIVERY_NAV} footerColumns={DELIVERY_FOOTER_COLUMNS}>
       {/* Provider Access Banner - for existing providers */}
       {isAuthenticated && !loading && (
         <section className="bg-gradient-to-r from-[#00A8E1] to-[#0087B8] text-white">
@@ -144,7 +169,7 @@ const DeliveryPage = () => {
       )}
 
       {/* Hero */}
-      <section className="px-4 sm:px-6 lg:px-8 py-10 md:py-16 lg:py-20">
+      <section id="overview" className="px-4 sm:px-6 lg:px-8 py-10 md:py-16 lg:py-20">
           <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#00A8E1]/10 text-[#00A8E1] text-xs font-bold uppercase tracking-wider">
@@ -165,12 +190,13 @@ const DeliveryPage = () => {
                 >
                   Get Started
                 </Link>
-                <Link
-                  to="/login"
+                <button
+                  type="button"
+                  onClick={() => openLoginModal('PROVIDER')}
                   className="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-base border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   Sign In
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -407,12 +433,13 @@ const DeliveryPage = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
                   Sign in to access assignments, deliveries, and your workspace.
                 </p>
-                <Link
-                  to="/login"
+                <button
+                  type="button"
+                  onClick={() => openLoginModal('PROVIDER')}
                   className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                 >
                   Sign In <AiOutlineArrowRight size={16} />
-                </Link>
+                </button>
               </div>
 
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
@@ -440,7 +467,7 @@ const DeliveryPage = () => {
         {/* Help & Support */}
         <section id="help" className="px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-[#FDF6EC] dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
+            <div className="bg-[#EAEDED] dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -462,12 +489,13 @@ const DeliveryPage = () => {
                     </Link>
                   )}
                   {!isAuthenticated && (
-                    <Link
-                      to="/login"
+                    <button
+                      type="button"
+                      onClick={() => openLoginModal('PROVIDER')}
                       className="px-6 py-3 bg-[#00A8E1] text-white font-semibold rounded-lg hover:bg-[#0087B8] transition"
                     >
                       Sign in for Support
-                    </Link>
+                    </button>
                   )}
                   <Link
                     to="/"
@@ -485,7 +513,7 @@ const DeliveryPage = () => {
         <section className="px-4 sm:px-6 lg:px-8 py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
           <DeliveryFlowVisual />
         </section>
-    </DeliveryLandingLayout>
+    </DeliveryPortalLayout>
   );
 };
 

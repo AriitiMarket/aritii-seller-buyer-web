@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import authService from '@/services/auth.service';
 import { toast } from 'react-toastify';
 import { FiSettings } from 'react-icons/fi';
 import { MdPerson, MdStore, MdNotifications, MdSecurity, MdChevronRight, MdAccountBalanceWallet } from 'react-icons/md';
-import { paymentService } from '@/services';
 import ShopSettings from '@/business/components/ShopSettings';
 
 const BusinessSettingsPage = () => {
@@ -23,7 +22,7 @@ const BusinessSettingsPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="seller-section-header">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-market-primary/10 text-market-primary">
@@ -36,7 +35,7 @@ const BusinessSettingsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-3xl space-y-4">
+      <div className="space-y-4">
         <div className="bg-white dark:bg-[#1a1f2a] rounded-xl border border-market-border shadow-sm overflow-hidden divide-y divide-market-border">
           {sections.map((section) => (
             <button
@@ -111,13 +110,17 @@ const AccountSection = ({ user }) => (
 
 const PaymentsSection = () => (
   <div className="seller-form-section">
-    <h2 className="seller-form-section-title">Payment Settings</h2>
+    <h2 className="seller-form-section-title">Payment &amp; Payout Settings</h2>
     <p className="text-market-on-surface-variant text-sm mb-4">
-      Payout methods and account verification are handled through our payment partner.
+      Configure your bank accounts (CBE, Telebirr, Dashen, Abyssinia, Awash, etc.) to receive your sales earnings and withdrawal payouts.
     </p>
-    <button className="seller-btn-secondary">
-      Set up payout account
-    </button>
+    <Link
+      to="/business/finance?tab=payment-accounts"
+      className="seller-btn-primary inline-flex items-center gap-2"
+    >
+      <MdAccountBalanceWallet size={18} />
+      <span>Manage Payment Accounts &amp; Payouts</span>
+    </Link>
   </div>
 );
 

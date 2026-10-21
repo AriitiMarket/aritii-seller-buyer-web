@@ -1,20 +1,31 @@
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { SellerRegistrationGuard } from '@/seller-registration';
+import { LoginModalRedirect } from '@/auth/components/GlobalLoginModal';
 
-const UnifiedLoginPage = lazy(() => import('@/auth/pages/UnifiedLoginPage'));
+/**
+ * Auth routes.
+ *
+ * There is NO login page: the application has exactly ONE sign-in UI, the
+ * global login modal (auth/components/UnifiedLoginModal, mounted once by
+ * GlobalLoginModal). The `/login` family of URLs is kept purely so existing
+ * links and route guards reach that modal instead of a 404.
+ */
 const SignUpPage = lazy(() => import('@/auth/pages/SignUpPage'));
+const ForgotPasswordPage = lazy(() => import('@/auth/pages/ForgotPasswordPage'));
+const ContactPage = lazy(() => import('@/auth/pages/ContactPage'));
 const CreateShopPage = lazy(() => import('@/auth/pages/CreateShopPage'));
 const SellerRegistrationPage = lazy(() => import('@/seller-registration/pages/SellerRegistrationPage'));
 const SellerApplicationStatusPage = lazy(() => import('@/seller-registration/pages/SellerApplicationStatusPage'));
 
 export const AuthRoutes = () => (
   <>
-    <Route path="/login" element={<UnifiedLoginPage role="BUYER" />} />
-    <Route path="/seller-login" element={<UnifiedLoginPage role="SELLER" />} />
-    <Route path="/delivery-login" element={<UnifiedLoginPage role="PROVIDER" />} />
-    <Route path="/forgot-password" element={<div>Forgot password page</div>} />
-    <Route path="/contact" element={<div>Contact page</div>} />
+    {/* Legacy sign-in URLs → the one global login modal. */}
+    <Route path="/login" element={<LoginModalRedirect role="BUYER" />} />
+    <Route path="/seller-login" element={<LoginModalRedirect role="SELLER" />} />
+    <Route path="/delivery-login" element={<LoginModalRedirect role="PROVIDER" />} />
+    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/contact" element={<ContactPage />} />
     <Route path="/sign-up" element={<SignUpPage />} />
     <Route path="/seller-sign-up" element={<SignUpPage registrationType="SELLER" />} />
     <Route path="/delivery-sign-up" element={<SignUpPage registrationType="PROVIDER" />} />

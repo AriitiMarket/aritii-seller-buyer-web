@@ -1,12 +1,11 @@
 import { DeliveryAvailability } from '@/shared/components/DeliveryAvailability';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Avatar } from '@/components/common/ImageWithFallback'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import styles from '@/styles/styles'
 import { logoutSeller } from '@/store/slices/userThunks'
 import { toast } from 'react-toastify'
-import { useEffect, useState } from 'react'
 import { getAllProductsShop } from '@/store/slices/productThunks'
 import { getAllEventsShop } from '@/store/slices/eventThunks'
 import shopService from '@/services/shop.service'

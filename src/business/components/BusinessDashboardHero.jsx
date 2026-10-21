@@ -5,10 +5,12 @@ import { getAllProductsShop } from '@/store/slices/productThunks';
 import { getAllOrdersOfShop } from '@/store/slices/orderThunks';
 import { getAllEventsShop } from '@/store/slices/eventThunks';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
-import { MdShoppingBag, MdInventory2, MdEventNote, MdStorefront, MdWarningAmber, MdTrendingUp } from 'react-icons/md';
-import { FiPackage, FiDollarSign, FiUsers, FiAlertCircle } from 'react-icons/fi';
-import { SellerStatCard, SellerStatusBadge, SellerEmptyState } from '@/business/components';
+import { MdShoppingBag, MdInventory2, MdEventNote, MdWarningAmber, MdTrendingUp } from 'react-icons/md';
+import { FiPackage, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
+import { SellerStatCard, SellerStatusBadge, SellerEmptyState, WalletCard } from '@/business/components';
 import { SalesOverviewChart } from '@/business/shared/charts';
+import ReturnsDashboardCard from '@/business/components/ReturnsDashboardCard';
+import SellerMetricsDisplay from '@/business/components/SellerMetricsDisplay';
 import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus';
 
 const DashboardHero = () => {
@@ -18,8 +20,7 @@ const DashboardHero = () => {
   const { shops, activeShop, activeShopId, hasMultipleShops, selectShop } = useBusinessShops();
   const { shopProducts } = useSelector((state) => state.products);
   const { ShopOrders } = useSelector((state) => state.order);
-  const { events } = useSelector((state) => state.events);
-  const [timeFilter, setTimeFilter] = useState('7D');
+  const [timeFilter] = useState('7D');
 
   const shopId = activeShopId || seller?._id;
   const userId = seller?.id || seller?._id;
@@ -46,15 +47,7 @@ const DashboardHero = () => {
     [ShopOrders]
   );
 
-  const topProducts = useMemo(() =>
-    [...(shopProducts || [])]
-      .sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0))
-      .slice(0, 5),
-    [shopProducts]
-  );
 
-  const isSuspendedShop =
-    activeShop?.status === 'SUSPENDED' || activeShop?.status === 'INACTIVE' || activeShop?.status === 'PENDING_APPROVAL';
 
   // Show empty state if no active shop or shop is pending approval
   if (!activeShop || activeShop.status === 'PENDING_APPROVAL') {
@@ -90,9 +83,7 @@ const DashboardHero = () => {
 
   const totalOrders = ShopOrders?.length || 0;
   const totalProducts = shopProducts?.length || 0;
-  const totalEvents = events?.length || 0;
 
-  const uniqueCustomers = new Set(ShopOrders?.map(o => o.userId || o.user?._id || o.buyerId).filter(Boolean)).size;
   const pendingOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.PROCESSING).length || 0;
   const completedOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.DELIVERED).length || 0;
   const cancelledOrders = ShopOrders?.filter(o => normalizeStatus(o.status) === ORDER_STATUSES.CANCELLED).length || 0;
@@ -180,6 +171,14 @@ const DashboardHero = () => {
           icon={FiAlertCircle}
           color={pendingOrders > 0 ? 'yellow' : 'green'}
           link="/business/orders?tab=new"
+        />
+      </div>
+
+      {/* Wallet Card */}
+      <div className="mt-6">
+        <WalletCard
+          sellerId={userId}
+          onViewTransactions={() => navigate('/business/wallet/transactions')}
         />
       </div>
 
@@ -312,6 +311,37 @@ const DashboardHero = () => {
 
       {/* Quick Actions */}
       <div className="seller-section-header">
+        <h3 className="text-lg font-bold text-market-on-surface mb-4">Phase 1 Operational Status</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white dark:bg-[#1a1f2a] p-4 rounded-lg border border-market-border">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <p className="text-xs font-medium text-market-on-surface-variant">Hold Orders</p>
+            </div>
+            <p className="text-2xl font-bold text-market-on-surface">—</p>
+            <p className="text-xs text-market-on-surface-variant mt-1">View orders on hold</p>
+          </div>
+          <div className="bg-white dark:bg-[#1a1f2a] p-4 rounded-lg border border-market-border">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-2 rounded-full bg-orange-500" />
+              <p className="text-xs font-medium text-market-on-surface-variant">Priority Orders</p>
+            </div>
+            <p className="text-2xl font-bold text-market-on-surface">—</p>
+            <p className="text-xs text-market-on-surface-variant mt-1">High priority orders</p>
+          </div>
+          <div className="bg-white dark:bg-[#1a1f2a] p-4 rounded-lg border border-market-border">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <p className="text-xs font-medium text-market-on-surface-variant">SLA Breaches</p>
+            </div>
+            <p className="text-2xl font-bold text-market-on-surface">—</p>
+            <p className="text-xs text-market-on-surface-variant mt-1">Orders missing deadline</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="seller-section-header">
         <h3 className="text-lg font-bold text-market-on-surface mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <a
@@ -343,6 +373,17 @@ const DashboardHero = () => {
             <span className="text-sm font-medium text-market-on-surface">View Analytics</span>
           </a>
         </div>
+      </div>
+
+      {/* FIX #13: Seller Metrics Display */}
+      <div className="seller-section">
+        <h3 className="seller-section-title">Performance Metrics</h3>
+        <SellerMetricsDisplay />
+      </div>
+
+      {/* FIX #15: Returns Dashboard Card */}
+      <div className="seller-section">
+        <ReturnsDashboardCard onNavigate={navigate} />
       </div>
     </div>
   );
