@@ -298,15 +298,7 @@ export const authService = {
     return workspaceForLogin(requested, status);
   },
 
-   async getCurrentUser() {
-     const accessToken = tokenStore.getAccessToken();
-     if (!accessToken) return null;
-     const { data } = await api.get('/user/getuser');
-     const user = (data.data || data).user || data.user;
-     if (user) tokenStore.setUser(user);
-     return user || null;
-   },
-
+  
   /**
    * Switch which actor role this session acts as.
    *
