@@ -168,8 +168,45 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
           </div>
         )}
 
-        {/* Category Sidebar */}
-        <CategorySidebar products={currentProducts} basePath={basePath} />
+        {/* Category Sidebar with 100% dynamic backend categories */}
+        <CategorySidebar products={currentProducts} basePath={basePath} type="product" />
+
+        {/* Availability & Delivery Program */}
+        <FilterGroup title="Availability & Programs" defaultOpen={false}>
+          <div className="space-y-2 pt-1 text-xs text-gray-700 dark:text-gray-300">
+            <label className="flex items-center gap-2 cursor-pointer hover:text-[#131921] dark:hover:text-white">
+              <input
+                type="checkbox"
+                checked={searchParams.get('inStock') === 'true'}
+                onChange={(e) => {
+                  const next = new URLSearchParams(searchParams);
+                  if (e.target.checked) next.set('inStock', 'true');
+                  else next.delete('inStock');
+                  setSearchParams(next, { replace: true });
+                }}
+                className="rounded border-gray-300 text-[#75d04b] focus:ring-[#75d04b]"
+              />
+              <span>In Stock Only</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer hover:text-[#131921] dark:hover:text-white">
+              <input
+                type="checkbox"
+                checked={searchParams.get('deal') === 'true'}
+                onChange={(e) => {
+                  const next = new URLSearchParams(searchParams);
+                  if (e.target.checked) next.set('deal', 'true');
+                  else next.delete('deal');
+                  setSearchParams(next, { replace: true });
+                }}
+                className="rounded border-gray-300 text-[#75d04b] focus:ring-[#75d04b]"
+              />
+              <span className="flex items-center gap-1">
+                <span>Special Deals & Offers</span>
+                <span className="text-[10px] px-1 bg-red-100 text-red-600 rounded font-bold">Sale</span>
+              </span>
+            </label>
+          </div>
+        </FilterGroup>
 
         {/* Delivery Location Filter (Region → City → Zone) via DeliveryZoneSelector */}
         <FilterGroup title="Delivery Location" defaultOpen={false} revealOnOpen>

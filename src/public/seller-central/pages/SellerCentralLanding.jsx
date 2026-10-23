@@ -13,7 +13,7 @@ import {
 
 /**
  * SellerCentralLandingPage - /seller-center
- * Complete Amazon Seller Central layout & onboarding experience.
+ * Complete Aritii Seller Central layout & onboarding experience.
  */
 const SELLER_LANDING_NAV = [
   { label: 'Overview', to: '#overview' },
@@ -75,13 +75,13 @@ const SellerCentralLandingPage = () => {
       navItems={SELLER_LANDING_NAV}
       background="bg-white dark:bg-gray-950"
     >
-      {/* Amazon-style Dark Hero with KPI Snapshot */}
+      {/* Aritii Dark Hero with KPI Snapshot */}
       <SellerCentralHero />
 
       {/* Feature Modules */}
       <SellerCentralFeatures />
 
-      {/* Interactive Amazon-Style Profit / Fee Calculator */}
+      {/* Interactive Aritii Profit / Fee Calculator */}
       <section className="py-14 bg-[#F7F7F7] dark:bg-[#131921] border-y border-gray-200 dark:border-gray-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 sm:p-10 shadow-sm">
@@ -162,7 +162,7 @@ const SellerCentralLandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works - Amazon 4-Step Process */}
+      {/* How It Works - Aritii 4-Step Process */}
       <section id="how-to-sell" className="bg-white dark:bg-[#0f1419] py-16 md:py-24 scroll-mt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14 text-center">
@@ -275,7 +275,7 @@ const SellerCentralLandingPage = () => {
         </div>
       </section>
 
-      {/* Amazon Seller Central Closing CTA */}
+      {/* Aritii Seller Central Closing CTA */}
       <section className="bg-[#131921] text-white py-16 border-t border-[#232F3E]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-3">

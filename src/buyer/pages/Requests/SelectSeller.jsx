@@ -69,16 +69,15 @@ export default function SelectSellerPage() {
       <div className="flex flex-col gap-3">
         <Link
           to="/my-dashboard/requests"
-          className="inline-flex items-center gap-1.5 text-sm text-market-on-surface-variant hover:text-market-secondary-hover w-fit"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#75d04b] hover:underline w-fit"
         >
           <FiArrowLeft size={14} />
-          Product Requests
+          Back to Product Requests
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-market-on-surface">Select a Seller / Brand</h1>
-          <p className="text-market-on-surface-variant mt-1">
-            Choose the business you want to request a product from. You can review their profile
-            before sending the request.
+          <h1 className="text-2xl font-extrabold text-[#131921] dark:text-white">Select a Verified Seller or Brand</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Choose a verified merchant from the Aritii catalog to request a custom quote, bespoke item, or wholesale batch.
           </p>
         </div>
       </div>
@@ -93,16 +92,16 @@ export default function SelectSellerPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search sellers, brands or categories…"
+            placeholder="Search sellers, shops or business categories…"
             aria-label="Search sellers"
-            className="w-full pl-9 pr-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
+            className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#75d04b]"
           />
         </div>
         <select
           value={category ?? ''}
           onChange={(event) => setCategory(event.target.value)}
           aria-label="Filter by category"
-          className="sm:w-56 px-3 py-2.5 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-market-secondary"
+          className="sm:w-56 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#75d04b]"
         >
           <option value="">All categories</option>
           {categories.map((value) => (

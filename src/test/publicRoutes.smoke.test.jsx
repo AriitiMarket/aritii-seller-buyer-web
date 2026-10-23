@@ -7,6 +7,7 @@ import { createStore } from '@reduxjs/toolkit';
 
 vi.mock('@/services/api', () => ({
   default: { get: vi.fn().mockResolvedValue({ data: { hierarchy: [] } }) },
+  backend_url: 'http://localhost:8000',
 }));
 
 vi.mock('@/auth/hooks/useAuth', () => ({

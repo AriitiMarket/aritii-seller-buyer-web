@@ -12,7 +12,7 @@ import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
  * SellerCenterOverviewPage — /seller-center/overview
- * Amazon Seller Central Overview page
+ * Aritii Seller Central Overview page
  */
 const SellerCenterOverviewPage = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const SellerCenterOverviewPage = () => {
 
   return (
     <SellerCenterLayout>
-      {/* Amazon-style Dark Slate Hero */}
+      {/* Aritii Dark Slate Hero */}
       <section className="bg-[#131921] text-white py-14 sm:py-20 border-b border-[#232F3E]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -60,7 +60,7 @@ const SellerCenterOverviewPage = () => {
               </div>
             </div>
 
-            {/* Quick Amazon 3-Pillar Highlight */}
+            {/* Quick Aritii 3-Pillar Highlight */}
             <div className="lg:col-span-5 space-y-4">
               <div className="bg-[#1A222D] p-5 rounded-xl border border-[#232F3E] flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center flex-shrink-0">

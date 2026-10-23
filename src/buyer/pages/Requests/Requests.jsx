@@ -112,25 +112,25 @@ export default function BuyerRequestsPage() {
         <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full bg-[#75d04b]/10 blur-3xl" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-market-secondary">Buyer workspace</p>
-            <h1 className="text-2xl font-bold tracking-tight text-market-on-surface md:text-3xl">Product Requests</h1>
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#75d04b]">Aritii Buyer Workspace</p>
+            <h1 className="text-2xl font-bold tracking-tight text-market-on-surface md:text-3xl">Product Requests & Custom Orders</h1>
             <p className="mt-1.5 max-w-xl text-sm leading-5 text-market-on-surface-variant">
-              Ask a seller for what you need, compare offers, and place your order once you agree.
+              Request bespoke or bulk items directly from verified Ethiopian sellers, negotiate offers in real time, and convert to an order with escrow protection.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-medium text-market-on-surface-variant">
-              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">1. Describe your product</span>
-              <span className="text-market-secondary">→</span>
-              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">2. Agree on an offer</span>
-              <span className="text-market-secondary">→</span>
-              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">3. Create your order</span>
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">1. Describe product</span>
+              <span className="text-[#75d04b] font-bold">→</span>
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">2. Agree on offer</span>
+              <span className="text-[#75d04b] font-bold">→</span>
+              <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">3. Secure Escrow Order</span>
             </div>
           </div>
           <Link
             to="/my-dashboard/requests/new"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-market-primary px-4 text-sm font-semibold text-market-on-primary shadow-sm transition hover:bg-market-primary-hover focus:outline-none focus:ring-2 focus:ring-market-primary focus:ring-offset-2"
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#75d04b] hover:bg-[#5ac12f] px-5 text-sm font-bold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#75d04b] focus:ring-offset-2"
           >
             <FiPlus size={18} />
-            Request a product
+            New Product Request
           </Link>
         </div>
       </div>

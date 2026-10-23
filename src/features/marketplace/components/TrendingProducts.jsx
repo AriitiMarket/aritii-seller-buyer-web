@@ -5,7 +5,7 @@ import { useProducts } from '@/shared/hooks/useProducts';
 import { ProductImage } from '@/components/common/ImageWithFallback';
 
 /**
- * TrendingProducts - Amazon-style product row
+ * TrendingProducts - Aritii marketplace product row
  * Displays real products from the catalog (limited to top 5).
  * Direct links into `/product/:id` marketplace details.
  */
@@ -55,7 +55,7 @@ export const TrendingProducts = () => {
           </Link>
         </div>
 
-        {/* Amazon-style 5-item grid (exact limit) */}
+        {/* Aritii marketplace 5-item grid (exact limit) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {displayList.map((item) => {
             const discountPct = item.originalPrice && item.originalPrice > item.price

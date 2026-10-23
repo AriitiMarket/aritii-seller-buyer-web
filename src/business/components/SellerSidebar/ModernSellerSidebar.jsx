@@ -166,7 +166,7 @@ const ModernSellerSidebar = ({ onClose, isCollapsed = false, className = '' }) =
         ))}
       </nav>
 
-      {/* Footer - Amazon Seller Central Branding */}
+      {/* Footer - Aritii Seller Central Branding */}
       <div className={`border-t border-[#232f3e] bg-[#0c1015] transition-all duration-300 ${
         isCollapsed ? 'px-2 py-3 text-center' : 'px-4 py-3'
       }`}>

@@ -6,25 +6,36 @@ import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import EmptyState from '@/components/common/EmptyState';
 import { useBestSellers } from '@/features/marketplace/hooks/useBestSellers';
+import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 import { sortProducts, productCategoryTitle, PRODUCT_SORT_OPTIONS } from '@/features/marketplace/utils/sortProducts';
 import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
 import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';
 import './BestSellersPage.css';
 
-// The shared catalog sort vocabulary — this page uses the ranking options.
+// The shared catalog sort vocabulary
 const SORT_OPTIONS = PRODUCT_SORT_OPTIONS.filter((option) =>
   ['best-sellers', 'price-low', 'price-high', 'newest'].includes(option.value)
 );
 
 /**
  * BestSellersBadge Component
- * Displays rank and bestseller status with gold badge
+ * Premium gold / silver / bronze rank badge
  */
 const BestSellersBadge = ({ rank, category }) => {
+  const isTopThree = rank <= 3;
+  const rankColors =
+    rank === 1
+      ? 'from-amber-400 to-yellow-500 text-black border-amber-300'
+      : rank === 2
+        ? 'from-gray-200 to-gray-400 text-black border-gray-300'
+        : rank === 3
+          ? 'from-amber-600 to-amber-700 text-white border-amber-600'
+          : 'from-gray-800 to-gray-900 text-white border-gray-700';
+
   return (
-    <div className="bestseller-badge">
-      <span className="bestseller-badge-rank">#{rank}</span>
-      <span className="bestseller-badge-text">
+    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-black shadow-md bg-gradient-to-r border ${rankColors}`}>
+      <span className="text-sm font-extrabold">#{rank}</span>
+      <span className="text-[10px] font-bold uppercase tracking-wider line-clamp-1">
         {category ? `in ${category}` : 'Best Seller'}
       </span>
     </div>
@@ -33,74 +44,112 @@ const BestSellersBadge = ({ rank, category }) => {
 
 /**
  * SalesVolume Component
- * Shows sales metrics in user-friendly format
+ * Shows real units sold
  */
 const SalesVolume = ({ unitsSold }) => {
   const formatSalesVolume = (units) => {
     if (units >= 1000000) return `${(units / 1000000).toFixed(1)}M+ bought`;
     if (units >= 1000) return `${(units / 1000).toFixed(0)}K+ bought`;
-    if (units >= 100) return `${units}+ bought`;
+    if (units >= 10) return `${units}+ bought`;
     return null;
   };
 
   const volume = formatSalesVolume(unitsSold);
   return volume ? (
-    <div className="sales-volume">
-      <span className="sales-volume-text">{volume}</span>
+    <div className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+      <span>{volume}</span>
     </div>
   ) : null;
 };
 
 /**
- * Header Component with filters and sorting
+ * Header Component with category pill rail and sort controls
  */
 const BestSellersHeader = ({
   sortBy,
   onSortChange,
   onRefresh,
   loading,
+  categories = [],
+  activeCategory = 'all',
+  onSelectCategory,
 }) => {
   return (
-    <div className="bestsellers-header">
-      {/* Title and Description */}
-      <div className="bestsellers-header-content">
-        <div className="bestsellers-title-group">
-          <h1 className="bestsellers-title">Best Sellers</h1>
-          <p className="bestsellers-description">
-            Our most popular products — ranked by real units sold over the last 30 days
+    <div className="bestsellers-header mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+      {/* Title & Refresh */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F1111] dark:text-white">
+              Aritii Best Sellers
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Our most popular products based on real sales volume across Ethiopia
           </p>
         </div>
 
-        {/* Refresh Button */}
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="refresh-button"
-          aria-label="Refresh best sellers"
-          title="Refresh best sellers"
-        >
-          <IoRefresh size={20} className={loading ? 'animate-spin' : ''} />
-        </button>
-      </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-select" className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Sort:
+            </label>
+            <CatalogSortSelect
+              id="sort-select"
+              value={sortBy}
+              onChange={onSortChange}
+              options={SORT_OPTIONS}
+              ariaLabel="Sort best sellers"
+            />
+          </div>
 
-      {/* Desktop Filters and Sort */}
-      <div className="bestsellers-controls">
-        {/* Sort Options */}
-        <div className="filter-group">
-          <label htmlFor="sort-select" className="filter-label">
-            Sort:
-          </label>
-          <CatalogSortSelect
-            id="sort-select"
-            value={sortBy}
-            onChange={onSortChange}
-            options={SORT_OPTIONS}
-            ariaLabel="Sort best sellers"
-            className="filter-select"
-          />
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            aria-label="Refresh best sellers"
+            title="Refresh best sellers"
+          >
+            <IoRefresh size={18} className={loading ? 'animate-spin' : ''} />
+          </button>
         </div>
-
       </div>
+
+      {/* Dynamic Category Pill Navigation */}
+      {categories && categories.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 pb-1">
+          <button
+            type="button"
+            onClick={() => onSelectCategory('all')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              activeCategory === 'all'
+                ? 'bg-[#131921] dark:bg-white text-white dark:text-[#131921] shadow-sm'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            All Best Sellers
+          </button>
+          {categories.map((cat) => {
+            const label = typeof cat === 'string' ? cat : cat.title || cat.name;
+            const isSelected = activeCategory.toLowerCase() === label.toLowerCase();
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => onSelectCategory(label)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-[#75d04b] text-white shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -109,7 +158,6 @@ const BestSellersHeader = ({
  * Product Grid with Bestseller Badges
  */
 const BestSellersGrid = ({ products }) => {
-  // Sort products by rank and add rank position
   const productsWithRank = useMemo(() => {
     return products.map((product, index) => ({
       ...product,
@@ -118,26 +166,25 @@ const BestSellersGrid = ({ products }) => {
   }, [products]);
 
   return (
-    <div className="bestsellers-grid">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
       {productsWithRank.map((product) => (
-        <div key={product._id || product.id} className="bestseller-card-wrapper">
-          {/* Bestseller Badge - Positioned absolutely */}
-          <div className="bestseller-badge-position">
+        <div key={product._id || product.id} className="relative group flex flex-col h-full">
+          {/* Bestseller Badge */}
+          <div className="absolute top-2 left-2 z-20 pointer-events-none">
             <BestSellersBadge
               rank={product.rank}
               category={product.category}
             />
           </div>
 
-          {/* Product Card */}
           <ProductCard
             data={product}
             variant="public"
           />
 
-          {/* Sales Volume Badge */}
-          {product.unitsSold && (
-            <div className="bestseller-sales-position">
+          {/* Sales Volume indicator */}
+          {product.unitsSold > 0 && (
+            <div className="mt-1 text-center">
               <SalesVolume unitsSold={product.unitsSold} />
             </div>
           )}
@@ -152,18 +199,16 @@ const BestSellersGrid = ({ products }) => {
  */
 const BestSellersLoadingSkeleton = () => {
   return (
-    <div className="bestsellers-grid">
-      {Array.from({ length: 8 }).map((_, i) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse"
+          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-pulse h-72"
         >
-          <div className="h-48 bg-gray-200 dark:bg-gray-700" />
-          <div className="p-4 space-y-3">
-            <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded" />
+          <div className="h-44 bg-gray-200 dark:bg-gray-800" />
+          <div className="p-3 space-y-2">
+            <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-800 rounded" />
           </div>
         </div>
       ))}
@@ -181,6 +226,9 @@ const BestSellersContent = ({
   refresh,
   sortBy,
   onSortChange,
+  categories,
+  activeCategory,
+  onSelectCategory,
 }) => {
   if (loading) {
     return (
@@ -190,6 +238,9 @@ const BestSellersContent = ({
           onSortChange={onSortChange}
           onRefresh={refresh}
           loading={loading}
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={onSelectCategory}
         />
         <BestSellersLoadingSkeleton />
       </div>
@@ -204,6 +255,9 @@ const BestSellersContent = ({
           onSortChange={onSortChange}
           onRefresh={refresh}
           loading={loading}
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={onSelectCategory}
         />
         <CatalogErrorState
           title="Could not load best sellers"
@@ -222,10 +276,13 @@ const BestSellersContent = ({
           onSortChange={onSortChange}
           onRefresh={refresh}
           loading={loading}
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={onSelectCategory}
         />
         <EmptyState
-          title="No best sellers in this category"
-          description="Try selecting a different category or check back soon."
+          title="No best sellers found"
+          description="Check back soon as more transactions take place across the marketplace."
         />
       </div>
     );
@@ -238,6 +295,9 @@ const BestSellersContent = ({
         onSortChange={onSortChange}
         onRefresh={refresh}
         loading={loading}
+        categories={categories}
+        activeCategory={activeCategory}
+        onSelectCategory={onSelectCategory}
       />
       <BestSellersGrid products={products} />
     </div>
@@ -253,9 +313,9 @@ const BestSellersPage = () => {
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'best-sellers');
 
   const { deals, loading, error, refresh } = useBestSellers();
+  const { categories = [] } = useCatalogCategories({ type: 'product' });
 
-  // Filter products by category — the public payload returns the category
-  // either as a string or as an object, so it is normalised first.
+  // Filter products by category
   const filteredProducts = useMemo(() => {
     if (category === 'all') {
       return deals;
@@ -268,7 +328,7 @@ const BestSellersPage = () => {
     );
   }, [deals, category]);
 
-  // Sort products — shared comparator so the price fallbacks match /products.
+  // Sort products
   const sortedProducts = useMemo(
     () => sortProducts(filteredProducts, sortBy),
     [filteredProducts, sortBy]
@@ -289,6 +349,16 @@ const BestSellersPage = () => {
     [searchParams, setSearchParams]
   );
 
+  const handleSelectCategory = (newCat) => {
+    const params = new URLSearchParams(searchParams);
+    if (newCat === 'all') {
+      params.delete('category');
+    } else {
+      params.set('category', newCat);
+    }
+    setSearchParams(params, { replace: true });
+  };
+
   const breadcrumbItems = [
     { label: 'Home', to: '/' },
     { label: 'Best Sellers' },
@@ -306,6 +376,9 @@ const BestSellersPage = () => {
           refresh={refresh}
           sortBy={sortBy}
           onSortChange={handleSortChange}
+          categories={categories}
+          activeCategory={category}
+          onSelectCategory={handleSelectCategory}
         />
       }
     />

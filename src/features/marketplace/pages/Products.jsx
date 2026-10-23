@@ -82,8 +82,25 @@ const ProductsPage = () => {
     }
   }, [zoneId, cityId, regionId, setLocation, searchParams]);
 
-  // Frontend-side data is already filtered by backend, so no need for useFilteredProducts
-  const data = useMemo(() => products || [], [products]);
+  const inStockFilter = searchParams.get('inStock') === 'true';
+  const dealFilter = searchParams.get('deal') === 'true';
+
+  // Frontend-side data is filtered by backend, plus quick client toggles
+  const data = useMemo(() => {
+    let list = products || [];
+    if (inStockFilter) {
+      list = list.filter((p) => {
+        const units = p.available ?? p.stock ?? 0;
+        return Number(units) > 0;
+      });
+    }
+    if (dealFilter) {
+      list = list.filter((p) => {
+        return p.discountPrice && p.price && Number(p.discountPrice) < Number(p.price);
+      });
+    }
+    return list;
+  }, [products, inStockFilter, dealFilter]);
 
   const zoneHint = hasLocation
     ? `Delivering to ${selectedZoneName || selectedCityName || selectedRegionName || 'your selected area'}`

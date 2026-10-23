@@ -11,8 +11,8 @@ import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 import { categoryHref } from '@/shared/categories/categoryHref';
 
 /**
- * AmazonCategoryGrid - Amazon-style 4-quadrant feature card grid
- * Placed overlapping the hero section just like on Amazon.com
+ * AritiiCategoryGrid - Aritii marketplace 4-quadrant feature card grid
+ * Placed overlapping the hero section
  *
  * Category tiles link to the real catalog filter (`/products?category=…`)
  * through `categoryHref`, so they never point at a non-existent route.
@@ -40,7 +40,7 @@ const iconFor = (label) => {
   return ICON_BY_KEYWORD.find((entry) => entry.keywords.some((k) => needle.includes(k)))?.img;
 };
 
-const AmazonCategoryGrid = () => {
+const AritiiCategoryGrid = () => {
   const { categories } = useCatalogCategories({ type: 'product' });
 
   // Real catalog categories when the API answers, marketing labels otherwise.
@@ -212,4 +212,4 @@ const AmazonCategoryGrid = () => {
   );
 };
 
-export default AmazonCategoryGrid;
+export default AritiiCategoryGrid;

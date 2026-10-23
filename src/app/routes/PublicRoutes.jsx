@@ -62,6 +62,7 @@ export const PublicRoutes = () => (
     {/* Aliases for the help entry points used by the header and the footer */}
     <Route path="/help" element={<Navigate to="/faq" replace />} />
     <Route path="/support" element={<Navigate to="/faq" replace />} />
+    <Route path="/customer-service" element={<Navigate to="/faq" replace />} />
     <Route path="/privacy" element={<LegalPage doc="privacy" />} />
     <Route path="/terms" element={<LegalPage doc="terms" />} />
     <Route path="/cookie" element={<LegalPage doc="cookie" />} />

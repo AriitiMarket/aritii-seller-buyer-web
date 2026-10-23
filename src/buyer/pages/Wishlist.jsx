@@ -95,8 +95,8 @@ const BuyerWishlistPage = () => {
           <p className="text-market-on-surface-variant font-medium mb-1">Your wishlist is empty</p>
           <p className="text-market-on-surface-variant text-sm mb-6">Save items you love to your wishlist</p>
           <Link
-            to="/my-dashboard/marketplace"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition"
+            to="/products"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#75d04b] text-white rounded-lg text-sm font-semibold hover:bg-[#5ac12f] transition shadow-sm"
           >
             Discover Products
           </Link>
@@ -108,9 +108,25 @@ const BuyerWishlistPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-market-on-surface">Saved Items</h1>
-        <p className="text-sm text-market-on-surface-variant mt-1">{wishlist.length} item{wishlist.length !== 1 ? 's' : ''} saved</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#131921] dark:text-white">Saved Items</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#75d04b]/15 text-[#5ac12f]">
+              {wishlist.length} item{wishlist.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Your saved wishlist — add items directly to your cart or track availability
+          </p>
+        </div>
+
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-[#75d04b] border border-[#75d04b] hover:bg-[#75d04b]/10 transition w-fit"
+        >
+          Continue Shopping →
+        </Link>
       </div>
 
       {error && (
@@ -176,8 +192,8 @@ const BuyerWishlistPage = () => {
                   </div>
                 )}
                 <div className="mt-2">
-                  <span className="text-sm font-bold text-market-secondary">
-                    {price.toLocaleString()} <span className="text-[10px] font-medium text-market-on-surface-variant">ETB</span>
+                  <span className="text-sm font-bold text-[#131921] dark:text-white">
+                    {price.toLocaleString()} <span className="text-[10px] font-semibold text-gray-500">ETB</span>
                   </span>
                   {originalPrice > 0 && originalPrice > price && (
                     <span className="text-[10px] text-gray-400 line-through ml-1">{originalPrice.toLocaleString()}</span>
@@ -186,9 +202,9 @@ const BuyerWishlistPage = () => {
                 <button
                   onClick={() => handleAddToCart(p)}
                   disabled={outOfStock || p.unavailable}
-                  className="w-full mt-3 px-3 py-2 bg-[#FF9900] text-white rounded-xl text-xs font-semibold hover:bg-[#FFB426] active:bg-[#E68A00] transition flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="w-full mt-3 px-3 py-2 bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
                 >
-                  <MdShoppingCart size={13} className="text-white" />
+                  <MdShoppingCart size={15} />
                   {p.unavailable ? 'Unavailable' : p.inCart ? 'In Your Cart' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
               </div>

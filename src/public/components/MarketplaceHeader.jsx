@@ -142,7 +142,7 @@ const MarketplaceHeader = () => {
 
   return (
     <>
-      {/* ===== Main header — dark Amazon-style border-bottom rail ===== */}
+      {/* ===== Main header — dark Aritii border-bottom rail ===== */}
       <header
         className="sticky top-0 z-[70] w-full border-b border-[#232f3e] bg-[#131921]"
         role="banner"
@@ -158,7 +158,7 @@ const MarketplaceHeader = () => {
               <BrandLogo size="sm" showText showTagline={false} linked={false} tone="light" />
             </Link>
 
-            {/* Deliver to - Amazon style (hidden on xs, compact on sm+) */}
+            {/* Deliver to - Aritii style (hidden on xs, compact on sm+) */}
             <div className="relative flex-shrink-0" ref={deliverToRef}>
               <button
                 type="button"
@@ -226,7 +226,7 @@ const MarketplaceHeader = () => {
               )}
             </div>
 
-            {/* Center: Amazon-style prominent search */}
+            {/* Center: Aritii prominent search */}
             <div className="hidden md:flex flex-1 max-w-2xl mx-1 lg:mx-2">
               <HeaderSearch
                 variant="inline"
@@ -256,15 +256,23 @@ const MarketplaceHeader = () => {
                 </Link>
               </div>
 
-              {/* Account & Lists — Amazon-style hover dropdown */}
+              {/* Account & Lists — for authenticated buyers (login/signup unified into the menu icon) */}
               <div className="relative" ref={profileRef}>
                 <button
                   type="button"
-                  onClick={() => setProfileOpen((v) => !v)}
-                  onMouseEnter={() => setProfileOpen(true)}
-                  className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded"
-                  aria-expanded={profileOpen}
-                  aria-haspopup="listbox"
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      setProfileOpen((v) => !v);
+                    } else {
+                      setMobileMenuOpen(true);
+                    }
+                  }}
+                  onMouseEnter={() => {
+                    if (isAuthenticated) setProfileOpen(true);
+                  }}
+                  className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer"
+                  aria-expanded={isAuthenticated ? profileOpen : mobileMenuOpen}
+                  aria-haspopup={isAuthenticated ? "listbox" : "dialog"}
                   aria-label="Account & Lists"
                 >
                   <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
@@ -278,35 +286,11 @@ const MarketplaceHeader = () => {
                     </span>
                   </div>
                 </button>
-                {profileOpen && (
+                {isAuthenticated && profileOpen && (
                   <div
                     onMouseLeave={() => setProfileOpen(false)}
                     className="absolute right-0 top-full mt-1 z-[80] w-64 rounded-md border border-[#232f3e] bg-[#1a222d] p-2 shadow-2xl"
                   >
-                    {!isAuthenticated && (
-                      <div className="p-3 mb-2 bg-[#131921] rounded border border-[#232f3e] text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setProfileOpen(false);
-                            openLoginModal('BUYER');
-                          }}
-                          className="w-full py-1.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition shadow-sm"
-                        >
-                          Sign In
-                        </button>
-                        <p className="text-[11px] text-gray-400 mt-2">
-                          New customer?{' '}
-                          <Link
-                            to="/sign-up"
-                            onClick={() => setProfileOpen(false)}
-                            className="text-[#febd69] hover:underline"
-                          >
-                            Start here.
-                          </Link>
-                        </p>
-                      </div>
-                    )}
                     <div className="py-1">
                       {accountItems.map((item, index) => (
                         <React.Fragment key={item.label + index}>
@@ -338,7 +322,7 @@ const MarketplaceHeader = () => {
                 )}
               </div>
 
-              {/* Returns & Orders (Amazon style link) */}
+              {/* Returns & Orders (Aritii link) */}
               <Link
                 to="/my-dashboard/orders"
                 onClick={(e) => {
@@ -354,7 +338,7 @@ const MarketplaceHeader = () => {
                 <span className="text-xs font-bold text-white leading-tight">& Orders</span>
               </Link>
 
-              {/* Cart — Amazon Shopping Cart with badge */}
+              {/* Cart — Aritii Shopping Cart with badge */}
               <Link
                 to="/my-dashboard/cart"
                 className="relative flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded"
@@ -478,24 +462,36 @@ const MarketplaceHeader = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="p-3 bg-[#1a222d] rounded-lg border border-[#232f3e] text-center space-y-2">
+                <div className="p-4 bg-gradient-to-b from-[#1a222d] to-[#131921] rounded-xl border border-[#232f3e] text-center space-y-3 shadow-md">
+                  <div className="w-10 h-10 mx-auto rounded-full bg-[#febd69]/15 text-[#febd69] flex items-center justify-center font-bold">
+                    <AiOutlineUser size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Welcome to Aritii</h3>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      Sign in for your orders, saved items, and personalized shopping
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       openLoginModal('BUYER');
                     }}
-                    className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition text-center shadow-sm"
+                    className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded-lg transition text-center shadow-sm cursor-pointer"
                   >
                     Sign In
                   </button>
-                  <Link
-                    to="/sign-up"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full py-1 text-center text-xs text-[#febd69] hover:underline"
-                  >
-                    New customer? Start here
-                  </Link>
+                  <p className="text-xs text-gray-400">
+                    New customer?{' '}
+                    <Link
+                      to="/sign-up"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-[#febd69] font-bold hover:underline"
+                    >
+                      Start here.
+                    </Link>
+                  </p>
                 </div>
               )}
 

@@ -73,7 +73,7 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
       {/* Align to the site container (max-w-7xl + shared gutters) */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
         <div className="flex items-center gap-1 h-9 overflow-x-auto no-scrollbar text-xs">
-          {/* All / categories trigger - Amazon style with hamburger */}
+          {/* All / categories trigger - Aritii marketplace style with hamburger */}
           <button
             type="button"
             onClick={() => {
@@ -142,7 +142,7 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
                   A
                 </span>
                 <div>
-                  <h2 className="text-sm font-bold text-white leading-tight">All Departments</h2>
+                  <h2 className="text-sm font-bold text-white leading-tight">All Categories</h2>
                   <span className="text-[10px] text-[#febd69] font-medium tracking-wide">Marketplace & Delivery</span>
                 </div>
               </div>
@@ -178,17 +178,17 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
             <nav className="flex-1 overflow-y-auto p-4 space-y-4" aria-label="Browse categories and sections">
               <div>
                 <p className="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-[#9aa6b2]">
-                  Shop by Department
+                  Shop by Category
                 </p>
                 <Link
-                  to="/products"
+                  to="/categories"
                   onClick={() => setAllOpen(false)}
                   className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#232f3e]"
                 >
                   <span className="flex h-7 w-7 rounded-lg bg-[#febd69]/15 items-center justify-center text-[#febd69]">
                     <AiOutlineMenu size={16} />
                   </span>
-                  <span>All Products Directory</span>
+                  <span>Browse All Categories</span>
                   <AiOutlineRight size={12} className="ml-auto text-[#9aa6b2]" />
                 </Link>
                 {loading ? (
