@@ -10,6 +10,8 @@
  */
 export function buildDestination(address) {
   if (!address) return null;
+  const effectiveSectorId = address.sectorId || address.cityId || address.locationId || null;
+  const effectiveSectorName = address.sectorName || address.cityName || address.city || '';
   return {
     regionId: address.regionId || null,
     regionName: address.regionName || address.country || '',
@@ -17,8 +19,12 @@ export function buildDestination(address) {
     cityName: address.cityName || address.city || '',
     areaId: address.areaId || null,
     areaName: address.areaName || '',
-    sectorId: address.sectorId,
-    sectorName: address.sectorName || '',
+    sectorId: effectiveSectorId,
+    sectorName: effectiveSectorName,
+    deliveryZoneId: address.deliveryZoneId || address.zoneId || null,
+    deliveryZoneName: address.deliveryZoneName || address.zoneName || '',
+    portId: address.portId || null,
+    portName: address.portName || '',
     fullAddress: [
       address.address1,
       address.address2,
@@ -33,9 +39,9 @@ export function buildDestination(address) {
   };
 }
 
-/** A saved address can only become a destination when it has sector + phone. */
+/** A saved address can only become a destination when it has location/sector + phone. */
 export function isUsableAddress(address) {
-  return Boolean(address && address.sectorId && address.phone);
+  return Boolean(address && (address.sectorId || address.cityId || address.locationId) && address.phone);
 }
 
 /**
@@ -73,5 +79,14 @@ export function formatOrderAddress(order) {
     if (tail) lines.push(tail);
   }
 
-  return { lines, phone: destination.phone || '' };
+  const zoneName = destination.deliveryZoneName || order?.deliveryZoneName || '';
+  const portName = destination.portName || order?.portName || '';
+  if (zoneName || portName) {
+    const details = [];
+    if (zoneName) details.push(`Zone: ${zoneName}`);
+    if (portName) details.push(`Port: ${portName}`);
+    lines.push(details.join(' · '));
+  }
+
+  return { lines, phone: destination.phone || '', zoneName, portName };
 }

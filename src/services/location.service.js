@@ -65,6 +65,32 @@ export const locationService = {
     });
     return data;
   },
+
+  /** List public delivery ports, optionally filtered by zoneId or locationId. */
+  async listPorts(params = {}) {
+    try {
+      const { data } = await publicApi.get('/delivery/port/public', { params, skipAuth: true });
+      return data.ports || [];
+    } catch {
+      return [];
+    }
+  },
+
+  /** Get active ports for a specific delivery zone. */
+  async getPortsByZone(zoneId) {
+    if (!zoneId) return [];
+    try {
+      const { data } = await publicApi.get(`/delivery/port/zone/${zoneId}`, { skipAuth: true });
+      return data.ports || [];
+    } catch {
+      try {
+        const { data } = await publicApi.get('/delivery/port/public', { params: { zoneId }, skipAuth: true });
+        return data.ports || [];
+      } catch {
+        return [];
+      }
+    }
+  },
 };
 
 export default locationService;

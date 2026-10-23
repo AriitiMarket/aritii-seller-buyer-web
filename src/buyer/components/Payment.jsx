@@ -117,6 +117,8 @@ const Payment = () => {
       destination: orderData.destination,
       deliveryZoneId: orderData.deliveryZoneId,
       deliveryZoneName: orderData.deliveryZoneName,
+      portId: orderData.portId || orderData.destination?.portId || null,
+      portName: orderData.portName || orderData.destination?.portName || '',
       user: user,
       totalPrice: Number(orderData.totalPrice),
       promoCode: orderData.promoCode || null,
@@ -321,6 +323,12 @@ const PaymentInfo = ({
           <p><span className="font-semibold">Delivery to:</span> {user?.name}</p>
           <p><span className="font-semibold">Contact:</span> {user?.phoneNumber}</p>
           <p><span className="font-semibold">Email:</span> {user?.email}</p>
+          {orderData?.deliveryZoneName && (
+            <p><span className="font-semibold">Delivery Zone:</span> {orderData.deliveryZoneName}</p>
+          )}
+          {orderData?.portName && (
+            <p><span className="font-semibold">Fulfillment Port:</span> {orderData.portName}</p>
+          )}
         </div>
       </div>
 

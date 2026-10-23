@@ -81,10 +81,19 @@ const Checkout = () => {
   const [deliveryQuotes, setDeliveryQuotes] = useState({});
   const [loadingDeliveryQuote, setLoadingDeliveryQuote] = useState(false);
   const [deliveryQuoteError, setDeliveryQuoteError] = useState('');
-  // The delivery ETA is the zone's own rule, returned with the fee quote —
-  // not a fixed "+3 days" guessed by the storefront.
   const [deliveryEtaText, setDeliveryEtaText] = useState('');
   const [fulfilmentType, setFulfilmentType] = useState('delivery');
+
+  // Interactive Zone and Port selection during checkout
+  const [orderZoneId, setOrderZoneId] = useState('');
+  const [orderZoneName, setOrderZoneName] = useState('');
+  const [orderPortId, setOrderPortId] = useState('');
+  const [orderPortName, setOrderPortName] = useState('');
+  const [availableZones, setAvailableZones] = useState([]);
+  const [availablePorts, setAvailablePorts] = useState([]);
+  const [loadingAddressZones, setLoadingAddressZones] = useState(false);
+  const [loadingPorts, setLoadingPorts] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -93,16 +102,133 @@ const Checkout = () => {
   }, []);
 
   const selectedAddressForQuote = addresses.find((address) => address._id === selectedAddressId) || null;
+  const quoteZoneId = orderZoneId || selectedAddressForQuote?.deliveryZoneId || zoneId;
+
+  // Whenever selected address changes, discover zones covering the address
+  useEffect(() => {
+    if (!selectedAddressForQuote) {
+      setAvailableZones([]);
+      setOrderZoneId('');
+      setOrderZoneName('');
+      setOrderPortId('');
+      setOrderPortName('');
+      return;
+    }
+
+    const locId = selectedAddressForQuote.sectorId || selectedAddressForQuote.cityId || selectedAddressForQuote.locationId;
+    if (!locId) {
+      if (selectedAddressForQuote.deliveryZoneId) {
+        setOrderZoneId(selectedAddressForQuote.deliveryZoneId);
+        setOrderZoneName(selectedAddressForQuote.deliveryZoneName || '');
+      } else if (zoneId) {
+        setOrderZoneId(zoneId);
+        setOrderZoneName(zoneName || '');
+      }
+      if (selectedAddressForQuote.portId) {
+        setOrderPortId(selectedAddressForQuote.portId);
+        setOrderPortName(selectedAddressForQuote.portName || '');
+      }
+      return;
+    }
+
+    let active = true;
+    setLoadingAddressZones(true);
+    locationService.findZone(locId)
+      .then((zones) => {
+        if (!active) return;
+        const list = Array.isArray(zones) ? zones : [];
+        setAvailableZones(list);
+
+        // Determine effective zone: preferred saved address zone, or store zone, or first available zone
+        let targetZoneId = selectedAddressForQuote.deliveryZoneId;
+        if (!targetZoneId || !list.some((z) => z._id === targetZoneId)) {
+          if (zoneId && list.some((z) => z._id === zoneId)) {
+            targetZoneId = zoneId;
+          } else if (list.length > 0) {
+            targetZoneId = list[0]._id;
+          } else {
+            targetZoneId = selectedAddressForQuote.deliveryZoneId || zoneId || '';
+          }
+        }
+        const matchedZone = list.find((z) => z._id === targetZoneId);
+        setOrderZoneId(targetZoneId);
+        setOrderZoneName(matchedZone?.name || selectedAddressForQuote.deliveryZoneName || zoneName || '');
+
+        if (selectedAddressForQuote.portId) {
+          setOrderPortId(selectedAddressForQuote.portId);
+          setOrderPortName(selectedAddressForQuote.portName || '');
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        setAvailableZones([]);
+        setOrderZoneId(selectedAddressForQuote.deliveryZoneId || zoneId || '');
+        setOrderZoneName(selectedAddressForQuote.deliveryZoneName || zoneName || '');
+      })
+      .finally(() => {
+        if (active) setLoadingAddressZones(false);
+      });
+
+    return () => { active = false; };
+  }, [selectedAddressForQuote, zoneId, zoneName]);
+
+  // Whenever orderZoneId changes, fetch ports for that zone
+  useEffect(() => {
+    const activeZone = orderZoneId || quoteZoneId;
+    if (!activeZone) {
+      setAvailablePorts([]);
+      return;
+    }
+    let active = true;
+    setLoadingPorts(true);
+    locationService.getPortsByZone(activeZone)
+      .then((ports) => {
+        if (!active) return;
+        const list = Array.isArray(ports) ? ports : [];
+        setAvailablePorts(list);
+
+        setOrderPortId((current) => {
+          if (current && list.some((p) => p._id === current)) return current;
+          if (selectedAddressForQuote?.portId && list.some((p) => p._id === selectedAddressForQuote.portId)) {
+            return selectedAddressForQuote.portId;
+          }
+          const matchedZone = availableZones.find((z) => z._id === activeZone);
+          if (matchedZone?.portId && list.some((p) => p._id === String(matchedZone.portId))) {
+            return String(matchedZone.portId);
+          }
+          return list.length > 0 ? list[0]._id : '';
+        });
+      })
+      .catch(() => {
+        if (active) setAvailablePorts([]);
+      })
+      .finally(() => {
+        if (active) setLoadingPorts(false);
+      });
+    return () => { active = false; };
+  }, [orderZoneId, quoteZoneId, selectedAddressForQuote?.portId, availableZones]);
+
+  // Keep orderPortName in sync with orderPortId
+  useEffect(() => {
+    if (!orderPortId) {
+      setOrderPortName(selectedAddressForQuote?.portName || '');
+      return;
+    }
+    const matched = availablePorts.find((p) => p._id === orderPortId);
+    if (matched) {
+      setOrderPortName(matched.name);
+    }
+  }, [orderPortId, availablePorts, selectedAddressForQuote?.portName]);
+
   const cartQuantityByShop = (cart || []).reduce((groups, item) => {
     const shopId = String(item.shopId || item.shop?._id || 'unknown');
     groups[shopId] = (groups[shopId] || 0) + Number(item.quantity ?? item.qty ?? 1);
     return groups;
   }, {});
-  const quoteZoneId = selectedAddressForQuote?.deliveryZoneId || zoneId;
   const quantitySignature = Object.entries(cartQuantityByShop).sort(([a], [b]) => a.localeCompare(b)).map(([shop, qty]) => `${shop}:${qty}`).join('|');
 
   useEffect(() => {
-    if (!hasZone || !Object.keys(cartQuantityByShop).length) {
+    if (!quoteZoneId || !Object.keys(cartQuantityByShop).length) {
       setDeliveryQuotes({});
       setDeliveryEtaText('');
       return undefined;
@@ -131,16 +257,16 @@ const Checkout = () => {
     return () => { active = false; };
   // quantitySignature captures quantity changes without depending on a new cart array identity.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasZone, quoteZoneId, selectedAddressForQuote?.sectorId, selectedAddressForQuote?.locationId, quantitySignature]);
+  }, [quoteZoneId, selectedAddressForQuote?.sectorId, selectedAddressForQuote?.locationId, quantitySignature]);
 
   useEffect(() => {
-    if (!cart || cart.length === 0 || !hasZone) {
+    if (!cart || cart.length === 0 || !quoteZoneId) {
       setZoneValidation(null);
       return;
     }
     let active = true;
     setValidatingZone(true);
-    dispatch(validateCartForZone(zoneId))
+    dispatch(validateCartForZone(quoteZoneId))
       .then((result) => {
         if (!active) return;
         setZoneValidation(result);
@@ -155,7 +281,7 @@ const Checkout = () => {
     return () => {
       active = false;
     };
-  }, [cart, zoneId, hasZone, dispatch]);
+  }, [cart, quoteZoneId, dispatch]);
 
   useEffect(() => {
     let active = true;
@@ -234,9 +360,14 @@ const Checkout = () => {
   const selectedAddress = selectedAddressForQuote;
 
   const paymentSubmit = () => {
-    if (fulfilmentType === 'delivery' && !hasZone) {
+    const finalZoneId = orderZoneId || quoteZoneId;
+    const finalZoneName = orderZoneName || selectedAddress?.deliveryZoneName || zoneName;
+    const finalPortId = orderPortId || selectedAddress?.portId || null;
+    const finalPortName = orderPortName || selectedAddress?.portName || '';
+
+    if (fulfilmentType === 'delivery' && !finalZoneId) {
       toast.error(
-        "Please select your delivery city and zone before checking out."
+        "Please select your delivery zone before checking out."
       );
       return;
     }
@@ -250,7 +381,7 @@ const Checkout = () => {
           .map((i) => i.name)
           .join(", ");
         toast.error(
-          `These items cannot be delivered to ${zoneName}: ${names}. Remove them or change your delivery zone.`
+          `These items cannot be delivered to ${finalZoneName || 'selected zone'}: ${names}. Remove them or change your delivery zone.`
         );
         return;
       }
@@ -282,9 +413,17 @@ const Checkout = () => {
         country: selectedAddress.regionName || selectedAddress.country || "",
         city: selectedAddress.cityName || selectedAddress.city || "",
       } : {},
-      destination: fulfilmentType === 'delivery' ? buildDestination(selectedAddress) : {},
-      deliveryZoneId: fulfilmentType === 'delivery' ? quoteZoneId : null,
-      deliveryZoneName: fulfilmentType === 'delivery' ? (selectedAddress.deliveryZoneName || zoneName) : '',
+      destination: fulfilmentType === 'delivery' ? {
+        ...buildDestination(selectedAddress),
+        deliveryZoneId: finalZoneId,
+        deliveryZoneName: finalZoneName,
+        portId: finalPortId,
+        portName: finalPortName,
+      } : {},
+      deliveryZoneId: fulfilmentType === 'delivery' ? finalZoneId : null,
+      deliveryZoneName: fulfilmentType === 'delivery' ? finalZoneName : '',
+      portId: fulfilmentType === 'delivery' ? finalPortId : null,
+      portName: fulfilmentType === 'delivery' ? finalPortName : '',
       user,
     };
 
@@ -419,6 +558,20 @@ const Checkout = () => {
                                 Phone: {item.phone}
                               </p>
                             )}
+                            {(item.deliveryZoneName || item.portName) && (
+                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                {item.deliveryZoneName && (
+                                  <span className="text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">
+                                    Zone: {item.deliveryZoneName}
+                                  </span>
+                                )}
+                                {item.portName && (
+                                  <span className="text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded">
+                                    Port: {item.portName}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             {!selectable && (
                               <p className="text-xs text-amber-700 mt-2 font-medium">
                                 ⚠ Missing delivery sector or phone - please update
@@ -434,6 +587,103 @@ const Checkout = () => {
                   </div>
                 )}
               </div>
+
+              {/* Step 1B: Clear Zone & Port Selection */}
+              {selectedAddress && (
+                <div className="mt-6 pt-6 border-t border-market-border space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-market-on-surface">Delivery Zone & Fulfillment Port</h4>
+                      <p className="text-xs text-market-on-surface-variant mt-0.5">
+                        Confirm or select the delivery zone and fulfillment port servicing your address
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Zone selector */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Delivery Zone <span className="text-red-500">*</span>
+                      </label>
+                      {loadingAddressZones ? (
+                        <div className="p-2.5 bg-gray-50 border border-market-border rounded-lg text-xs text-gray-500 flex items-center gap-2">
+                          <span className="animate-spin inline-block w-3 h-3 border-2 border-market-secondary border-t-transparent rounded-full" />
+                          Checking available zones...
+                        </div>
+                      ) : availableZones.length > 1 ? (
+                        <select
+                          className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary"
+                          value={orderZoneId}
+                          onChange={(e) => {
+                            const newZoneId = e.target.value;
+                            setOrderZoneId(newZoneId);
+                            const z = availableZones.find((item) => item._id === newZoneId);
+                            setOrderZoneName(z?.name || '');
+                          }}
+                        >
+                          <option value="">Select delivery zone</option>
+                          {availableZones.map((z) => (
+                            <option key={z._id} value={z._id}>
+                              {z.name} {z.code ? `(${z.code})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="flex items-center justify-between p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-900 font-medium">
+                          <span>📍 {orderZoneName || availableZones[0]?.name || zoneName || 'Assigned Zone'}</span>
+                          <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-semibold">
+                            Active Zone
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Port selector */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Fulfillment Port / Hub <span className="text-red-500">*</span>
+                      </label>
+                      {loadingPorts ? (
+                        <div className="p-2.5 bg-gray-50 border border-market-border rounded-lg text-xs text-gray-500 flex items-center gap-2">
+                          <span className="animate-spin inline-block w-3 h-3 border-2 border-market-secondary border-t-transparent rounded-full" />
+                          Loading available ports...
+                        </div>
+                      ) : availablePorts.length > 1 ? (
+                        <select
+                          className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary"
+                          value={orderPortId}
+                          onChange={(e) => {
+                            const newPortId = e.target.value;
+                            setOrderPortId(newPortId);
+                            const p = availablePorts.find((item) => item._id === newPortId);
+                            setOrderPortName(p?.name || '');
+                          }}
+                        >
+                          <option value="">Select delivery port / hub</option>
+                          {availablePorts.map((p) => (
+                            <option key={p._id} value={p._id}>
+                              {p.name} {p.description ? `— ${p.description}` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      ) : availablePorts.length === 1 ? (
+                        <div className="flex items-center justify-between p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-sm text-indigo-900 font-medium">
+                          <span>⚓ {availablePorts[0].name}</span>
+                          <span className="text-xs bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded font-semibold">
+                            Serving Hub
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 flex items-center justify-between">
+                          <span>⚓ {orderPortName || selectedAddress?.portName || 'Standard local dispatch hub'}</span>
+                          <span className="text-xs text-gray-500 font-medium">Default Port</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Estimated Delivery */}
               {selectedAddress && (
@@ -539,9 +789,9 @@ const Checkout = () => {
 
             <button
               onClick={paymentSubmit}
-              disabled={(fulfilmentType === 'delivery' && (!selectedAddress || loadingDeliveryQuote || Boolean(deliveryQuoteError)))}
+              disabled={(fulfilmentType === 'delivery' && (!selectedAddress || !quoteZoneId || loadingDeliveryQuote || Boolean(deliveryQuoteError)))}
               className={`mt-6 w-full h-11 rounded-lg text-sm font-semibold transition flex items-center justify-center ${
-                fulfilmentType === 'pickup' || (selectedAddress && !loadingDeliveryQuote && !deliveryQuoteError)
+                fulfilmentType === 'pickup' || (selectedAddress && quoteZoneId && !loadingDeliveryQuote && !deliveryQuoteError)
                   ? 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover shadow-sm'
                   : 'bg-market-surface-container-low text-market-on-surface-variant cursor-not-allowed'
               }`}

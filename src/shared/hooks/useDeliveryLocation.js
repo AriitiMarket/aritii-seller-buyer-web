@@ -16,7 +16,7 @@ import {
 
 export function useDeliveryLocation() {
   const dispatch = useDispatch();
-  const { regionId, regionName, cityId, cityName, zoneId, zoneName, loading, error } = useSelector(
+  const { regionId, regionName, cityId, cityName, zoneId, zoneName, portId, portName, loading, error } = useSelector(
     (state) => state.deliveryLocation || {}
   );
 
@@ -29,7 +29,8 @@ export function useDeliveryLocation() {
   }, [dispatch]);
 
   const hasZone = Boolean(zoneId);
-  const hasLocation = Boolean(regionId || cityId || zoneId);
+  const hasPort = Boolean(portId);
+  const hasLocation = Boolean(regionId || cityId || zoneId || portId);
   const isSelected = hasLocation;
 
   return {
@@ -39,9 +40,12 @@ export function useDeliveryLocation() {
     cityName,
     zoneId,
     zoneName,
+    portId,
+    portName,
     loading,
     error,
     hasZone,
+    hasPort,
     hasLocation,
     isSelected,
     setLocation,

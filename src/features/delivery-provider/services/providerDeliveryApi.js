@@ -364,6 +364,19 @@ export const providerDeliveryApi = {
     }
   },
 
+  /**
+   * Deliver all remaining orders in a batch with one click.
+   */
+  deliverAllBatchOrders: async (batchId) => {
+    try {
+      const result = await api.post(`/delivery/dispatch/batches/${batchId}/deliver-all`, {});
+      return { success: result.success, results: result.results };
+    } catch (error) {
+      console.error('Failed to deliver all batch orders:', error);
+      return { success: false, error: error.response?.data?.message || error.message || 'Failed to deliver all orders' };
+    }
+  },
+
   rejectDispatchBatch: async (batchId, reason = '') => {
     try {
       const assignment = await deliveryService.respondToDispatchBatch(batchId, false, reason);

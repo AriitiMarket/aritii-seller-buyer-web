@@ -439,6 +439,20 @@ const OrderDetailComponent = () => {
               {(orderAddress.phone || user?.phoneNumber) && (
                 <p className="mt-2">{orderAddress.phone || user?.phoneNumber}</p>
               )}
+              {(data?.deliveryZoneName || data?.destination?.deliveryZoneName || data?.portName || data?.destination?.portName) && (
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-market-border mt-2">
+                  {(data?.deliveryZoneName || data?.destination?.deliveryZoneName) && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-800">
+                      <span>📍 Delivery Zone:</span> {data?.deliveryZoneName || data?.destination?.deliveryZoneName}
+                    </span>
+                  )}
+                  {(data?.portName || data?.destination?.portName) && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-800">
+                      <span>⚓ Fulfillment Port:</span> {data?.portName || data?.destination?.portName}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

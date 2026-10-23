@@ -40,7 +40,18 @@ const AppRoutes = () => (
     <BrowserRouter>
       <BootstrapListener />
       <GlobalLoginModal />
-      <ToastContainer position="top-right" />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        limit={3}
+      />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* PUBLIC WEBSITE + CATALOG */}

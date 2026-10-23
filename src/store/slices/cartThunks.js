@@ -38,7 +38,7 @@ export const addTocart = (data) => async (dispatch, _getState) => {
   dispatch(setCartLoading(true));
 
   if (!data || !(data._id || data.id || data.productId)) {
-    toast.error('This product cannot be added (missing product id)');
+    toast.error('Could not add product', { toastId: 'cart-action' });
     dispatch(setCartLoading(false));
     return null;
   }
@@ -52,15 +52,15 @@ export const addTocart = (data) => async (dispatch, _getState) => {
       dispatch(setCartError(null));
       dispatch(setCartLoading(false));
       localStorage.setItem('cartItems', JSON.stringify(serverCart.items || []));
-      toast.success('Item added to cart');
+      toast.success('Added to cart', { toastId: 'cart-action' });
       return serverCart;
     }
     dispatch(setCartError('Failed to add item'));
     dispatch(setCartLoading(false));
     return null;
   } catch (error) {
-    const message = error?.response?.data?.message || error?.message || 'Failed to add item to cart';
-    toast.error(message);
+    const message = error?.response?.data?.message || error?.message || 'Could not add to cart';
+    toast.error(message, { toastId: 'cart-action' });
     dispatch(setCartError(message));
     dispatch(setCartLoading(false));
     return null;
@@ -87,6 +87,7 @@ export const updateCartQuantity = (productId, newQuantity) => async (dispatch, _
       dispatch(setCartError(null));
       dispatch(setCartLoading(false));
       localStorage.setItem('cartItems', JSON.stringify(serverCart.items || []));
+      toast.success('Cart updated', { toastId: 'cart-action' });
       return serverCart;
     }
     dispatch(setCartError('Failed to update quantity'));
@@ -94,6 +95,7 @@ export const updateCartQuantity = (productId, newQuantity) => async (dispatch, _
     return null;
   } catch (error) {
     const message = error?.response?.data?.message || error?.message || 'Failed to update quantity';
+    toast.error(message, { toastId: 'cart-action' });
     dispatch(setCartError(message));
     dispatch(setCartLoading(false));
     return null;
@@ -114,12 +116,14 @@ export const removeFromCart = (data) => async (dispatch) => {
       dispatch(setCart(serverCart.items || []));
       dispatch(setCartError(null));
       localStorage.setItem('cartItems', JSON.stringify(serverCart.items || []));
+      toast.success('Removed from cart', { toastId: 'cart-action' });
       return response;
     }
     dispatch(setCartError('Failed to remove item'));
     return null;
   } catch (error) {
     const message = error?.response?.data?.message || error?.message || 'Failed to remove item';
+    toast.error(message, { toastId: 'cart-action' });
     dispatch(setCartError(message));
     return null;
   }

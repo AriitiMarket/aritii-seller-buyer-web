@@ -83,7 +83,7 @@ const OperatingArea = () => {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <span className="h-6 w-6 animate-spin rounded-full border-4 border-gray-200 border-t-[#75d04b]" />
-          <p className="mt-2 text-sm text-gray-500">Loading your operating area\u2026</p>
+          <p className="mt-2 text-sm text-gray-500">Loading your operating area…</p>
         </div>
       </div>
     );
@@ -217,7 +217,7 @@ const OperatingArea = () => {
 
       <div className="bg-amber-50 rounded-lg p-4 text-sm text-amber-700 border border-amber-100">
         <MdLocationOn className="text-amber-600 mr-2" size={16} />
-        Your port and zone assignments are managed by Aritii administrators \u2014 contact support to
+        Your port and zone assignments are managed by Aritii administrators — contact support to
         request a coverage change. All monetary values are in Ethiopian Birr
         (ETB).
       </div>
