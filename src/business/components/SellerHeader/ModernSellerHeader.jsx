@@ -122,7 +122,7 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
               )}
             </button>
 
-            {/* Logo + Amazon-style Seller Central Brand */}
+            {/* Logo + Aritii Seller Central Brand */}
             <Link to="/business" className="flex items-center gap-2 flex-shrink-0 p-1 rounded hover:outline hover:outline-1 hover:outline-white transition-all">
               <BrandLogo size="sm" showText={false} linked={false} tone="light" />
               <div className="flex flex-col leading-none">
@@ -133,7 +133,7 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
               </div>
             </Link>
 
-            {/* Store Switcher Dropdown - Amazon style */}
+            {/* Store Switcher Dropdown - Aritii style */}
             {shops && shops.length > 0 && (
               <div className="relative ml-1 sm:ml-3" ref={shopSelectorRef}>
                 <button

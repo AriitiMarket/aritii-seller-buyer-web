@@ -752,7 +752,7 @@ button, a, input[type="checkbox"], input[type="radio"] {
   input[type="radio"],
   [role="button"],
   .aritii-shop-card,
-  .market-amazon-product-card {
+  .market-aritii-product-card {
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
@@ -778,14 +778,14 @@ button, a, input[type="checkbox"], input[type="radio"] {
   }
 
   /* Product card spacing and sizing */
-  .market-amazon-product-card {
+  .market-aritii-product-card {
     display: flex;
     flex-direction: column;
     min-height: auto;
   }
 
   /* Buttons in cards - proper padding */
-  .market-amazon-product-card button {
+  .market-aritii-product-card button {
     padding: 12px 16px;
     min-height: 44px;
     font-size: 14px;
@@ -821,13 +821,13 @@ button, a, input[type="checkbox"], input[type="radio"] {
     gap: 10px;
   }
 
-  .market-amazon-product-card,
+  .market-aritii-product-card,
   .aritii-shop-card {
     border-radius: 8px;
   }
 
   /* Image aspect ratios */
-  .market-amazon-product-image {
+  .market-aritii-product-image {
     aspect-ratio: 1;
     min-height: 160px;
   }

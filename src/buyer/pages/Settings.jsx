@@ -9,6 +9,13 @@ import TwoFactorSettings from '@/shared/components/TwoFactorSettings'
 const BuyerSettingsPage = () => {
   const user = useSelector((state) => state.user?.user)
   const { isSeller, seller } = useSelector((state) => state.seller)
+  const hasSeller = Boolean(
+    isSeller ||
+    user?.capabilities?.includes('SELLER') ||
+    user?.role === 'SELLER' ||
+    user?.activeRole === 'SELLER' ||
+    (Array.isArray(user?.roles) && user.roles.includes('SELLER'))
+  )
   const [activeSection, setActiveSection] = useState('account')
 
   return (
@@ -29,11 +36,11 @@ const BuyerSettingsPage = () => {
             active={activeSection === 'account'}
             onClick={() => setActiveSection('account')}
           />
-          {isSeller && (
+          {hasSeller && (
             <SettingsNavItem
               icon={MdBusiness}
-              label="Business Profile"
-              description="Shop name, description, contact"
+              label="Business Profile & Stores"
+              description="Shop name, description, manage stores"
               active={activeSection === 'business'}
               onClick={() => setActiveSection('business')}
               badge="Seller"
@@ -57,7 +64,7 @@ const BuyerSettingsPage = () => {
 
         {/* Active Section */}
         {activeSection === 'account' && <AccountSection user={user} />}
-        {activeSection === 'business' && isSeller && <BusinessSection seller={seller} />}
+        {activeSection === 'business' && hasSeller && <BusinessSection seller={seller || user} />}
         {activeSection === 'notifications' && <NotificationsSection />}
         {activeSection === 'security' && <SecuritySection />}
       </div>
@@ -168,12 +175,25 @@ const BusinessSection = ({ seller }) => {
           <label className="block text-sm font-semibold text-market-on-surface mb-1.5">Description</label>
           <div className="px-4 py-2.5 border border-market-border rounded-xl text-sm bg-market-surface-dim text-market-on-surface min-h-[80px]">{shopDescription || '—'}</div>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <p className="text-xs text-blue-700">
-            To update your business profile, visit the{' '}
-            <Link to="/business/products" className="font-semibold underline">Business Products</Link>{' '}
-            page or contact support.
-          </p>
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Link
+            to="/business"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-orange-600 text-white font-medium text-xs hover:bg-orange-700 transition"
+          >
+            Manage My Business Console →
+          </Link>
+          <Link
+            to="/business/shops"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-800 text-white font-medium text-xs hover:bg-slate-700 transition"
+          >
+            Manage Stores
+          </Link>
+          <Link
+            to="/business/settings"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-market-border bg-white text-market-on-surface font-medium text-xs hover:bg-gray-50 transition"
+          >
+            Business & Store Settings
+          </Link>
         </div>
       </div>
     </div>

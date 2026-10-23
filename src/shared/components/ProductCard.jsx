@@ -98,7 +98,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   // Format rating display: "4.5★ (234 reviews)"
 
   return (
-    <article className='market-amazon-product-card group'>
+    <article className='market-aritii-product-card group'>
       {/* Wishlist button - top right with 44px touch target */}
       {!isPublic && (
         <button
@@ -121,7 +121,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
         onClick={(event) => handleProductClick(event, productPath)}
         className='block overflow-hidden'
       >
-        <div className='market-amazon-product-image group-hover:scale-105'>
+        <div className='market-aritii-product-image group-hover:scale-105'>
           <ProductImage data={data} className='w-full h-full object-cover' />
           
           {/* Sale badge - top left */}
@@ -152,16 +152,16 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
             </span>
           )}
           
-          {/* Prime badge - bottom left */}
+          {/* Prime / Fast badge - bottom left */}
           {data?.isPrime && (
             <span className='absolute bottom-2 left-2 inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold tracking-tight uppercase bg-blue-600 text-white shadow-md'>
-              Prime
+              Aritii Express
             </span>
           )}
         </div>
       </Link>
 
-      <div className='market-amazon-product-body'>
+      <div className='market-aritii-product-body'>
         {/* Shop name link */}
         <Link to={shopPath} className='mb-1 block'>
           <p className='text-xs text-[#6b7280] hover:text-[#75d04b] transition-colors line-clamp-1 font-medium'>{shopName}</p>
@@ -186,7 +186,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           </div>
         )}
 
-        {/* Price section: Amazon-style prominent price with fractional formatting */}
+        {/* Price section: Aritii prominent price with fractional formatting */}
         <div className='mb-1.5'>
           <div className='flex items-baseline gap-1.5 flex-wrap'>
             <span className='text-xs font-semibold text-[#565959] self-start mt-0.5'>ETB</span>
@@ -201,7 +201,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           </div>
         </div>
 
-        {/* Delivery / In stock cue - Amazon style */}
+        {/* Delivery / In stock cue */}
         {inStock && !lowStock && (
           <p className='text-xs font-medium text-[#007600] dark:text-green-400 mb-2'>
             In Stock
@@ -218,7 +218,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           </p>
         )}
 
-        {/* Add to cart button or sign in - Amazon style yellow/amber button */}
+        {/* Add to cart button or sign in - Aritii marketplace amber button */}
         {!isPublic ? (
           <button
             type='button'

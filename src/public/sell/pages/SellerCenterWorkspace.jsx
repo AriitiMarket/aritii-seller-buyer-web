@@ -14,7 +14,7 @@ import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
  * SellerCenterWorkspacePage — /seller-center/workspace
- * Previews the Amazon-style Seller Central workspace for prospective sellers,
+ * Previews the Aritii Seller Central workspace for prospective sellers,
  * or displays the active business dashboard if already signed in as a seller.
  */
 const SellerCenterWorkspacePage = () => {
@@ -35,7 +35,7 @@ const SellerCenterWorkspacePage = () => {
   // Prospective seller interactive preview
   return (
     <SellerCenterLayout>
-      {/* Amazon-style Hero Header */}
+      {/* Aritii Hero Header */}
       <SellerPageHero
         badge="Seller Central Workspace Preview"
         title="A command center designed for growing businesses"

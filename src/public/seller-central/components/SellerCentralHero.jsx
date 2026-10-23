@@ -4,7 +4,7 @@ import { AiOutlineArrowRight, AiOutlineCheckCircle, AiOutlineCalculator } from '
 import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
- * SellerCentralHero - Amazon Seller Central Style Hero
+ * SellerCentralHero - Aritii Seller Central Style Hero
  * Features high-contrast dark theme, bold orange CTA, and key seller stats + seller.png visual.
  */
 const SellerCentralHero = () => {
@@ -79,7 +79,7 @@ const SellerCentralHero = () => {
             </div>
           </div>
 
-          {/* Right: Seller Image & Amazon Seller Central Metric Preview Card */}
+          {/* Right: Seller Image & Aritii Seller Central Metric Preview Card */}
           <div className="lg:col-span-5 space-y-4">
             {/* Visual Seller Banner */}
             <div className="relative rounded-xl overflow-hidden border border-[#232F3E] shadow-2xl group">

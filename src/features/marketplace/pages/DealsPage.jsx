@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/shared/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
@@ -6,6 +6,7 @@ import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayo
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import { useDeals } from '@/features/marketplace/hooks/useDeals';
+import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
 import {
   productCategoryTitle,
@@ -15,45 +16,55 @@ import {
 } from '@/features/marketplace/utils/sortProducts';
 import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';
 import { LuClock } from 'react-icons/lu';
+import { AiOutlineFire } from 'react-icons/ai';
 import './DealsPage.css';
 
 const sortOptions = [
-  { value: 'discount-percent', label: 'Biggest Savings' },
-  { value: 'discount', label: 'Largest Amount Off' },
+  { value: 'discount-percent', label: 'Biggest Savings (%)' },
+  { value: 'discount', label: 'Largest Amount Off (ETB)' },
   { value: 'newest', label: 'Newest Deals' },
 ];
 
 /**
- * Deals Page Header with Title, Refresh Note, and Sort Controls
+ * Deals Page Header with Title, Category Rail, and Sort Controls
  */
-const DealsPageHeader = ({ onSortChange, sortBy }) => {
+const DealsPageHeader = ({
+  onSortChange,
+  sortBy,
+  categories = [],
+  activeCategory = '',
+  onSelectCategory,
+}) => {
   return (
     <div className="bg-white dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800 mb-6 px-1 py-4">
-      {/* Title and Timer Section */}
+      {/* Title and Daily refresh Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#131921] dark:text-white">
-            ⚡ Lightning Deals
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Incredible savings on limited quantities — grab them before they're gone
+          <div className="flex items-center gap-2">
+            <AiOutlineFire size={24} className="text-red-500 animate-pulse" />
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#131921] dark:text-white">
+              Today's Lightning Deals
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Exclusive discounts and daily promotions from verified local sellers
           </p>
         </div>
 
-        {/* Deals are re-published daily — the public payload carries no
-            per-deal end time, so no countdown is shown. */}
         <div className="flex-shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-semibold">
-            <LuClock size={14} />
-            <span>Refreshed daily</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-full text-xs font-bold shadow-xs">
+            <LuClock size={14} className="text-amber-600" />
+            <span>Updated Daily</span>
           </span>
         </div>
       </div>
 
-      {/* Sort and Filter Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sort by:</span>
+      {/* Sort Controls */}
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+            Sort by:
+          </span>
           <CatalogSortSelect
             value={sortBy}
             onChange={onSortChange}
@@ -61,8 +72,42 @@ const DealsPageHeader = ({ onSortChange, sortBy }) => {
             ariaLabel="Sort deals"
           />
         </div>
-
       </div>
+
+      {/* Dynamic Category Pill Rail */}
+      {categories && categories.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 pb-1">
+          <button
+            type="button"
+            onClick={() => onSelectCategory('')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              !activeCategory
+                ? 'bg-[#cc0c39] text-white shadow-xs'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            All Deals
+          </button>
+          {categories.map((cat) => {
+            const label = typeof cat === 'string' ? cat : cat.title || cat.name;
+            const isSelected = activeCategory.toLowerCase() === label.toLowerCase();
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => onSelectCategory(label)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-[#cc0c39] text-white shadow-xs'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -78,6 +123,9 @@ const DealsContent = ({
   sortBy,
   onSortChange,
   sortedDeals,
+  categories,
+  activeCategory,
+  onSelectCategory,
 }) => {
   if (loading) {
     return (
@@ -108,7 +156,13 @@ const DealsContent = ({
 
   return (
     <div className="w-full">
-      <DealsPageHeader onSortChange={onSortChange} sortBy={sortBy} />
+      <DealsPageHeader
+        onSortChange={onSortChange}
+        sortBy={sortBy}
+        categories={categories}
+        activeCategory={activeCategory}
+        onSelectCategory={onSelectCategory}
+      />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
         {sortedDeals.map((product) => (
           <ProductCard
@@ -126,10 +180,12 @@ const DealsContent = ({
  * Main DealsPage Component
  */
 const DealsPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState('discount-percent');
   const selectedCategory = searchParams.get('category') || '';
   const { deals, loading, error, refresh } = useDeals();
+  const { categories = [] } = useCatalogCategories({ type: 'product' });
+
   const filterableDeals = useMemo(() => deals.map((deal) => ({
     ...deal,
     category: productCategoryTitle(deal) || 'Other',
@@ -153,9 +209,6 @@ const DealsPage = () => {
       });
     }
 
-    // Sort deals — the shared comparators, so the price/date fallbacks match
-    // the other catalog pages. "Ends soon" was removed: the public payload
-    // carries no per-deal end time, so the option never changed the order.
     switch (sortBy) {
       case 'discount-percent':
         list.sort((a, b) => productDiscountPercent(b) - productDiscountPercent(a));
@@ -177,6 +230,16 @@ const DealsPage = () => {
     setSortBy(value);
   };
 
+  const handleSelectCategory = (newCat) => {
+    const params = new URLSearchParams(searchParams);
+    if (!newCat) {
+      params.delete('category');
+    } else {
+      params.set('category', newCat);
+    }
+    setSearchParams(params, { replace: true });
+  };
+
   const breadcrumbItems = [
     { label: 'Home', to: '/' },
     { label: "Today's Lightning Deals" },
@@ -195,6 +258,9 @@ const DealsPage = () => {
           sortBy={sortBy}
           onSortChange={handleSortChange}
           sortedDeals={sortedDeals}
+          categories={categories}
+          activeCategory={selectedCategory}
+          onSelectCategory={handleSelectCategory}
         />
       }
     />

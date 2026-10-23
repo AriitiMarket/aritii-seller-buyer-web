@@ -4,7 +4,7 @@ import { useShops } from '@/shared/hooks/useShops';
 import { AiOutlineStar, AiFillStar, AiOutlineEnvironment } from 'react-icons/ai';
 
 /**
- * FeaturedShopsRow - Clean Amazon/marketplace style row for local Ethiopian shops
+ * FeaturedShopsRow - Clean Aritii marketplace row for local Ethiopian shops
  * Limits to top 4 verified shops from the live API with direct detail links to `/shops/:id`
  */
 const FeaturedShopsRow = () => {

@@ -4,7 +4,7 @@ import { AiOutlineArrowRight, AiOutlineCheckCircle } from 'react-icons/ai';
 import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
- * DeliveryPortalHero - Amazon Flex / Delivery Partner Style Hero
+ * DeliveryPortalHero - Aritii Delivery Partner Hero
  * Blue & Slate delivery theme with delivery.png visual and driver earnings snapshot.
  */
 const DeliveryPortalHero = () => {

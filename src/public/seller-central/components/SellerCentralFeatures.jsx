@@ -9,7 +9,7 @@ import {
 } from 'react-icons/md';
 
 /**
- * SellerCentralFeatures - Amazon Seller feature grid
+ * SellerCentralFeatures - Aritii Seller feature grid
  * Highlights fulfillment, payments, metrics, and security.
  */
 const SellerCentralFeatures = () => {

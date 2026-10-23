@@ -147,7 +147,7 @@ const ShopCard = ({ data, variant = 'default', basePath = '' }) => {
         {/* Spacer for flex layout */}
         <div className="flex-1" />
 
-        {/* Visit Shop Button - Amazon style Amber / Gold Button */}
+        {/* Visit Shop Button - Aritii marketplace Amber / Gold Button */}
         <Link
           to={shopPath}
           className="w-full px-4 py-2 mb-2 bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] text-[#0f1111] font-bold rounded-full text-center transition-colors text-xs shadow-sm flex items-center justify-center min-h-[36px]"

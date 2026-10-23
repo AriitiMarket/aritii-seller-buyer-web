@@ -25,8 +25,8 @@ const RequestTabs = ({ tabs = [], counts = null, active, onChange, ariaLabel = '
           onClick={() => onChange(tab.id)}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap border transition ${
             isActive
-              ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-brand-primary hover:text-brand-primary-dark'
+              ? 'bg-[#75d04b] text-white border-[#75d04b] shadow-sm'
+              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-[#75d04b] hover:text-[#5ac12f]'
           }`}
         >
           {tab.label}

@@ -121,7 +121,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
   return (
     <div className="min-h-screen bg-[#F0F2F2] dark:bg-[#0f1419] flex flex-col justify-between py-8 px-4 sm:px-6">
       <div className="max-w-xl w-full mx-auto">
-        {/* Amazon-style Brand Header */}
+        {/* Aritii Brand Header */}
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center gap-2 mb-2 focus:outline-none">
             <div className="w-9 h-9 rounded bg-[#131921] border border-[#232F3E] flex items-center justify-center font-black text-[#FF9900] text-lg shadow-sm">
@@ -176,7 +176,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
           </button>
         </div>
 
-        {/* Clean Amazon-Style Form Container */}
+        {/* Clean Aritii Form Container */}
         <div className="bg-white dark:bg-[#1a222d] border-x border-b border-gray-300 dark:border-gray-700 rounded-b-lg p-6 sm:p-8 shadow-sm">
           {/* Header & Role Badge */}
           <div className="mb-6">
@@ -395,7 +395,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
           </div>
         </div>
 
-        {/* Clean Amazon Footer */}
+        {/* Clean Aritii Footer */}
         <div className="mt-8 text-center text-[11px] text-[#565959] dark:text-gray-400 space-y-2">
           <div className="flex justify-center gap-4">
             <Link to="/contact" className="hover:underline hover:text-[#0F1111] dark:hover:text-white">

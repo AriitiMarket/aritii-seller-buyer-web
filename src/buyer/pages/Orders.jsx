@@ -215,7 +215,7 @@ const BuyerOrdersPage = () => {
           </p>
           {!searchQuery && (
             <Link
-              to="/my-dashboard/marketplace"
+              to="/products"
               className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg text-sm font-semibold transition"
               style={{ backgroundColor: ARITII_GREEN }}
             >

@@ -89,23 +89,23 @@ const SellerCard = ({ shop, highlighted = false }) => {
           {description || 'No description provided yet.'}
         </p>
 
-        <div className="mt-4 pt-4 border-t border-gray-100 grid gap-2">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 grid gap-2">
           <Link
             to={`/my-dashboard/requests/new/${id}`}
-            className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-semibold transition"
+            className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-[#75d04b] hover:bg-[#5ac12f] text-white text-sm font-bold shadow-xs transition"
           >
             Request Product
           </Link>
           <div className="grid grid-cols-2 gap-2">
             <Link
               to={`/my-dashboard/requests/sellers/${id}`}
-              className="inline-flex items-center justify-center h-10 px-3 rounded-full border border-gray-200 text-gray-700 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary-dark transition"
+              className="inline-flex items-center justify-center h-10 px-3 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:border-[#75d04b] hover:text-[#75d04b] transition"
             >
               View Profile
             </Link>
             <Link
-              to={`/my-dashboard/shops/${id}`}
-              className="inline-flex items-center justify-center h-10 px-3 rounded-full border border-gray-200 text-gray-700 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary-dark transition"
+              to={`/shops/${id}`}
+              className="inline-flex items-center justify-center h-10 px-3 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:border-[#75d04b] hover:text-[#75d04b] transition"
             >
               View Shop
             </Link>

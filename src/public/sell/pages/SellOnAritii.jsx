@@ -13,14 +13,14 @@ import { useLayout } from '@/app/providers/LayoutContext';
 
 /**
  * SellOnAritiiPage (/sell-on-aritii)
- * Unified with Amazon Seller Central layout & branding.
+ * Unified with Aritii Seller Central layout & branding.
  */
 const SellOnAritiiPage = () => {
   const { openLoginModal } = useLayout();
 
   return (
     <SellerCenterLayout>
-      {/* Amazon-style Dark Slate Hero */}
+      {/* Aritii Dark Slate Hero */}
       <section className="bg-[#131921] text-white py-14 md:py-20 border-b border-[#232F3E]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">

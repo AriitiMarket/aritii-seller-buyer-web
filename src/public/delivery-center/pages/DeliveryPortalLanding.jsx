@@ -16,7 +16,7 @@ import StepGrid from '@/public/components/StepGrid';
 import FaqAccordion from '@/public/components/FaqAccordion';
 
 /**
- * DeliveryPortalLanding - Amazon Flex Style Delivery Partner Portal
+ * DeliveryPortalLanding - Aritii Delivery Partner Portal
  *
  * The header navigation and the footer anchors point at the sections this
  * page renders.
@@ -71,7 +71,7 @@ const DeliveryPortalLanding = () => {
       {/* Partner Network Grid */}
       <DeliveryPartnerGrid />
 
-      {/* Amazon Flex Style - 4 Steps to Start Delivering */}
+      {/* Aritii Delivery Style - 4 Steps to Start Delivering */}
       <section id="ways-to-deliver" className="bg-white dark:bg-[#0f1419] py-16 md:py-24 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14 text-center">
@@ -179,7 +179,7 @@ const DeliveryPortalLanding = () => {
         </div>
       </section>
 
-      {/* Final Amazon-Style Call to Action */}
+      {/* Final Aritii Call to Action */}
       <section className="bg-[#131921] text-white py-16 border-t border-[#232F3E]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-3">

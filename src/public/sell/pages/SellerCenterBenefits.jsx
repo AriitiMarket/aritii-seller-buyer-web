@@ -12,12 +12,12 @@ import SellerPageHero from '@/public/sell/components/SellerPageHero';
 
 /**
  * SellerCenterBenefitsPage — /seller-center/benefits
- * Amazon Seller Central Benefits page with structured feature pillars.
+ * Aritii Seller Central Benefits page with structured feature pillars.
  */
 const SellerCenterBenefitsPage = () => {
   return (
     <SellerCenterLayout>
-      {/* Amazon-style Hero Header */}
+      {/* Aritii Hero Header */}
       <SellerPageHero
         badge="Seller Central Benefits"
         title="Powerful tools designed to scale your business"
@@ -29,7 +29,7 @@ const SellerCenterBenefitsPage = () => {
         <SellerBenefits />
       </section>
 
-      {/* Deep-Dive Amazon Feature Comparisons */}
+      {/* Deep-Dive Aritii Feature Comparisons */}
       <section className="bg-white dark:bg-[#1a222d] py-14 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">

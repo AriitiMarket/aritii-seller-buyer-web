@@ -13,12 +13,12 @@ import SellerPageHero from '@/public/sell/components/SellerPageHero';
 
 /**
  * SellerCenterHowItWorksPage — /seller-center/how-it-works
- * Amazon Seller Central Onboarding Guide.
+ * Aritii Seller Central Onboarding Guide.
  */
 const SellerCenterHowItWorksPage = () => {
   return (
     <SellerCenterLayout>
-      {/* Amazon-style Hero Header */}
+      {/* Aritii Hero Header */}
       <SellerPageHero
         badge="Seller Onboarding Roadmap"
         title="Start selling in four simple steps"

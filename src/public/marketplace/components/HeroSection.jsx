@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import HeaderSearch from '@/shared/components/header/HeaderSearch';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import AritiiLogo from '@/assets/images/brand/aritii-logo.svg';
+import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 
 /**
  * Hero - the front door of Aritii Market.
@@ -14,6 +15,7 @@ import AritiiLogo from '@/assets/images/brand/aritii-logo.svg';
  */
 
 const HeroSection = () => {
+  const { categories = [] } = useCatalogCategories({ type: 'product' });
 
   return (
     <section className="relative isolate w-full min-h-[640px] overflow-hidden bg-[#20305c] sm:min-h-[700px] lg:min-h-[720px]">
@@ -110,6 +112,29 @@ const HeroSection = () => {
             className="w-full"
           />
 
+          {/* Quick trending category & logistics pills from backend */}
+          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-white/70 font-semibold">Trending Categories:</span>
+            {categories.slice(0, 4).map((cat) => {
+              const title = typeof cat === 'string' ? cat : cat.title || cat.name;
+              if (!title) return null;
+              return (
+                <Link
+                  key={cat._id || cat.id || title}
+                  to={`/products?category=${encodeURIComponent(title)}`}
+                  className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm transition-colors font-medium"
+                >
+                  {title}
+                </Link>
+              );
+            })}
+            <Link to="/deals" className="px-3 py-1 rounded-full bg-[#febd69]/25 hover:bg-[#febd69]/35 text-[#febd69] font-bold backdrop-blur-sm transition-colors">
+              ⚡ Daily Deals
+            </Link>
+            <Link to="/delivery" className="px-3 py-1 rounded-full bg-[#00A8E1]/25 hover:bg-[#00A8E1]/35 text-[#58ccff] font-bold backdrop-blur-sm transition-colors">
+              🚚 Express Delivery
+            </Link>
+          </div>
         </div>
       </div>
 

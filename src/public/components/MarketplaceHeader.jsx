@@ -32,7 +32,6 @@ import { useLayout } from '@/app/providers/LayoutContext'
  */
 
 const NAV_LINKS = [
-  { label: 'Dashboard', to: '/my-dashboard', match: ['/my-dashboard'], protected: true },
   { label: 'Products', to: '/products', match: ['/products', '/product/'] },
   { label: 'Shops', to: '/shops', match: ['/shops', '/shop/'] },
   { label: 'Categories', to: '/categories', match: ['/categories', '/category/'] },
@@ -46,9 +45,7 @@ const NAV_LINKS = [
 
 const MarketplaceHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
   const [deliverToOpen, setDeliverToOpen] = useState(false)
-  const profileRef = useRef(null)
   const deliverToRef = useRef(null)
   const menuButtonRef = useRef(null)
   const drawerCloseRef = useRef(null)
@@ -64,14 +61,13 @@ const MarketplaceHeader = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClick = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false)
       if (deliverToRef.current && !deliverToRef.current.contains(e.target)) setDeliverToOpen(false)
     }
-    if (profileOpen || deliverToOpen) {
+    if (deliverToOpen) {
       document.addEventListener('mousedown', handleClick)
       return () => document.removeEventListener('mousedown', handleClick)
     }
-  }, [profileOpen, deliverToOpen])
+  }, [deliverToOpen])
 
   // Mobile menu drawer: lock body scroll while open, Escape to close,
   // move focus into the drawer and return it to the trigger on close.
@@ -95,7 +91,6 @@ const MarketplaceHeader = () => {
     try {
       await dispatch(logoutUser())
       toast.success('Signed out successfully')
-      setProfileOpen(false)
       setMobileMenuOpen(false)
       navigate('/')
     } catch (err) {
@@ -107,20 +102,6 @@ const MarketplaceHeader = () => {
     Array.isArray(paths) ? paths.some((p) => location.pathname.startsWith(p)) : location.pathname.startsWith(paths)
 
   const { openLoginModal } = useLayout();
-
-  const accountItems = isAuthenticated
-    ? [
-        { label: 'Buyer Dashboard', to: '/my-dashboard', icon: MdDashboard, primary: true },
-        { label: 'Your Profile', to: '/my-dashboard/profile', icon: AiOutlineUser },
-        { label: 'Your Orders', to: '/my-dashboard/orders', icon: MdLocalShipping },
-        { label: 'Your Wish List', to: '/my-dashboard/wishlist', icon: AiOutlineHeart },
-        { label: 'Your Addresses', to: '/my-dashboard/addresses', icon: MdLocationOn },
-        { label: 'Messages', to: '/my-dashboard/requests', icon: AiOutlineUser },
-        { label: 'Settings', to: '/my-dashboard/settings', icon: AiOutlineUser },
-        { type: 'divider' },
-        { label: 'Sign Out', onClick: handleLogout, icon: AiOutlineUser },
-      ]
-    : [];
 
   const { regionId, regionName, zoneId: selectedZoneId, cityId: selectedCityId, zoneName, cityName, setLocation } = useDeliveryLocation();
 
@@ -143,7 +124,7 @@ const MarketplaceHeader = () => {
 
   return (
     <>
-      {/* ===== Main header — dark Amazon-style border-bottom rail ===== */}
+      {/* ===== Main header — dark Aritii border-bottom rail ===== */}
       <header
         className="sticky top-0 z-[70] w-full border-b border-[#232f3e] bg-[#131921]"
         role="banner"
@@ -159,7 +140,7 @@ const MarketplaceHeader = () => {
               <BrandLogo size="sm" showText showTagline={false} linked={false} tone="light" />
             </Link>
 
-            {/* Deliver to - Amazon style (hidden on xs, compact on sm+) */}
+            {/* Deliver to - Aritii style (hidden on xs, compact on sm+) */}
             <div className="relative flex-shrink-0" ref={deliverToRef}>
               <button
                 type="button"
@@ -227,7 +208,7 @@ const MarketplaceHeader = () => {
               )}
             </div>
 
-            {/* Center: Amazon-style prominent search */}
+            {/* Center: Aritii prominent search */}
             <div className="hidden md:flex flex-1 max-w-2xl mx-1 lg:mx-2">
               <HeaderSearch
                 variant="inline"
@@ -257,89 +238,27 @@ const MarketplaceHeader = () => {
                 </Link>
               </div>
 
-              {/* Account & Lists — Amazon-style hover dropdown */}
-              <div className="relative" ref={profileRef}>
-                <button
-                  type="button"
-                  onClick={() => setProfileOpen((v) => !v)}
-                  onMouseEnter={() => setProfileOpen(true)}
-                  className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded"
-                  aria-expanded={profileOpen}
-                  aria-haspopup="listbox"
-                  aria-label="Account & Lists"
-                >
-                  <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
-                  <div className="text-left hidden sm:flex sm:flex-col leading-tight">
-                    <span className="text-[10px] text-[#cccccc] font-normal leading-none truncate max-w-[110px]">
-                      {isAuthenticated ? `Hello, ${user?.name || user?.firstName || 'User'}` : 'Hello, Sign in'}
-                    </span>
-                    <span className="text-xs font-bold text-white flex items-center leading-tight">
-                      Account & Lists
-                      <span className="text-[8px] ml-1 text-gray-400">▼</span>
-                    </span>
-                  </div>
-                </button>
-                {profileOpen && (
-                  <div
-                    onMouseLeave={() => setProfileOpen(false)}
-                    className="absolute right-0 top-full mt-1 z-[80] w-64 rounded-md border border-[#232f3e] bg-[#1a222d] p-2 shadow-2xl"
-                  >
-                    {!isAuthenticated && (
-                      <div className="p-3 mb-2 bg-[#131921] rounded border border-[#232f3e] text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setProfileOpen(false);
-                            openLoginModal('BUYER');
-                          }}
-                          className="w-full py-1.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition shadow-sm"
-                        >
-                          Sign In
-                        </button>
-                        <p className="text-[11px] text-gray-400 mt-2">
-                          New customer?{' '}
-                          <Link
-                            to="/sign-up"
-                            onClick={() => setProfileOpen(false)}
-                            className="text-[#febd69] hover:underline"
-                          >
-                            Start here.
-                          </Link>
-                        </p>
-                      </div>
-                    )}
-                    <div className="py-1">
-                      {accountItems.map((item, index) => (
-                        <React.Fragment key={item.label + index}>
-                          {item.type === 'divider' ? (
-                            <div className="h-px bg-[#232f3e] my-1.5" />
-                          ) : item.onClick ? (
-                            <button
-                              type="button"
-                              onClick={item.onClick}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-300 hover:text-white transition-colors hover:bg-[#232f3e] rounded"
-                            >
-                              {item.icon && <item.icon size={15} className="text-gray-400" />}
-                              {item.label}
-                            </button>
-                          ) : (
-                            <Link
-                              to={item.to}
-                              onClick={() => setProfileOpen(false)}
-                              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-[#232f3e] rounded ${item.primary ? 'text-[#febd69] font-bold' : 'text-gray-300 hover:text-white'}`}
-                            >
-                              {item.icon && <item.icon size={15} className="text-gray-400" />}
-                              {item.label}
-                            </Link>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* Account & Lists — opens the unified slide-out menu drawer */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer"
+                aria-expanded={mobileMenuOpen}
+                aria-label="Account & Lists"
+              >
+                <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
+                <div className="text-left hidden sm:flex sm:flex-col leading-tight">
+                  <span className="text-[10px] text-[#cccccc] font-normal leading-none truncate max-w-[110px]">
+                    {isAuthenticated ? `Hello, ${user?.name || user?.firstName || 'User'}` : 'Hello, Sign in'}
+                  </span>
+                  <span className="text-xs font-bold text-white flex items-center leading-tight">
+                    Account & Lists
+                    <span className="text-[8px] ml-1 text-gray-400">▼</span>
+                  </span>
+                </div>
+              </button>
 
-              {/* Returns & Orders (Amazon style link) */}
+              {/* Returns & Orders (Aritii link) */}
               <Link
                 to="/my-dashboard/orders"
                 onClick={(e) => {
@@ -355,7 +274,7 @@ const MarketplaceHeader = () => {
                 <span className="text-xs font-bold text-white leading-tight">& Orders</span>
               </Link>
 
-              {/* Cart — Amazon Shopping Cart with badge */}
+              {/* Cart — Aritii Shopping Cart with badge */}
               <Link
                 to="/my-dashboard/cart"
                 className="relative flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded"
@@ -372,17 +291,17 @@ const MarketplaceHeader = () => {
                 </span>
               </Link>
 
-              {/* Menu trigger — always visible at the top right-most position */}
+              {/* Menu trigger — icon only at the top right-most position */}
               <button
                 ref={menuButtonRef}
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer ml-0.5"
+                className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-white transition-colors hover:outline hover:outline-1 hover:outline-white hover:bg-[#232f3e] rounded cursor-pointer ml-0.5"
                 aria-label="Open navigation menu"
                 aria-expanded={mobileMenuOpen}
+                title="Navigation menu"
               >
                 <AiOutlineMenu size={20} className="text-[#febd69] sm:text-white flex-shrink-0" />
-                <span className="hidden sm:inline text-xs font-bold text-white">Menu</span>
               </button>
             </div>
           </div>
@@ -411,10 +330,9 @@ const MarketplaceHeader = () => {
         <div
           className="fixed inset-0 z-[75]"
           onClick={() => setMobileMenuOpen(false)}
-          aria-hidden="true"
         >
-          {/* Backdrop — inert keeps focus out of the page behind the drawer */}
-          <div className="fixed inset-0 bg-black/60 transition-opacity" inert />
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black/60 transition-opacity" aria-hidden="true" />
           <div
             role="dialog"
             aria-modal="true"
@@ -479,24 +397,36 @@ const MarketplaceHeader = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="p-3 bg-[#1a222d] rounded-lg border border-[#232f3e] text-center space-y-2">
+                <div className="p-4 bg-gradient-to-b from-[#1a222d] to-[#131921] rounded-xl border border-[#232f3e] text-center space-y-3 shadow-md">
+                  <div className="w-10 h-10 mx-auto rounded-full bg-[#febd69]/15 text-[#febd69] flex items-center justify-center font-bold">
+                    <AiOutlineUser size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Welcome to Aritii</h3>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      Sign in for your orders, saved items, and personalized shopping
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       openLoginModal('BUYER');
                     }}
-                    className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition text-center shadow-sm"
+                    className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded-lg transition text-center shadow-sm cursor-pointer"
                   >
                     Sign In
                   </button>
-                  <Link
-                    to="/sign-up"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full py-1 text-center text-xs text-[#febd69] hover:underline"
-                  >
-                    New customer? Start here
-                  </Link>
+                  <p className="text-xs text-gray-400">
+                    New customer?{' '}
+                    <Link
+                      to="/sign-up"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-[#febd69] font-bold hover:underline"
+                    >
+                      Start here.
+                    </Link>
+                  </p>
                 </div>
               )}
 

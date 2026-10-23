@@ -82,7 +82,12 @@ const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => 
   }, [needsSignIn, loading, modalRole, location.pathname, location.search, openLoginModal]);
 
 
-  const hasSellerCapability = isSeller;
+  const hasSellerCapability =
+    isSeller ||
+    user?.capabilities?.includes('SELLER') ||
+    user?.role === 'SELLER' ||
+    user?.activeRole === 'SELLER' ||
+    (Array.isArray(user?.roles) && user.roles.includes('SELLER'));
   const hasProviderCapability =
     user?.capabilities?.includes('PROVIDER') || user?.role === 'PROVIDER';
 
