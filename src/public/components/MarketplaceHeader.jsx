@@ -32,7 +32,6 @@ import { useLayout } from '@/app/providers/LayoutContext'
  */
 
 const NAV_LINKS = [
-  { label: 'Dashboard', to: '/my-dashboard', match: ['/my-dashboard'], protected: true },
   { label: 'Products', to: '/products', match: ['/products', '/product/'] },
   { label: 'Shops', to: '/shops', match: ['/shops', '/shop/'] },
   { label: 'Categories', to: '/categories', match: ['/categories', '/category/'] },
@@ -372,17 +371,17 @@ const MarketplaceHeader = () => {
                 </span>
               </Link>
 
-              {/* Menu trigger — always visible at the top right-most position */}
+              {/* Menu trigger — icon only at the top right-most position */}
               <button
                 ref={menuButtonRef}
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer ml-0.5"
+                className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-white transition-colors hover:outline hover:outline-1 hover:outline-white hover:bg-[#232f3e] rounded cursor-pointer ml-0.5"
                 aria-label="Open navigation menu"
                 aria-expanded={mobileMenuOpen}
+                title="Navigation menu"
               >
                 <AiOutlineMenu size={20} className="text-[#febd69] sm:text-white flex-shrink-0" />
-                <span className="hidden sm:inline text-xs font-bold text-white">Menu</span>
               </button>
             </div>
           </div>
