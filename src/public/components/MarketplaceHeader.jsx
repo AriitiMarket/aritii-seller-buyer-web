@@ -45,9 +45,7 @@ const NAV_LINKS = [
 
 const MarketplaceHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
   const [deliverToOpen, setDeliverToOpen] = useState(false)
-  const profileRef = useRef(null)
   const deliverToRef = useRef(null)
   const menuButtonRef = useRef(null)
   const drawerCloseRef = useRef(null)
@@ -63,14 +61,13 @@ const MarketplaceHeader = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClick = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false)
       if (deliverToRef.current && !deliverToRef.current.contains(e.target)) setDeliverToOpen(false)
     }
-    if (profileOpen || deliverToOpen) {
+    if (deliverToOpen) {
       document.addEventListener('mousedown', handleClick)
       return () => document.removeEventListener('mousedown', handleClick)
     }
-  }, [profileOpen, deliverToOpen])
+  }, [deliverToOpen])
 
   // Mobile menu drawer: lock body scroll while open, Escape to close,
   // move focus into the drawer and return it to the trigger on close.
@@ -94,7 +91,6 @@ const MarketplaceHeader = () => {
     try {
       await dispatch(logoutUser())
       toast.success('Signed out successfully')
-      setProfileOpen(false)
       setMobileMenuOpen(false)
       navigate('/')
     } catch (err) {
@@ -106,20 +102,6 @@ const MarketplaceHeader = () => {
     Array.isArray(paths) ? paths.some((p) => location.pathname.startsWith(p)) : location.pathname.startsWith(paths)
 
   const { openLoginModal } = useLayout();
-
-  const accountItems = isAuthenticated
-    ? [
-        { label: 'Buyer Dashboard', to: '/my-dashboard', icon: MdDashboard, primary: true },
-        { label: 'Your Profile', to: '/my-dashboard/profile', icon: AiOutlineUser },
-        { label: 'Your Orders', to: '/my-dashboard/orders', icon: MdLocalShipping },
-        { label: 'Your Wish List', to: '/my-dashboard/wishlist', icon: AiOutlineHeart },
-        { label: 'Your Addresses', to: '/my-dashboard/addresses', icon: MdLocationOn },
-        { label: 'Messages', to: '/my-dashboard/requests', icon: AiOutlineUser },
-        { label: 'Settings', to: '/my-dashboard/settings', icon: AiOutlineUser },
-        { type: 'divider' },
-        { label: 'Sign Out', onClick: handleLogout, icon: AiOutlineUser },
-      ]
-    : [];
 
   const { regionId, regionName, zoneId: selectedZoneId, cityId: selectedCityId, zoneName, cityName, setLocation } = useDeliveryLocation();
 
@@ -256,71 +238,25 @@ const MarketplaceHeader = () => {
                 </Link>
               </div>
 
-              {/* Account & Lists — for authenticated buyers (login/signup unified into the menu icon) */}
-              <div className="relative" ref={profileRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isAuthenticated) {
-                      setProfileOpen((v) => !v);
-                    } else {
-                      setMobileMenuOpen(true);
-                    }
-                  }}
-                  onMouseEnter={() => {
-                    if (isAuthenticated) setProfileOpen(true);
-                  }}
-                  className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer"
-                  aria-expanded={isAuthenticated ? profileOpen : mobileMenuOpen}
-                  aria-haspopup={isAuthenticated ? "listbox" : "dialog"}
-                  aria-label="Account & Lists"
-                >
-                  <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
-                  <div className="text-left hidden sm:flex sm:flex-col leading-tight">
-                    <span className="text-[10px] text-[#cccccc] font-normal leading-none truncate max-w-[110px]">
-                      {isAuthenticated ? `Hello, ${user?.name || user?.firstName || 'User'}` : 'Hello, Sign in'}
-                    </span>
-                    <span className="text-xs font-bold text-white flex items-center leading-tight">
-                      Account & Lists
-                      <span className="text-[8px] ml-1 text-gray-400">▼</span>
-                    </span>
-                  </div>
-                </button>
-                {isAuthenticated && profileOpen && (
-                  <div
-                    onMouseLeave={() => setProfileOpen(false)}
-                    className="absolute right-0 top-full mt-1 z-[80] w-64 rounded-md border border-[#232f3e] bg-[#1a222d] p-2 shadow-2xl"
-                  >
-                    <div className="py-1">
-                      {accountItems.map((item, index) => (
-                        <React.Fragment key={item.label + index}>
-                          {item.type === 'divider' ? (
-                            <div className="h-px bg-[#232f3e] my-1.5" />
-                          ) : item.onClick ? (
-                            <button
-                              type="button"
-                              onClick={item.onClick}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-300 hover:text-white transition-colors hover:bg-[#232f3e] rounded"
-                            >
-                              {item.icon && <item.icon size={15} className="text-gray-400" />}
-                              {item.label}
-                            </button>
-                          ) : (
-                            <Link
-                              to={item.to}
-                              onClick={() => setProfileOpen(false)}
-                              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-[#232f3e] rounded ${item.primary ? 'text-[#febd69] font-bold' : 'text-gray-300 hover:text-white'}`}
-                            >
-                              {item.icon && <item.icon size={15} className="text-gray-400" />}
-                              {item.label}
-                            </Link>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* Account & Lists — opens the unified slide-out menu drawer */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer"
+                aria-expanded={mobileMenuOpen}
+                aria-label="Account & Lists"
+              >
+                <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
+                <div className="text-left hidden sm:flex sm:flex-col leading-tight">
+                  <span className="text-[10px] text-[#cccccc] font-normal leading-none truncate max-w-[110px]">
+                    {isAuthenticated ? `Hello, ${user?.name || user?.firstName || 'User'}` : 'Hello, Sign in'}
+                  </span>
+                  <span className="text-xs font-bold text-white flex items-center leading-tight">
+                    Account & Lists
+                    <span className="text-[8px] ml-1 text-gray-400">▼</span>
+                  </span>
+                </div>
+              </button>
 
               {/* Returns & Orders (Aritii link) */}
               <Link
@@ -394,10 +330,9 @@ const MarketplaceHeader = () => {
         <div
           className="fixed inset-0 z-[75]"
           onClick={() => setMobileMenuOpen(false)}
-          aria-hidden="true"
         >
-          {/* Backdrop — inert keeps focus out of the page behind the drawer */}
-          <div className="fixed inset-0 bg-black/60 transition-opacity" inert />
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black/60 transition-opacity" aria-hidden="true" />
           <div
             role="dialog"
             aria-modal="true"

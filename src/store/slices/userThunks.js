@@ -143,6 +143,15 @@ export const loadUser = () => async (dispatch) => {
     }
     const user = await authService.getCurrentUser();
     dispatch({ type: "LoadUserSuccess", payload: user });
+
+    // Auto-resolve seller capability when user holds the SELLER capability or role
+    const hasSeller = user?.role === 'SELLER'
+      || user?.activeRole === 'SELLER'
+      || (Array.isArray(user?.capabilities) && user.capabilities.includes('SELLER'))
+      || (Array.isArray(user?.roles) && user.roles.includes('SELLER'));
+    if (hasSeller) {
+      dispatch(loadSeller());
+    }
   } catch (error) {
     dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
   }
@@ -213,10 +222,20 @@ export const loadSeller = () => async (dispatch, getState) => {
         dispatch({ type: "LoadSellerFail", payload: "Your seller account is suspended." });
         return;
       }
-      const approved = existingUser.role === "SELLER"
+
+      const hasSellerRole = existingUser.role === "SELLER"
+        || existingUser.activeRole === "SELLER"
+        || (Array.isArray(existingUser.capabilities) && existingUser.capabilities.includes("SELLER"))
+        || (Array.isArray(existingUser.roles) && existingUser.roles.includes("SELLER"));
+
+      const sellerRoleActive = existingUser.roleStatuses?.SELLER === "ACTIVE"
+        || (!existingUser.roleStatuses?.SELLER && hasSellerRole);
+
+      const approved = (hasSellerRole && sellerRoleActive)
         || Boolean(existingUser.shopId)
         || status === "APPROVED"
         || status === "APPROVED_SELLER";
+
       if (!approved) {
         dispatch({ type: "LoadSellerFail", payload: "Seller approval is required." });
         return;
@@ -236,10 +255,20 @@ export const loadSeller = () => async (dispatch, getState) => {
       dispatch({ type: "LoadSellerFail", payload: "Your seller account is suspended." });
       return;
     }
-    const approved = seller?.role === "SELLER"
+
+    const hasSellerRole = seller?.role === "SELLER"
+      || seller?.activeRole === "SELLER"
+      || (Array.isArray(seller?.capabilities) && seller.capabilities.includes("SELLER"))
+      || (Array.isArray(seller?.roles) && seller.roles.includes("SELLER"));
+
+    const sellerRoleActive = seller?.roleStatuses?.SELLER === "ACTIVE"
+      || (!seller?.roleStatuses?.SELLER && hasSellerRole);
+
+    const approved = (hasSellerRole && sellerRoleActive)
       || Boolean(seller?.shopId)
       || status === "APPROVED"
       || status === "APPROVED_SELLER";
+
     if (!approved) {
       dispatch({ type: "LoadSellerFail", payload: "Seller approval is required." });
       return;

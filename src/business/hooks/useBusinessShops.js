@@ -6,9 +6,17 @@ const SELECTED_SHOP_KEY = 'aritii.business.selectedShopId';
 const SELECTED_SHOP_EVENT = 'aritii:business-shop-selected';
 
 /** Module-level cache: prevents repeated 404s from /shop/getseller across remounts */
+let _currentOwnerId = null;
 let _ownerShopsCache = null;
 let _ownerShopsFetched = false;
 let _ownerShopsPromise = null;
+
+export function clearBusinessShopsCache() {
+  _currentOwnerId = null;
+  _ownerShopsCache = null;
+  _ownerShopsFetched = false;
+  _ownerShopsPromise = null;
+}
 
 /**
  * useBusinessShops — the business domain's shop list and active shop.
@@ -20,9 +28,20 @@ let _ownerShopsPromise = null;
  *   3. exposes `hasMultipleShops` so the UI can show/hide the shop switcher.
  */
 export function useBusinessShops() {
+  const user = useSelector((state) => state.user?.user);
   const { seller, isSeller, isLoading: sellerLoading } = useSelector((state) => state.seller || {});
+  const userId = user?.id || seller?.id || null;
+
+  // Invalidate cache if user switched
+  if (userId && _currentOwnerId && _currentOwnerId !== userId) {
+    clearBusinessShopsCache();
+  }
+  if (userId) {
+    _currentOwnerId = userId;
+  }
+
   const [shops, setShops] = useState(() => _ownerShopsCache || []);
-  const [loading, setLoading] = useState(!_ownerShopsFetched);
+  const [loading, setLoading] = useState(!_ownerShopsFetched && isSeller !== false);
   const [error, setError] = useState(null);
   const [selectedShopId, setSelectedShopId] = useState(
     () => (typeof window !== 'undefined' ? window.localStorage.getItem(SELECTED_SHOP_KEY) : null)
@@ -35,8 +54,6 @@ export function useBusinessShops() {
     // seller — this is what used to produce a 404 on every business page load.
     if (sellerLoading) return;
     if (isSeller === false) {
-      _ownerShopsFetched = true;
-      _ownerShopsCache = [];
       setShops([]);
       setError(null);
       setLoading(false);
