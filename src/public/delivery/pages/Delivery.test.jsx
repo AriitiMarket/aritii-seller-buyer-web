@@ -11,10 +11,6 @@ vi.mock('@/services/api', () => ({
   },
 }));
 
-vi.mock('@/features/delivery-provider/components/DeliveryPortalHeader', () => ({
-  default: () => null,
-}));
-
 vi.mock('@/public/delivery/components/DeliveryFlowVisual', () => ({
   default: () => null,
 }));

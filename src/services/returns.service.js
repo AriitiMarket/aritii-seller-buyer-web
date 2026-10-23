@@ -157,6 +157,20 @@ class ReturnsService {
       throw new Error(`Track return failed: ${err.message}`);
     }
   }
+
+  /**
+   * Get seller returns dashboard metrics
+   * @param {string} shopId - Shop ID
+   */
+  async getSellerReturnsDashboard(shopId) {
+    try {
+      const { data } = await api.get('/return/seller/dashboard', { params: { shopId } });
+      return data?.data ?? data;
+    } catch (err) {
+      throw new Error(`Get seller returns dashboard failed: ${err.response?.data?.message || err.message}`);
+    }
+  }
 }
 
 export const returnsService = new ReturnsService();
+export default returnsService;

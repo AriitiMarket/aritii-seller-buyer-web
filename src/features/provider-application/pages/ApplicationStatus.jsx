@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Loading from '@/components/common/Loading';
 import { providerApplicationApi } from '@/features/provider-application/services/providerApplicationApi';
-import { useRoleAccess } from '@/hooks/useRoleAccess';
+import { useRoleAccess } from '@/shared/hooks/useRoleAccess';
 
 /**
  * ApplicationStatus - the real state of the signed-in user's application, read

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { MdArrowBack, MdStore, MdLocationOn, MdInventory, MdRoute, MdPhone, MdCheck } from 'react-icons/md';
 import { useProviderBatches } from '../hooks/useProviderBatches';
 import { deliveryService } from '@/services/delivery.service';
+import { providerDeliveryApi } from '@/features/delivery-provider/services/providerDeliveryApi';
 import { toast } from 'react-toastify';
 import {
   shortReference,
@@ -45,9 +46,19 @@ const BatchDetails = () => {
   const handleBatchAction = async (action, ...args) => {
     setActioning(true);
     try {
-      await runBatchAction(action, ...args);
-      toast.success('Action completed');
-      await refetch();
+      if (action === 'deliverAll') {
+        const result = await providerDeliveryApi.deliverAllBatchOrders(args[0]);
+        if (result.success) {
+          toast.success('All batch orders delivered');
+          await refetch();
+        } else {
+          toast.error(result.error || 'Failed to deliver all orders');
+        }
+      } else {
+        await runBatchAction(action, ...args);
+        toast.success('Action completed');
+        await refetch();
+      }
     } catch (err) {
       toast.error(apiErrorMessage(err, `Failed to ${action}`));
     } finally {
@@ -466,6 +477,16 @@ const BatchDetails = () => {
             {actioning ? 'Starting...' : 'Start Delivery'}
           </button>
         )}
+        {batchStatus === 'in_transit' && (batch.assignments || []).filter((item) => item.status !== 'delivered').length > 0 && (
+          <button
+            onClick={() => handleBatchAction('deliverAll', batch.id)}
+            disabled={actioning}
+            className="flex-1 px-6 py-3 bg-[#75d04b] text-white font-semibold rounded-lg hover:bg-[#5ac12f] transition disabled:opacity-50"
+          >
+            <MdCheck size={18} /> {actioning ? 'Delivering all...' : 'Deliver All'}
+          </button>
+        )}
+
         {batchStatus === 'in_transit' && (batch.assignments || []).filter((item) => item.status !== 'delivered').map((item) => (
           <button
             key={item.orderId}

@@ -64,32 +64,30 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
     if (isItemExist) {
       const nextQty = (isItemExist.quantity || 1) + 1
       if (nextQty > availableUnits) {
-        toast.error('Only ' + availableUnits + ' items available in stock')
+        toast.error('Only ' + availableUnits + ' available', { toastId: 'cart-stock-limit' })
         return
       }
       await dispatch(updateCartQuantity(id, nextQty))
-      toast.success('Cart updated')
     } else {
       if (availableUnits < 1) {
-        toast.error('Product stock limited!')
+        toast.error('Out of stock', { toastId: 'cart-stock-limit' })
       } else {
-        const added = await dispatch(addTocart({ ...data, quantity: 1 }))
-        if (added) toast.success('Item added to cart')
+        await dispatch(addTocart({ ...data, quantity: 1 }))
       }
     }
   }
 
   const toggleWishlist = async () => {
     if (!isAuthenticated) {
-      toast.error('Please login to save items to your wishlist')
+      toast.error('Please sign in to save items', { toastId: 'wishlist-action' })
       return
     }
     if (click) {
       await dispatch(removeFromWishlist(data))
-      toast.success('Removed from wishlist')
+      toast.success('Removed from wishlist', { toastId: 'wishlist-action' })
     } else {
       await dispatch(addToWishlist(data))
-      toast.success('Saved to wishlist')
+      toast.success('Saved to wishlist', { toastId: 'wishlist-action' })
     }
   }
 

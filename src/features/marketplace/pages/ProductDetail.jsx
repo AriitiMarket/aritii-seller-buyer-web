@@ -103,15 +103,15 @@ const ProductDetailPage = () => {
 
   const toggleWishlist = async () => {
     if (!isAuthenticated) {
-      toast.error('Please login to save items to your wishlist')
+      toast.error('Please sign in to save items', { toastId: 'wishlist-action' })
       return
     }
     if (inWishlist) {
       await dispatch(removeFromWishlist(data))
-      toast.success('Removed from wishlist')
+      toast.success('Removed from wishlist', { toastId: 'wishlist-action' })
     } else {
       await dispatch(addToWishlist(data))
-      toast.success('Saved to wishlist')
+      toast.success('Saved to wishlist', { toastId: 'wishlist-action' })
     }
     setInWishlist(!inWishlist)
   }
@@ -119,7 +119,6 @@ const ProductDetailPage = () => {
   const handleAddToCart = async () => {
     if (!data) return
     await dispatch(addTocart({ ...data, quantity: 1 }))
-    toast.success('Added to cart')
   }
 
   const displayPrice = data?.discountPrice ?? data?.price ?? 0

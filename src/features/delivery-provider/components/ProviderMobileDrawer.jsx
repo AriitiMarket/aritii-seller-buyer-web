@@ -140,7 +140,7 @@ const ProviderMobileDrawer = ({ isOpen, onClose }) => {
         {/* Drawer Footer */}
         <div className="p-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            \u00a9 Aritii Market Provider Portal
+            © Aritii Market Provider Portal
           </p>
         </div>
       </div>

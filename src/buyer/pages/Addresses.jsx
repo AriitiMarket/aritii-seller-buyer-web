@@ -168,6 +168,20 @@ const AddressCard = ({ address, dispatch, onEdit, isDeleting }) => {
             <p className="text-market-on-surface font-medium mt-0.5">{address.phone}</p>
           </div>
         )}
+        {(address.deliveryZoneName || address.portName) && (
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-market-border">
+            {address.deliveryZoneName && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-800">
+                <span>📍 Zone:</span> {address.deliveryZoneName}
+              </span>
+            )}
+            {address.portName && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-800">
+                <span>⚓ Port:</span> {address.portName}
+              </span>
+            )}
+          </div>
+        )}
         {!locationLine && legacyLine && (
           <p className="text-market-on-surface font-medium">{legacyLine}</p>
         )}
@@ -189,6 +203,8 @@ const AddressModal = ({ _open, setOpen, dispatch, editingId, editingAddress, isL
     sectorName: editingAddress?.sectorName || null,
     deliveryZoneId: editingAddress?.deliveryZoneId || null,
     deliveryZoneName: editingAddress?.deliveryZoneName || null,
+    portId: editingAddress?.portId || null,
+    portName: editingAddress?.portName || null,
   })
   const [houseBuilding, setHouseBuilding] = useState(editingAddress?.houseBuilding || '')
   const [landmark, setLandmark] = useState(editingAddress?.landmark || '')
@@ -199,7 +215,7 @@ const AddressModal = ({ _open, setOpen, dispatch, editingId, editingAddress, isL
   const validateForm = () => {
     const errors = {}
     if (!addressType?.trim()) errors.addressType = 'Required'
-    if (!locationData.sectorId) errors.location = 'Select location'
+    if (!locationData.sectorId && !locationData.cityId) errors.location = 'Select location'
     if (!houseBuilding?.trim() && !landmark?.trim() && !description?.trim()) errors.address = 'Required'
     // A delivery phone is how the rider reaches the buyer, so it must be a
     // real number — "present" was the only check, so "abc" was accepted.
@@ -219,6 +235,8 @@ const AddressModal = ({ _open, setOpen, dispatch, editingId, editingAddress, isL
     }
     try {
       setValidationErrors({})
+      const effectiveSectorId = locationData.sectorId || locationData.cityId || null;
+      const effectiveSectorName = locationData.sectorName || locationData.cityName || '';
       const addressPayload = {
         regionId: locationData.regionId,
         regionName: locationData.regionName,
@@ -226,10 +244,12 @@ const AddressModal = ({ _open, setOpen, dispatch, editingId, editingAddress, isL
         cityName: locationData.cityName,
         areaId: locationData.areaId,
         areaName: locationData.areaName,
-        sectorId: locationData.sectorId,
-        sectorName: locationData.sectorName,
+        sectorId: effectiveSectorId,
+        sectorName: effectiveSectorName,
         deliveryZoneId: locationData.deliveryZoneId,
         deliveryZoneName: locationData.deliveryZoneName,
+        portId: locationData.portId || null,
+        portName: locationData.portName || '',
         houseBuilding,
         landmark,
         description,

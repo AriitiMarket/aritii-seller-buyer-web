@@ -70,6 +70,11 @@ class WalletService {
     }
   }
 
+  /** Alias for getTransactionHistory */
+  async getTransactions(sellerId, options = {}) {
+    return this.getTransactionHistory(sellerId, options);
+  }
+
   /**
    * Get single transaction detail
    * GET /wallet/:sellerId/transaction/:transactionId
@@ -176,6 +181,7 @@ class WalletService {
 }
 
 export const walletService = new WalletService();
+export default walletService;
 
 // Export convenience functions (seller-only)
 export const getWallet = (sellerId) => walletService.getWallet(sellerId);

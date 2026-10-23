@@ -88,7 +88,7 @@ export const fetchWishlist = () => async (dispatch) => {
 export const addToWishlist = (data) => async (dispatch) => {
   const productId = data?._id || data?.productId || data?.id;
   if (!productId) {
-    toast.error('This product cannot be saved (missing product id)');
+    toast.error('Could not save product', { toastId: 'wishlist-action' });
     return null;
   }
 
@@ -105,9 +105,9 @@ export const addToWishlist = (data) => async (dispatch) => {
     dispatch(setWishlistError(null));
     return response?.wishlist || null;
   } catch (error) {
-    const message = error?.response?.data?.message || 'Failed to add to wishlist';
+    const message = error?.response?.data?.message || 'Could not add to wishlist';
     dispatch(setWishlistError(message));
-    toast.error(message);
+    toast.error(message, { toastId: 'wishlist-action' });
     return null;
   } finally {
     dispatch(setWishlistLoading(false));
@@ -138,9 +138,9 @@ export const removeFromWishlist = (data) => async (dispatch) => {
       dispatch(fetchWishlist());
       return { resynced: true };
     }
-    const message = error?.response?.data?.message || 'Failed to remove from wishlist';
+    const message = error?.response?.data?.message || 'Could not remove from wishlist';
     dispatch(setWishlistError(message));
-    toast.error(message);
+    toast.error(message, { toastId: 'wishlist-action' });
     return null;
   } finally {
     dispatch(setWishlistLoading(false));
@@ -159,9 +159,9 @@ export const clearWishlistRequest = () => async (dispatch) => {
     dispatch(setWishlistError(null));
     return response?.wishlist || null;
   } catch (error) {
-    const message = error?.response?.data?.message || 'Failed to clear wishlist';
+    const message = error?.response?.data?.message || 'Could not clear wishlist';
     dispatch(setWishlistError(message));
-    toast.error(message);
+    toast.error(message, { toastId: 'wishlist-action' });
     return null;
   }
 };

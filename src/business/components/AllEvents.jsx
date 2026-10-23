@@ -4,7 +4,6 @@ import { getAllEventsShop, deleteEvent } from '@/store/slices/eventThunks';
 import { AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Loader from '@/components/common/Loading';
-import '@/business/components/AllEvents.css';
 
 
 const AllEvents = () => {

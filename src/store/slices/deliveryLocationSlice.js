@@ -22,7 +22,7 @@ function loadFromStorage() {
     if (
       parsed &&
       typeof parsed === 'object' &&
-      (parsed.zoneId || parsed.cityId || parsed.regionId)
+      (parsed.zoneId || parsed.cityId || parsed.regionId || parsed.portId)
     ) {
       return parsed;
     }
@@ -41,6 +41,8 @@ const initialState = {
   cityName: saved ? saved.cityName : null,
   zoneId: saved ? saved.zoneId : null,
   zoneName: saved ? saved.zoneName : null,
+  portId: saved ? saved.portId : null,
+  portName: saved ? saved.portName : null,
   loading: false,
   error: null,
 };
@@ -49,10 +51,10 @@ export const deliveryLocationSlice = createSlice({
   name: 'deliveryLocation',
   initialState,
   reducers: {
-    /** Persist the buyer's chosen city + zone. */
+    /** Persist the buyer's chosen city + zone + port. */
     setDeliveryLocation: (state, action) => {
       const next = { ...state, ...action.payload };
-      for (const key of ['regionId', 'regionName', 'cityId', 'cityName', 'zoneId', 'zoneName']) {
+      for (const key of ['regionId', 'regionName', 'cityId', 'cityName', 'zoneId', 'zoneName', 'portId', 'portName']) {
         next[key] = next[key] || null;
       }
       state.regionId = next.regionId;
@@ -61,6 +63,8 @@ export const deliveryLocationSlice = createSlice({
       state.cityName = next.cityName;
       state.zoneId = next.zoneId;
       state.zoneName = next.zoneName;
+      state.portId = next.portId;
+      state.portName = next.portName;
       state.error = null;
       try {
         localStorage.setItem(
@@ -72,6 +76,8 @@ export const deliveryLocationSlice = createSlice({
             cityName: next.cityName,
             zoneId: next.zoneId,
             zoneName: next.zoneName,
+            portId: next.portId,
+            portName: next.portName,
           })
         );
       } catch {
@@ -86,6 +92,8 @@ export const deliveryLocationSlice = createSlice({
       state.cityName = null;
       state.zoneId = null;
       state.zoneName = null;
+      state.portId = null;
+      state.portName = null;
       state.error = null;
       try {
         localStorage.removeItem(STORAGE_KEY);

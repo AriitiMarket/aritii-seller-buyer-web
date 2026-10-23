@@ -124,6 +124,7 @@ export function DeliveryZoneSelector({
       onSelect && onSelect({
         regionId: selectedRegionId || undefined, cityId: selectedCityId || undefined, zoneId: id || undefined,
         regionName: selectedRegionName, cityName: selectedCityName, zoneName: zone ? zone.name : '',
+        portId: zone?.portId || undefined, portName: zone?.portName || '',
       });
     },
     [zones, selectedRegionId, selectedCityId, selectedRegionName, selectedCityName, onSelect]

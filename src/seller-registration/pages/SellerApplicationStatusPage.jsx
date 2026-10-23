@@ -5,7 +5,7 @@ import SellerApplicationSummary from '@/seller-registration/components/SellerApp
 import useSellerRegistration from '@/seller-registration/hooks/useSellerRegistration';
 import sellerRegistrationApi from '@/seller-registration/api/sellerRegistrationApi';
 import shopService from '@/services/shop.service';
-import { useRoleAccess } from '@/hooks/useRoleAccess';
+import { useRoleAccess } from '@/shared/hooks/useRoleAccess';
 
 export default function SellerApplicationStatusPage() {
   const { application, loading, error } = useSellerRegistration();

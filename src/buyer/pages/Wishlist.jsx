@@ -19,13 +19,13 @@ const BuyerWishlistPage = () => {
 
   const handleRemoveFromWishlist = async (product) => {
     const removed = await dispatch(removeFromWishlist(product))
-    if (removed) toast.success('Removed from wishlist')
+    if (removed) toast.success('Removed from wishlist', { toastId: 'wishlist-action' })
   }
 
   const handleAddToCart = async (product) => {
     if (!product?._id) return
     if (product.stock <= 0) {
-      toast.error('This product is out of stock')
+      toast.error('Product is out of stock', { toastId: 'cart-stock-limit' })
       return
     }
     const cartData = {
@@ -37,10 +37,7 @@ const BuyerWishlistPage = () => {
       shopId: product.shopId,
       quantity: 1,
     }
-    // The thunk returns null when it REJECTS the add and toasts the reason —
-    // never claim success for an item that was not stored.
-    const added = await dispatch(addTocart(cartData))
-    if (added) toast.success('Added to cart!')
+    await dispatch(addTocart(cartData))
   }
 
   if (isLoading && wishlist.length === 0) {
