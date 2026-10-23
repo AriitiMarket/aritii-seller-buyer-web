@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser } from 'react-icons/ai'
-import { MdLocalShipping, MdLocationOn } from 'react-icons/md'
+import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser, AiOutlineHeart } from 'react-icons/ai'
+import { MdLocalShipping, MdLocationOn, MdDashboard } from 'react-icons/md'
 import BrandLogo from '@/components/common/BrandLogo'
 import HeaderSearch from '@/shared/components/header/HeaderSearch'
 import { useAuth } from '@/auth/hooks/useAuth'
@@ -32,6 +32,7 @@ import { useLayout } from '@/app/providers/LayoutContext'
  */
 
 const NAV_LINKS = [
+  { label: 'Dashboard', to: '/my-dashboard', match: ['/my-dashboard'], protected: true },
   { label: 'Products', to: '/products', match: ['/products', '/product/'] },
   { label: 'Shops', to: '/shops', match: ['/shops', '/shop/'] },
   { label: 'Categories', to: '/categories', match: ['/categories', '/category/'] },
@@ -109,9 +110,10 @@ const MarketplaceHeader = () => {
 
   const accountItems = isAuthenticated
     ? [
+        { label: 'Buyer Dashboard', to: '/my-dashboard', icon: MdDashboard, primary: true },
         { label: 'Your Profile', to: '/my-dashboard/profile', icon: AiOutlineUser },
         { label: 'Your Orders', to: '/my-dashboard/orders', icon: MdLocalShipping },
-        { label: 'Your Wish List', to: '/my-dashboard/wishlist', icon: AiOutlineUser },
+        { label: 'Your Wish List', to: '/my-dashboard/wishlist', icon: AiOutlineHeart },
         { label: 'Your Addresses', to: '/my-dashboard/addresses', icon: MdLocationOn },
         { label: 'Messages', to: '/my-dashboard/requests', icon: AiOutlineUser },
         { label: 'Settings', to: '/my-dashboard/settings', icon: AiOutlineUser },
@@ -370,16 +372,17 @@ const MarketplaceHeader = () => {
                 </span>
               </Link>
 
-              {/* Mobile menu trigger */}
+              {/* Menu trigger — always visible at the top right-most position */}
               <button
                 ref={menuButtonRef}
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="flex items-center justify-center w-8 h-8 text-white transition-colors hover:bg-[#232f3e] rounded lg:hidden ml-0.5"
+                className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded cursor-pointer ml-0.5"
                 aria-label="Open navigation menu"
                 aria-expanded={mobileMenuOpen}
               >
-                <AiOutlineMenu size={20} />
+                <AiOutlineMenu size={20} className="text-[#febd69] sm:text-white flex-shrink-0" />
+                <span className="hidden sm:inline text-xs font-bold text-white">Menu</span>
               </button>
             </div>
           </div>
@@ -403,110 +406,294 @@ const MarketplaceHeader = () => {
         />
       </div>
 
-      {/* ===== Mobile menu ===== */}
+      {/* ===== Slide-out Menu Drawer (accessible on all screen sizes from top-right icon) ===== */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-[65]"
+          className="fixed inset-0 z-[75]"
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         >
           {/* Backdrop — inert keeps focus out of the page behind the drawer */}
-          <div className="fixed inset-0 bg-black/50" inert />
+          <div className="fixed inset-0 bg-black/60 transition-opacity" inert />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-y-0 left-0 z-[70] flex w-72 flex-col rounded-r-xl border border-[#232f3e] bg-[#131921] shadow-level-3"
+            className="fixed inset-y-0 right-0 z-[80] flex w-80 max-w-[88vw] flex-col border-l border-[#232f3e] bg-[#131921] shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-[#232f3e] p-4">
-              <h2 className="text-base font-bold text-white">Menu</h2>
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between border-b border-[#232f3e] p-4 bg-[#1a222d]">
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-[#febd69] text-[#131921] flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {(user?.name || user?.firstName || 'B')[0].toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-[#9aa6b2] block leading-none">Hello,</span>
+                    <span className="text-sm font-bold text-white truncate block max-w-[170px] leading-tight">
+                      {user?.name || user?.firstName || 'Buyer'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <AiOutlineUser size={20} className="text-[#febd69]" />
+                  <span className="text-sm font-bold text-white">Hello, Sign in</span>
+                </div>
+              )}
               <button
                 ref={drawerCloseRef}
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-[#9aa6b2] transition-colors hover:text-white"
+                className="p-1.5 text-[#9aa6b2] transition-colors hover:text-white rounded"
                 aria-label="Close menu"
               >
                 <AiOutlineClose size={22} />
               </button>
             </div>
-            <nav className="p-4 space-y-1 overflow-y-auto flex-1">
-              {/* Main navigation */}
-              <div className="border-b border-[#232f3e] pb-4">
-                {NAV_LINKS.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    onClick={(e) => {
-                      setMobileMenuOpen(false);
-                      if (item.protected && !isAuthenticated) {
-                        e.preventDefault();
-                        toast.info(`Please sign in to access ${item.label.toLowerCase()}.`);
-                        openLoginModal('BUYER');
-                      }
-                    }}
-                    className={`block w-full px-3 py-2.5 rounded-lg transition-colors ${isActive(item.match) ? 'bg-[#232f3e] text-white font-semibold' : 'text-[#c9d1d9] hover:bg-[#232f3e]'}`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
 
-              {/* Account section */}
-              <div className="pt-4 border-t border-[#232f3e]">
-                <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">Account</p>
-                {!isAuthenticated ? (
-                  <div className="space-y-2 px-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        openLoginModal('BUYER');
-                      }}
-                      className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded-lg transition text-center shadow-sm"
-                    >
-                      Sign In
-                    </button>
+            {/* Drawer Body */}
+            <nav className="p-4 space-y-4 overflow-y-auto flex-1">
+              {/* If authenticated: Prominent Buyer Dashboard banner */}
+              {isAuthenticated ? (
+                <div className="p-3 bg-gradient-to-r from-[#232f3e] to-[#1a222d] rounded-lg border border-[#febd69]/40 shadow-sm">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#febd69]">
+                      Buyer Portal
+                    </span>
+                    <span className="text-[10px] bg-[#febd69]/20 text-[#febd69] px-2 py-0.5 rounded-full font-medium">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-300 mb-2.5">
+                    Track orders, manage addresses, cart, and account settings.
+                  </p>
+                  <Link
+                    to="/my-dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition shadow-sm"
+                  >
+                    <MdDashboard size={16} />
+                    <span>View Buyer Dashboard</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="p-3 bg-[#1a222d] rounded-lg border border-[#232f3e] text-center space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openLoginModal('BUYER');
+                    }}
+                    className="w-full py-2.5 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded transition text-center shadow-sm"
+                  >
+                    Sign In
+                  </button>
+                  <Link
+                    to="/sign-up"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full py-1 text-center text-xs text-[#febd69] hover:underline"
+                  >
+                    New customer? Start here
+                  </Link>
+                </div>
+              )}
+
+              {/* Buyer Account Links */}
+              {isAuthenticated && (
+                <div className="border-b border-[#232f3e] pb-3">
+                  <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
+                    Buyer Account
+                  </p>
+                  <div className="space-y-0.5">
                     <Link
-                      to="/sign-up"
+                      to="/my-dashboard"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block w-full py-2 px-4 text-center text-xs text-[#febd69] hover:underline"
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname === '/my-dashboard'
+                          ? 'bg-[#febd69]/15 text-[#febd69] font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
                     >
-                      New customer? Start here
+                      <MdDashboard size={16} className="text-[#febd69]" />
+                      <span>Buyer Dashboard</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/orders"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/orders')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <MdLocalShipping size={16} className="text-[#9aa6b2]" />
+                      <span>Your Orders & Returns</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/wishlist"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/wishlist')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <AiOutlineHeart size={16} className="text-[#9aa6b2]" />
+                      <span>Saved Items / Wishlist</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/addresses"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/addresses')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <MdLocationOn size={16} className="text-[#9aa6b2]" />
+                      <span>Delivery Addresses</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/requests"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/requests')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <AiOutlineUser size={16} className="text-[#9aa6b2]" />
+                      <span>Messages & Requests</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/profile')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <AiOutlineUser size={16} className="text-[#9aa6b2]" />
+                      <span>Your Profile</span>
+                    </Link>
+                    <Link
+                      to="/my-dashboard/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/my-dashboard/settings')
+                          ? 'bg-[#232f3e] text-white font-bold'
+                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                      }`}
+                    >
+                      <AiOutlineUser size={16} className="text-[#9aa6b2]" />
+                      <span>Account Settings</span>
                     </Link>
                   </div>
-                ) : (
-                  accountItems.map((item, index) => (
-                    <React.Fragment key={item.label + index}>
-                      {item.type === 'divider' ? (
-                        <div className="h-px bg-[#232f3e] my-2" />
-                      ) : item.onClick ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            item.onClick();
-                            setMobileMenuOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 text-body-sm text-[#9aa6b2] transition-colors hover:bg-[#232f3e] rounded-lg"
-                        >
-                          {item.icon && <item.icon size={16} className="text-[#9aa6b2]" />}
-                          {item.label}
-                        </button>
-                      ) : (
-                        <Link
-                          to={item.to}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 text-body-sm text-[#c9d1d9] transition-colors hover:bg-[#232f3e] rounded-lg"
-                        >
-                          {item.icon && <item.icon size={16} className="text-[#9aa6b2]" />}
-                          {item.label}
-                        </Link>
-                      )}
-                    </React.Fragment>
-                  ))
-                )}
+                </div>
+              )}
+
+              {/* Marketplace Navigation */}
+              <div className="border-b border-[#232f3e] pb-3">
+                <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
+                  Explore Marketplace
+                </p>
+                <div className="space-y-0.5">
+                  <Link
+                    to="/products"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                      location.pathname.startsWith('/products')
+                        ? 'bg-[#232f3e] text-white font-bold'
+                        : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                    }`}
+                  >
+                    All Products
+                  </Link>
+                  <Link
+                    to="/shops"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                      location.pathname.startsWith('/shops')
+                        ? 'bg-[#232f3e] text-white font-bold'
+                        : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                    }`}
+                  >
+                    Shops Directory
+                  </Link>
+                  <Link
+                    to="/categories"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                      location.pathname.startsWith('/categories')
+                        ? 'bg-[#232f3e] text-white font-bold'
+                        : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
+                    }`}
+                  >
+                    Shop by Category
+                  </Link>
+                  <Link
+                    to="/deals"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
+                  >
+                    Today's Deals
+                  </Link>
+                  <Link
+                    to="/best-selling"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
+                  >
+                    Best Sellers
+                  </Link>
+                </div>
               </div>
+
+              {/* Portals & Support */}
+              <div className="border-b border-[#232f3e] pb-3">
+                <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
+                  Portals & Support
+                </p>
+                <div className="space-y-0.5">
+                  <Link
+                    to="/seller-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
+                  >
+                    Sell on Aritii
+                  </Link>
+                  <Link
+                    to="/delivery-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
+                  >
+                    Become a Delivery Driver
+                  </Link>
+                  <Link
+                    to="/help"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
+                  >
+                    Customer Service & Help
+                  </Link>
+                </div>
+              </div>
+
+              {/* Sign Out */}
+              {isAuthenticated && (
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                  >
+                    <AiOutlineUser size={16} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
             </nav>
           </div>
         </div>
