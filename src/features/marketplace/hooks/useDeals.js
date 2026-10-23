@@ -17,22 +17,26 @@ export function useDeals() {
     setLoading(true);
     setError(null);
     try {
-      // Use existing public filtered endpoint
-      // Filter for products with discounts
-      const response = await productService.getPublicFiltered({
-        page: 1,
-        limit: 24,
-      });
-      
-      // Filter and sort by discount percentage (discountPrice vs list price).
-      const dealsWithDiscounts = (response.products || [])
-        .filter(p => p.discountPrice && p.price && p.discountPrice < p.price)
-        .map(p => ({
-          ...p,
-          discountPercent: productDiscountPercent(p),
-        }))
+      // Fetch deals directly from the backend public deals endpoint
+      const response = await productService.getPublicDeals({ limit: 50 });
+      const rawProducts = response.products || [];
+
+      // Ensure discountPercent is computed and products have a genuine discount
+      const dealsWithDiscounts = rawProducts
+        .map((p) => {
+          const discountPercent = p.discountPercent ?? productDiscountPercent(p);
+          return {
+            ...p,
+            discountPercent,
+          };
+        })
+        .filter((p) => {
+          const original = Number(p.originalPrice || 0);
+          const selling = Number(p.discountPrice ?? p.price ?? 0);
+          return (p.discountPercent > 0) || (original > 0 && selling > 0 && original > selling);
+        })
         .sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
-      
+
       setDeals(dealsWithDiscounts);
     } catch (err) {
       setError(err?.message || 'Something went wrong while loading deals.');

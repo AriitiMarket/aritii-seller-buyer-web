@@ -88,6 +88,53 @@ export const productService = {
   },
 
   /**
+   * Get public deal products — products with discountPrice < originalPrice.
+   * Calls the dedicated /product/public/deals endpoint on the backend.
+   * @param {Object} options - { limit }
+   * @returns {Promise} - { products, total, count, page, limit, totalPages }
+   */
+  async getPublicDeals(options = {}) {
+    const { limit = 50 } = options;
+    const cacheKey = `products:public:deals:${limit}`;
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    try {
+      const { data } = await publicApi.get(`/product/public/deals?limit=${limit}`, {
+        skipAuth: true,
+        timeout: 30000,
+      });
+
+      const result = {
+        products: data.products || [],
+        total: Number(data.total) || (data.products || []).length,
+        count: Number(data.count) || (data.products || []).length,
+        page: Number(data.page) || 1,
+        limit: Number(data.limit) || limit,
+        totalPages: Number(data.totalPages) || 1,
+      };
+
+      cache.set(cacheKey, result, 2 * 60 * 1000);
+      return result;
+    } catch (error) {
+      // If endpoint fails, fall back to getPublicFiltered with client-side discount calculation
+      const fallback = await this.getPublicFiltered({ limit });
+      const products = (fallback.products || []).filter(
+        (p) => (Number(p.originalPrice) || 0) > (Number(p.discountPrice ?? p.price) || 0)
+      );
+      return {
+        products,
+        total: products.length,
+        count: products.length,
+        page: 1,
+        limit,
+        totalPages: 1,
+      };
+    }
+  },
+
+  /**
    * Get filtered products from the backend with all filter params
    * Falls back to getPublicAll if filtered endpoint unavailable
    * @param {Object} filters - { category, minPrice, maxPrice, rating, zoneId, cityId, search, page, limit }

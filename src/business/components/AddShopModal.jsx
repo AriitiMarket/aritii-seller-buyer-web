@@ -167,9 +167,19 @@ const AddShopModal = ({ open, onClose, onCreated }) => {
 
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-gray-700" htmlFor="shop-address">
-              Address *
+              Store & Pickup Address *
             </label>
-            <input id="shop-address" className={inputClass} value={form.address} onChange={set('address')} required />
+            <input
+              id="shop-address"
+              className={inputClass}
+              value={form.address}
+              onChange={set('address')}
+              placeholder="e.g., Bole Medhanialem, Edna Mall 2nd Floor, Shop #204"
+              required
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Orders will be collected from this location by delivery drivers.
+            </p>
           </div>
 
           <div>

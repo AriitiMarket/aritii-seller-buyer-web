@@ -52,7 +52,7 @@ export default function SellerRegistrationPage() {
     const errors = validateSellerApplication(application);
     if (step === 1 && errors.sellerType) return toast.error(errors.sellerType);
     if (step === 2 && (errors.businessName || errors.businessCategory)) return toast.error(errors.businessName || errors.businessCategory);
-    if (step === 3 && errors.city) return toast.error(errors.city);
+    if (step === 3 && (errors.city || errors.address)) return toast.error(errors.city || errors.address);
     if (step === 4 && errors.shopName) return toast.error(errors.shopName);
     return true;
   };

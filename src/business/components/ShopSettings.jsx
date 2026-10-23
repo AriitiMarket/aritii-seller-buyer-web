@@ -146,15 +146,18 @@ const ShopSettings = () => {
         <h2 className="seller-form-section-title">Contact Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="seller-form-group">
-            <label className="seller-form-label">Shop Address</label>
+            <label className="seller-form-label">Shop & Order Pickup Address</label>
             <input
               type="text"
-              placeholder="Enter your shop address"
+              placeholder="e.g., Bole Medhanialem, Edna Mall 2nd Floor, Shop #204"
               value={address ?? ''}
               onChange={(e) => setAddress(e.target.value)}
               className="seller-form-input"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Delivery riders collect customer orders from this address.
+            </p>
           </div>
           <div className="seller-form-group">
             <label className="seller-form-label">Phone Number</label>
