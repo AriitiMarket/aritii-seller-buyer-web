@@ -21,6 +21,7 @@ import { toast } from 'react-toastify'
  */
 
 const LINKS = [
+  { label: 'Dashboard', to: '/my-dashboard', match: ['/my-dashboard'], protected: true },
   { label: 'Products', to: '/products', match: ['/products', '/product/'] },
   { label: 'Shops', to: '/shops', match: ['/shops', '/shop/'] },
   { label: 'Categories', to: '/categories', match: ['/categories', '/category/'] },

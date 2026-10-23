@@ -26,18 +26,21 @@ export const locationService = {
 
   /** Get a single location by ID. */
   async get(id) {
+    if (!id || id === 'undefined' || id === 'null') return null;
     const { data } = await publicApi.get(`/delivery/location/${id}`, { skipAuth: true });
     return data.location;
   },
 
   /** Get children of a location (for dependent dropdowns). */
   async getChildren(parentId) {
+    if (!parentId || parentId === 'undefined' || parentId === 'null') return [];
     const { data } = await publicApi.get(`/delivery/location/${parentId}/children`, { skipAuth: true });
     return data.children || [];
   },
 
   /** Search locations by name. */
   async search(query) {
+    if (!query) return [];
     const { data } = await publicApi.get('/delivery/location/search', {
       params: { q: query },
       skipAuth: true,
@@ -47,6 +50,7 @@ export const locationService = {
 
   /** Find which delivery zone covers a location. */
   async findZone(locationId) {
+    if (!locationId || locationId === 'undefined' || locationId === 'null') return [];
     const { data } = await publicApi.get(`/delivery/zone/location/${locationId}`, { skipAuth: true });
     return data.zones || [];
   },
@@ -55,6 +59,23 @@ export const locationService = {
   async listZones() {
     const { data } = await publicApi.get('/delivery/zone/public', { skipAuth: true });
     return data.zones || [];
+  },
+
+  /** List sectors from commerce service (/sector), optionally filtered by city name. */
+  async listSectors(cityName) {
+    try {
+      const { data } = await publicApi.get('/sector', { skipAuth: true });
+      const allSectors = data.sectors || [];
+      if (!cityName) return allSectors;
+      const normalizedCity = String(cityName).trim().toLowerCase();
+      const filtered = allSectors.filter((s) => {
+        const sCity = String(s.city || '').trim().toLowerCase();
+        return sCity.includes(normalizedCity) || normalizedCity.includes(sCity);
+      });
+      return filtered.length > 0 ? filtered : allSectors;
+    } catch {
+      return [];
+    }
   },
 
   /** Server-calculated checkout fee for a zone and shipment item quantity. */

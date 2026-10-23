@@ -1,17 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import locationService from '@/services/location.service';
 
 /**
  * LocationSelector
  * 
- * Reusable dependent dropdown for selecting from the platform's
- * geographic location hierarchy: Region → City → Area → Sector.
+ * Dependent dropdowns for platform geographic hierarchy and delivery logistics:
+ *   Region / Federal City → City / Town → Sector / Community → Delivery Zone → Port / Hub
  * 
  * Props:
- *   onSelect(location)  — called with { regionId, regionName, cityId, cityName, areaId, areaName, sectorId, sectorName, zoneId }
+ *   onSelect(location)  — called with { regionId, regionName, cityId, cityName, areaId, areaName, sectorId, sectorName, deliveryZoneId, deliveryZoneName, portId, portName }
  *   initialSelection    — pre-fill saved address values for edit mode
  *   className           — additional CSS classes
- *   required            — mark all fields as required (default: true)
+ *   required            — mark required fields (default: true)
  */
 const LocationSelector = ({ onSelect, initialSelection = {}, className = '', required = true }) => {
   const [regions, setRegions] = useState([]);
@@ -35,32 +35,125 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
   const [loadingZones, setLoadingZones] = useState(false);
   const [loadingPorts, setLoadingPorts] = useState(false);
 
-  // Load regions on mount
+  // 1. Load regions & chartered cities on mount via hierarchy
   useEffect(() => {
+    let isMounted = true;
     setLoadingRegions(true);
-    locationService.list({ type: 'region' })
-      .then(setRegions)
-      .catch(console.error)
-      .finally(() => setLoadingRegions(false));
+
+    locationService.getHierarchy()
+      .then((tree) => {
+        if (!isMounted) return;
+        const country = Array.isArray(tree) && tree.length > 0 && tree[0].type === 'country' ? tree[0] : null;
+        const topNodes = country?.children || (Array.isArray(tree) ? tree : []);
+
+        if (topNodes && topNodes.length > 0) {
+          const list = topNodes.map((n) => ({
+            _id: n._id,
+            name: n.name,
+            code: n.code,
+            type: n.type,
+            children: n.children || [],
+          }));
+          setRegions(list);
+
+          // Pre-select region if initialSelection matches or if there's an existing region
+          if (initialSelection.regionId) {
+            setSelectedRegion(initialSelection.regionId);
+          } else if (initialSelection.cityId) {
+            const parent = list.find((r) =>
+              r._id === initialSelection.cityId ||
+              (r.children && r.children.some((c) => c._id === initialSelection.cityId))
+            );
+            if (parent) setSelectedRegion(parent._id);
+          }
+        } else {
+          locationService.list({ status: 'active', limit: 200 })
+            .then((flat) => {
+              if (isMounted) setRegions(Array.isArray(flat) ? flat : []);
+            })
+            .catch(() => {});
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load location hierarchy:', err);
+        locationService.list({ status: 'active', limit: 200 })
+          .then((flat) => {
+            if (isMounted) setRegions(Array.isArray(flat) ? flat : []);
+          })
+          .catch(console.error);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingRegions(false);
+      });
+
+    return () => { isMounted = false; };
   }, []);
 
-  // Load cities when region changes
+  // 2. Load cities when region changes
   useEffect(() => {
     if (!selectedRegion) {
       setCities([]);
       setSelectedCity('');
       return;
     }
-    setLoadingCities(true);
-    locationService.getChildren(selectedRegion)
-      .then(setCities)
-      .catch(console.error)
-      .finally(() => {
-        setLoadingCities(false);
-      });
-  }, [selectedRegion]);
 
-  // Load areas/sub-locations when city changes
+    const regionObj = regions.find((r) => r._id === selectedRegion);
+
+    // If top node is already a city (e.g. Addis Ababa)
+    if (regionObj && regionObj.type === 'city') {
+      const selfCity = [{ _id: regionObj._id, name: regionObj.name, type: 'city' }];
+      setCities(selfCity);
+      setSelectedCity(regionObj._id);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingCities(true);
+
+    locationService.getChildren(selectedRegion)
+      .then((children) => {
+        if (!isMounted) return;
+        const childList = Array.isArray(children) ? children : [];
+        if (childList.length > 0) {
+          setCities(childList);
+          setSelectedCity((curr) => {
+            if (curr && childList.some((c) => c._id === curr)) return curr;
+            if (initialSelection.cityId && childList.some((c) => c._id === initialSelection.cityId)) {
+              return initialSelection.cityId;
+            }
+            return childList.length === 1 ? childList[0]._id : '';
+          });
+        } else if (regionObj?.children && regionObj.children.length > 0) {
+          setCities(regionObj.children);
+          setSelectedCity((curr) => {
+            if (curr && regionObj.children.some((c) => c._id === curr)) return curr;
+            if (initialSelection.cityId && regionObj.children.some((c) => c._id === initialSelection.cityId)) {
+              return initialSelection.cityId;
+            }
+            return regionObj.children.length === 1 ? regionObj.children[0]._id : '';
+          });
+        } else {
+          // Region is itself the city
+          const self = [{ _id: selectedRegion, name: regionObj?.name || 'City', type: 'city' }];
+          setCities(self);
+          setSelectedCity(selectedRegion);
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        if (regionObj?.children && regionObj.children.length > 0) {
+          setCities(regionObj.children);
+          setSelectedCity(regionObj.children[0]._id);
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoadingCities(false);
+      });
+
+    return () => { isMounted = false; };
+  }, [selectedRegion, regions, initialSelection.cityId]);
+
+  // 3. Load areas, sectors, and delivery zones when city changes
   useEffect(() => {
     if (!selectedCity) {
       setAreas([]);
@@ -70,68 +163,92 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
       setZones([]);
       return;
     }
-    setLoadingAreas(true);
-    // Find zones covering the city directly
-    setLoadingZones(true);
-    locationService.findZone(selectedCity)
-      .then((directZones) => {
-        setZones(directZones || []);
-      })
-      .catch(() => setZones([]))
-      .finally(() => setLoadingZones(false));
 
-    locationService.getChildren(selectedCity)
-      .then((children) => {
-        const list = children || [];
-        const areaList = list.filter((c) => c.type === 'area');
-        const otherList = list.filter((c) => c.type !== 'area');
+    const cityObj = cities.find((c) => c._id === selectedCity);
+    const cityName = cityObj?.name || '';
+
+    let isMounted = true;
+    setLoadingAreas(true);
+    setLoadingSectors(true);
+    setLoadingZones(true);
+
+    Promise.all([
+      locationService.getChildren(selectedCity).catch(() => []),
+      locationService.listSectors(cityName).catch(() => []),
+      locationService.findZone(selectedCity).catch(() => []),
+    ])
+      .then(([children, backendSectors, directZones]) => {
+        if (!isMounted) return;
+
+        const childList = Array.isArray(children) ? children : [];
+        const areaList = childList.filter((c) => c.type === 'area');
+        const locationSectors = childList.filter((c) => c.type !== 'area');
         setAreas(areaList);
-        if (areaList.length === 0 && otherList.length > 0) {
-          // Direct sub-locations under city (e.g. sectors / neighborhoods)
-          setSectors(otherList);
+
+        // Merge sectors from commerce /sector (e.g. Harar Sector 1, 2, 3, 4)
+        const combined = [...locationSectors];
+        for (const bs of (backendSectors || [])) {
+          if (!combined.some((s) => s._id === bs._id || s.name === bs.name)) {
+            combined.push({
+              _id: bs._id,
+              name: bs.name,
+              deliveryFee: bs.deliveryFee,
+              estimatedDeliveryTime: bs.estimatedDeliveryTime,
+            });
+          }
+        }
+
+        setSectors(combined);
+
+        // Pre-select sector if matches initial selection or only 1 option
+        setSelectedSector((curr) => {
+          if (curr && combined.some((s) => s._id === curr)) return curr;
+          if (initialSelection.sectorId && combined.some((s) => s._id === initialSelection.sectorId)) {
+            return initialSelection.sectorId;
+          }
+          return combined.length === 1 ? combined[0]._id : '';
+        });
+
+        // Set zones
+        const zoneList = Array.isArray(directZones) && directZones.length > 0 ? directZones : [];
+        if (zoneList.length > 0) {
+          setZones(zoneList);
         } else {
-          setSectors([]);
+          locationService.listZones()
+            .then((all) => {
+              if (isMounted) setZones(Array.isArray(all) ? all : []);
+            })
+            .catch(() => {
+              if (isMounted) setZones([]);
+            });
         }
       })
-      .catch(console.error)
       .finally(() => {
-        setLoadingAreas(false);
+        if (isMounted) {
+          setLoadingAreas(false);
+          setLoadingSectors(false);
+          setLoadingZones(false);
+        }
       });
-  }, [selectedCity]);
 
-  // Load sectors when area changes
-  useEffect(() => {
-    if (!selectedArea) {
-      return;
-    }
-    setLoadingSectors(true);
-    locationService.getChildren(selectedArea)
-      .then((children) => {
-        setSectors(children || []);
-      })
-      .catch(console.error)
-      .finally(() => {
-        setLoadingSectors(false);
-      });
-  }, [selectedArea]);
+    return () => { isMounted = false; };
+  }, [selectedCity, cities, initialSelection.sectorId]);
 
-  // Refine delivery zone when a specific sector is selected
+  // 4. Refine delivery zone when a specific sector is selected
   useEffect(() => {
-    if (!selectedSector) {
-      return;
-    }
-    setLoadingZones(true);
+    if (!selectedSector) return;
+    let isMounted = true;
     locationService.findZone(selectedSector)
       .then((refinedZones) => {
-        if (refinedZones && refinedZones.length > 0) {
+        if (isMounted && refinedZones && refinedZones.length > 0) {
           setZones(refinedZones);
         }
       })
-      .catch(() => {})
-      .finally(() => setLoadingZones(false));
+      .catch(() => {});
+    return () => { isMounted = false; };
   }, [selectedSector]);
 
-  // Automatically update selectedZone when zones list changes
+  // 5. Automatically select zone when zones change
   useEffect(() => {
     if (!zones || zones.length === 0) {
       setSelectedZone('');
@@ -146,7 +263,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
     });
   }, [zones, initialSelection.deliveryZoneId]);
 
-  // Fetch ports whenever selectedZone changes
+  // 6. Fetch ports whenever selectedZone changes
   useEffect(() => {
     if (!selectedZone) {
       setPorts([]);
@@ -155,10 +272,31 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
     }
     let isMounted = true;
     setLoadingPorts(true);
+
     locationService.getPortsByZone(selectedZone)
       .then((data) => {
         if (!isMounted) return;
         const list = Array.isArray(data) ? data : [];
+        if (list.length === 0) {
+          locationService.listPorts({ zoneId: selectedZone })
+            .then((fallback) => {
+              if (!isMounted) return;
+              const portList = Array.isArray(fallback) ? fallback : [];
+              setPorts(portList);
+              setSelectedPort((curr) => {
+                if (curr && portList.some((p) => p._id === curr)) return curr;
+                if (initialSelection.portId && portList.some((p) => p._id === initialSelection.portId)) {
+                  return initialSelection.portId;
+                }
+                return portList.length > 0 ? portList[0]._id : '';
+              });
+            })
+            .catch(() => {
+              if (isMounted) setPorts([]);
+            });
+          return;
+        }
+
         setPorts(list);
         setSelectedPort((current) => {
           if (current && list.some((p) => p._id === current)) return current;
@@ -178,10 +316,11 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
       .finally(() => {
         if (isMounted) setLoadingPorts(false);
       });
+
     return () => { isMounted = false; };
   }, [selectedZone, zones, initialSelection.portId]);
 
-  // Build and emit the selection whenever any dropdown changes
+  // 7. Emit selection to parent whenever any field changes
   const emitSelection = useCallback(() => {
     const regionObj = regions.find((r) => r._id === selectedRegion);
     const cityObj = cities.find((c) => c._id === selectedCity);
@@ -208,7 +347,10 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
       portId: portObj?._id || selectedPort || (zoneObj?.portId ? String(zoneObj.portId) : null),
       portName: portObj?.name || zoneObj?.portName || null,
     });
-  }, [selectedRegion, selectedCity, selectedArea, selectedSector, selectedZone, selectedPort, regions, cities, areas, sectors, zones, ports, onSelect]);
+  }, [
+    selectedRegion, selectedCity, selectedArea, selectedSector, selectedZone, selectedPort,
+    regions, cities, areas, sectors, zones, ports, onSelect
+  ]);
 
   useEffect(() => {
     emitSelection();
@@ -221,10 +363,10 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Region */}
+      {/* Region / Administrative Region */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Region {required && <span className="text-red-500">*</span>}
+          Region / Chartered City {required && <span className="text-red-500">*</span>}
         </label>
         <select
           className={selectClass}
@@ -243,16 +385,16 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
           </option>
           {regions.map((r) => (
             <option key={r._id} value={r._id}>
-              {r.name}
+              {r.name} {r.code ? `(${r.code})` : ''}
             </option>
           ))}
         </select>
       </div>
 
-      {/* City */}
+      {/* City / Town */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          City/Town {required && <span className="text-red-500">*</span>}
+          City / Town {required && <span className="text-red-500">*</span>}
         </label>
         <select
           className={selectClass}
@@ -274,17 +416,17 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
           </option>
           {cities.map((c) => (
             <option key={c._id} value={c._id}>
-              {c.name}
+              {c.name} {c.code ? `(${c.code})` : ''}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Area — rendered when city has area sub-divisions */}
+      {/* Area — optional sub-division if present */}
       {areas.length > 0 && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Area (Optional)
+            Area / Sub-city (Optional)
           </label>
           <select
             className={selectClass}
@@ -305,11 +447,11 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
         </div>
       )}
 
-      {/* Sector — rendered when areas or sectors exist */}
+      {/* Sector / Community */}
       {sectors.length > 0 && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Sector/Community {required && <span className="text-red-500">*</span>}
+            Sector / Delivery District {required && <span className="text-red-500">*</span>}
           </label>
           <select
             className={selectClass}
@@ -321,15 +463,15 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
             <option value="">Select sector</option>
             {sectors.map((s) => (
               <option key={s._id} value={s._id}>
-                {s.name}
+                {s.name} {s.deliveryFee ? `(Fee: ${s.deliveryFee} ETB)` : ''}
               </option>
             ))}
           </select>
         </div>
       )}
 
-      {/* When no sub-divisions exist for the city */}
-      {selectedCity && !hasSubLocations && !loadingAreas && (
+      {/* When no sub-sectors exist for the city */}
+      {selectedCity && !hasSubLocations && !loadingAreas && !loadingSectors && (
         <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 p-2.5 text-xs text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
           <span>✓</span>
           <span>City-wide direct delivery (no sub-sector required)</span>
@@ -363,7 +505,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
           ) : zones.length === 1 ? (
             <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-3 text-sm text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center justify-between">
               <span>
-                Delivery zone: <strong>{zones[0].name}</strong>
+                Delivery zone: <strong>{zones[0].name}</strong> {zones[0].code ? `(${zones[0].code})` : ''}
               </span>
               <span className="text-xs bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded font-medium">
                 Active Zone
@@ -371,7 +513,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
             </div>
           ) : (
             <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-              No active delivery zone covers this location yet. Delivery may be limited.
+              No active delivery zone covers this location yet. Standard dispatch will be used.
             </div>
           )}
         </div>
@@ -381,7 +523,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
       {selectedZone && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Delivery Port / Hub {required && <span className="text-red-500">*</span>}
+            Delivery Port / Pickup Hub {required && <span className="text-red-500">*</span>}
           </label>
           {loadingPorts ? (
             <div className="rounded-lg bg-indigo-50 dark:bg-indigo-950/30 p-3 text-sm text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">

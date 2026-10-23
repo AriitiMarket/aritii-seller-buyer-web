@@ -46,6 +46,11 @@ const BuyerTrackOrderPage = lazy(() => import('@/buyer/pages/OrderTracking'));
 
 export const BuyerRoutes = () => (
   <>
+    {/* Direct dashboard aliases */}
+    <Route path="/dashboard" element={<Navigate to="/my-dashboard" replace />} />
+    <Route path="/buyer" element={<Navigate to="/my-dashboard" replace />} />
+    <Route path="/buyer/dashboard" element={<Navigate to="/my-dashboard" replace />} />
+
     {/* Standalone buyer flows (own chrome, not the dashboard shell) */}
     <Route
       path="/checkout"

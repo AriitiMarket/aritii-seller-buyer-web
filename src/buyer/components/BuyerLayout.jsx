@@ -33,7 +33,7 @@ const BuyerLayout = () => {
       {/* Mobile bottom nav — buyer quick actions (5 items) */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 safe-area-bottom">
         <div className="flex items-center justify-around h-14 px-1">
-          {/* Home */}
+          {/* Dashboard */}
           <Link
             to="/my-dashboard"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
@@ -42,12 +42,12 @@ const BuyerLayout = () => {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={location.pathname === '/my-dashboard' ? 'page' : undefined}
-            aria-label="Home"
+            aria-label="Dashboard"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-4m0 0l4 4m-4-4v4" />
             </svg>
-            <span className="text-[10px] font-medium whitespace-nowrap">Home</span>
+            <span className="text-[10px] font-medium whitespace-nowrap">Dashboard</span>
           </Link>
 
           {/* Products */}
