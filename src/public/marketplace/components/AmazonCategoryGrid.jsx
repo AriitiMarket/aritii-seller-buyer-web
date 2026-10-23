@@ -90,16 +90,18 @@ const AmazonCategoryGrid = () => {
       isRoleCard: true,
       roles: [
         {
+          icon: '🏪',
           title: 'Sell on Aritii',
           desc: 'Open your digital shop with 0% startup fee.',
-          btnText: 'Start Selling',
+          btnText: 'Start Selling Today',
           link: '/seller-center',
           color: 'bg-[#FF9900] hover:bg-[#E68A00]',
         },
         {
+          icon: '🚚',
           title: 'Deliver with Us',
           desc: 'Flexible hours, instant payouts & local routes.',
-          btnText: 'Earn as Driver',
+          btnText: 'Join Delivery Fleet',
           link: '/delivery-center',
           color: 'bg-[#00A8E1] hover:bg-[#0087B8]',
         },
@@ -176,9 +178,12 @@ const AmazonCategoryGrid = () => {
                       key={idx}
                       className="p-3 bg-[#F7F7F7] dark:bg-gray-800/60 rounded-md border border-gray-100 dark:border-gray-800"
                     >
-                      <p className="font-bold text-xs text-[#0F1111] dark:text-white">
-                        {role.title}
-                      </p>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-sm">{role.icon}</span>
+                        <p className="font-bold text-xs text-[#0F1111] dark:text-white">
+                          {role.title}
+                        </p>
+                      </div>
                       <p className="text-[11px] text-[#565959] dark:text-gray-400 mb-2">
                         {role.desc}
                       </p>

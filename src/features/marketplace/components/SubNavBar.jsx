@@ -134,89 +134,146 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
             aria-modal="true"
             aria-label="Browse categories"
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-y-0 left-0 z-[70] flex w-72 max-w-[85vw] flex-col rounded-r-xl border-r border-market-subnav-border bg-market-header shadow-level-3"
+            className="fixed inset-y-0 left-0 z-[70] flex w-80 max-w-[85vw] flex-col rounded-r-2xl border-r border-[#232f3e] bg-[#131921] shadow-2xl"
           >
             {/* Drawer header */}
-            <div className="flex items-center justify-between border-b border-market-subnav-border p-4">
-              <h2 className="text-base font-bold text-white">Browse</h2>
+            <div className="flex items-center justify-between border-b border-[#232f3e] p-4 bg-[#1a222d]">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg bg-[#75d04b]/20 text-[#75d04b] flex items-center justify-center font-bold text-sm">
+                  A
+                </span>
+                <div>
+                  <h2 className="text-sm font-bold text-white leading-tight">All Departments</h2>
+                  <span className="text-[10px] text-[#febd69] font-medium tracking-wide">Marketplace & Delivery</span>
+                </div>
+              </div>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={() => setAllOpen(false)}
-                className="p-1.5 -m-2 text-[#9aa6b2] transition-colors hover:text-white rounded-lg min-h-[44px] min-w-[44px]"
+                className="p-1.5 text-[#9aa6b2] transition-colors hover:text-white rounded-lg min-h-[36px] min-w-[36px]"
                 aria-label="Close browse menu"
               >
-                <AiOutlineClose size={22} />
+                <AiOutlineClose size={20} />
               </button>
             </div>
 
-            {/* Drawer body */}
-            <nav className="flex-1 overflow-y-auto p-4" aria-label="Browse categories and sections">
-              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
-                Shop by department
-              </p>
-              <Link
-                to="/products"
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-market-subnav"
-              >
-                <span className="flex h-[18px] w-[18px] items-center justify-center text-[#febd69]">
-                  <AiOutlineMenu size={16} />
+            {/* Logistics & Ecosystem quick banner */}
+            <div className="px-4 py-3 bg-gradient-to-r from-[#1f2b3e] to-[#131921] border-b border-[#232f3e]">
+              <div className="flex items-center justify-between text-xs text-gray-300">
+                <span className="flex items-center gap-1.5 font-medium text-white">
+                  <span className="w-2 h-2 rounded-full bg-[#75d04b] animate-pulse" />
+                  Fast Door-to-Door Delivery
                 </span>
-                All Products
-              </Link>
-              {loading ? (
-                <div className="space-y-2 px-3 py-2" aria-hidden="true">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-5 w-2/3 rounded bg-market-subnav animate-pulse" />
-                  ))}
-                </div>
-              ) : (
-                categories.map((cat) => {
-                  const name = titleOf(cat);
-                  if (!name) return null;
-                  return (
-                    <Link
-                      key={cat._id || name}
-                      to={`/products?category=${encodeURIComponent(name)}`}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
-                    >
-                      <CategoryIcon title={name} size={18} />
-                      <span className="truncate">{name}</span>
-                      <AiOutlineRight size={13} className="ml-auto flex-shrink-0 text-[#9aa6b2]" />
-                    </Link>
-                  );
-                })
-              )}
-
-              <p className="mt-4 mb-2 px-3 border-t border-market-subnav-border pt-4 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
-                Marketplace
-              </p>
-              {LINKS.map((item) => (
                 <Link
-                  key={item.label}
-                  to={item.to}
-                  className={`block w-full rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-market-subnav hover:text-white ${isActive(item.match) ? 'bg-market-subnav font-semibold text-white' : 'text-[#c9d1d9]'}`}
+                  to="/delivery"
+                  onClick={() => setAllOpen(false)}
+                  className="text-[11px] text-[#febd69] hover:underline font-bold"
                 >
-                  {item.label}
+                  Zones →
                 </Link>
-              ))}
+              </div>
+            </div>
 
-              {/* Portal Links */}
-              <p className="mt-4 mb-2 px-3 border-t border-market-subnav-border pt-4 text-[11px] font-semibold uppercase tracking-wider text-[#9aa6b2]">
-                Other Portals
-              </p>
-              <Link
-                to="/seller-center"
-                className="block w-full rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
-              >
-                🏪 Seller Center
-              </Link>
-              <Link
-                to="/delivery-center"
-                className="block w-full rounded-lg px-3 py-2.5 text-sm text-[#c9d1d9] transition-colors hover:bg-market-subnav hover:text-white"
-              >
-                🚗 Become a Driver
-              </Link>
+            {/* Drawer body */}
+            <nav className="flex-1 overflow-y-auto p-4 space-y-4" aria-label="Browse categories and sections">
+              <div>
+                <p className="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-[#9aa6b2]">
+                  Shop by Department
+                </p>
+                <Link
+                  to="/products"
+                  onClick={() => setAllOpen(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#232f3e]"
+                >
+                  <span className="flex h-7 w-7 rounded-lg bg-[#febd69]/15 items-center justify-center text-[#febd69]">
+                    <AiOutlineMenu size={16} />
+                  </span>
+                  <span>All Products Directory</span>
+                  <AiOutlineRight size={12} className="ml-auto text-[#9aa6b2]" />
+                </Link>
+                {loading ? (
+                  <div className="space-y-2 px-2 py-2" aria-hidden="true">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="h-6 w-3/4 rounded bg-[#232f3e] animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  categories.map((cat) => {
+                    const name = titleOf(cat);
+                    if (!name) return null;
+                    return (
+                      <Link
+                        key={cat._id || name}
+                        to={`/products?category=${encodeURIComponent(name)}`}
+                        onClick={() => setAllOpen(false)}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-[#c9d1d9] transition-colors hover:bg-[#232f3e] hover:text-white"
+                      >
+                        <CategoryIcon title={name} size={16} />
+                        <span className="truncate flex-1 font-medium">{name}</span>
+                        <AiOutlineRight size={12} className="text-[#9aa6b2]" />
+                      </Link>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Programs, Logistics & Portals */}
+              <div className="pt-3 border-t border-[#232f3e]">
+                <p className="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-[#febd69]">
+                  Logistics & Merchant Services
+                </p>
+                <div className="space-y-1">
+                  <Link
+                    to="/seller-center"
+                    onClick={() => setAllOpen(false)}
+                    className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-xs font-medium text-gray-200 transition-colors hover:bg-[#232f3e] hover:text-white"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🏪</span>
+                      <span>Sell on Aritii (Merchant Hub)</span>
+                    </span>
+                    <span className="text-[10px] bg-[#FF9900]/20 text-[#FF9900] px-1.5 py-0.5 rounded font-bold">
+                      0% Fees
+                    </span>
+                  </Link>
+                  <Link
+                    to="/delivery-center"
+                    onClick={() => setAllOpen(false)}
+                    className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-xs font-medium text-gray-200 transition-colors hover:bg-[#232f3e] hover:text-white"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🚚</span>
+                      <span>Deliver with Us (Logistics Network)</span>
+                    </span>
+                    <span className="text-[10px] bg-[#00A8E1]/20 text-[#00A8E1] px-1.5 py-0.5 rounded font-bold">
+                      Daily Payout
+                    </span>
+                  </Link>
+                  <Link
+                    to="/delivery"
+                    onClick={() => setAllOpen(false)}
+                    className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-xs font-medium text-gray-200 transition-colors hover:bg-[#232f3e] hover:text-white"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">📍</span>
+                      <span>Delivery Coverage & Zones</span>
+                    </span>
+                    <AiOutlineRight size={12} className="text-[#9aa6b2]" />
+                  </Link>
+                  <Link
+                    to="/help"
+                    onClick={() => setAllOpen(false)}
+                    className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-xs font-medium text-gray-200 transition-colors hover:bg-[#232f3e] hover:text-white"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🛡️</span>
+                      <span>Buyer Protection & Escrow Help</span>
+                    </span>
+                    <AiOutlineRight size={12} className="text-[#9aa6b2]" />
+                  </Link>
+                </div>
+              </div>
             </nav>
           </div>
         </div>

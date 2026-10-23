@@ -110,6 +110,28 @@ const HeroSection = () => {
             className="w-full"
           />
 
+          {/* Quick trending category & logistics pills */}
+          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-white/70 font-semibold">Trending:</span>
+            <Link to="/products?category=Electronics" className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm transition-colors font-medium">
+              📱 Electronics
+            </Link>
+            <Link to="/products?category=Fashion" className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm transition-colors font-medium">
+              👗 Fashion
+            </Link>
+            <Link to="/products?category=Groceries" className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm transition-colors font-medium">
+              ☕ Coffee & Spices
+            </Link>
+            <Link to="/products?category=Handcrafts" className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm transition-colors font-medium">
+              🎨 Traditional Crafts
+            </Link>
+            <Link to="/deals" className="px-3 py-1 rounded-full bg-[#febd69]/25 hover:bg-[#febd69]/35 text-[#febd69] font-bold backdrop-blur-sm transition-colors">
+              ⚡ Daily Deals
+            </Link>
+            <Link to="/delivery" className="px-3 py-1 rounded-full bg-[#00A8E1]/25 hover:bg-[#00A8E1]/35 text-[#58ccff] font-bold backdrop-blur-sm transition-colors">
+              🚚 Express Delivery
+            </Link>
+          </div>
         </div>
       </div>
 
