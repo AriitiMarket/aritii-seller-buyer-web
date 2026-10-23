@@ -8,7 +8,8 @@ import { buildDestination, isUsableAddress } from "@/shared/utils/destination";
 import { deliveryEta } from "@/shared/utils/deliveryPricing";
 import { useDeliveryLocation } from "@/shared/hooks/useDeliveryLocation";
 import { validateCartForZone } from "@/store/slices/cartThunks";
-import { FiEdit2, FiCheck } from "react-icons/fi";
+import { FiEdit2, FiCheck, FiPlus, FiMapPin, FiX } from "react-icons/fi";
+import LocationSelector from "@/components/common/LocationSelector";
 import PromoCodeInput from "./PromoCodeInput";
 
 const money = (value) =>
@@ -93,6 +94,191 @@ const Checkout = () => {
   const [availablePorts, setAvailablePorts] = useState([]);
   const [loadingAddressZones, setLoadingAddressZones] = useState(false);
   const [loadingPorts, setLoadingPorts] = useState(false);
+
+  // Address selection mode: 'saved' (use existing) or 'new' (create/edit)
+  const [addressMode, setAddressMode] = useState('saved');
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [saveToProfile, setSaveToProfile] = useState(true);
+
+  // Form fields for new / edited address
+  const [newLocationData, setNewLocationData] = useState({
+    regionId: null,
+    regionName: null,
+    cityId: null,
+    cityName: null,
+    areaId: null,
+    areaName: null,
+    sectorId: null,
+    sectorName: null,
+    deliveryZoneId: null,
+    deliveryZoneName: null,
+    portId: null,
+    portName: null,
+  });
+  const [newHouseBuilding, setNewHouseBuilding] = useState('');
+  const [newLandmark, setNewLandmark] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newPhone, setNewPhone] = useState(user?.phone || '');
+  const [newAddressType, setNewAddressType] = useState('Home');
+  const [addressFormErrors, setAddressFormErrors] = useState({});
+
+  const resetAddressForm = () => {
+    setEditingAddressId(null);
+    setNewLocationData({
+      regionId: null,
+      regionName: null,
+      cityId: null,
+      cityName: null,
+      areaId: null,
+      areaName: null,
+      sectorId: null,
+      sectorName: null,
+      deliveryZoneId: null,
+      deliveryZoneName: null,
+      portId: null,
+      portName: null,
+    });
+    setNewHouseBuilding('');
+    setNewLandmark('');
+    setNewDescription('');
+    setNewPhone(user?.phone || '');
+    setNewAddressType('Home');
+    setAddressFormErrors({});
+  };
+
+  const handleStartCreateNew = () => {
+    resetAddressForm();
+    setAddressMode('new');
+  };
+
+  const handleStartEdit = (address) => {
+    setEditingAddressId(address._id);
+    setNewLocationData({
+      regionId: address.regionId || null,
+      regionName: address.regionName || address.country || null,
+      cityId: address.cityId || null,
+      cityName: address.cityName || address.city || null,
+      areaId: address.areaId || null,
+      areaName: address.areaName || null,
+      sectorId: address.sectorId || null,
+      sectorName: address.sectorName || null,
+      deliveryZoneId: address.deliveryZoneId || null,
+      deliveryZoneName: address.deliveryZoneName || null,
+      portId: address.portId || null,
+      portName: address.portName || null,
+    });
+    setNewHouseBuilding(address.houseBuilding || '');
+    setNewLandmark(address.landmark || '');
+    setNewDescription(address.description || address.address1 || '');
+    setNewPhone(address.phone || user?.phone || '');
+    setNewAddressType(address.addressType || address.label || 'Home');
+    setAddressFormErrors({});
+    setAddressMode('new');
+  };
+
+  const handleCancelNewAddress = () => {
+    resetAddressForm();
+    if (addresses.length > 0) {
+      setAddressMode('saved');
+    }
+  };
+
+  const handleSaveAddressForm = async (e) => {
+    if (e) e.preventDefault();
+    const errors = {};
+    if (!newLocationData.sectorId && !newLocationData.cityId) {
+      errors.location = "Please select your location (City/Area/Sector)";
+    }
+    const digits = String(newPhone || '').replace(/[^\d]/g, '');
+    if (!digits) {
+      errors.phone = "Phone number is required for the delivery rider";
+    } else if (digits.length < 9 || digits.length > 15) {
+      errors.phone = "Please enter a valid phone number (9-15 digits)";
+    }
+    if (!newHouseBuilding?.trim() && !newLandmark?.trim() && !newDescription?.trim()) {
+      errors.address = "Please provide house/building number or street address";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setAddressFormErrors(errors);
+      toast.error("Please fill in the required address fields");
+      return;
+    }
+
+    setAddressFormErrors({});
+    setSavingAddress(true);
+
+    const effectiveSectorId = newLocationData.sectorId || newLocationData.cityId || null;
+    const effectiveSectorName = newLocationData.sectorName || newLocationData.cityName || '';
+    const fullAddress1 = [newHouseBuilding, newLandmark, newDescription].filter(Boolean).join(', ');
+
+    const addressPayload = {
+      regionId: newLocationData.regionId,
+      regionName: newLocationData.regionName,
+      cityId: newLocationData.cityId,
+      cityName: newLocationData.cityName,
+      areaId: newLocationData.areaId,
+      areaName: newLocationData.areaName,
+      sectorId: effectiveSectorId,
+      sectorName: effectiveSectorName,
+      deliveryZoneId: newLocationData.deliveryZoneId || orderZoneId,
+      deliveryZoneName: newLocationData.deliveryZoneName || orderZoneName,
+      portId: newLocationData.portId || orderPortId || null,
+      portName: newLocationData.portName || orderPortName || '',
+      houseBuilding: newHouseBuilding.trim(),
+      landmark: newLandmark.trim(),
+      description: newDescription.trim(),
+      phone: newPhone.trim(),
+      country: newLocationData.regionName || '',
+      city: newLocationData.cityName || '',
+      address1: fullAddress1,
+      address2: '',
+      zipCode: '',
+      addressType: newAddressType,
+      label: newAddressType,
+      isDefault: addresses.length === 0,
+    };
+
+    try {
+      let saved = null;
+      if (saveToProfile) {
+        if (editingAddressId) {
+          await addressService.update(editingAddressId, addressPayload);
+          saved = { ...addressPayload, _id: editingAddressId };
+          setAddresses((prev) => prev.map((a) => (a._id === editingAddressId ? saved : a)));
+          toast.success("Delivery address updated successfully!");
+        } else {
+          const created = await addressService.add(addressPayload);
+          saved = created || { ...addressPayload, _id: `addr_${Date.now()}` };
+          setAddresses((prev) => [...prev, saved]);
+          toast.success("New address added and selected!");
+        }
+      } else {
+        saved = { ...addressPayload, _id: `temp_${Date.now()}` };
+        setAddresses((prev) => [...prev, saved]);
+        toast.success("Address configured for this order!");
+      }
+
+      if (saved && saved._id) {
+        setSelectedAddressId(saved._id);
+      }
+      if (saved.deliveryZoneId) {
+        setOrderZoneId(saved.deliveryZoneId);
+        setOrderZoneName(saved.deliveryZoneName || '');
+      }
+      if (saved.portId) {
+        setOrderPortId(saved.portId);
+        setOrderPortName(saved.portName || '');
+      }
+      resetAddressForm();
+      setAddressMode('saved');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err.message || "Failed to save address");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -289,11 +475,21 @@ const Checkout = () => {
       .getAll()
       .then((list) => {
         if (!active) return;
-        setAddresses(list);
-        if (list.length === 1) setSelectedAddressId(list[0]._id);
+        const validList = Array.isArray(list) ? list : [];
+        setAddresses(validList);
+        if (validList.length === 0) {
+          setAddressMode('new');
+        } else {
+          setAddressMode('saved');
+          const defaultAddr = validList.find((a) => a.isDefault && isUsableAddress(a)) || validList.find(isUsableAddress) || validList[0];
+          if (defaultAddr) setSelectedAddressId(defaultAddr._id);
+        }
       })
       .catch(() => {
-        if (active) setAddresses([]);
+        if (active) {
+          setAddresses([]);
+          setAddressMode('new');
+        }
       })
       .finally(() => {
         if (active) setLoadingAddresses(false);
@@ -387,13 +583,18 @@ const Checkout = () => {
       }
     }
 
+    if (fulfilmentType === 'delivery' && addressMode === 'new') {
+      toast.error("Please click 'Save & Use This Address' to confirm your delivery address before proceeding.");
+      return;
+    }
+
     if (fulfilmentType === 'delivery' && !selectedAddress) {
-      toast.error("Please choose your delivery address!");
+      toast.error("Please choose or add your delivery address!");
       return;
     }
     if (fulfilmentType === 'delivery' && !isUsableAddress(selectedAddress)) {
       toast.error(
-        "That address has no delivery sector or contact phone. Please update it on your Addresses page."
+        "That address has no delivery sector or contact phone. Click 'Edit' to update it, or add a new address."
       );
       return;
     }
@@ -484,107 +685,397 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* Saved Addresses */}
+              {/* Address Selection: Use Existing Address vs Create New Address */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-market-on-surface">Select Delivery Address</h4>
-                  <Link
-                    to="/my-dashboard/addresses"
-                    className="text-xs font-semibold text-market-secondary hover:text-market-secondary-hover flex items-center gap-1"
-                  >
-                    <FiEdit2 size={14} /> Add new address
-                  </Link>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-market-border">
+                  <div className="flex items-center p-1 bg-gray-100 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (addresses.length > 0) {
+                          setAddressMode('saved');
+                          setEditingAddressId(null);
+                        } else {
+                          toast.info("No saved addresses yet. Please create one below.");
+                        }
+                      }}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold transition ${
+                        addressMode === 'saved'
+                          ? 'bg-white text-market-on-surface shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <FiMapPin size={14} className={addressMode === 'saved' ? 'text-market-primary' : ''} />
+                      <span>Use Existing Address</span>
+                      {addresses.length > 0 && (
+                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                          addressMode === 'saved'
+                            ? 'bg-market-primary/10 text-market-primary'
+                            : 'bg-gray-200 text-gray-700'
+                        }`}>
+                          {addresses.length}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleStartCreateNew}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold transition ${
+                        addressMode === 'new' && !editingAddressId
+                          ? 'bg-white text-market-on-surface shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <FiPlus size={14} className={addressMode === 'new' && !editingAddressId ? 'text-market-primary' : ''} />
+                      <span>Create New Address</span>
+                    </button>
+                  </div>
+
+                  {addressMode === 'saved' && addresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleStartCreateNew}
+                      className="text-xs font-semibold text-market-secondary hover:text-market-secondary-hover flex items-center gap-1"
+                    >
+                      <FiPlus size={14} /> Add new address
+                    </button>
+                  )}
                 </div>
 
                 {loadingAddresses && (
-                  <p className="text-sm text-market-on-surface-variant">Loading your addresses...</p>
-                )}
-
-                {!loadingAddresses && addresses.length === 0 && (
-                  <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
-                    <p className="text-sm text-amber-800">
-                      You have no saved delivery address. Add one to continue checkout.
-                    </p>
-                    <Link
-                      to="/my-dashboard/addresses"
-                      className="inline-block mt-3 text-sm font-semibold text-market-secondary hover:text-market-secondary-hover"
-                    >
-                      Add a delivery address
-                    </Link>
+                  <div className="py-6 text-center">
+                    <div className="animate-spin inline-block w-6 h-6 border-2 border-market-secondary border-t-transparent rounded-full mb-2" />
+                    <p className="text-sm text-market-on-surface-variant">Loading your addresses...</p>
                   </div>
                 )}
 
-                {!loadingAddresses && addresses.length > 0 && (
-                  <div className="space-y-3">
-                    {addresses.map((item) => {
-                      const selectable = Boolean(item.sectorId && item.phone);
-                      return (
-                        <label
-                          key={item._id}
-                          className={`flex items-start p-4 border rounded-lg cursor-pointer transition ${
-                            selectedAddressId === item._id
-                              ? 'border-market-secondary bg-market-secondary/5'
-                              : selectable
-                              ? 'border-market-border hover:bg-market-surface-dim'
-                              : 'border-amber-200 bg-amber-50'
-                          }`}
+                {/* MODE 1: Use Existing Address */}
+                {!loadingAddresses && addressMode === 'saved' && (
+                  <div>
+                    {addresses.length === 0 ? (
+                      <div className="border border-blue-200 bg-blue-50/60 rounded-xl p-5 text-center">
+                        <FiMapPin className="w-8 h-8 mx-auto text-blue-500 mb-2" />
+                        <h4 className="text-sm font-bold text-blue-900 mb-1">No Saved Delivery Address</h4>
+                        <p className="text-xs text-blue-700 max-w-sm mx-auto mb-4">
+                          You haven't saved any delivery address yet. Create a new address below to continue your order.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateNew}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-market-primary text-market-on-primary rounded-lg text-xs font-semibold hover:opacity-90 transition shadow-sm"
                         >
-                          <div className="mt-1">
-                            <input
-                              type="radio"
-                              name="saved-address"
-                              className="w-5 h-5 text-market-secondary"
-                              checked={selectedAddressId === item._id}
-                              disabled={!selectable}
-                              onChange={() => setSelectedAddressId(item._id)}
-                            />
-                          </div>
-                          <div className="ml-4 flex-1">
-                            <p className="text-sm font-semibold text-market-on-surface">
-                              {item.addressType || "Delivery Address"}
-                            </p>
-                            <p className="text-sm text-market-on-surface-variant mt-1">{item.address1}</p>
-                            <p className="text-xs text-market-on-surface-variant mt-1">
-                              {[
-                                item.sectorName,
-                                item.cityName || item.city,
-                                item.regionName || item.country,
-                              ]
-                                .filter(Boolean)
-                                .join(", ")}
-                            </p>
-                            {item.phone && (
-                              <p className="text-xs text-market-on-surface-variant mt-1">
-                                Phone: {item.phone}
-                              </p>
-                            )}
-                            {(item.deliveryZoneName || item.portName) && (
-                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                {item.deliveryZoneName && (
-                                  <span className="text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">
-                                    Zone: {item.deliveryZoneName}
-                                  </span>
+                          <FiPlus size={14} /> Create Delivery Address
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {addresses.map((item) => {
+                          const selectable = Boolean(item.sectorId && item.phone);
+                          const isSelected = selectedAddressId === item._id;
+                          return (
+                            <div
+                              key={item._id}
+                              onClick={() => {
+                                if (selectable) setSelectedAddressId(item._id);
+                              }}
+                              className={`flex items-start p-4 border rounded-xl cursor-pointer transition ${
+                                isSelected
+                                  ? 'border-market-secondary bg-market-secondary/5 ring-1 ring-market-secondary'
+                                  : selectable
+                                  ? 'border-market-border hover:bg-market-surface-dim'
+                                  : 'border-amber-200 bg-amber-50/70'
+                              }`}
+                            >
+                              <div className="mt-1">
+                                <input
+                                  type="radio"
+                                  name="saved-address"
+                                  className="w-5 h-5 text-market-secondary cursor-pointer"
+                                  checked={isSelected}
+                                  disabled={!selectable}
+                                  onChange={() => setSelectedAddressId(item._id)}
+                                />
+                              </div>
+                              <div className="ml-4 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                                      {item.addressType || item.label || "Address"}
+                                    </span>
+                                    {item.isDefault && (
+                                      <span className="text-[10px] font-semibold text-market-secondary bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
+                                        Default
+                                      </span>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleStartEdit(item);
+                                    }}
+                                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition text-xs font-medium flex items-center gap-1"
+                                    title="Edit Address"
+                                  >
+                                    <FiEdit2 size={13} />
+                                    <span>Edit</span>
+                                  </button>
+                                </div>
+
+                                <p className="text-sm font-medium text-market-on-surface mt-1.5">
+                                  {item.address1 || item.houseBuilding || "Street address"}
+                                </p>
+                                <p className="text-xs text-market-on-surface-variant mt-0.5">
+                                  {[
+                                    item.sectorName,
+                                    item.areaName,
+                                    item.cityName || item.city,
+                                    item.regionName || item.country,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </p>
+                                {item.phone && (
+                                  <p className="text-xs text-gray-600 mt-1 font-mono">
+                                    📞 {item.phone}
+                                  </p>
                                 )}
-                                {item.portName && (
-                                  <span className="text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded">
-                                    Port: {item.portName}
-                                  </span>
+
+                                {(item.deliveryZoneName || item.portName) && (
+                                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                    {item.deliveryZoneName && (
+                                      <span className="text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">
+                                        📍 Zone: {item.deliveryZoneName}
+                                      </span>
+                                    )}
+                                    {item.portName && (
+                                      <span className="text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded">
+                                        ⚓ Port: {item.portName}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+
+                                {!selectable && (
+                                  <div className="mt-2 flex items-center justify-between text-xs text-amber-800 bg-amber-100/70 px-2.5 py-1.5 rounded-lg">
+                                    <span>⚠ Missing delivery sector or phone number</span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStartEdit(item);
+                                      }}
+                                      className="font-bold underline text-amber-900 ml-2"
+                                    >
+                                      Fix now
+                                    </button>
+                                  </div>
                                 )}
                               </div>
-                            )}
-                            {!selectable && (
-                              <p className="text-xs text-amber-700 mt-2 font-medium">
-                                ⚠ Missing delivery sector or phone - please update
-                              </p>
-                            )}
-                          </div>
-                          {selectedAddressId === item._id && selectable && (
-                            <FiCheck className="w-5 h-5 text-market-secondary flex-shrink-0 mt-1" />
-                          )}
-                        </label>
-                      );
-                    })}
+
+                              {isSelected && selectable && (
+                                <FiCheck className="w-5 h-5 text-market-secondary flex-shrink-0 mt-1 ml-2" />
+                              )}
+                            </div>
+                          );
+                        })}
+
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={handleStartCreateNew}
+                            className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 rounded-xl text-xs font-semibold text-gray-600 hover:text-market-primary hover:border-market-primary hover:bg-market-primary/5 transition flex items-center justify-center gap-2"
+                          >
+                            <FiPlus size={16} /> Deliver to a new address
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
+
+                {/* MODE 2: Create New / Edit Address Form */}
+                {!loadingAddresses && addressMode === 'new' && (
+                  <form onSubmit={handleSaveAddressForm} className="border border-market-border rounded-xl p-5 bg-gray-50/50 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-market-border">
+                      <div>
+                        <h4 className="font-bold text-market-on-surface text-sm">
+                          {editingAddressId ? 'Edit Delivery Address' : 'Create New Delivery Address'}
+                        </h4>
+                        <p className="text-xs text-market-on-surface-variant mt-0.5">
+                          Enter your delivery location and contact phone number.
+                        </p>
+                      </div>
+                      {addresses.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleCancelNewAddress}
+                          className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition"
+                          title="Cancel"
+                        >
+                          <FiX size={18} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Geographic Location Selector */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Location / Administrative Area <span className="text-red-500">*</span>
+                      </label>
+                      <LocationSelector
+                        initialSelection={newLocationData}
+                        onSelect={(loc) => {
+                          setNewLocationData((prev) => ({
+                            ...prev,
+                            ...loc,
+                          }));
+                          if (loc.deliveryZoneId) {
+                            setOrderZoneId(loc.deliveryZoneId);
+                            setOrderZoneName(loc.deliveryZoneName || '');
+                          }
+                          if (loc.portId) {
+                            setOrderPortId(loc.portId);
+                            setOrderPortName(loc.portName || '');
+                          }
+                        }}
+                        required
+                      />
+                      {addressFormErrors.location && (
+                        <p className="text-xs text-red-600 mt-1">{addressFormErrors.location}</p>
+                      )}
+                    </div>
+
+                    {/* House / Building & Landmark */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                          House / Building / Apartment <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={newHouseBuilding}
+                          onChange={(e) => setNewHouseBuilding(e.target.value)}
+                          placeholder="e.g. House No. 24, Apt 3B"
+                          className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                          Street / Landmark
+                        </label>
+                        <input
+                          type="text"
+                          value={newLandmark}
+                          onChange={(e) => setNewLandmark(e.target.value)}
+                          placeholder="e.g. Behind Edna Mall, near CBE"
+                          className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Additional Delivery Notes */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Directions / Address Notes (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={newDescription}
+                        onChange={(e) => setNewDescription(e.target.value)}
+                        placeholder="e.g. Blue gate on the left corner"
+                        className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary"
+                      />
+                      {addressFormErrors.address && (
+                        <p className="text-xs text-red-600 mt-1">{addressFormErrors.address}</p>
+                      )}
+                    </div>
+
+                    {/* Contact Phone & Address Type */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                          Rider Contact Phone <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={newPhone}
+                          onChange={(e) => setNewPhone(e.target.value)}
+                          placeholder="e.g. +251 91 123 4567"
+                          className="w-full px-3 py-2 border border-market-border rounded-lg text-sm bg-white focus:outline-none focus:border-market-secondary focus:ring-1 focus:ring-market-secondary font-mono"
+                        />
+                        {addressFormErrors.phone && (
+                          <p className="text-xs text-red-600 mt-1">{addressFormErrors.phone}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                          Address Label
+                        </label>
+                        <div className="flex gap-2">
+                          {['Home', 'Office', 'Other'].map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setNewAddressType(type)}
+                              className={`flex-1 py-2 text-xs font-semibold rounded-lg border transition ${
+                                newAddressType === type
+                                  ? 'border-market-primary bg-market-primary/10 text-market-primary'
+                                  : 'border-market-border bg-white text-gray-700 hover:bg-gray-50'
+                              }`}
+                            >
+                              {type === 'Home' ? '🏠 Home' : type === 'Office' ? '🏢 Office' : '📍 Other'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save to Profile Checkbox */}
+                    <div className="pt-2">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-700 select-none">
+                        <input
+                          type="checkbox"
+                          checked={saveToProfile}
+                          onChange={(e) => setSaveToProfile(e.target.checked)}
+                          className="rounded text-market-secondary focus:ring-market-secondary w-4 h-4"
+                        />
+                        <span>Save this address to my profile for future orders</span>
+                      </label>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-market-border">
+                      {addresses.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleCancelNewAddress}
+                          className="px-4 py-2 border border-market-border rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-100 transition"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={savingAddress}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-market-primary text-market-on-primary rounded-lg text-xs font-bold hover:bg-market-primary-hover active:bg-market-primary-pressed transition shadow-sm disabled:opacity-50"
+                      >
+                        {savingAddress ? (
+                          <>
+                            <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
+                            <span>Saving address...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiCheck size={14} />
+                            <span>{editingAddressId ? 'Save & Update Address' : 'Save & Use This Address'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
                 )}
               </div>
 
