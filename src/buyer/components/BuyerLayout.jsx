@@ -103,13 +103,17 @@ const BuyerLayout = () => {
 
           {/* Account */}
           <Link
-            to="/my-dashboard/profile"
+            to="/my-dashboard/settings"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
-              location.pathname === '/my-dashboard/profile'
+              location.pathname === '/my-dashboard/profile' || location.pathname === '/my-dashboard/settings'
                 ? 'text-[#75d04b]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
-            aria-current={location.pathname === '/my-dashboard/profile' ? 'page' : undefined}
+            aria-current={
+              location.pathname === '/my-dashboard/profile' || location.pathname === '/my-dashboard/settings'
+                ? 'page'
+                : undefined
+            }
             aria-label="Account"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
