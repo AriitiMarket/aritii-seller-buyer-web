@@ -35,12 +35,26 @@ export function DeliveryZoneSelector({
     let isMounted = true;
     setLoading(true);
     locationService
-      .list({ type: 'region', status: 'active', limit: 200 })
-      .then((data) => {
-        if (isMounted) setRegions(Array.isArray(data) ? data : []);
+      .getHierarchy()
+      .then((tree) => {
+        if (!isMounted) return;
+        const country = Array.isArray(tree) && tree.length > 0 && tree[0].type === 'country' ? tree[0] : null;
+        const topNodes = country?.children || (Array.isArray(tree) ? tree : []);
+        if (topNodes && topNodes.length > 0) {
+          setRegions(topNodes);
+        } else {
+          locationService.list({ status: 'active', limit: 200 }).then((data) => {
+            if (isMounted) setRegions(Array.isArray(data) ? data : []);
+          });
+        }
       })
-      .catch((err) => {
-        if (isMounted) console.error('Failed to load regions:', err);
+      .catch(() => {
+        locationService
+          .list({ status: 'active', limit: 200 })
+          .then((data) => {
+            if (isMounted) setRegions(Array.isArray(data) ? data : []);
+          })
+          .catch(console.error);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -54,19 +68,35 @@ export function DeliveryZoneSelector({
       setZones([]); setSelectedZoneId(''); setSelectedZoneName('');
       return;
     }
+    const regionObj = regions.find((r) => String(r._id || r.id) === String(selectedRegionId));
+    if (regionObj && regionObj.type === 'city') {
+      const selfCity = [{ _id: regionObj._id, name: regionObj.name, type: 'city' }];
+      setCities(selfCity);
+      setSelectedCityId(String(regionObj._id));
+      setSelectedCityName(regionObj.name);
+      return;
+    }
     let isMounted = true;
     setCityLoading(true);
     locationService
-      .list({ type: 'city', parentId: selectedRegionId, status: 'active', limit: 200 })
+      .getChildren(selectedRegionId)
       .then((data) => {
-        if (isMounted) setCities(Array.isArray(data) ? data : []);
+        if (!isMounted) return;
+        const list = Array.isArray(data) ? data : [];
+        if (list.length > 0) {
+          setCities(list);
+        } else if (regionObj?.children && regionObj.children.length > 0) {
+          setCities(regionObj.children);
+        } else {
+          setCities([{ _id: selectedRegionId, name: regionObj?.name || 'City', type: 'city' }]);
+        }
       })
       .catch((err) => {
         if (isMounted) console.error('Failed to load cities:', err);
       })
       .finally(() => { if (isMounted) setCityLoading(false); });
     return () => { isMounted = false; };
-  }, [selectedRegionId, mode]);
+  }, [selectedRegionId, regions, mode]);
 
   useEffect(() => {
     if (!selectedCityId) {
@@ -75,9 +105,17 @@ export function DeliveryZoneSelector({
     let isMounted = true;
     setZoneLoading(true);
     locationService
-      .list({ type: 'zone', parentId: selectedCityId, status: 'active', limit: 200 })
+      .findZone(selectedCityId)
       .then((data) => {
-        if (isMounted) setZones(Array.isArray(data) ? data : []);
+        if (!isMounted) return;
+        const list = Array.isArray(data) && data.length > 0 ? data : [];
+        if (list.length > 0) {
+          setZones(list);
+        } else {
+          locationService.listZones().then((all) => {
+            if (isMounted) setZones(Array.isArray(all) ? all : []);
+          });
+        }
       })
       .catch((err) => {
         if (isMounted) console.error('Failed to load zones:', err);
