@@ -13,6 +13,7 @@ import { LoginModalRedirect } from '@/auth/components/GlobalLoginModal';
  */
 const SignUpPage = lazy(() => import('@/auth/pages/SignUpPage'));
 const ForgotPasswordPage = lazy(() => import('@/auth/pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/auth/pages/ResetPasswordPage'));
 const ContactPage = lazy(() => import('@/auth/pages/ContactPage'));
 const CreateShopPage = lazy(() => import('@/auth/pages/CreateShopPage'));
 const SellerRegistrationPage = lazy(() => import('@/seller-registration/pages/SellerRegistrationPage'));
@@ -25,6 +26,7 @@ export const AuthRoutes = () => (
     <Route path="/seller-login" element={<LoginModalRedirect role="SELLER" />} />
     <Route path="/delivery-login" element={<LoginModalRedirect role="PROVIDER" />} />
     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/contact" element={<ContactPage />} />
     <Route path="/sign-up" element={<SignUpPage />} />
     <Route path="/seller-sign-up" element={<SignUpPage registrationType="SELLER" />} />

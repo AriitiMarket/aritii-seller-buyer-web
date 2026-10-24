@@ -358,6 +358,32 @@ export const authService = {
     });
     return (data.data || data).user || data.user || null;
   },
+
+  async forgotPassword(email) {
+    const { data } = await api.post(
+      '/auth/forgot-password',
+      { email, clientType: 'web' },
+      { skipAuth: true }
+    );
+    return data.data || data;
+  },
+
+  async verifyResetToken(token) {
+    const { data } = await api.get('/auth/verify-reset-token', {
+      params: { token },
+      skipAuth: true,
+    });
+    return data.data || data;
+  },
+
+  async resetPassword({ token, newPassword, confirmPassword }) {
+    const { data } = await api.post(
+      '/auth/reset-password',
+      { token, newPassword, confirmPassword },
+      { skipAuth: true }
+    );
+    return data.data || data;
+  },
 };
 
 export default authService;
