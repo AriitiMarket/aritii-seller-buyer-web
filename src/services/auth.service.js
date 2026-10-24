@@ -311,6 +311,7 @@ export const authService = {
    * Switch which actor role this session acts as.
    *
    * One account can hold several roles (buyer + seller + provider). The server
+   * 
    * re-mints the access token with the chosen role; the rotating refresh token is
    * deliberately kept, and the choice is persisted server-side so it survives
    * rotation. Only roles the account already holds are accepted.
@@ -356,6 +357,32 @@ export const authService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return (data.data || data).user || data.user || null;
+  },
+
+  async forgotPassword(email) {
+    const { data } = await api.post(
+      '/auth/forgot-password',
+      { email, clientType: 'web' },
+      { skipAuth: true }
+    );
+    return data.data || data;
+  },
+
+  async verifyResetToken(token) {
+    const { data } = await api.get('/auth/verify-reset-token', {
+      params: { token },
+      skipAuth: true,
+    });
+    return data.data || data;
+  },
+
+  async resetPassword({ token, newPassword, confirmPassword }) {
+    const { data } = await api.post(
+      '/auth/reset-password',
+      { token, newPassword, confirmPassword },
+      { skipAuth: true }
+    );
+    return data.data || data;
   },
 };
 
