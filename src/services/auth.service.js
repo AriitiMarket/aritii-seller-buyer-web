@@ -340,7 +340,11 @@ export const authService = {
 
   async updateProfile(userData) {
     const { data } = await api.put('/user/update-user-info', userData);
-    return (data.data || data).user || data.user || null;
+    const updatedUser = (data.data || data).user || data.user || null;
+    if (updatedUser) {
+      tokenStore.setUser(updatedUser);
+    }
+    return updatedUser;
   },
 
   async changePassword({ oldPassword, newPassword, confirmPassword }) {

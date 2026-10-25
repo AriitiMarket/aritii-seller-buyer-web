@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import authService from '@/services/auth.service'
 import { toast } from 'react-toastify'
@@ -65,7 +65,7 @@ const BuyerSettingsPage = () => {
         {/* Active Section */}
         {activeSection === 'account' && <AccountSection user={user} />}
         {activeSection === 'business' && hasSeller && <BusinessSection seller={seller || user} />}
-        {activeSection === 'notifications' && <NotificationsSection />}
+        {activeSection === 'notifications' && <NotificationsSection user={user} />}
         {activeSection === 'security' && <SecuritySection />}
       </div>
     </div>
@@ -94,27 +94,57 @@ const SettingsNavItem = ({ icon: Icon, label, description, active, onClick, badg
 )
 
 const AccountSection = ({ user }) => {
+  const dispatch = useDispatch()
   const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [phone, setPhone] = useState(user?.phoneNumber || '')
 
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '')
+      setEmail(user.email || '')
+      setPhone(user.phoneNumber || '')
+    }
+  }, [user])
+
   const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error('Name cannot be empty')
+      return
+    }
+    setSaving(true)
     try {
-      await authService.updateProfile({ name, email, phoneNumber: phone })
+      const updatedUser = await authService.updateProfile({ name: name.trim(), email: email.trim(), phoneNumber: phone.trim() })
+      const mergedUser = { ...user, ...(updatedUser || {}), name: name.trim(), email: email.trim(), phoneNumber: phone.trim() }
+      dispatch({ type: 'updateUserInfoSuccess', payload: mergedUser })
+      dispatch({ type: 'LoadUserSuccess', payload: mergedUser })
       toast.success('Profile updated successfully')
       setEditing(false)
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update profile')
+      toast.error(err.response?.data?.message || err?.message || 'Failed to update profile')
+    } finally {
+      setSaving(false)
     }
+  }
+
+  const handleCancel = () => {
+    setName(user?.name || '')
+    setEmail(user?.email || '')
+    setPhone(user?.phoneNumber || '')
+    setEditing(false)
   }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-base font-bold text-market-on-surface">Personal Account</h2>
+        <div>
+          <h2 className="text-base font-bold text-market-on-surface">Personal Account</h2>
+          <p className="text-xs text-market-on-surface-variant mt-0.5">Manage your personal details</p>
+        </div>
         {!editing && (
-          <button onClick={() => setEditing(true)} className="text-sm font-semibold text-market-secondary hover:text-market-secondary-hover transition px-3 py-1.5 rounded-full ">
+          <button onClick={() => setEditing(true)} className="text-sm font-semibold text-market-secondary hover:text-market-secondary-hover transition px-3 py-1.5 rounded-full hover:bg-market-surface-dim">
             Edit
           </button>
         )}
@@ -137,8 +167,12 @@ const AccountSection = ({ user }) => {
         </div>
         {editing && (
           <div className="flex gap-3 pt-2">
-            <button onClick={handleSave} className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition">Save Changes</button>
-            <button onClick={() => setEditing(false)} className="px-5 py-2.5 border border-market-border text-market-on-surface rounded-xl text-sm font-semibold hover:bg-market-surface-dim transition">Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="px-5 py-2.5 bg-market-primary text-market-on-primary rounded text-sm font-semibold hover:bg-market-primary-hover transition disabled:opacity-50">
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button onClick={handleCancel} disabled={saving} className="px-5 py-2.5 border border-market-border text-market-on-surface rounded-xl text-sm font-semibold hover:bg-market-surface-dim transition">
+              Cancel
+            </button>
           </div>
         )}
       </div>
@@ -200,26 +234,67 @@ const BusinessSection = ({ seller }) => {
   )
 }
 
-const NotificationsSection = () => (
-  <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
-    <h2 className="text-base font-bold text-market-on-surface mb-5">Notifications</h2>
-    <div className="space-y-1">
-      {[
-        { label: 'Order updates', desc: 'Receive notifications about your orders', default: true },
-        { label: 'Promotions', desc: 'Get notified about sales and deals', default: false },
-        { label: 'New products', desc: 'Alerts when new products match your interests', default: false },
-      ].map((item) => (
-        <label key={item.label} className="flex items-center justify-between p-3 rounded-xl hover:bg-market-surface-dim transition cursor-pointer">
-          <div>
-            <p className="text-sm font-semibold text-market-on-surface">{item.label}</p>
-            <p className="text-xs text-market-on-surface-variant">{item.desc}</p>
-          </div>
-          <input type="checkbox" defaultChecked={item.default} className="w-4 h-4 text-market-secondary rounded border-market-border focus:ring-market-secondary" />
-        </label>
-      ))}
+const NotificationsSection = ({ user }) => {
+  const storageKey = `aritii_buyer_notifs_${user?.id || 'default'}`
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) return JSON.parse(saved)
+    } catch (_) {}
+    return {
+      orderUpdates: true,
+      promotions: false,
+      newProducts: true,
+      securityAlerts: true,
+    }
+  })
+
+  const togglePreference = (key) => {
+    const next = { ...preferences, [key]: !preferences[key] }
+    setPreferences(next)
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next))
+      toast.success('Notification preferences updated', { autoClose: 1500 })
+    } catch (_) {}
+  }
+
+  const items = [
+    { key: 'orderUpdates', label: 'Order updates', desc: 'Receive real-time notifications about your orders and delivery tracking' },
+    { key: 'promotions', label: 'Promotions & Deals', desc: 'Get notified about limited-time sales, vouchers, and discounts' },
+    { key: 'newProducts', label: 'New products', desc: 'Alerts when newly arrived products match your interests' },
+    { key: 'securityAlerts', label: 'Account security alerts', desc: 'Important notifications about logins and security changes' },
+  ]
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-market-border p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-base font-bold text-market-on-surface">Notifications</h2>
+          <p className="text-xs text-market-on-surface-variant mt-0.5">Choose which notifications you wish to receive</p>
+        </div>
+        <span className="text-[11px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+          Saved locally
+        </span>
+      </div>
+      <div className="space-y-2">
+        {items.map((item) => (
+          <label key={item.key} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-market-surface-dim transition cursor-pointer border border-transparent hover:border-market-border">
+            <div className="pr-4">
+              <p className="text-sm font-semibold text-market-on-surface">{item.label}</p>
+              <p className="text-xs text-market-on-surface-variant mt-0.5">{item.desc}</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={Boolean(preferences[item.key])}
+              onChange={() => togglePreference(item.key)}
+              className="w-4 h-4 text-market-secondary rounded border-market-border focus:ring-market-secondary cursor-pointer"
+            />
+          </label>
+        ))}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const SecuritySection = () => {
   const [oldPassword, setOldPassword] = useState('')
