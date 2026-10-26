@@ -29,6 +29,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
+  const showSignIn = !isAuthenticated && isPublic
 
   const id = data?._id || data?.id
   const name = data?.name || 'Product'
@@ -100,7 +101,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   return (
     <article className='market-aritii-product-card group'>
       {/* Wishlist button - top right with 44px touch target */}
-      {!isPublic && (
+      {(!isPublic || isAuthenticated) && (
         <button
           type='button'
           onClick={toggleWishlist}
@@ -219,7 +220,7 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
         )}
 
         {/* Add to cart button or sign in - Aritii marketplace amber button */}
-        {!isPublic ? (
+        {!showSignIn ? (
           <button
             type='button'
             onClick={AddToCartHandler}

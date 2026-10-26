@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { IoRefresh } from 'react-icons/io5';
 import ProductCard from '@/shared/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
@@ -158,6 +159,7 @@ const BestSellersHeader = ({
  * Product Grid with Bestseller Badges
  */
 const BestSellersGrid = ({ products }) => {
+  const { isAuthenticated } = useSelector((state) => state.user || {});
   const productsWithRank = useMemo(() => {
     return products.map((product, index) => ({
       ...product,
@@ -179,7 +181,7 @@ const BestSellersGrid = ({ products }) => {
 
           <ProductCard
             data={product}
-            variant="public"
+            variant={isAuthenticated ? 'default' : 'public'}
           />
 
           {/* Sales Volume indicator */}

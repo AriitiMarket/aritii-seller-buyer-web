@@ -27,7 +27,7 @@ const Footer = () => {
       { label: 'All Shops', to: '/shops' },
     ],
     'Let Us Help You': [
-      { label: 'Your Account', to: '/my-dashboard/profile' },
+      { label: 'Your Account', to: '/my-dashboard/settings' },
       { label: 'Your Orders', to: '/my-dashboard/orders' },
       { label: 'Your Wish List', to: '/my-dashboard/wishlist' },
       { label: 'Your Cart', to: '/my-dashboard/cart' },

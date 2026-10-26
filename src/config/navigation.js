@@ -47,7 +47,7 @@ export const BUYER_BOTTOM_NAV = [
 export const BUYER_PROFILE_DROPDOWN = [
   { type: 'separator' },
   { section: 'ACCOUNT' },
-  { label: 'Profile', to: '/my-dashboard/profile', icon: 'MdPerson', end: true },
+  { label: 'Settings', to: '/my-dashboard/settings', icon: 'MdSettings', end: true },
   { label: 'Orders', to: '/my-dashboard/orders', icon: 'MdReceipt', badge: 'orders' },
   { label: 'Wishlist', to: '/my-dashboard/wishlist', icon: 'MdFavoriteBorder', badge: 'wishlist' },
   { type: 'separator' },

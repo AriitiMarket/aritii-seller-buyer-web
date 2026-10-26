@@ -149,52 +149,52 @@ export const clearCart = () => async (dispatch) => {
 /**
  * Validate entire cart against current product availability.
  * Returns validation result with any out-of-stock or unavailable items.
+ * Runs non-blocking in background without locking or unmounting the UI.
  */
 export const validateCart = () => async (dispatch, getState) => {
   try {
-    dispatch(setCartLoading(true));
     const state = getState();
     const { cart } = state.cart;
-    const invalidItems = [];
-    const updatedCart = [];
-
-    for (const item of cart) {
-      // Cart lines carry both `_id` (line id, or product id when the client
-      // set it) and `productId` (always the product). Prefer productId.
-      const productId = item.productId || item._id;
-      if (!productId) {
-        invalidItems.push({ id: null, name: item.name || 'Unknown', reason: 'Invalid product reference' });
-        continue;
-      }
-      try {
-        const { data: response } = await api.get(`/product/get-product/${productId}`, {
-          timeout: 8000,
-        });
-        // ok() spreads the payload at the top level: { success, message, product }
-        const product = response?.product || null;
-        if (!product || (Number(product.stock) || 0) < 1) {
-          invalidItems.push({ id: productId, name: item.name, reason: 'Product is no longer available' });
-        } else if ((Number(item.quantity) || 1) > (Number(product.stock) || 0)) {
-          invalidItems.push({ id: productId, name: item.name, reason: `Only ${product.stock} items available (you have ${item.quantity})` });
-          updatedCart.push({ ...item, quantity: Math.min(Number(item.quantity) || 1, Number(product.stock) || 0) });
-        } else {
-          updatedCart.push(item);
-        }
-      } catch {
-        updatedCart.push(item);
-      }
+    if (!cart || cart.length === 0) {
+      return { isValid: true, invalidItems: [], validCart: [] };
     }
+
+    const results = await Promise.all(
+      cart.map(async (item) => {
+        const productId = item.productId || item._id;
+        if (!productId) {
+          return { item, invalid: { id: null, name: item.name || 'Unknown', reason: 'Invalid product reference' } };
+        }
+        try {
+          const { data: response } = await api.get(`/product/get-product/${productId}`, {
+            timeout: 5000,
+          });
+          const product = response?.product || null;
+          if (!product || (Number(product.stock) || 0) < 1) {
+            return { item, invalid: { id: productId, name: item.name, reason: 'Product is no longer available' } };
+          } else if ((Number(item.quantity) || 1) > (Number(product.stock) || 0)) {
+            return {
+              item: { ...item, quantity: Math.min(Number(item.quantity) || 1, Number(product.stock) || 0) },
+              invalid: { id: productId, name: item.name, reason: `Only ${product.stock} items available (you have ${item.quantity})` },
+            };
+          }
+          return { item, invalid: null };
+        } catch {
+          return { item, invalid: null };
+        }
+      })
+    );
+
+    const invalidItems = results.filter((r) => r.invalid).map((r) => r.invalid);
+    const updatedCart = results.map((r) => r.item);
 
     if (invalidItems.length > 0) {
       dispatch(setCart(updatedCart));
       localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     }
 
-    dispatch(setCartLoading(false));
     return { isValid: invalidItems.length === 0, invalidItems, validCart: updatedCart };
-  } catch (error) {
-    dispatch(setCartError(error.message || 'Failed to validate cart'));
-    dispatch(setCartLoading(false));
+  } catch {
     return { isValid: false, invalidItems: [], validCart: getState().cart.cart };
   }
 };
@@ -203,10 +203,10 @@ export const validateCart = () => async (dispatch, getState) => {
  * Validate the cart against the buyer's selected delivery zone.
  * Calls POST /cart/validate with cart + zoneId in the body (backend contract).
  * Returns per-row eligibility results so the UI can show incompatible items.
+ * Does not mutate global cart loading state to prevent unmount loops.
  */
-export const validateCartForZone = (zoneId) => async (dispatch, getState) => {
+export const validateCartForZone = (zoneId) => async (_dispatch, getState) => {
   try {
-    dispatch(setCartLoading(true));
     const state = getState();
     const { cart } = state.cart;
 
@@ -215,11 +215,8 @@ export const validateCartForZone = (zoneId) => async (dispatch, getState) => {
       { cart, zoneId }
     );
 
-    dispatch(setCartLoading(false));
     return data;
-  } catch (error) {
-    dispatch(setCartError(error?.response?.data?.message || error?.message || 'Zone validation failed'));
-    dispatch(setCartLoading(false));
+  } catch {
     return null;
   }
 };

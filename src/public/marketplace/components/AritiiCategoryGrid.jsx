@@ -6,9 +6,9 @@ import fashionIcon from '@/assets/images/categories/fashion.svg';
 import groceriesIcon from '@/assets/images/categories/groceries.svg';
 import handcraftsIcon from '@/assets/images/categories/handcrafts.svg';
 import homeLivingIcon from '@/assets/images/categories/home-living.svg';
-import placeholderIcon from '@/assets/images/placeholders/product-placeholder.svg';
 import { useCatalogCategories } from '@/shared/hooks/useCatalogCategories';
 import { categoryHref } from '@/shared/categories/categoryHref';
+import CategoryIcon from '@/features/marketplace/components/CategoryIcon';
 
 /**
  * AritiiCategoryGrid - Aritii marketplace 4-quadrant feature card grid
@@ -18,7 +18,7 @@ import { categoryHref } from '@/shared/categories/categoryHref';
  * through `categoryHref`, so they never point at a non-existent route.
  */
 const ICON_BY_KEYWORD = [
-  { keywords: ['electron', 'phone', 'tech', 'digital'], img: electronicsIcon },
+  { keywords: ['electron', 'phone', 'tech', 'digital', 'device'], img: electronicsIcon },
   { keywords: ['fashion', 'apparel', 'wear', 'clothing', 'shoe'], img: fashionIcon },
   { keywords: ['grocer', 'food', 'agric', 'coffee', 'spice'], img: groceriesIcon },
   { keywords: ['home', 'living', 'furniture', 'house'], img: homeLivingIcon },
@@ -29,10 +29,10 @@ const ICON_BY_KEYWORD = [
 const FALLBACK_CATEGORIES = [
   { label: 'Electronics', img: electronicsIcon },
   { label: 'Fashion', img: fashionIcon },
-  { label: 'Groceries', img: groceriesIcon },
-  { label: 'Home Living', img: homeLivingIcon },
-  { label: 'Handcrafts', img: handcraftsIcon },
-  { label: 'Beauty & Wellness', img: beautyIcon },
+  { label: 'Home & Living', img: homeLivingIcon },
+  { label: 'Beauty & Personal Care', img: beautyIcon },
+  { label: 'Groceries & Food', img: groceriesIcon },
+  { label: 'Handcrafts & Local Products', img: handcraftsIcon },
 ];
 
 const iconFor = (label) => {
@@ -43,15 +43,23 @@ const iconFor = (label) => {
 const AritiiCategoryGrid = () => {
   const { categories } = useCatalogCategories({ type: 'product' });
 
-  // Real catalog categories when the API answers, marketing labels otherwise.
-  const catalogItems = (categories?.length ? categories : FALLBACK_CATEGORIES)
+  // Real catalog categories when the API answers, supplemented by fallback categories so all 8 slots are populated
+  const realList = (categories || []).map((cat) => (typeof cat === 'string' ? { title: cat } : cat));
+  const combined = [...realList];
+  FALLBACK_CATEGORIES.forEach((fb) => {
+    if (!combined.some((c) => (c.title || c.name || '').toLowerCase() === fb.label.toLowerCase())) {
+      combined.push({ title: fb.label, image: fb.img });
+    }
+  });
+
+  const catalogItems = combined
     .slice(0, 8)
     .map((cat) => {
-      const label = typeof cat === 'string' ? cat : cat.title || cat.name || '';
+      const label = cat.title || cat.name || '';
       return {
         label,
-        img: (typeof cat === 'string' ? null : cat.image) || iconFor(label) || placeholderIcon,
-        link: categoryHref(typeof cat === 'string' ? cat : cat, '/products'),
+        img: cat.image || iconFor(label) || null,
+        link: categoryHref(cat, '/products'),
       };
     })
     .filter((item) => item.label);
@@ -110,36 +118,46 @@ const AritiiCategoryGrid = () => {
   ];
 
   return (
-    <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-28 mb-12">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 sm:-mt-24 lg:-mt-28 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
         {cards.map((card) => (
           <div
             key={card.id}
-            className="flex flex-col justify-between bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-lg p-5 shadow-md hover:shadow-xl transition-shadow duration-300"
+            className="flex flex-col justify-between bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:p-5 shadow-md hover:shadow-xl transition-shadow duration-300"
           >
             <div>
-              <h2 className="text-xl font-bold text-[#0F1111] dark:text-white mb-3">
+              <h2 className="text-base sm:text-lg font-bold text-[#0F1111] dark:text-white mb-2.5">
                 {card.title}
               </h2>
 
-              {/* 4-quadrant layout for category cards */}
+              {/* 4-quadrant layout for category cards with real data */}
               {card.items && card.items.length > 0 && (
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 mb-3">
                   {card.items.map((item, idx) => (
                     <Link
                       key={idx}
                       to={item.link}
-                      className="group flex flex-col items-center bg-[#F7F7F7] dark:bg-gray-800/80 p-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="group flex flex-col items-center bg-[#F7F7F7] dark:bg-gray-800/80 p-2 sm:p-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center p-2 mb-1.5 transition-transform group-hover:scale-105">
-                        <img
-                          src={item.img}
-                          alt={item.label}
-                          className="w-full h-full object-contain filter dark:invert"
-                          loading="lazy"
-                        />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center p-1.5 mb-1 transition-transform group-hover:scale-105">
+                        {item.img ? (
+                          <img
+                            src={item.img}
+                            alt={item.label}
+                            className="w-full h-full object-contain filter dark:invert"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const fallback = e.currentTarget.parentElement?.querySelector('.icon-fallback');
+                              if (fallback) fallback.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`icon-fallback ${item.img ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+                          <CategoryIcon title={item.label} size={24} />
+                        </div>
                       </div>
-                      <span className="text-xs font-medium text-gray-800 dark:text-gray-200 text-center line-clamp-1">
+                      <span className="text-[11px] sm:text-xs font-medium text-gray-800 dark:text-gray-200 text-center line-clamp-1 group-hover:text-[#007185] dark:group-hover:text-[#42a2b3]">
                         {item.label}
                       </span>
                     </Link>
@@ -149,21 +167,21 @@ const AritiiCategoryGrid = () => {
 
               {/* Special Deal Card layout */}
               {card.isDealCard && (
-                <div className="flex flex-col mb-4">
-                  <div className="rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-4 mb-3">
-                    <span className="inline-block px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider rounded bg-red-600 text-white mb-2">
+                <div className="flex flex-col mb-3">
+                  <div className="rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-3 mb-2.5">
+                    <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-red-600 text-white mb-1.5">
                       {card.badge}
                     </span>
-                    <h3 className="text-base font-bold text-[#0F1111] dark:text-white mb-1">
+                    <h3 className="text-sm font-bold text-[#0F1111] dark:text-white mb-1">
                       {card.headline}
                     </h3>
-                    <p className="text-xs text-[#565959] dark:text-gray-400">
+                    <p className="text-[11px] text-[#565959] dark:text-gray-400">
                       {card.subText}
                     </p>
                   </div>
                   <Link
                     to="/deals"
-                    className="w-full py-2.5 px-4 bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] text-xs font-bold rounded-md shadow-sm text-center transition-colors"
+                    className="w-full py-2 px-3 bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] text-xs font-bold rounded-md shadow-sm text-center transition-colors"
                   >
                     {card.buttonText}
                   </Link>
@@ -172,24 +190,24 @@ const AritiiCategoryGrid = () => {
 
               {/* Special Role Card layout */}
               {card.isRoleCard && (
-                <div className="space-y-3 mb-4">
+                <div className="space-y-2 mb-3">
                   {card.roles.map((role, idx) => (
                     <div
                       key={idx}
-                      className="p-3 bg-[#F7F7F7] dark:bg-gray-800/60 rounded-md border border-gray-100 dark:border-gray-800"
+                      className="p-2 sm:p-2.5 bg-[#F7F7F7] dark:bg-gray-800/60 rounded-md border border-gray-100 dark:border-gray-800"
                     >
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-sm">{role.icon}</span>
+                        <span className="text-xs sm:text-sm">{role.icon}</span>
                         <p className="font-bold text-xs text-[#0F1111] dark:text-white">
                           {role.title}
                         </p>
                       </div>
-                      <p className="text-[11px] text-[#565959] dark:text-gray-400 mb-2">
+                      <p className="text-[10px] sm:text-[11px] text-[#565959] dark:text-gray-400 mb-1.5 line-clamp-1">
                         {role.desc}
                       </p>
                       <Link
                         to={role.link}
-                        className={`inline-block w-full py-1.5 px-3 text-center text-xs font-bold text-white rounded transition-colors ${role.color}`}
+                        className={`inline-block w-full py-1 px-2.5 text-center text-[11px] sm:text-xs font-bold text-white rounded transition-colors ${role.color}`}
                       >
                         {role.btnText}
                       </Link>
@@ -201,7 +219,7 @@ const AritiiCategoryGrid = () => {
 
             <Link
               to={card.linkTo}
-              className="text-xs font-medium text-[#007185] dark:text-[#42a2b3] hover:text-[#C7511F] dark:hover:text-[#FF9900] hover:underline mt-2 inline-flex items-center"
+              className="text-xs font-medium text-[#007185] dark:text-[#42a2b3] hover:text-[#C7511F] dark:hover:text-[#FF9900] hover:underline mt-1 inline-flex items-center"
             >
               {card.linkText} →
             </Link>

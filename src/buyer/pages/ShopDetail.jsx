@@ -302,7 +302,7 @@ const ShopDetailsPage = () => {
           />
         ) : products.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-            {products.map((p, i) => <ProductCard data={p} key={p._id || i} variant="public" />)}
+            {products.map((p, i) => <ProductCard data={p} key={p._id || i} variant={isAuthenticated ? 'default' : 'public'} />)}
           </div>
         ) : (
           <EmptyState

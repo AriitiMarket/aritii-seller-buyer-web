@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser, AiOutlineHeart } from 'react-icons/ai'
-import { MdLocalShipping, MdLocationOn, MdDashboard } from 'react-icons/md'
+import { MdLocalShipping, MdLocationOn, MdDashboard, MdSettings } from 'react-icons/md'
 import BrandLogo from '@/components/common/BrandLogo'
 import HeaderSearch from '@/shared/components/header/HeaderSearch'
 import { useAuth } from '@/auth/hooks/useAuth'
@@ -498,27 +498,15 @@ const MarketplaceHeader = () => {
                       <span>Messages & Requests</span>
                     </Link>
                     <Link
-                      to="/my-dashboard/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/my-dashboard/profile')
-                          ? 'bg-[#232f3e] text-white font-bold'
-                          : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
-                      }`}
-                    >
-                      <AiOutlineUser size={16} className="text-[#9aa6b2]" />
-                      <span>Your Profile</span>
-                    </Link>
-                    <Link
                       to="/my-dashboard/settings"
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/my-dashboard/settings')
+                        location.pathname.startsWith('/my-dashboard/settings') || location.pathname.startsWith('/my-dashboard/profile')
                           ? 'bg-[#232f3e] text-white font-bold'
                           : 'text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white'
                       }`}
                     >
-                      <AiOutlineUser size={16} className="text-[#9aa6b2]" />
+                      <MdSettings size={16} className="text-[#9aa6b2]" />
                       <span>Account Settings</span>
                     </Link>
                   </div>
