@@ -95,16 +95,11 @@ export const orderService = {
   },
 
   /**
-   * Cancel an order (buyer only)
-   * Only cancels orders that are not yet shipped
-   * @param {string} orderId - Order ID
-   * @param {string} reason - Cancellation reason (optional)
-   * @returns {Promise} - Updated order object
-   */
-  /**
-   * Business: confirm a refund processed for the shop.
-   * @param {string} orderId
-   * @param {Object} payload - { status }
+   * Business/Seller: confirm that a refund has been successfully processed for the shop.
+   * Backend: PUT /order/order-refund-success/:orderId
+   * @param {string} orderId - Order unique identifier
+   * @param {Object} [payload={}] - Refund confirmation payload
+   * @returns {Promise<object>} Updated order details
    */
   async approveRefund(orderId, payload = {}) {
     const { data } = await api.put(`/order/order-refund-success/${orderId}`, payload);
@@ -112,24 +107,35 @@ export const orderService = {
   },
 
   /**
-   * Request a refund for an order (buyer).
-   * @param {string} orderId
-   * @param {Object} payload - { status?, reason? }
+   * Request a refund for an order (buyer initiated).
+   * Backend: PUT /order/refund-order/:orderId
+   * @param {string} orderId - Order unique identifier
+   * @param {Object} [payload={}] - Refund request details (reason, status)
+   * @returns {Promise<object>} Refund request result
    */
   async refundOrder(orderId, payload = {}) {
     const { data } = await api.put(`/order/refund-order/${orderId}`, payload);
     return data?.order || data;
   },
 
+  /**
+   * Cancel an order (buyer only).
+   * Only allows cancellation of orders that have not yet been shipped.
+   * Backend: POST /order/:orderId/cancel
+   * @param {string} orderId - Order unique identifier
+   * @param {string} [reason='Order cancelled by customer'] - Cancellation reason
+   * @returns {Promise<object|null>} Cancelled order record
+   */
   async cancelOrder(orderId, reason = 'Order cancelled by customer') {
     const { data } = await api.post(`/order/${orderId}/cancel`, { reason });
     return data.order || null;
   },
 
   /**
-   * Confirm receipt of a delivered order (buyer)
-   * @param {string} orderId - Order ID
-   * @returns {Promise} - Updated order object
+   * Confirm receipt of a delivered order (buyer action upon receiving items).
+   * Backend: POST /order/:orderId/confirm-receipt
+   * @param {string} orderId - Order unique identifier
+   * @returns {Promise<object|null>} Updated order record with completed delivery status
    */
   async confirmReceipt(orderId) {
     const { data } = await api.post(`/order/${orderId}/confirm-receipt`);
