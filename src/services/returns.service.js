@@ -1,11 +1,21 @@
 import api from '@/services/api';
 
+/**
+ * Returns Service
+ * Handles the complete return and refund lifecycle:
+ * 1. Customer initiates return request for delivered order items.
+ * 2. Seller reviews and approves or rejects the return.
+ * 3. Courier handles pickup and return transit tracking.
+ * 4. Seller or Admin inspects item and issues monetary refund.
+ */
 class ReturnsService {
   /**
-   * Request return for an order item
-   * @param {string} orderId - Order ID
-   * @param {Object} returnData - Return request details
-   * @returns {Promise<{returnId: string, return: Object}>}
+   * Request return for one or more order items.
+   * Backend: POST /return/order/:orderId/request
+   * @param {string} orderId - Associated order ID
+   * @param {Object} returnData - Return request details (reason, items array)
+   * @returns {Promise<{returnId: string, return: Object}>} Created return record
+   * @throws {Error} If orderId, reason, or items are missing
    */
   async requestReturn(orderId, returnData) {
     if (!orderId) throw new Error('Order ID is required');
@@ -24,9 +34,11 @@ class ReturnsService {
   }
 
   /**
-   * Get return details
-   * @param {string} returnId - Return ID
-   * @returns {Promise<{return: Object}>}
+   * Fetch single return request details by ID.
+   * Backend: GET /return/:returnId
+   * @param {string} returnId - Return unique ID
+   * @returns {Promise<{return: Object}>} Return record details
+   * @throws {Error} If returnId is missing or record is not found (404)
    */
   async getReturn(returnId) {
     if (!returnId) throw new Error('Return ID is required');
@@ -44,9 +56,10 @@ class ReturnsService {
   }
 
   /**
-   * List buyer's returns
-   * @param {Object} params - Query parameters
-   * @returns {Promise<{returns: Array, total: number}>}
+   * List returns requested by the authenticated buyer.
+   * Backend: GET /return
+   * @param {Object} [params={}] - Query filters (page, limit, status)
+   * @returns {Promise<{returns: Array<object>, total: number}>} List of return records and count
    */
   async listReturns(params = {}) {
     try {
@@ -61,10 +74,11 @@ class ReturnsService {
   }
 
   /**
-   * Approve return (seller only)
-   * @param {string} returnId - Return ID
-   * @param {Object} approvalData - Approval details
-   * @returns {Promise<{return: Object}>}
+   * Approve a return request (seller authorization).
+   * Backend: POST /return/:returnId/approve
+   * @param {string} returnId - Return request ID
+   * @param {Object} [approvalData={}] - Optional approval metadata or instructions
+   * @returns {Promise<{return: Object}>} Updated return record
    */
   async approveReturn(returnId, approvalData = {}) {
     if (!returnId) throw new Error('Return ID is required');
@@ -79,10 +93,11 @@ class ReturnsService {
   }
 
   /**
-   * Reject return (seller only)
-   * @param {string} returnId - Return ID
-   * @param {string} reason - Rejection reason
-   * @returns {Promise<{return: Object}>}
+   * Reject a return request with explanation (seller authorization).
+   * Backend: POST /return/:returnId/reject
+   * @param {string} returnId - Return request ID
+   * @param {string} reason - Rejection reason explanation
+   * @returns {Promise<{return: Object}>} Updated return record with rejection details
    */
   async rejectReturn(returnId, reason = '') {
     if (!returnId) throw new Error('Return ID is required');
@@ -98,10 +113,11 @@ class ReturnsService {
   }
 
   /**
-   * Process refund (seller/admin)
-   * @param {string} returnId - Return ID
-   * @param {Object} refundData - Refund details
-   * @returns {Promise<{return: Object, refund: Object}>}
+   * Issue monetary refund for an approved and received return (seller or admin).
+   * Backend: POST /return/:returnId/refund
+   * @param {string} returnId - Return request ID
+   * @param {Object} [refundData={}] - Refund payload (amount, refundMethod)
+   * @returns {Promise<{return: Object, refund: Object}>} Refund execution confirmation
    */
   async processRefund(returnId, refundData = {}) {
     if (!returnId) throw new Error('Return ID is required');
@@ -116,9 +132,9 @@ class ReturnsService {
   }
 
   /**
-   * Get return status
-   * @param {string} returnId - Return ID
-   * @returns {Promise<{status: string, steps: Array}>}
+   * Retrieve timeline and status progression steps for a return request.
+   * @param {string} returnId - Return request ID
+   * @returns {Promise<{status: string, steps: Array<{step: string, completed: boolean, date: string|null}>}>} Status timeline steps
    */
   async getReturnStatus(returnId) {
     if (!returnId) throw new Error('Return ID is required');
@@ -140,9 +156,10 @@ class ReturnsService {
   }
 
   /**
-   * Track return shipping
-   * @param {string} returnId - Return ID
-   * @returns {Promise<{trackingNumber: string, events: Array}>}
+   * Track return shipping and transit events.
+   * Backend: GET /return/:returnId/tracking
+   * @param {string} returnId - Return request ID
+   * @returns {Promise<{trackingNumber: string, events: Array<object>}>} Courier tracking information
    */
   async trackReturn(returnId) {
     if (!returnId) throw new Error('Return ID is required');
@@ -159,8 +176,10 @@ class ReturnsService {
   }
 
   /**
-   * Get seller returns dashboard metrics
-   * @param {string} shopId - Shop ID
+   * Get seller returns dashboard metrics and statistics.
+   * Backend: GET /return/seller/dashboard
+   * @param {string} shopId - Shop unique identifier
+   * @returns {Promise<object>} Returns metrics summary for the seller shop
    */
   async getSellerReturnsDashboard(shopId) {
     try {
