@@ -19,7 +19,12 @@ const NOT_AVAILABLE = (error) =>
   error?.response?.status === 404 || error?.response?.status === 501;
 
 export const reviewService = {
-  /** @returns {Promise<{reviews: object[], supported: boolean}>} */
+  /**
+   * Fetch approved customer reviews for a given product.
+   * Backend: GET /review/get-product-reviews/:productId
+   * @param {string} productId - Product unique identifier
+   * @returns {Promise<{reviews: Array<object>, supported: boolean}>} Reviews array and feature availability flag
+   */
   async getByProduct(productId) {
     try {
       const { data } = await api.get(`/review/get-product-reviews/${productId}`);
@@ -30,6 +35,12 @@ export const reviewService = {
     }
   },
 
+  /**
+   * Fetch approved customer reviews for a specific shop.
+   * Backend: GET /review/get-shop-reviews/:shopId
+   * @param {string} shopId - Shop unique identifier
+   * @returns {Promise<{reviews: Array<object>, supported: boolean}>} Reviews array and feature availability flag
+   */
   async getByShop(shopId) {
     try {
       const { data } = await api.get(`/review/get-shop-reviews/${shopId}`);
@@ -40,6 +51,11 @@ export const reviewService = {
     }
   },
 
+  /**
+   * Fetch reviews authored by the currently logged-in user across all states (approved & pending).
+   * Backend: GET /review/get-my-reviews
+   * @returns {Promise<{reviews: Array<object>, supported: boolean}>} User reviews array and feature availability flag
+   */
   async getMine() {
     try {
       const { data } = await api.get('/review/get-my-reviews');
@@ -50,7 +66,12 @@ export const reviewService = {
     }
   },
 
-  /** Create a review. Uses the gateway's existing product-review route. */
+  /**
+   * Submit a new customer review for a purchased product.
+   * Backend: PUT /product/create-new-review
+   * @param {object} payload - Review submission payload (rating, comment, productId)
+   * @returns {Promise<object>} Created review record
+   */
   async create(payload) {
     const { data } = await api.put('/product/create-new-review', payload);
     return data?.review || data;
