@@ -102,23 +102,11 @@ export const shopService = {
   },
 
   /**
-   * Get current authenticated seller's shop.
-   * The backend answers 200 with `seller: null` for an authenticated account
-   * that owns no shop (buyer, or a seller who has not created one yet), so a
-   * missing shop is a normal empty state — never an error.
-   * @returns {Promise<Object|null>} Shop object for the seller, or null
-   */
-  /**
-   * Open ANOTHER shop under the same business account (multi-shop sellers).
-   *
-   * Ownership always comes from the verified token. The backend enforces the
-   * seller-type rules: an INDIVIDUAL seller is limited to one shop, and every
-   * ADDITIONAL shop must name a shop category (type 'business') so the stores
-   * are browsable separately.
-   *
-   * @param {FormData} formData - name, email, address, phoneNumber, category,
-   *   description and the avatar under the `file` key (required by the API)
-   * @returns {Promise<Object|null>} the created shop (status PENDING_APPROVAL)
+   * Open a new shop under the authenticated business account (multi-shop support).
+   * Ownership is inferred from the authenticated JWT token.
+   * Backend: POST /shop/create-shop (multipart/form-data)
+   * @param {FormData} formData - Shop creation form data (name, email, address, category, avatar file)
+   * @returns {Promise<Object|null>} Created shop object in PENDING_APPROVAL status
    */
   async createShop(formData) {
     const { data } = await api.post('/shop/create-shop', formData, {
@@ -128,11 +116,9 @@ export const shopService = {
   },
 
   /**
-   * Get EVERY shop of the authenticated business.
-   *
-   * Returns an ARRAY — a business may own several shops. The response also
-   * carries `seller` (the primary shop) for older single-shop callers.
-   * @returns {Promise<Array>} shops owned by the caller (possibly empty)
+   * Retrieve all shops owned by the authenticated business user.
+   * Backend: GET /shop/getseller
+   * @returns {Promise<Array<object>>} List of shops owned by caller
    */
   async getByOwner() {
     const { data } = await api.get("/shop/getseller");
@@ -141,13 +127,11 @@ export const shopService = {
   },
 
   /**
-   * Owner: update one of the business's shops.
-   *
-   * `shopId` names the target. It is required when the business owns more than
-   * one shop — the backend rejects an ambiguous write instead of guessing
-   * (which is how a request could previously land on the wrong shop).
-   * @param {string} shopId - shop to update
-   * @param {Object} shopData - editable profile fields
+   * Update profile and configuration for a specific shop.
+   * Backend: PUT /shop/update-shop-info
+   * @param {string} shopId - Shop unique identifier to update
+   * @param {Object} shopData - Editable profile and contact fields
+   * @returns {Promise<object>} Updated shop record
    */
   async updateShopInfo(shopId, shopData) {
     const { data } = await api.put('/shop/update-shop-info', { ...shopData, shopId });
@@ -155,9 +139,11 @@ export const shopService = {
   },
 
   /**
-   * Owner: replace one shop's logo.
-   * @param {string} shopId - shop to update
-   * @param {FormData} formData - FormData with the `image` file
+   * Replace logo/avatar image for a specific shop.
+   * Backend: PUT /shop/update-shop-avatar (multipart/form-data)
+   * @param {string} shopId - Shop unique identifier
+   * @param {FormData} formData - FormData containing the image file
+   * @returns {Promise<object|null>} Updated shop record with new avatar URL
    */
   async updateShopAvatar(shopId, formData) {
     if (shopId) formData.append('shopId', shopId);
