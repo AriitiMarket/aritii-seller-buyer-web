@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import ProductCard from '@/shared/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
@@ -154,6 +155,8 @@ const DealsContent = ({
     );
   }
 
+  const { isAuthenticated } = useSelector((state) => state.user || {});
+
   return (
     <div className="w-full">
       <DealsPageHeader
@@ -168,7 +171,7 @@ const DealsContent = ({
           <ProductCard
             key={product._id || product.id}
             data={product}
-            variant="public"
+            variant={isAuthenticated ? 'default' : 'public'}
           />
         ))}
       </div>

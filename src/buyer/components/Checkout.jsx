@@ -50,8 +50,7 @@ const ZoneValidationBanner = ({ validation, onRemoveItem }) => {
                 {item.name}
               </p>
               <p className="text-xs text-amber-600">
-                {item.code || 'SHOP_NOT_SERVING_ZONE'}
-                {item.shopName ? ` — ${item.shopName}` : ''}
+                {item.message || (item.shopName ? `${item.shopName} does not deliver to this zone` : 'Delivery unavailable for this zone')}
               </p>
             </div>
             <button
@@ -467,7 +466,7 @@ const Checkout = () => {
     return () => {
       active = false;
     };
-  }, [cart, quoteZoneId, dispatch]);
+  }, [quantitySignature, quoteZoneId, dispatch]);
 
   useEffect(() => {
     let active = true;
@@ -560,6 +559,16 @@ const Checkout = () => {
     const finalZoneName = orderZoneName || selectedAddress?.deliveryZoneName || zoneName;
     const finalPortId = orderPortId || selectedAddress?.portId || null;
     const finalPortName = orderPortName || selectedAddress?.portName || '';
+
+    if (fulfilmentType === 'delivery' && loadingDeliveryQuote) {
+      toast.info("Calculating delivery fee, please wait a moment...");
+      return;
+    }
+
+    if (fulfilmentType === 'delivery' && deliveryQuoteError) {
+      toast.error(deliveryQuoteError || "Delivery fee could not be calculated. Please check your delivery address and zone.");
+      return;
+    }
 
     if (fulfilmentType === 'delivery' && !finalZoneId) {
       toast.error(
@@ -1279,15 +1288,16 @@ const Checkout = () => {
             </div>
 
             <button
+              type="button"
               onClick={paymentSubmit}
-              disabled={(fulfilmentType === 'delivery' && (!selectedAddress || !quoteZoneId || loadingDeliveryQuote || Boolean(deliveryQuoteError)))}
+              disabled={loadingDeliveryQuote}
               className={`mt-6 w-full h-11 rounded-lg text-sm font-semibold transition flex items-center justify-center ${
-                fulfilmentType === 'pickup' || (selectedAddress && quoteZoneId && !loadingDeliveryQuote && !deliveryQuoteError)
-                  ? 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover shadow-sm'
-                  : 'bg-market-surface-container-low text-market-on-surface-variant cursor-not-allowed'
+                loadingDeliveryQuote
+                  ? 'bg-market-surface-container-low text-market-on-surface-variant cursor-wait'
+                  : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover shadow-sm'
               }`}
             >
-              Continue to Payment
+              {loadingDeliveryQuote ? 'Calculating delivery fee…' : 'Continue to Payment'}
             </button>
 
             <Link

@@ -50,6 +50,8 @@ const BuyerCartPage = () => {
     return () => { active = false; };
   }, [cart]);
 
+  const cartSignature = (cart || []).map((i) => `${i.productId || i._id}:${i.quantity || 1}`).join('|');
+
   useEffect(() => {
     if (!cart.length || !hasZone) {
       setZoneValidation(null);
@@ -62,7 +64,7 @@ const BuyerCartPage = () => {
       })
       .catch(() => setZoneValidation(null))
       .finally(() => setValidating(false));
-  }, [cart, zoneId, hasZone, dispatch]);
+  }, [cartSignature, zoneId, hasZone, dispatch]);
 
   useEffect(() => {
     if (!cart.length || !hasZone) {
@@ -91,7 +93,7 @@ const BuyerCartPage = () => {
     return () => {
       active = false;
     };
-  }, [cart, zoneId, hasZone]);
+  }, [cartSignature, zoneId, hasZone]);
 
   const subtotal = cart.reduce(
     (acc, item) => acc + (Number(item.quantity) || 1) * Number(item.price || item.discountPrice || 0),
@@ -232,8 +234,7 @@ const BuyerCartPage = () => {
                     <div className="flex-1">
                       <p className="text-sm text-amber-800 font-medium">{item.name}</p>
                       <p className="text-xs text-amber-600">
-                        {item.code || 'SHOP_NOT_SERVING_ZONE'}
-                        {item.shopName ? ` — ${item.shopName}` : ''}
+                        {item.message || (item.shopName ? `${item.shopName} does not deliver to this zone` : 'Delivery unavailable for this zone')}
                       </p>
                     </div>
                     <button
@@ -395,15 +396,22 @@ const BuyerCartPage = () => {
               )}
 
               <button
-                onClick={() => navigate('/checkout')}
-                disabled={!hasZone || hasIncompatibleItems || validating}
+                type="button"
+                onClick={() => {
+                  if (hasIncompatibleItems) {
+                    toast.error('Please remove items not eligible for delivery before checkout.');
+                    return;
+                  }
+                  navigate('/checkout');
+                }}
+                disabled={hasIncompatibleItems}
                 className={`mt-6 w-full h-11 rounded-lg text-sm font-semibold transition flex items-center justify-center ${
-                  !hasZone || hasIncompatibleItems || validating
+                  hasIncompatibleItems
                     ? 'bg-market-surface-container-low text-market-on-surface-variant cursor-not-allowed'
                     : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover active:bg-market-primary-pressed shadow-sm'
                 }`}
               >
-                {hasIncompatibleItems ? 'Fix items before checkout' : !hasZone ? 'Choose delivery area' : validating ? 'Checking availability…' : 'Proceed to checkout'}
+                {hasIncompatibleItems ? 'Fix items before checkout' : 'Proceed to checkout'}
               </button>
 
               <p className="text-xs text-market-secondary mt-3 flex items-center gap-1">

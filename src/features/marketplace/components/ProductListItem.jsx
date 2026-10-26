@@ -18,6 +18,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
+  const showSignIn = !isAuthenticated && isPublic
 
   const id = data?._id || data?.id
   const name = data?.name || 'Product'
@@ -115,7 +116,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
             <p className="market-body-sm text-market-on-surface-variant mt-2 line-clamp-2 hidden sm:block">{String(data.description).slice(0, 160)}</p>
           )}
 
-          {!isPublic && (
+          {(!isPublic || isAuthenticated) && (
             <button
               type="button"
               onClick={toggleWishlist}
@@ -145,7 +146,7 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
             {displayPrice > 0 ? "ETB " + Math.round(displayPrice * 0.02) + " delivery" : "Delivery calculated at checkout"}
           </p>
 
-          {isPublic ? (
+          {showSignIn ? (
             <button
               type="button"
               onClick={() => openLoginModal('BUYER')}
