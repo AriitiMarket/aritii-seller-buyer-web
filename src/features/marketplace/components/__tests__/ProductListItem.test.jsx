@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -34,7 +34,7 @@ const createMockStore = (isAuthenticated = false) => {
 };
 
 describe('ProductListItem authentication & variant behavior', () => {
-  it('shows "Sign in to buy" and opens login modal when user is unauthenticated and variant="public"', () => {
+  it('shows "Add to cart" when user is unauthenticated and variant="public"', () => {
     const openLoginModal = vi.fn();
     const store = createMockStore(false);
 
@@ -48,12 +48,9 @@ describe('ProductListItem authentication & variant behavior', () => {
       </ReduxProvider>
     );
 
-    const signInBtn = screen.getByRole('button', { name: /sign in to buy/i });
-    expect(signInBtn).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
-
-    fireEvent.click(signInBtn);
-    expect(openLoginModal).toHaveBeenCalledWith('BUYER');
+    const addToCartBtn = screen.getByRole('button', { name: /add dire dawa spices mix to cart/i });
+    expect(addToCartBtn).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /sign in to buy/i })).not.toBeInTheDocument();
   });
 
   it('shows "Add to cart" and NOT "Sign in to buy" when buyer IS logged in, even if variant="public" is passed', () => {

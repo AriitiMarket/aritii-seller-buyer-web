@@ -14,7 +14,7 @@ import { toast } from 'react-toastify'
  * Left:  "☰ All" — opens the browse drawer (departments + marketplace links).
  *        The drawer is a LEFT slide-in panel on every screen size,
  *        so the same tap/click target works on mobile and desktop.
- * Right: flat experience links (Products · Shops · Categories · Deals · Best Sellers)
+ * Right: flat experience links (Products · Shops · Categories · Deals · Best Sellers · Orders · Saved Items · Requests · Customer Service)
  *
  * The active item is underlined in the marketplace accent. On <lg the link row
  * scrolls horizontally.
@@ -34,7 +34,7 @@ const LINKS = [
 
 const titleOf = (cat) => (typeof cat === 'string' ? cat : cat?.title || cat?.name || '')
 
-const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
+const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]', isEmbedded = false }) => {
   const location = useLocation();
   const [allOpen, setAllOpen] = useState(false);
   const closeRef = useRef(null);
@@ -65,9 +65,13 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
   const isActive = (match) =>
     Array.isArray(match) ? match.some((m) => location.pathname.startsWith(m)) : location.pathname.startsWith(match);
 
+  const containerClass = isEmbedded
+    ? 'w-full bg-[#131921] border-t border-[#232f3e] text-white'
+    : `sticky ${stickyTopClass} z-40 w-full bg-[#131921] border-b border-[#232f3e] text-white shadow-sm`;
+
   return (
     <nav
-      className={`sticky ${stickyTopClass} z-40 w-full bg-[#232f3e] border-b border-[#37475a] text-white shadow-sm`}
+      className={containerClass}
       aria-label="Marketplace sections"
     >
       {/* Align to the site container (max-w-7xl + shared gutters) */}
@@ -107,7 +111,7 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
                 className={`px-2.5 py-1.5 whitespace-nowrap flex-shrink-0 rounded transition-all ${
                   active
                     ? 'font-bold text-white bg-white/10 outline outline-1 outline-white/40'
-                    : 'text-gray-200 hover:text-white hover:outline hover:outline-1 hover:outline-white'
+                    : 'text-[#cccccc] hover:text-white hover:outline hover:outline-1 hover:outline-white'
                 }`}
               >
                 {item.label}
@@ -119,11 +123,11 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
 
       {/* ===== Browse drawer — LEFT slide-in on mobile AND desktop ===== */}
       {allOpen && (
-        <div className="fixed inset-0 z-[65]" onClick={() => setAllOpen(false)}>
+        <div className="fixed inset-0 z-[80]" onClick={() => setAllOpen(false)}>
           {/* Backdrop overlay — inert attribute prevents focus on main page while drawer is open */}
           <div
-            className="fixed inset-0 bg-black/50"
-            inert
+            className="fixed inset-0 bg-black/60"
+            inert={true}
             aria-hidden="true"
           />
           
@@ -133,17 +137,17 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
             aria-modal="true"
             aria-label="Browse categories"
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-y-0 left-0 z-[70] flex w-80 max-w-[85vw] flex-col rounded-r-2xl border-r border-[#232f3e] bg-[#131921] shadow-2xl"
+            className="fixed inset-y-0 left-0 z-[85] flex w-80 max-w-[85vw] flex-col rounded-r-2xl border-r border-[#232f3e] bg-[#131921] shadow-2xl"
           >
             {/* Drawer header */}
             <div className="flex items-center justify-between border-b border-[#232f3e] p-4 bg-[#1a222d]">
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-[#75d04b]/20 text-[#75d04b] flex items-center justify-center font-bold text-sm">
+                <span className="w-8 h-8 rounded-lg bg-[#febd69]/20 text-[#febd69] flex items-center justify-center font-bold text-sm">
                   A
                 </span>
                 <div>
-                  <h2 className="text-sm font-bold text-white leading-tight">All Categories</h2>
-                  <span className="text-[10px] text-[#febd69] font-medium tracking-wide">Marketplace & Delivery</span>
+                  <h2 className="text-sm font-bold text-white leading-tight">All Categories & Menu</h2>
+                  <span className="text-[10px] text-[#febd69] font-medium tracking-wide">Aritii Marketplace</span>
                 </div>
               </div>
               <button
@@ -161,7 +165,7 @@ const SubNavBar = ({ onOpenAll, stickyTopClass = 'top-[88px]' }) => {
             <div className="px-4 py-3 bg-gradient-to-r from-[#1f2b3e] to-[#131921] border-b border-[#232f3e]">
               <div className="flex items-center justify-between text-xs text-gray-300">
                 <span className="flex items-center gap-1.5 font-medium text-white">
-                  <span className="w-2 h-2 rounded-full bg-[#75d04b] animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[#febd69] animate-pulse" />
                   Fast Door-to-Door Delivery
                 </span>
                 <Link

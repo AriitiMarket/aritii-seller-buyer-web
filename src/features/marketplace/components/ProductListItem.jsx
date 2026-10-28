@@ -18,7 +18,6 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
-  const showSignIn = !isAuthenticated && isPublic
 
   const id = data?._id || data?.id
   const name = data?.name || 'Product'
@@ -146,26 +145,16 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
             {displayPrice > 0 ? "ETB " + Math.round(displayPrice * 0.02) + " delivery" : "Delivery calculated at checkout"}
           </p>
 
-          {showSignIn ? (
-            <button
-              type="button"
-              onClick={() => openLoginModal('BUYER')}
-              className="mt-3 w-full text-center px-3 py-2 market-btn-primary text-market-on-primary"
-            >
-              Sign in to buy
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={AddToCartHandler}
-              disabled={!inStock}
-              className={`mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 market-btn-primary ${!inStock ? "opacity-50 cursor-not-allowed" : ""}`}
-              aria-label={inStock ? "Add " + name + " to cart" : name + " is out of stock"}
-            >
-              <AiOutlineShoppingCart size={16} />
-              Add to cart
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={AddToCartHandler}
+            disabled={!inStock}
+            className={`mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 market-btn-primary ${!inStock ? "opacity-50 cursor-not-allowed" : ""}`}
+            aria-label={inStock ? "Add " + name + " to cart" : name + " is out of stock"}
+          >
+            <AiOutlineShoppingCart size={16} />
+            Add to cart
+          </button>
         </div>
       </div>
     </article>

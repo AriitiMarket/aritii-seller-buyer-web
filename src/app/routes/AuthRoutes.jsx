@@ -1,7 +1,6 @@
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { SellerRegistrationGuard } from '@/seller-registration';
-import { LoginModalRedirect } from '@/auth/components/GlobalLoginModal';
 
 /**
  * Auth routes.
@@ -11,6 +10,7 @@ import { LoginModalRedirect } from '@/auth/components/GlobalLoginModal';
  * GlobalLoginModal). The `/login` family of URLs is kept purely so existing
  * links and route guards reach that modal instead of a 404.
  */
+const LoginPage = lazy(() => import('@/auth/pages/LoginPage'));
 const SignUpPage = lazy(() => import('@/auth/pages/SignUpPage'));
 const ForgotPasswordPage = lazy(() => import('@/auth/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/auth/pages/ResetPasswordPage'));
@@ -21,10 +21,10 @@ const SellerApplicationStatusPage = lazy(() => import('@/seller-registration/pag
 
 export const AuthRoutes = () => (
   <>
-    {/* Legacy sign-in URLs → the one global login modal. */}
-    <Route path="/login" element={<LoginModalRedirect role="BUYER" />} />
-    <Route path="/seller-login" element={<LoginModalRedirect role="SELLER" />} />
-    <Route path="/delivery-login" element={<LoginModalRedirect role="PROVIDER" />} />
+    {/* Sign-in URLs → vertical centered modal layout (not full width) */}
+    <Route path="/login" element={<LoginPage role="BUYER" />} />
+    <Route path="/seller-login" element={<LoginPage role="SELLER" />} />
+    <Route path="/delivery-login" element={<LoginPage role="PROVIDER" />} />
     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
     <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/contact" element={<ContactPage />} />

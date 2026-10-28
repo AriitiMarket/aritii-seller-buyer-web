@@ -47,13 +47,19 @@ function resolveSpec(spec, fromFile) {
     : (spec.startsWith('.') ? path.resolve(path.dirname(fromFile), spec) : null)
   if (!base) return null
   for (const c of [base, ...EXTS.map((e) => base + e)]) {
-    try { if (fs.statSync(c).isFile()) return c } catch {}
+    try {
+      if (fs.statSync(c).isFile()) return c
+    } catch (_e) {
+      // not a file
+    }
   }
   try {
     if (fs.statSync(base).isDirectory()) {
       for (const e of EXTS) { const i = path.join(base, 'index' + e); if (fs.existsSync(i)) return i }
     }
-  } catch {}
+  } catch (_e) {
+    // not a directory
+  }
   return null
 }
 

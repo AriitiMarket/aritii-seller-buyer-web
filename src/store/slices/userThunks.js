@@ -5,6 +5,7 @@ import { authService, addressService, sellerService, shopService } from "@/servi
 import { refreshAccessToken, tokenStore } from "@/services/tokenStore";
 import { disconnectRealtime } from "@/services/realtime";
 import { fetchWishlist } from "./wishlistThunks";
+import { syncGuestCart } from "./cartThunks";
 
 /**
  * Read `registrationType` from either a FormData (what the sign-up form sends)
@@ -81,6 +82,8 @@ export const loginUser = (email, password) => async (dispatch) => {
     dispatch({ type: "LoadUserSuccess", payload: user });
     // Hydrate this account's wishlist (header badge + heart states).
     dispatch(fetchWishlist());
+    // Synchronize guest cart items from localStorage with server cart
+    dispatch(syncGuestCart());
     // Ensure seller capability is resolved for role-based routing
     await dispatch(loadSeller());
     return { ...result, user };
@@ -100,6 +103,7 @@ export const verify2FALogin = (verificationData) => async (dispatch) => {
     }
     dispatch({ type: "LoadUserSuccess", payload: user });
     dispatch(fetchWishlist());
+    dispatch(syncGuestCart());
     await dispatch(loadSeller());
     return { ...result, user };
   } catch (error) {

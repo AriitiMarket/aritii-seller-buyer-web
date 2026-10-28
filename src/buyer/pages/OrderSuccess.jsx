@@ -8,7 +8,7 @@ import CheckoutSteps from '@/buyer/components/CheckoutSteps';
 const OrderSuccessPage = () => {
   return (
     <div className="w-full min-h-screen bg-market-surface-dim flex flex-col">
-      <BuyerHeader onMenuClick={() => {}} />
+      <BuyerHeader hideSubNav={true} onMenuClick={() => {}} />
 
       {/* Same step indicator as Checkout (1) and Payment (2). */}
       <div className="w-full py-6 bg-white border-b border-market-border">

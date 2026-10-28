@@ -29,7 +29,6 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
   const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
-  const showSignIn = !isAuthenticated && isPublic
 
   const id = data?._id || data?.id
   const name = data?.name || 'Product'
@@ -219,30 +218,20 @@ const ProductCard = ({ data, variant = 'default', basePath = '' }) => {
           </p>
         )}
 
-        {/* Add to cart button or sign in - Aritii marketplace amber button */}
-        {!showSignIn ? (
-          <button
-            type='button'
-            onClick={AddToCartHandler}
-            disabled={!inStock}
-            className={`w-full mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full font-medium text-xs transition-colors duration-150 shadow-sm ${
-              inStock
-                ? 'bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] text-[#0f1111] border border-[#fcd200]'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-            }`}
-            aria-label={!inStock ? name + ' is out of stock' : 'Add ' + name + ' to cart'}
-          >
-            <AiOutlineShoppingCart size={15} /> Add to Cart
-          </button>
-        ) : (
-          <button
-            type='button'
-            onClick={() => openLoginModal('BUYER')}
-            className='w-full mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full font-medium text-xs text-[#0f1111] bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] transition-colors duration-150 shadow-sm'
-          >
-            Sign in to buy
-          </button>
-        )}
+        {/* Add to cart button - Aritii marketplace amber button */}
+        <button
+          type='button'
+          onClick={AddToCartHandler}
+          disabled={!inStock}
+          className={`w-full mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full font-medium text-xs transition-colors duration-150 shadow-sm ${
+            inStock
+              ? 'bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] text-[#0f1111] border border-[#fcd200]'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+          }`}
+          aria-label={!inStock ? name + ' is out of stock' : 'Add ' + name + ' to cart'}
+        >
+          <AiOutlineShoppingCart size={15} /> Add to Cart
+        </button>
       </div>
     </article>
   );

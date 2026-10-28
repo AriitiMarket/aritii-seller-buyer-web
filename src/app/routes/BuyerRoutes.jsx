@@ -1,6 +1,15 @@
 import React, { lazy } from 'react';
-import { Navigate, Route } from 'react-router-dom';
+import { Navigate, Route, useParams } from 'react-router-dom';
 import ProtectedRoute from '@/app/routes/ProtectedRoute';
+
+function ParamRedirect({ to }) {
+  const params = useParams();
+  let resolved = to;
+  for (const [k, v] of Object.entries(params)) {
+    resolved = resolved.replace(`:${k}`, v || '');
+  }
+  return <Navigate to={resolved} replace />;
+}
 
 /**
  * BUYER routes - the authenticated customer experience.
@@ -149,12 +158,12 @@ export const BuyerRoutes = () => (
 
       {/* Marketplace browsing redirects to public marketplace */}
       <Route path="marketplace" element={<Navigate to="/products" replace />} />
-      <Route path="marketplace/product/:id" element={<Navigate to="/product/:id" replace />} />
+      <Route path="marketplace/product/:id" element={<ParamRedirect to="/product/:id" />} />
       <Route path="shops" element={<Navigate to="/shops" replace />} />
-      <Route path="shops/:id" element={<Navigate to="/shops/:id" replace />} />
+      <Route path="shops/:id" element={<ParamRedirect to="/shops/:id" />} />
 
       {/* Legacy/incorrect URL shapes — redirect instead of 404. */}
-      <Route path="product/:id" element={<Navigate to="/product/:id" replace />} />
+      <Route path="product/:id" element={<ParamRedirect to="/product/:id" />} />
     </Route>
   </>
 );

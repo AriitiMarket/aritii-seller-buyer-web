@@ -7,8 +7,23 @@ import { createSlice } from '@reduxjs/toolkit';
  * - Server cart: fetched on login, merged into guest cart automatically.
  * - Both render from the same state; the view layer decides which data to show.
  */
+function getInitialCart() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = localStorage.getItem('cartItems');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load cart from localStorage:', err);
+  }
+  return [];
+}
+
 const initialState = {
-  cart: [],
+  cart: getInitialCart(),
   isLoading: false,
   error: null,
 };
@@ -29,10 +44,24 @@ export const cartSlice = createSlice({
         state.cart.push(item);
       }
       state.error = null;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify(state.cart));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
     },
-    /** Replace the entire cart (server response). */
+    /** Replace the entire cart (server response or guest restore). */
     setCart: (state, action) => {
       state.cart = action.payload || [];
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify(state.cart));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
     },
     updateQuantity: (state, action) => {
       const { productId, quantity } = action.payload;
@@ -40,15 +69,36 @@ export const cartSlice = createSlice({
         (item.productId || item._id) === productId ? { ...item, quantity } : item
       );
       state.error = null;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify(state.cart));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
     },
     removeFromCart: (state, action) => {
       const key = action.payload?.productId || action.payload;
       state.cart = state.cart.filter((i) => (i.productId || i._id) !== key);
       state.error = null;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify(state.cart));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
     },
     clearCart: (state) => {
       state.cart = [];
       state.error = null;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify([]));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
     },
     setCartLoading: (state, action) => {
       state.isLoading = action.payload;

@@ -14,11 +14,12 @@ import {
   clearDeliveryLocation,
 } from '@/store/slices/deliveryLocationSlice';
 
+const EMPTY_LOCATION = Object.freeze({});
+
 export function useDeliveryLocation() {
   const dispatch = useDispatch();
-  const { regionId, regionName, cityId, cityName, zoneId, zoneName, portId, portName, loading, error } = useSelector(
-    (state) => state.deliveryLocation || {}
-  );
+  const locationState = useSelector((state) => state.deliveryLocation) || EMPTY_LOCATION;
+  const { regionId, regionName, cityId, cityName, zoneId, zoneName, portId, portName, loading, error } = locationState;
 
   const setLocation = useCallback((location) => {
     dispatch(setDeliveryLocation(location));

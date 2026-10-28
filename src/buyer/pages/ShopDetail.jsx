@@ -40,20 +40,37 @@ const ShopDetailsPage = () => {
   }, [shop, allShops]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || id === ':id' || id === 'undefined') {
+      setLoading(false);
+      setError('Shop not found');
+      return;
+    }
+
     (async () => {
       setLoading(true);
       setError(null);
       try {
         let s = null;
         try {
-          // Guests use the public shop endpoint (the authed one 401s).
-          s = isAuthenticated
-            ? await shopService.getById(id)
-            : await shopService.getPublicById(id);
+          // Public shop endpoint is available to all users (guests and authenticated)
+          s = await shopService.getPublicById(id);
+          if (!s && isAuthenticated) {
+            s = await shopService.getById(id);
+          }
         } catch {
-          s = null;
+          if (isAuthenticated) {
+            try {
+              s = await shopService.getById(id);
+            } catch {
+              s = null;
+            }
+          }
         }
-        if (!s && shops) s = shops.find((x) => x._id === id);
+        if (!s && shops) s = shops.find((x) => (x._id || x.id) === id);
         setShop(s || null);
       } catch (err) {
         setError(err.response?.data?.message || err.message || "Could not load this shop.");

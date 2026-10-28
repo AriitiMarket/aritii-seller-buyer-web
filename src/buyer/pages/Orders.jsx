@@ -9,8 +9,9 @@ import { toast } from 'react-toastify'
 import { getOrderStatus, isOrderDelivered, isOrderCancelled, isOrderInProgress, isOrderTrackable } from '@/buyer/utils/orderUtils'
 import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus'
 
-// Aritii Brand Colors
-const ARITII_GREEN = '#75d04b'
+// Aritii Marketplace Theme Colors
+const ARITII_AMBER = '#febd69'
+const ARITII_AMBER_HOVER = '#f3a847'
 const ARITII_DARK = '#131921'
 
 const ORDER_FILTERS = [
@@ -26,11 +27,13 @@ const SORT_OPTIONS = [
   { key: 'by_status', label: 'By Status', fn: (a, b) => String(a.orderStatus || '').localeCompare(String(b.orderStatus || '')) },
 ]
 
+const EMPTY_ORDERS = Object.freeze([])
+
 const BuyerOrdersPage = () => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.user?.user)
   const userId = user?.id || user?._id
-  const buyerOrders = useSelector((state) => state.order?.orders || [])
+  const buyerOrders = useSelector((state) => state.order?.orders ?? EMPTY_ORDERS)
   const loading = useSelector((state) => state.order?.buyerOrdersLoading || false)
   const error = useSelector((state) => state.order?.error || null)
   
@@ -124,7 +127,7 @@ const BuyerOrdersPage = () => {
   return (
     <div className="space-y-6 px-4 md:px-6">
       {/* Page Header */}
-      <div style={{ borderBottomColor: ARITII_GREEN }}>
+      <div>
         <h1 className="text-3xl md:text-4xl font-bold" style={{ color: ARITII_DARK }}>
           Your Orders
         </h1>
@@ -143,10 +146,9 @@ const BuyerOrdersPage = () => {
               onClick={() => setActiveFilter(f.key)}
               className={`px-4 py-2.5 rounded-full text-sm font-semibold transition border whitespace-nowrap h-11 flex items-center justify-center ${
                 activeFilter === f.key
-                  ? 'border-transparent text-white font-semibold'
-                  : 'bg-white text-market-on-surface-variant border-market-border hover:border-market-on-surface-variant'
+                  ? 'border-[#131921] bg-[#131921] text-white shadow-sm'
+                  : 'bg-white text-market-on-surface-variant border-market-border hover:border-[#131921]'
               }`}
-              style={activeFilter === f.key ? { backgroundColor: ARITII_GREEN } : {}}
             >
               {f.label} <span className="ml-1 opacity-80">({filterCounts[f.key]})</span>
             </button>
@@ -164,7 +166,7 @@ const BuyerOrdersPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-market-border rounded-xl text-sm focus:outline-none focus:ring-2 transition h-11"
-              style={{ '--tw-ring-color': ARITII_GREEN }}
+              style={{ '--tw-ring-color': ARITII_AMBER }}
             />
           </div>
 
@@ -174,7 +176,7 @@ const BuyerOrdersPage = () => {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-4 py-2.5 bg-white border border-market-border rounded-xl text-sm focus:outline-none focus:ring-2 appearance-none pr-10 cursor-pointer h-11 transition"
-              style={{ '--tw-ring-color': ARITII_GREEN }}
+              style={{ '--tw-ring-color': ARITII_AMBER }}
             >
               {SORT_OPTIONS.map(opt => (
                 <option key={opt.key} value={opt.key}>{opt.label}</option>
@@ -188,7 +190,7 @@ const BuyerOrdersPage = () => {
       {/* Orders Grid - Full width cards mobile */}
       {loading ? (
         <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 mx-auto" style={{ borderTopColor: ARITII_GREEN }} />
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 mx-auto" style={{ borderTopColor: ARITII_AMBER }} />
           <p className="text-market-on-surface-variant text-sm mt-6">Loading your orders...</p>
         </div>
       ) : error ? (
@@ -196,8 +198,7 @@ const BuyerOrdersPage = () => {
           <p className="text-red-600 text-sm mb-4">{error}</p>
           <button
             onClick={() => userId && dispatch(getAllOrdersOfUser(userId))}
-            className="px-5 py-2.5 text-white rounded-lg text-sm font-semibold transition"
-            style={{ backgroundColor: ARITII_GREEN }}
+            className="px-5 py-2.5 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] rounded-lg text-sm font-bold transition shadow-sm"
           >
             Try Again
           </button>
@@ -216,8 +217,7 @@ const BuyerOrdersPage = () => {
           {!searchQuery && (
             <Link
               to="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg text-sm font-semibold transition"
-              style={{ backgroundColor: ARITII_GREEN }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] rounded-lg text-sm font-bold transition shadow-sm"
             >
               Start Shopping
             </Link>
@@ -266,7 +266,7 @@ const BuyerOrdersPage = () => {
                     </div>
                     <div>
                       <p className="text-market-on-surface-variant font-medium">Total</p>
-                      <p className="font-bold" style={{ color: ARITII_GREEN }}>
+                      <p className="font-bold text-[#b12704]">
                         ETB {Number(order.totalPrice ?? order.total ?? order.amount ?? 0).toLocaleString()}
                       </p>
                     </div>
@@ -293,7 +293,7 @@ const BuyerOrdersPage = () => {
                               {qty > 1 && (
                                 <p className="text-xs text-market-on-surface-variant mt-0.5">Qty: {qty}</p>
                               )}
-                              <p className="text-sm font-bold mt-1" style={{ color: ARITII_GREEN }}>
+                              <p className="text-sm font-bold mt-1 text-[#b12704]">
                                 ETB {Number(item.discountPrice || item.price || 0).toLocaleString()}
                               </p>
                             </div>
@@ -301,8 +301,8 @@ const BuyerOrdersPage = () => {
                         )
                       })}
                       {items.length > 2 && (
-                        <div className="p-3 rounded-lg" style={{ backgroundColor: ARITII_GREEN + '15' }}>
-                          <p className="text-xs font-semibold" style={{ color: ARITII_GREEN }}>
+                        <div className="p-3 rounded-lg bg-[#febd69]/15">
+                          <p className="text-xs font-semibold text-[#131921]">
                             +{items.length - 2} more item{items.length - 2 > 1 ? 's' : ''}
                           </p>
                         </div>
@@ -316,16 +316,14 @@ const BuyerOrdersPage = () => {
                   {isOrderTrackable(order.orderStatus || order.status) && (
                     <Link
                       to={`/user/track/order/${order._id}`}
-                      className="w-full inline-flex items-center justify-center h-12 px-4 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition"
-                      style={{ backgroundColor: ARITII_GREEN }}
+                      className="w-full inline-flex items-center justify-center h-12 px-4 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] rounded-lg text-sm font-bold shadow-sm transition"
                     >
                       Track Package
                     </Link>
                   )}
                   <Link
                     to={`/user/order/${order._id}`}
-                    className="w-full inline-flex items-center justify-center h-12 px-4 border-2 rounded-lg text-sm font-semibold transition"
-                    style={{ borderColor: ARITII_GREEN, color: ARITII_GREEN }}
+                    className="w-full inline-flex items-center justify-center h-12 px-4 border border-[#d5d9d9] hover:bg-gray-50 text-[#0f1111] rounded-lg text-sm font-semibold shadow-sm transition"
                   >
                     View Details
                   </Link>
@@ -349,11 +347,10 @@ const BuyerOrdersPage = () => {
 
                 {/* Return/Refund Link */}
                 {normalizeStatus(order.orderStatus || order.status) === ORDER_STATUSES.DELIVERED && (
-                  <div className="px-4 py-3 md:px-6 border-t border-market-border" style={{ backgroundColor: ARITII_GREEN + '10' }}>
+                  <div className="px-4 py-3 md:px-6 border-t border-market-border bg-[#febd69]/10">
                     <Link
                       to={`/user/order/${order._id}#refund`}
-                      className="text-sm font-semibold hover:underline"
-                      style={{ color: ARITII_GREEN }}
+                      className="text-sm font-semibold text-[#007185] hover:text-[#c7511f] hover:underline"
                     >
                       Return or refund items →
                     </Link>
@@ -386,7 +383,7 @@ const BuyerOrdersPage = () => {
               onChange={(e) => setCancelReason(e.target.value)}
               placeholder="Cancellation reason..."
               className="w-full border border-market-border rounded-lg p-3 text-sm mb-4 focus:outline-none resize-none"
-              style={{ '--tw-ring-color': ARITII_GREEN }}
+              style={{ '--tw-ring-color': ARITII_AMBER }}
               rows={3}
             />
             <div className="flex gap-3">

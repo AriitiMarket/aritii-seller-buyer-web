@@ -96,7 +96,7 @@ const BuyerWishlistPage = () => {
           <p className="text-market-on-surface-variant text-sm mb-6">Save items you love to your wishlist</p>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#75d04b] text-white rounded-lg text-sm font-semibold hover:bg-[#5ac12f] transition shadow-sm"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] rounded-lg text-sm font-bold transition shadow-sm"
           >
             Discover Products
           </Link>
@@ -112,7 +112,7 @@ const BuyerWishlistPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl md:text-3xl font-extrabold text-[#131921] dark:text-white">Saved Items</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#75d04b]/15 text-[#5ac12f]">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#febd69]/20 text-[#131921] dark:text-[#febd69] border border-[#febd69]/30">
               {wishlist.length} item{wishlist.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -123,7 +123,7 @@ const BuyerWishlistPage = () => {
 
         <Link
           to="/products"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-[#75d04b] border border-[#75d04b] hover:bg-[#75d04b]/10 transition w-fit"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-[#0f1111] bg-white border border-gray-300 hover:bg-gray-50 transition w-fit shadow-sm"
         >
           Continue Shopping →
         </Link>

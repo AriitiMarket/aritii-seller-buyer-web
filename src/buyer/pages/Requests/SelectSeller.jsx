@@ -69,7 +69,7 @@ export default function SelectSellerPage() {
       <div className="flex flex-col gap-3">
         <Link
           to="/my-dashboard/requests"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#75d04b] hover:underline w-fit"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#007185] hover:text-[#c7511f] hover:underline w-fit"
         >
           <FiArrowLeft size={14} />
           Back to Product Requests
@@ -94,14 +94,14 @@ export default function SelectSellerPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search sellers, shops or business categories…"
             aria-label="Search sellers"
-            className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#75d04b]"
+            className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#febd69]"
           />
         </div>
         <select
           value={category ?? ''}
           onChange={(event) => setCategory(event.target.value)}
           aria-label="Filter by category"
-          className="sm:w-56 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#75d04b]"
+          className="sm:w-56 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#febd69]"
         >
           <option value="">All categories</option>
           {categories.map((value) => (

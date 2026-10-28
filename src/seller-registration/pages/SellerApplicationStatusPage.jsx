@@ -71,6 +71,17 @@ export default function SellerApplicationStatusPage() {
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow sm:p-10">
+        {/* Top Navigation */}
+        <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-gray-900 transition"
+          >
+            <span aria-hidden="true">&larr;</span> Back to Home
+          </Link>
+          <span className="text-xs text-gray-400">Aritii Seller Portal</span>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold">Seller Application</h1>
           <SellerStatusBadge status={application.status || 'DRAFT'} />
@@ -129,11 +140,38 @@ export default function SellerApplicationStatusPage() {
         )}
 
         <div className="mt-8"><SellerApplicationSummary application={application} /></div>
-        {canContinue && !staleDraft && (
-          <Link to="/seller-registration" className="mt-8 inline-flex rounded bg-[#75d04b] px-5 py-2 text-white">
-            {needsResubmit ? 'Update and Resubmit' : 'Continue Registration'}
+
+        {/* Action Buttons with Back to Home Button */}
+        <div className="mt-8 flex flex-wrap items-center gap-3 pt-6 border-t border-gray-200">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#131921] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#232f3e] active:scale-[0.99] transition"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Back to Home
           </Link>
-        )}
+
+          {canContinue && !staleDraft && (
+            <Link
+              to="/seller-registration"
+              className="inline-flex items-center justify-center rounded-lg bg-[#75d04b] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#62b53b] active:scale-[0.99] shadow-sm transition"
+            >
+              {needsResubmit ? 'Update and Resubmit' : 'Continue Registration'}
+            </Link>
+          )}
+
+          {isApproved && (
+            <Link
+              to="/business"
+              className="inline-flex items-center justify-center rounded-lg bg-[#febd69] hover:bg-[#f3a847] text-[#131921] px-6 py-2.5 text-sm font-bold shadow-sm transition"
+            >
+              Seller Dashboard
+            </Link>
+          )}
+        </div>
         
         {/* If role is approved but application not synced, provide link to dashboard */}
         {roleAccess.allowed && application.status !== 'APPROVED' && (

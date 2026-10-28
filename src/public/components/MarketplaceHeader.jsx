@@ -4,6 +4,7 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineShoppingCart, AiOutlineUser, Ai
 import { MdLocalShipping, MdLocationOn, MdDashboard, MdSettings } from 'react-icons/md'
 import BrandLogo from '@/components/common/BrandLogo'
 import HeaderSearch from '@/shared/components/header/HeaderSearch'
+import SubNavBar from '@/features/marketplace/components/SubNavBar'
 import { useAuth } from '@/auth/hooks/useAuth'
 import { useSelector, useDispatch } from 'react-redux'
 import { logoutUser } from '@/store/slices/userThunks'
@@ -43,7 +44,7 @@ const NAV_LINKS = [
   { label: 'Customer Service', to: '/help', match: ['/help', '/support', '/faq'] },
 ]
 
-const MarketplaceHeader = () => {
+const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [deliverToOpen, setDeliverToOpen] = useState(false)
   const deliverToRef = useRef(null)
@@ -238,7 +239,7 @@ const MarketplaceHeader = () => {
                 </Link>
               </div>
 
-              {/* Account & Lists — opens the unified slide-out menu drawer */}
+              {/* Account / User Menu — opens the unified slide-out menu drawer */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
@@ -249,16 +250,16 @@ const MarketplaceHeader = () => {
                 <AiOutlineUser size={18} className="text-[#febd69] sm:hidden" />
                 <div className="text-left hidden sm:flex sm:flex-col leading-tight">
                   <span className="text-[10px] text-[#cccccc] font-normal leading-none truncate max-w-[110px]">
-                    {isAuthenticated ? `Hello, ${user?.name || user?.firstName || 'User'}` : 'Hello, Sign in'}
+                    {isAuthenticated ? `Hi, ${user?.name?.split(' ')[0] || user?.firstName || 'User'}` : 'Sign in'}
                   </span>
                   <span className="text-xs font-bold text-white flex items-center leading-tight">
-                    Account & Lists
+                    My Account
                     <span className="text-[8px] ml-1 text-gray-400">▼</span>
                   </span>
                 </div>
               </button>
 
-              {/* Returns & Orders (Aritii link) */}
+              {/* Orders link (removed Returns &) */}
               <Link
                 to="/my-dashboard/orders"
                 onClick={(e) => {
@@ -268,15 +269,15 @@ const MarketplaceHeader = () => {
                   }
                 }}
                 className="hidden lg:flex flex-col text-left p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded leading-tight"
-                aria-label="Returns and Orders"
+                aria-label="Orders"
               >
-                <span className="text-[10px] text-[#cccccc] font-normal leading-none">Returns</span>
-                <span className="text-xs font-bold text-white leading-tight">& Orders</span>
+                <span className="text-[10px] text-[#cccccc] font-normal leading-none">Track</span>
+                <span className="text-xs font-bold text-white leading-tight">Orders</span>
               </Link>
 
               {/* Cart — Aritii Shopping Cart with badge */}
               <Link
-                to="/my-dashboard/cart"
+                to="/cart"
                 className="relative flex items-center gap-1 p-1 sm:px-2 sm:py-1 text-white transition-colors hover:outline hover:outline-1 hover:outline-white rounded"
                 aria-label={`Cart, ${cartItemCount} items`}
               >
@@ -306,24 +307,21 @@ const MarketplaceHeader = () => {
             </div>
           </div>
         </div>
-      </header>
 
-      {/* ===== Mobile search strip — full-width second row on phones =====
-          The in-header search only shows from md up; below that the search
-          lives here at full width (no department dropdown — it can't render
-          meaningfully in the narrow in-row search). In normal flow (NOT
-          sticky): it scrolls away under the pinned header, and the sticky
-          sub-nav below reaches its pinned offset as the strip is
-          covered, so no other sticky offsets change. */}
-      <div className="md:hidden w-full bg-[#131921] border-b border-[#232f3e] px-4 py-2">
-        <HeaderSearch
-          variant="inline"
-          destination={(term) => `/products?search=${encodeURIComponent(term)}`}
-          placeholder="Search products, shops…"
-          ariaLabel="Search products and shops"
-          className="w-full"
-        />
-      </div>
+        {/* ===== Mobile search strip — full-width second row on phones ===== */}
+        <div className="md:hidden w-full bg-[#131921] border-t border-[#232f3e] px-3 sm:px-4 py-2">
+          <HeaderSearch
+            variant="inline"
+            destination={(term) => `/products?search=${encodeURIComponent(term)}`}
+            placeholder="Search products, shops…"
+            ariaLabel="Search products and shops"
+            className="w-full"
+          />
+        </div>
+
+        {/* ===== Integrated Sub Navigation Bar — in the same header div with matching background ===== */}
+        {!hideSubNav && <SubNavBar isEmbedded={true} onOpenAll={onOpenAll} />}
+      </header>
 
       {/* ===== Slide-out Menu Drawer (accessible on all screen sizes from top-right icon) ===== */}
       {mobileMenuOpen && (

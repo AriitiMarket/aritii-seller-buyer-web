@@ -136,7 +136,9 @@ const ProductDetailPage = () => {
   const handleBuyNow = async () => {
     if (!data) return
     if (!isAuthenticated) {
-      openLoginModal('BUYER')
+      await dispatch(addTocart({ ...data, quantity }))
+      toast.info('Please sign in to complete your purchase.')
+      navigate('/login', { state: { from: '/checkout' } })
       return
     }
     await dispatch(addTocart({ ...data, quantity }))
@@ -394,15 +396,26 @@ const ProductDetailPage = () => {
                   {/* Delivery Info */}
                   <div className="text-xs text-gray-700 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-800/60 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-start gap-1.5">
-                      <AiOutlineEnvironment size={16} className="text-[#75d04b] flex-shrink-0 mt-0.5" />
+                      <AiOutlineEnvironment size={16} className="text-[#e77600] flex-shrink-0 mt-0.5" />
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Deliver to: </span>
                         <span className="font-bold text-gray-900 dark:text-white">{deliveryLocationText}</span>
                       </div>
                     </div>
-                    <p className="text-[11px] text-green-700 dark:text-green-400 font-medium pl-5">
-                      Fast local transit available
-                    </p>
+                    {data?.shop?.delivery?.servesSelectedZone === false ? (
+                      <div className="mt-1 pt-1 border-t border-amber-200 text-[11px] text-amber-800 dark:text-amber-300">
+                        <span className="font-bold text-amber-900 dark:text-amber-200">⚠️ Seller does not deliver to this area.</span>
+                        {data.shop.delivery?.zoneNames?.length > 0 && (
+                          <p className="mt-0.5">
+                            Delivers to: {data.shop.delivery.zoneNames.map((z) => z.name || z).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-green-700 dark:text-green-400 font-medium pl-5">
+                        Fast local transit available
+                      </p>
+                    )}
                   </div>
 
                   {/* Stock state */}

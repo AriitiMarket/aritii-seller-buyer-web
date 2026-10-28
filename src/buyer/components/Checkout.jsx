@@ -7,9 +7,10 @@ import EmptyState from "@/components/common/EmptyState";
 import { buildDestination, isUsableAddress } from "@/shared/utils/destination";
 import { deliveryEta } from "@/shared/utils/deliveryPricing";
 import { useDeliveryLocation } from "@/shared/hooks/useDeliveryLocation";
-import { validateCartForZone } from "@/store/slices/cartThunks";
+import { validateCartForZone, removeFromCart } from "@/store/slices/cartThunks";
 import { FiEdit2, FiCheck, FiPlus, FiMapPin, FiX } from "react-icons/fi";
 import LocationSelector from "@/components/common/LocationSelector";
+import LocationCompatibilityAdvisor from "@/features/marketplace/components/LocationCompatibilityAdvisor";
 import PromoCodeInput from "./PromoCodeInput";
 
 const money = (value) =>
@@ -553,13 +554,12 @@ const Checkout = () => {
   const totalPrice = (subTotalPrice + shipping - discountAmount).toFixed(2);
 
   const selectedAddress = selectedAddressForQuote;
+  const finalZoneId = orderZoneId || quoteZoneId || '';
+  const finalZoneName = orderZoneName || selectedAddress?.deliveryZoneName || zoneName || '';
+  const finalPortId = orderPortId || selectedAddress?.portId || null;
+  const finalPortName = orderPortName || selectedAddress?.portName || '';
 
   const paymentSubmit = () => {
-    const finalZoneId = orderZoneId || quoteZoneId;
-    const finalZoneName = orderZoneName || selectedAddress?.deliveryZoneName || zoneName;
-    const finalPortId = orderPortId || selectedAddress?.portId || null;
-    const finalPortName = orderPortName || selectedAddress?.portName || '';
-
     if (fulfilmentType === 'delivery' && loadingDeliveryQuote) {
       toast.info("Calculating delivery fee, please wait a moment...");
       return;
@@ -652,9 +652,20 @@ const Checkout = () => {
   return (
     <div className="w-full flex flex-col items-center py-8 px-4 bg-market-surface-dim min-h-screen">
       <div className="w-full max-w-6xl">
-        {/* Zone validation banner */}
+        {/* Zone validation & Location Compatibility Advisor */}
         {zoneValidation && zoneValidation.valid === false && (
-          <ZoneValidationBanner validation={zoneValidation} />
+          <LocationCompatibilityAdvisor
+            validation={zoneValidation}
+            currentZoneId={quoteZoneId}
+            currentZoneName={finalZoneName || orderZoneName || zoneName}
+            onRemoveItem={(productId) => dispatch(removeFromCart({ productId }))}
+            savedAddresses={addresses}
+            onSelectAddress={(addressId) => setSelectedAddressId(addressId)}
+            onZoneSelect={(loc) => {
+              if (loc.zoneId) setOrderZoneId(loc.zoneId);
+              if (loc.zoneName) setOrderZoneName(loc.zoneName);
+            }}
+          />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -669,8 +680,9 @@ const Checkout = () => {
               {fulfilmentType === 'pickup' && <p className="text-sm text-gray-600 mt-3">Pickup is available only from shops that have enabled collection. The shop will provide its collection details with your order.</p>}
             </section>
             {/* Step 1: Delivery Address */}
-            {fulfilmentType === 'delivery' && <>
-            <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
+            {fulfilmentType === 'delivery' && (
+              <div key="delivery-flow-container" className="space-y-6">
+                <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-market-primary text-market-on-primary flex items-center justify-center font-bold">
                   1
@@ -779,12 +791,12 @@ const Checkout = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {addresses.map((item) => {
+                        {addresses.map((item, index) => {
                           const selectable = Boolean(item.sectorId && item.phone);
                           const isSelected = selectedAddressId === item._id;
                           return (
                             <div
-                              key={item._id}
+                              key={item._id || item.id || `saved-addr-${index}`}
                               onClick={() => {
                                 if (selectable) setSelectedAddressId(item._id);
                               }}
@@ -1123,8 +1135,8 @@ const Checkout = () => {
                           }}
                         >
                           <option value="">Select delivery zone</option>
-                          {availableZones.map((z) => (
-                            <option key={z._id} value={z._id}>
+                          {availableZones.map((z, idx) => (
+                            <option key={z._id || z.id || `zone-${idx}`} value={z._id || z.id}>
                               {z.name} {z.code ? `(${z.code})` : ''}
                             </option>
                           ))}
@@ -1161,8 +1173,8 @@ const Checkout = () => {
                           }}
                         >
                           <option value="">Select delivery port / hub</option>
-                          {availablePorts.map((p) => (
-                            <option key={p._id} value={p._id}>
+                          {availablePorts.map((p, idx) => (
+                            <option key={p._id || p.id || `port-${idx}`} value={p._id || p.id}>
                               {p.name} {p.description ? `— ${p.description}` : ''}
                             </option>
                           ))}
@@ -1200,7 +1212,8 @@ const Checkout = () => {
                 </div>
               )}
             </div>
-            </>}
+          </div>
+        )}
 
             {/* Step 2: Order Review */}
             <div className="bg-white rounded-lg border border-market-border p-6 shadow-sm">
@@ -1218,8 +1231,9 @@ const Checkout = () => {
                 {cart.map((item, idx) => {
                   const qty = item.quantity ?? item.qty ?? 1;
                   const unit = Number(item.price || item.discountPrice || 0);
+                  const itemId = item.productId || item._id || `cart-item-${idx}`;
                   return (
-                    <div key={idx} className="flex items-start gap-4 pb-4 border-b border-market-border last:border-0">
+                    <div key={itemId} className="flex items-start gap-4 pb-4 border-b border-market-border last:border-0">
                       <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
                         [Image]
                       </div>

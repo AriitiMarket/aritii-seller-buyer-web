@@ -1,19 +1,17 @@
-import MarketplaceHeader from "@/public/components/MarketplaceHeader"
+import MarketplaceHeader from "@/public/components/MarketplaceHeader";
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Footer from '@/shared/components/Footer';
 import SkipToContent from '@/shared/components/SkipToContent';
 import PublicScrollToTop from '@/public/components/PublicScrollToTop';
-import SubNavBar from '@/features/marketplace/components/SubNavBar';
 
 /**
  * PublicCatalogLayout - Wraps all public catalog routes (Products, Categories,
  * Shops, Deals, BestSelling, Search, ProductDetail, ShopDetail, Requests).
  *
  * Chrome stack (mobile-first):
- *   1. MarketplaceHeader — sticky h-14 (56px), full-bleed
- *   2. SubNavBar — sticky below the header at 88px (36px), marketplace navigation
- *   3. Page content — inside the standard max-w-7xl container
+ *   1. MarketplaceHeader — sticky header containing primary bar and secondary subnav in ONE view
+ *   2. Page content — inside the standard max-w-7xl container
  */
 const PublicCatalogLayout = () => {
   return (
@@ -21,7 +19,6 @@ const PublicCatalogLayout = () => {
       <PublicScrollToTop />
       <SkipToContent />
       <MarketplaceHeader />
-      <SubNavBar stickyTopClass="top-12" />
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none bg-white dark:bg-gray-950">
         <div className="w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">

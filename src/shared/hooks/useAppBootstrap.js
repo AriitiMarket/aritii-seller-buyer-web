@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Store from '@/store';
 import { loadUser, loadSeller } from '@/store/slices/userThunks';
 import { fetchWishlist } from '@/store/slices/wishlistThunks';
+import { syncGuestCart, fetchCart } from '@/store/slices/cartThunks';
 import { useLayout } from '@/app/providers/LayoutContext';
 
 let bootstrapped = false;
@@ -37,15 +38,20 @@ export function useAppBootstrap() {
       Store.dispatch(loadSeller());
       if (Store.getState().user?.isAuthenticated) {
         Store.dispatch(fetchWishlist());
+        Store.dispatch(syncGuestCart());
+      } else {
+        Store.dispatch(fetchCart());
       }
     }).catch(() => {
       // loadUser failed — loadSeller will also fail, but dispatch it anyway
       // so the seller slice resolves (isLoading: false) instead of hanging.
       Store.dispatch(loadSeller());
+      Store.dispatch(fetchCart());
     });
 
     // Handle token-expired / unauthorized events from the API layer.
     const onUnauthorized = () => {
+      Store.dispatch({ type: 'LogoutSuccess' });
       openLoginModal('BUYER', window.location.pathname + window.location.search);
     };
     window.addEventListener('auth:unauthorized', onUnauthorized);

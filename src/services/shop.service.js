@@ -54,15 +54,26 @@ export const shopService = {
    * @returns {Promise} - Shop object with limited fields
    */
   async getPublicById(shopId) {
+    if (!shopId || shopId === ':id' || shopId === 'undefined' || shopId === 'null') {
+      return null;
+    }
     const cacheKey = `shop:public:${shopId}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
 
-    const { data } = await publicApi.get(`/shop/public/${shopId}`, { skipAuth: true });
-    const shop = data.shop || null;
-    cache.set(cacheKey, shop, 20 * 60 * 1000);
-    return shop;
+    try {
+      const { data } = await publicApi.get(`/shop/public/${shopId}`, { skipAuth: true });
+      const shop = data?.shop || null;
+      cache.set(cacheKey, shop, 20 * 60 * 1000);
+      return shop;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        cache.set(cacheKey, null, 10 * 60 * 1000);
+        return null;
+      }
+      throw err;
+    }
   },
 
   /**
@@ -90,15 +101,26 @@ export const shopService = {
    * @returns {Promise} - Shop object
    */
   async getById(shopId) {
+    if (!shopId || shopId === ':id' || shopId === 'undefined' || shopId === 'null') {
+      return null;
+    }
     const cacheKey = `shop:${shopId}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
 
-    const { data } = await api.get(`/shop/get-shop-info/${shopId}`);
-    const shop = data.shop || null;
-    cache.set(cacheKey, shop, 20 * 60 * 1000);
-    return shop;
+    try {
+      const { data } = await api.get(`/shop/get-shop-info/${shopId}`);
+      const shop = data?.shop || null;
+      cache.set(cacheKey, shop, 20 * 60 * 1000);
+      return shop;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        cache.set(cacheKey, null, 10 * 60 * 1000);
+        return null;
+      }
+      throw err;
+    }
   },
 
   /**

@@ -25,7 +25,8 @@ import { formatCurrency, formatDateTime } from '@/shared/utils/format';
 import { FiPlus, FiSearch, FiPackage, FiClock, FiArrowRight, FiXCircle } from 'react-icons/fi';
 
 // Aritii Brand Colors
-const ARITII_GREEN = '#75d04b'
+const ARITII_AMBER = '#febd69'
+const ARITII_AMBER_HOVER = '#f3a847'
 const ARITII_DARK = '#131921'
 
 /**
@@ -109,25 +110,25 @@ export default function BuyerRequestsPage() {
       <div className="mx-auto max-w-[1440px] space-y-4 md:space-y-5">
       {/* Header */}
       <div className="relative overflow-hidden rounded-xl border border-market-border bg-white px-4 py-4 shadow-sm sm:px-5 md:px-6 md:py-5">
-        <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full bg-[#75d04b]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full bg-[#febd69]/15 blur-3xl" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#75d04b]">Aritii Buyer Workspace</p>
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#e77600]">Aritii Buyer Workspace</p>
             <h1 className="text-2xl font-bold tracking-tight text-market-on-surface md:text-3xl">Product Requests & Custom Orders</h1>
             <p className="mt-1.5 max-w-xl text-sm leading-5 text-market-on-surface-variant">
               Request bespoke or bulk items directly from verified Ethiopian sellers, negotiate offers in real time, and convert to an order with escrow protection.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-medium text-market-on-surface-variant">
               <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">1. Describe product</span>
-              <span className="text-[#75d04b] font-bold">→</span>
+              <span className="text-[#e77600] font-bold">→</span>
               <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">2. Agree on offer</span>
-              <span className="text-[#75d04b] font-bold">→</span>
+              <span className="text-[#e77600] font-bold">→</span>
               <span className="rounded-full border border-market-border bg-market-surface-dim px-2.5 py-1">3. Secure Escrow Order</span>
             </div>
           </div>
           <Link
             to="/my-dashboard/requests/new"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#75d04b] hover:bg-[#5ac12f] px-5 text-sm font-bold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#75d04b] focus:ring-offset-2"
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] px-5 text-sm font-bold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#febd69] focus:ring-offset-2"
           >
             <FiPlus size={18} />
             New Product Request
@@ -152,8 +153,8 @@ export default function BuyerRequestsPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search requests, products or sellers…"
             aria-label="Search requests"
-                className="w-full pl-10 pr-4 py-2.5 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-11"
-            style={{ '--tw-ring-color': ARITII_GREEN }}
+            className="w-full pl-10 pr-4 py-2.5 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-11"
+            style={{ '--tw-ring-color': ARITII_AMBER }}
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
@@ -162,7 +163,7 @@ export default function BuyerRequestsPage() {
             onChange={(event) => setStatusFilter(event.target.value)}
             aria-label="Filter by status"
             className="min-w-0 sm:w-40 px-2.5 py-2 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-10"
-            style={{ '--tw-ring-color': ARITII_GREEN }}
+            style={{ '--tw-ring-color': ARITII_AMBER }}
           >
             {STATUS_FILTER_OPTIONS.map((option) => (
               <option key={option.id || 'any'} value={option.id}>
@@ -175,7 +176,7 @@ export default function BuyerRequestsPage() {
             onChange={(event) => setDateFilter(event.target.value)}
             aria-label="Filter by date"
             className="min-w-0 sm:w-36 px-2.5 py-2 border border-market-border rounded-lg text-sm bg-market-surface-dim focus:outline-none focus:ring-2 transition h-10"
-            style={{ '--tw-ring-color': ARITII_GREEN }}
+            style={{ '--tw-ring-color': ARITII_AMBER }}
           >
             {DATE_FILTERS.map((option) => (
               <option key={option.id} value={option.id}>
@@ -207,8 +208,7 @@ export default function BuyerRequestsPage() {
             requests.length === 0 ? (
               <Link to="/my-dashboard/requests/new">
                 <Button
-                  className="text-white flex items-center gap-2"
-                  style={{ backgroundColor: ARITII_GREEN }}
+                  className="bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] font-bold flex items-center gap-2"
                 >
                   <FiPlus size={16} />
                   Request Product
@@ -230,20 +230,19 @@ export default function BuyerRequestsPage() {
             return (
             <article
                 key={request._id}
-                className="group rounded-xl border border-market-border bg-white p-4 shadow-sm transition hover:border-[#75d04b]/50 hover:shadow-md md:p-5"
+                className="group rounded-xl border border-market-border bg-white p-4 shadow-sm transition hover:border-[#febd69] hover:shadow-md md:p-5"
               >
                 {/* Request Header */}
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-2">
                       <span
-                        className="text-xs font-semibold px-3 py-1 rounded-full text-white"
-                        style={{ backgroundColor: ARITII_GREEN }}
+                        className="text-xs font-semibold px-3 py-1 rounded-full bg-[#131921] text-white"
                       >
                         {requestCode(request._id)}
                       </span>
                       <h2 className="font-semibold text-market-on-surface flex items-center gap-2 truncate text-base md:text-lg">
-                        <FiPackage className="flex-shrink-0" size={18} style={{ color: ARITII_GREEN }} />
+                        <FiPackage className="flex-shrink-0 text-[#e77600]" size={18} />
                         <span className="truncate">{request.title || request.subject}</span>
                       </h2>
                     </div>
@@ -272,12 +271,11 @@ export default function BuyerRequestsPage() {
                 {/* Seller Offer */}
                 {offer ? (
                   <div
-                    className="p-3 md:p-4 rounded-lg mb-4 text-sm"
-                    style={{ backgroundColor: ARITII_GREEN + '15' }}
+                    className="p-3 md:p-4 rounded-lg mb-4 text-sm bg-[#febd69]/15 border border-[#febd69]/30"
                   >
                     <p className="text-market-on-surface">
                       Seller offer: <span className="font-semibold">{offer.quantity} ×</span> {formatCurrency(offer.unitPrice)} ={' '}
-                      <span className="font-bold" style={{ color: ARITII_GREEN }}>
+                      <span className="font-bold text-[#b12704]">
                         {formatCurrency(offerTotal(offer))}
                       </span>
                     </p>
@@ -288,8 +286,7 @@ export default function BuyerRequestsPage() {
                 <div className="flex flex-col md:flex-row items-stretch md:items-center flex-wrap gap-2">
                   <Link
                     to={`/my-dashboard/requests/${request._id}`}
-                    className="flex-1 md:flex-none h-11 px-5 inline-flex items-center justify-center gap-2 text-white rounded-lg font-semibold hover:opacity-90 transition"
-                    style={{ backgroundColor: ARITII_GREEN }}
+                    className="flex-1 md:flex-none h-11 px-5 inline-flex items-center justify-center gap-2 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] border border-[#a88734] rounded-lg font-bold shadow-sm transition"
                   >
                     {OPEN_STATUSES.includes(status) ? 'Continue' : 'Open'}
                     <FiArrowRight size={16} />

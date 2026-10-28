@@ -4,8 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ProductImage } from '@/components/common/ImageWithFallback';
 import EmptyState from '@/components/common/EmptyState';
 import { removeFromCart, updateCartQuantity, fetchCart, validateCartForZone } from '@/store/slices/cartThunks';
+import { setCartError } from '@/store/slices/cartSlice';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 import DeliveryZoneSelector from '@/features/marketplace/components/DeliveryZoneSelector';
+import LocationCompatibilityAdvisor from '@/features/marketplace/components/LocationCompatibilityAdvisor';
 import { shopService } from '@/services';
 import { toast } from 'react-toastify';
 import { money2, quoteCartDelivery } from '@/shared/utils/deliveryPricing';
@@ -16,7 +18,8 @@ const money = (value) =>
 const BuyerCartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cart = [], isLoading } = useSelector((state) => state.cart);
+  const { cart = [], isLoading, error: cartError } = useSelector((state) => state.cart || {});
+  const { isAuthenticated } = useSelector((state) => state.user || {});
   const { zoneId, zoneName, cityName, regionId, regionName, cityId, hasZone, setLocation } = useDeliveryLocation();
   const [zoneValidation, setZoneValidation] = useState(null);
   const [validating, setValidating] = useState(false);
@@ -35,20 +38,20 @@ const BuyerCartPage = () => {
   useEffect(() => {
     let active = true;
     const ids = [...new Set(cart.map((item) => item.shopId || item.shop?._id)
-      .filter((id) => id && !cart.some((item) => String(item.shopId || item.shop?._id) === String(id) && (item.shop?.name || item.shopName))))];
+      .filter((id) => id && id !== ':id' && !shopNames[id] && !cart.some((item) => String(item.shopId || item.shop?._id) === String(id) && (item.shop?.name || item.shopName))))];
     if (!ids.length) return undefined;
     Promise.all(ids.map(async (id) => {
       try {
         const shop = await shopService.getPublicById(id);
-        return [id, shop?.name || shop?.shopName || ''];
+        return [id, shop?.name || shop?.shopName || 'Store'];
       } catch {
-        return [id, ''];
+        return [id, 'Store'];
       }
     })).then((entries) => {
       if (active) setShopNames((previous) => ({ ...previous, ...Object.fromEntries(entries) }));
     });
     return () => { active = false; };
-  }, [cart]);
+  }, [cart, shopNames]);
 
   const cartSignature = (cart || []).map((i) => `${i.productId || i._id}:${i.quantity || 1}`).join('|');
 
@@ -181,6 +184,24 @@ const BuyerCartPage = () => {
           </Link>
         </div>
 
+        {/* Responsive Cart Error Banner */}
+        {cartError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center justify-between gap-3 shadow-sm" role="alert">
+            <div className="flex items-center gap-2">
+              <span className="text-red-500 font-bold">⚠️</span>
+              <span>{cartError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => dispatch(setCartError(null))}
+              className="text-red-600 hover:text-red-800 font-bold text-xs uppercase px-2 py-1 rounded hover:bg-red-100 transition"
+              aria-label="Dismiss error"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Delivery zone banner */}
         {hasZone && (
           <div className="flex items-center gap-3 px-4 py-3 bg-[#75d04b]/10 border border-[#75d04b]/20 rounded-lg mb-6">
@@ -211,43 +232,15 @@ const BuyerCartPage = () => {
           </div>
         )}
 
-        {/* Zone validation warning */}
+        {/* Zone validation & Location Compatibility Advisor */}
         {zoneValidation && zoneValidation.valid === false && (
-          <div className="border border-amber-200 bg-amber-50 rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-amber-600">⚠</span>
-              <div>
-                <p className="text-sm font-semibold text-amber-800">
-                  Some items cannot be delivered to {zoneName}
-                </p>
-                <p className="text-xs text-amber-700 mt-1">
-                  Remove them or change your delivery zone before checkout.
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {zoneValidation.items
-                ?.filter((i) => i.eligible === false)
-                .map((item) => (
-                  <div key={item.productId || item._id} className="flex items-center gap-3 p-3 bg-white rounded border border-amber-100">
-                    <div className="text-amber-500">✕</div>
-                    <div className="flex-1">
-                      <p className="text-sm text-amber-800 font-medium">{item.name}</p>
-                      <p className="text-xs text-amber-600">
-                        {item.message || (item.shopName ? `${item.shopName} does not deliver to this zone` : 'Delivery unavailable for this zone')}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => dispatch(removeFromCart({ productId: item.productId || item._id }))}
-                      className="text-xs font-semibold text-amber-600 hover:underline px-2 py-1"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
+          <LocationCompatibilityAdvisor
+            validation={zoneValidation}
+            currentZoneId={zoneId}
+            currentZoneName={zoneName}
+            onRemoveItem={(productId) => dispatch(removeFromCart({ productId }))}
+            onZoneSelect={setLocation}
+          />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-5 lg:gap-7 items-start">
@@ -290,22 +283,22 @@ const BuyerCartPage = () => {
                             </p>
 
                             {/* Quantity Controls & Price */}
-                            <div className="flex items-center gap-4 mt-3">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
                               {/* Larger 44px Quantity Buttons */}
                               <div className="flex items-center border border-market-border rounded-md bg-white">
                                 <button
                                   onClick={() => setQty(item, qty - 1)}
                                   disabled={qty <= 1 || isIncompatible}
-                                  className="w-11 h-11 rounded-l flex items-center justify-center text-market-on-surface hover:bg-market-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold"
+                                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-l flex items-center justify-center text-market-on-surface hover:bg-market-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold"
                                   aria-label="Decrease quantity"
                                 >
                                   −
                                 </button>
-                                <span className="w-12 text-center text-sm font-semibold text-market-on-surface border-l border-r border-market-border">{qty}</span>
+                                <span className="w-10 sm:w-12 text-center text-sm font-semibold text-market-on-surface border-l border-r border-market-border">{qty}</span>
                                 <button
                                   onClick={() => setQty(item, qty + 1)}
                                   disabled={qty >= stock || isIncompatible}
-                                  className="w-11 h-11 rounded-r flex items-center justify-center text-market-on-surface hover:bg-market-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold"
+                                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-r flex items-center justify-center text-market-on-surface hover:bg-market-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold"
                                   aria-label="Increase quantity"
                                 >
                                   +
@@ -313,8 +306,8 @@ const BuyerCartPage = () => {
                               </div>
 
                               {/* Price */}
-                              <div className="text-right">
-                                <p className={`text-lg font-bold ${isIncompatible ? 'text-amber-600' : 'text-market-on-surface'}`}>
+                              <div className="text-right ml-auto sm:ml-0">
+                                <p className={`text-base sm:text-lg font-bold ${isIncompatible ? 'text-amber-600' : 'text-market-on-surface'}`}>
                                   {money(unit * qty)}
                                 </p>
                                 {unit && <p className="text-xs text-market-on-surface-variant">{money(unit)} each</p>}
@@ -402,6 +395,11 @@ const BuyerCartPage = () => {
                     toast.error('Please remove items not eligible for delivery before checkout.');
                     return;
                   }
+                  if (!isAuthenticated) {
+                    toast.info('Please sign in to complete your order.');
+                    navigate('/login', { state: { from: '/checkout' } });
+                    return;
+                  }
                   navigate('/checkout');
                 }}
                 disabled={hasIncompatibleItems}
@@ -411,7 +409,11 @@ const BuyerCartPage = () => {
                     : 'bg-market-primary text-market-on-primary hover:bg-market-primary-hover active:bg-market-primary-pressed shadow-sm'
                 }`}
               >
-                {hasIncompatibleItems ? 'Fix items before checkout' : 'Proceed to checkout'}
+                {hasIncompatibleItems
+                  ? 'Fix items before checkout'
+                  : !isAuthenticated
+                  ? 'Sign in to checkout'
+                  : 'Proceed to checkout'}
               </button>
 
               <p className="text-xs text-market-secondary mt-3 flex items-center gap-1">

@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import SkipToContent from '@/shared/components/SkipToContent'
 import BuyerHeader from '@/buyer/components/BuyerHeader'
-import SubNavBar from '@/features/marketplace/components/SubNavBar'
 
 const BuyerLayout = () => {
   const location = useLocation()
@@ -16,11 +15,8 @@ const BuyerLayout = () => {
     <div className="flex flex-col h-screen bg-white dark:bg-gray-950">
       <SkipToContent />
 
-      {/* ===== Buyer header — same as marketplace header (dark, centered search) ===== */}
+      {/* ===== Buyer header — same as marketplace header (with integrated subnav in ONE view) ===== */}
       <BuyerHeader />
-
-      {/* ===== Marketplace subnav — department rail below header ===== */}
-      <SubNavBar stickyTopClass="top-16" />
 
       <div className="flex-1 overflow-y-auto pb-16 lg:pb-0">
         <main id="main-content" tabIndex={-1} className="outline-none">
@@ -38,7 +34,7 @@ const BuyerLayout = () => {
             to="/my-dashboard"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
               location.pathname === '/my-dashboard'
-                ? 'text-[#75d04b]'
+                ? 'text-[#e77600] font-semibold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={location.pathname === '/my-dashboard' ? 'page' : undefined}
@@ -55,7 +51,7 @@ const BuyerLayout = () => {
             to="/products"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
               location.pathname === '/products'
-                ? 'text-[#75d04b]'
+                ? 'text-[#e77600] font-semibold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={location.pathname === '/products' ? 'page' : undefined}
@@ -72,7 +68,7 @@ const BuyerLayout = () => {
             to="/my-dashboard/cart"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors relative ${
               location.pathname === '/my-dashboard/cart'
-                ? 'text-[#75d04b]'
+                ? 'text-[#e77600] font-semibold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={location.pathname === '/my-dashboard/cart' ? 'page' : undefined}
@@ -89,7 +85,7 @@ const BuyerLayout = () => {
             to="/my-dashboard/orders"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
               location.pathname === '/my-dashboard/orders'
-                ? 'text-[#75d04b]'
+                ? 'text-[#e77600] font-semibold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={location.pathname === '/my-dashboard/orders' ? 'page' : undefined}
@@ -106,7 +102,7 @@ const BuyerLayout = () => {
             to="/my-dashboard/settings"
             className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
               location.pathname === '/my-dashboard/profile' || location.pathname === '/my-dashboard/settings'
-                ? 'text-[#75d04b]'
+                ? 'text-[#e77600] font-semibold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             aria-current={

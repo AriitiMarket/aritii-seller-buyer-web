@@ -1,36 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { SELLER_SIDEBAR } from '@/config/navigation';
 import { getNavIcon } from '@/config/navIcons';
 import { logoutUser } from '@/store/slices/userThunks';
-import { FiChevronDown } from 'react-icons/fi';
 
 /**
- * ModernSellerSidebar - Unified navigation with collapsible sections
+ * ModernSellerSidebar - Unified navigation with clear, persistent sections
  *
  * Features:
- * - Collapsible sections (Dashboard, Catalog, Sales, Growth, Finance, Store, Settings)
- * - Shop switcher for multi-store support
- * - Full height layout
+ * - Persistent static sections (Dashboard, Catalog, Sales, Growth, Store, Finance & Account)
+ * - Always-visible navigation items (no accidental collapsing)
+ * - Full height layout with Amazon Seller Central dark aesthetic (#131921 / #232f3e / #febd69)
  * - Active link highlighting
- * - Section-based organization
- * - Dark mode support
- * - Controlled collapse state from parent (header button)
- * - Simplified, unified visual hierarchy
+ * - Tooltip support on collapsed state
  */
 const ModernSellerSidebar = ({ onClose, isCollapsed = false, className = '' }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedSections, setExpandedSections] = useState({
-    'DASHBOARD': true,
-    'CATALOG': true,
-    'SALES': true,
-    'FINANCE': true,
-    'SETTINGS': true,
-  });
 
   // Group navigation items by section
   const groupedNav = useMemo(() => {
@@ -63,13 +52,6 @@ const ModernSellerSidebar = ({ onClose, isCollapsed = false, className = '' }) =
     }
   };
 
-  const toggleSection = (section) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
   const isLinkActive = (to) => {
     const path = to.split('?')[0];
     return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -83,85 +65,76 @@ const ModernSellerSidebar = ({ onClose, isCollapsed = false, className = '' }) =
       aria-label="Business navigation"
     >
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 no-scrollbar">
+      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-2 no-scrollbar">
         {Object.entries(groupedNav).map(([section, items]) => (
           <div key={section} className="mb-2">
-            {/* Section Header */}
+            {/* Static Section Header (No collapsing) */}
             {!isCollapsed && (
-              <button
-                onClick={() => toggleSection(section)}
-                className="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-white transition-colors group mb-1"
-              >
-                <span>{section}</span>
-                <FiChevronDown
-                  size={12}
-                  className={`text-gray-400 group-hover:text-white transition-transform ${expandedSections[section] ? 'rotate-0' : '-rotate-90'}`}
-                />
-              </button>
-            )}
-
-            {/* Section Items */}
-            {(isCollapsed || expandedSections[section]) && (
-              <div className="space-y-0.5">
-                {items.map((item) => {
-                  if (item.type === 'separator') {
-                    return null;
-                  }
-
-                  if (item.type === 'logout') {
-                    return (
-                      <button
-                        key="logout"
-                        type="button"
-                        onClick={() => {
-                          handleLogout();
-                          onClose?.();
-                        }}
-                        className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs font-semibold text-red-400 rounded hover:bg-[#232f3e] hover:text-red-300 transition-colors"
-                        aria-label="Log out"
-                      >
-                        {!isCollapsed && <span>Log out</span>}
-                      </button>
-                    );
-                  }
-
-                  const Icon = getNavIcon(item.icon);
-                  const active = isLinkActive(item.to);
-
-                  return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      onClick={onClose}
-                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded text-xs font-medium transition-all group relative ${
-                        active
-                          ? 'bg-[#232f3e] text-[#febd69] font-bold border-l-2 border-[#febd69]'
-                          : 'text-gray-300 hover:bg-[#232f3e]/60 hover:text-white'
-                      }`}
-                      title={isCollapsed ? item.label : undefined}
-                    >
-                      {Icon && (
-                        <Icon
-                          className={`flex-shrink-0 ${active ? 'text-[#febd69]' : 'text-gray-400 group-hover:text-white'} ${isCollapsed ? 'mx-auto' : ''}`}
-                          size={16}
-                        />
-                      )}
-                      {!isCollapsed && (
-                        <span className="flex-1 truncate">{item.label}</span>
-                      )}
-
-                      {/* Tooltip on collapsed state */}
-                      {isCollapsed && (
-                        <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a222d] border border-[#232f3e] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-xl">
-                          {item.label}
-                        </div>
-                      )}
-                    </NavLink>
-                  );
-                })}
+              <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider select-none">
+                {section}
               </div>
             )}
+
+            {/* Section Items - Always visible */}
+            <div className="space-y-0.5">
+              {items.map((item) => {
+                if (item.type === 'separator') {
+                  return null;
+                }
+
+                if (item.type === 'logout') {
+                  return (
+                    <button
+                      key="logout"
+                      type="button"
+                      onClick={() => {
+                        handleLogout();
+                        onClose?.();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs font-semibold text-red-400 rounded hover:bg-[#232f3e] hover:text-red-300 transition-colors cursor-pointer"
+                      aria-label="Log out"
+                    >
+                      {!isCollapsed && <span>Log out</span>}
+                    </button>
+                  );
+                }
+
+                const Icon = getNavIcon(item.icon);
+                const active = isLinkActive(item.to);
+
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={onClose}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded text-xs font-medium transition-all group relative ${
+                      active
+                        ? 'bg-[#232f3e] text-[#febd69] font-bold border-l-2 border-[#febd69]'
+                        : 'text-gray-300 hover:bg-[#232f3e]/60 hover:text-white'
+                    }`}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    {Icon && (
+                      <Icon
+                        className={`flex-shrink-0 ${active ? 'text-[#febd69]' : 'text-gray-400 group-hover:text-white'} ${isCollapsed ? 'mx-auto' : ''}`}
+                        size={16}
+                      />
+                    )}
+                    {!isCollapsed && (
+                      <span className="flex-1 truncate">{item.label}</span>
+                    )}
+
+                    {/* Tooltip on collapsed state */}
+                    {isCollapsed && (
+                      <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a222d] border border-[#232f3e] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-xl">
+                        {item.label}
+                      </div>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
           </div>
         ))}
       </nav>

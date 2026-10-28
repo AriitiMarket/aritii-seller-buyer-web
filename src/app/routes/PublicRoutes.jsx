@@ -38,6 +38,7 @@ const CategoriesPage = lazy(() => import('@/features/marketplace/pages/Categorie
 const ShopsPage = lazy(() => import('@/features/marketplace/pages/Shops'));
 const ShopDetailsPage = lazy(() => import('@/buyer/pages/ShopDetail'));
 const DealsPage = lazy(() => import('@/features/marketplace/pages/DealsPage'));
+const BuyerCartPage = lazy(() => import('@/buyer/pages/Cart'));
 
 export const PublicRoutes = () => (
   <>
@@ -69,12 +70,13 @@ export const PublicRoutes = () => (
 
     {/* Catalog browsing - public, no auth required */}
     <Route element={<PublicCatalogLayout />}>
+      <Route path="/cart" element={<BuyerCartPage />} />
       <Route path="/products" element={<ProductsPage />} />
       <Route path="/product/:id" element={<ProductDetailsPage />} />
       <Route path="/categories" element={<CategoriesPage />} />
       <Route path="/shops" element={<ShopsPage />} />
       <Route path="/shops/:id" element={<ShopDetailsPage />} />
-      <Route path="/shop/:id" element={<Navigate to="/shops/:id" replace />} />
+      <Route path="/shop/:id" element={<ShopDetailsPage />} />
       <Route path="/deals" element={<DealsPage />} />
       <Route path="/best-selling" element={<BestSellersPage />} />
       <Route path="/new-arrivals" element={<Navigate to="/products?sort=newest" replace />} />
