@@ -7,13 +7,10 @@ import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import { useLayout } from '@/app/providers/LayoutContext';
 import UnifiedLoginModal from '@/auth/components/UnifiedLoginModal';
+import { getSafeRedirect } from '@/auth/utils/redirect';
 
 /**
  * The legacy sign-in URLs and the role each one hints at.
- *
- * The role is only a HINT about where the visitor was when they asked to sign
- * in — it picks the badge and the sign-up link. The session's real role is
- * resolved by the Identity Service from the account's role memberships.
  */
 export const LOGIN_PATH_ROLES = {
   '/login': 'BUYER',
@@ -22,16 +19,7 @@ export const LOGIN_PATH_ROLES = {
 };
 
 /**
- * GlobalLoginModal — the ONE login UI of the application.
- *
- * It is mounted once, globally, by AppRoutes. Every sign-in affordance in the
- * app (headers, product cards, guards, deep links) ends up here, so there is
- * exactly one place that collects credentials and one place that decides where
- * the session lands.
- *
- * The role is NOT chosen by the visitor: the Identity Service resolves it from
- * the account's own role memberships and returns it as `login_role`. The
- * frontend only uses that answer to pick the workspace.
+ * GlobalLoginModal — single global login modal for Ariiti Market.
  */
 const GlobalLoginModal = () => {
   const dispatch = useDispatch();
@@ -49,11 +37,12 @@ const GlobalLoginModal = () => {
       }
       closeLoginModal();
       toast.success('Signed in successfully!');
-      // The backend decided the role; the destination follows from it. When a
-      // route guard interrupted the visitor, return to the page they wanted.
-      const destination =
-        loginModalReturnTo ||
-        (await authService.loginDestination(tokenStore.getLoginRole()));
+
+      const fallbackDestination = await authService.loginDestination(tokenStore.getLoginRole());
+      const destination = getSafeRedirect(
+        loginModalReturnTo || location.state?.from,
+        fallbackDestination
+      );
       navigate(destination, { replace: true });
       return res;
     } catch (err) {
@@ -74,9 +63,12 @@ const GlobalLoginModal = () => {
       const res = await dispatch(verify2FALogin(verificationData));
       closeLoginModal();
       toast.success('Signed in successfully!');
-      const destination =
-        loginModalReturnTo ||
-        (await authService.loginDestination(tokenStore.getLoginRole()));
+
+      const fallbackDestination = await authService.loginDestination(tokenStore.getLoginRole());
+      const destination = getSafeRedirect(
+        loginModalReturnTo || location.state?.from,
+        fallbackDestination
+      );
       navigate(destination, { replace: true });
       return res;
     } catch (err) {
@@ -91,25 +83,39 @@ const GlobalLoginModal = () => {
   };
 
   const handleForgot = () => {
+    // Preserve return destination when moving to password recovery
+    const returnDestination = getSafeRedirect(loginModalReturnTo || location.pathname, '/');
     closeLoginModal();
-    navigate('/forgot-password');
+    navigate('/forgot-password', { state: { from: returnDestination } });
   };
 
   const handleContactUs = (role) => {
+    // Preserve return destination when moving to registration
+    const returnDestination = getSafeRedirect(loginModalReturnTo || location.pathname, '/');
     closeLoginModal();
-    if (role === 'SELLER') return navigate('/seller-registration');
-    if (role === 'PROVIDER') return navigate('/delivery-sign-up');
-    return navigate('/sign-up');
+    if (role === 'SELLER') {
+      return navigate('/seller-registration', { state: { from: returnDestination, role } });
+    }
+    if (role === 'PROVIDER') {
+      return navigate('/delivery-sign-up', { state: { from: returnDestination, role } });
+    }
+    return navigate('/sign-up', { state: { from: returnDestination, role } });
   };
 
   const handleClose = () => {
     closeLoginModal();
-    // Dismissing the modal on a legacy sign-in URL returns to the previous
-    // page instead of stranding the visitor on the sign-in route.
+    // When the user was specifically on a sign-in route, navigate back to previous page
     if (LOGIN_PATH_ROLES[location.pathname]) {
-      if (window.history.length > 1) navigate(-1);
-      else navigate('/', { replace: true });
+      const destination = getSafeRedirect(loginModalReturnTo || location.state?.from, null);
+      if (destination && destination !== location.pathname) {
+        navigate(destination, { replace: true });
+      } else if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate('/', { replace: true });
+      }
     }
+    // Otherwise the user stays on their current page (e.g. product detail, cart, etc.)
   };
 
   if (!loginModalOpen) return null;
@@ -126,28 +132,6 @@ const GlobalLoginModal = () => {
       role={loginModalRole || 'BUYER'}
     />
   );
-};
-
-/**
- * LoginModalRedirect — the `/login` route.
- *
- * There is no login PAGE any more: the single global modal is the only sign-in
- * UI. This route exists so the legacy URLs (and the route guards that point at
- * them) reach that modal. It opens the modal and hands the URL back to the
- * application, remembering where the visitor was headed.
- */
-export const LoginModalRedirect = ({ role = 'BUYER' }) => {
-  const { openLoginModal } = useLayout();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const from = location.state?.from || null;
-    openLoginModal(role, from);
-    navigate('/', { replace: true });
-  }, []);
-
-  return null;
 };
 
 export default GlobalLoginModal;

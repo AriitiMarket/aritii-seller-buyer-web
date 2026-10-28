@@ -14,7 +14,7 @@ const CreateShopPage = () => {
 
   useEffect(() => {
     navigate(isAuthenticated ? "/seller-registration" : "/seller-sign-up", { replace: true })
-  }, [isAuthenticated])
+  }, [isAuthenticated, navigate]);
 
   return null
 }

@@ -34,7 +34,17 @@ export function LayoutProvider({ children }) {
    * route guard interrupted, for example).
    */
   const openLoginModal = useCallback((role = 'BUYER', returnTo = null) => {
-    setLoginModalState({ open: true, role, returnTo });
+    let targetReturn = returnTo;
+    if (!targetReturn && typeof window !== 'undefined') {
+      const currentPath = window.location.pathname + window.location.search;
+      const isAuthPath = /^\/(login|seller-login|delivery-login|sign-up|forgot-password|reset-password)/.test(
+        window.location.pathname
+      );
+      if (!isAuthPath) {
+        targetReturn = currentPath;
+      }
+    }
+    setLoginModalState({ open: true, role, returnTo: targetReturn });
   }, []);
   const closeLoginModal = useCallback(() => {
     setLoginModalState((prev) => ({ ...prev, open: false, returnTo: null }));

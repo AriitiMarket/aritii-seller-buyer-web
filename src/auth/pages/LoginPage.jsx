@@ -6,18 +6,19 @@ import { loginUser, verify2FALogin } from '@/store/slices/userThunks';
 import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import UnifiedLoginModal from '@/auth/components/UnifiedLoginModal';
+import { getSafeRedirect } from '@/auth/utils/redirect';
 
 /**
  * LoginPage
  *
- * Dedicated login page rendering the clean, vertical modal-style card in the center of the viewport
- * (not full width, max-w-md, clear and focused).
+ * Dedicated login page rendering the standard centered authentication modal
+ * on direct navigation to /login, /seller-login, /delivery-login.
  */
 const LoginPage = ({ role = 'BUYER' }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user || {});
   const [error, setError] = useState(null);
 
   const from = location.state?.from;
@@ -26,14 +27,15 @@ const LoginPage = ({ role = 'BUYER' }) => {
     if (!isAuthenticated) return;
     let active = true;
     const redirect = async () => {
-      if (from && from !== location.pathname) {
-        navigate(from, { replace: true });
+      const safeFrom = getSafeRedirect(from, null);
+      if (safeFrom && safeFrom !== location.pathname) {
+        navigate(safeFrom, { replace: true });
         return;
       }
       const destination = await authService.loginDestination(tokenStore.getLoginRole() || role);
       if (active) navigate(destination, { replace: true });
     };
-    redirect();
+    void redirect();
     return () => {
       active = false;
     };
@@ -47,7 +49,8 @@ const LoginPage = ({ role = 'BUYER' }) => {
         return res;
       }
       toast.success('Signed in successfully!');
-      const destination = from || (await authService.loginDestination(tokenStore.getLoginRole() || role));
+      const fallback = await authService.loginDestination(tokenStore.getLoginRole() || role);
+      const destination = getSafeRedirect(from, fallback);
       navigate(destination, { replace: true });
       return res;
     } catch (err) {
@@ -64,7 +67,8 @@ const LoginPage = ({ role = 'BUYER' }) => {
     try {
       const res = await dispatch(verify2FALogin(verificationData));
       toast.success('Signed in successfully!');
-      const destination = from || (await authService.loginDestination(tokenStore.getLoginRole() || role));
+      const fallback = await authService.loginDestination(tokenStore.getLoginRole() || role);
+      const destination = getSafeRedirect(from, fallback);
       navigate(destination, { replace: true });
       return res;
     } catch (err) {
@@ -76,17 +80,28 @@ const LoginPage = ({ role = 'BUYER' }) => {
   };
 
   const handleForgot = () => {
-    navigate('/forgot-password');
+    navigate('/forgot-password', { state: { from: getSafeRedirect(from, null) } });
   };
 
   const handleContactUs = (targetRole) => {
-    if (targetRole === 'SELLER') return navigate('/seller-registration');
-    if (targetRole === 'PROVIDER') return navigate('/delivery-sign-up');
-    return navigate('/sign-up');
+    const route =
+      targetRole === 'SELLER'
+        ? '/seller-registration'
+        : targetRole === 'PROVIDER'
+          ? '/delivery-sign-up'
+          : '/sign-up';
+    navigate(route, { state: { from: getSafeRedirect(from, null), role: targetRole } });
   };
 
   const handleClose = () => {
-    navigate('/');
+    const safeDestination = getSafeRedirect(from, null);
+    if (safeDestination && safeDestination !== location.pathname) {
+      navigate(safeDestination, { replace: true });
+    } else if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
   return (

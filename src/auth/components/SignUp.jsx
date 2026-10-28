@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { registerUser } from '@/store/slices/userThunks';
+import BrandLogo from '@/shared/components/BrandLogo';
+import { getSafeRedirect } from '@/auth/utils/redirect';
 import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
@@ -20,7 +22,7 @@ const ROLE_CONFIG = {
     subtitle: 'Shop local Ethiopian products with fast home delivery and order tracking.',
     badge: 'Shopper Account',
     badgeColor: 'bg-[#75d04b]/15 text-[#4a8f28] border-[#75d04b]/30',
-    primaryButton: 'Create your Aritii account',
+    primaryButton: 'Create your Ariiti account',
     next: '/my-dashboard',
     accentColor: '#FFD814',
     accentHover: '#F7CA00',
@@ -36,7 +38,7 @@ const ROLE_CONFIG = {
     subtitle: 'Start selling your products online to buyers across Ethiopia with zero upfront fees.',
     badge: 'Merchant Account',
     badgeColor: 'bg-[#FF9900]/15 text-[#E68A00] border-[#FF9900]/30',
-    primaryButton: 'Register as Aritii Seller',
+    primaryButton: 'Register as Ariiti Seller',
     next: '/seller-registration',
     accentColor: '#FF9900',
     accentHover: '#E68A00',
@@ -64,15 +66,15 @@ const ROLE_CONFIG = {
   },
 };
 
-const SignUp = ({ registrationType = 'BUYER' }) => {
+const SignUp = ({ registrationType = 'BUYER', from = null }) => {
   const [selectedRole, setSelectedRole] = useState(
     ROLE_CONFIG[registrationType] ? registrationType : 'BUYER'
   );
-  const config = ROLE_CONFIG[selectedRole];
+  const config = ROLE_CONFIG[selectedRole] || ROLE_CONFIG.BUYER;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.user);
+  const { loading } = useSelector((state) => state.user || {});
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -84,10 +86,27 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const handleClose = () => {
+    const safeFrom = getSafeRedirect(from, null);
+    if (safeFrom) {
+      navigate(safeFrom, { replace: true });
+    } else if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/', { replace: true });
+    }
+  };
+
+  const handleGoToLogin = () => {
+    navigate('/login', {
+      state: { from: getSafeRedirect(from, null), role: selectedRole },
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agree) {
-      toast.error('Please agree to Aritii Conditions of Use and Privacy Notice');
+      toast.error('Please agree to Ariiti Market Conditions of Use and Privacy Notice');
       return;
     }
     if (password !== confirmPassword) {
@@ -111,32 +130,46 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
     try {
       await dispatch(registerUser(payload));
       toast.success('Account created successfully!');
-      navigate(config.next, { replace: true });
+      if (selectedRole === 'BUYER' && from) {
+        const safeTarget = getSafeRedirect(from, config.next);
+        navigate(safeTarget, { replace: true });
+      } else {
+        navigate(config.next, { replace: true });
+      }
     } catch (error) {
-      const message = error?.response?.data?.message || 'Registration failed. Please check your information.';
+      const message =
+        error?.response?.data?.message || 'Registration failed. Please check your information.';
       toast.error(message);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F0F2F2] dark:bg-[#0f1419] flex flex-col justify-between py-8 px-4 sm:px-6">
-      <div className="max-w-xl w-full mx-auto">
-        {/* Aritii Brand Header */}
+      <div className="max-w-xl w-full mx-auto relative">
+        {/* Top Header / Back Nav */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white inline-flex items-center gap-1 transition focus:outline-none"
+            aria-label="Back to previous page"
+          >
+            <span aria-hidden="true">&larr;</span> Back
+          </button>
+          <span className="text-xs text-gray-500">Ariiti Market Registration</span>
+        </div>
+
+        {/* Ariiti Brand Header */}
         <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-2 mb-2 focus:outline-none">
-            <div className="w-9 h-9 rounded bg-[#131921] border border-[#232F3E] flex items-center justify-center font-black text-[#FF9900] text-lg shadow-sm">
-              A
-            </div>
-            <span className="text-2xl font-black text-[#0F1111] dark:text-white tracking-tight">
-              aritii<span className="text-[#FF9900]">.et</span>
-            </span>
-          </Link>
+          <div className="flex justify-center mb-2">
+            <BrandLogo size="lg" showText showTagline={false} tone="dark" />
+          </div>
           <p className="text-xs text-[#565959] dark:text-gray-400">
-            Ethiopia's Connected Local Commerce Marketplace
+            Ethiopia&apos;s Connected Local Commerce Marketplace
           </p>
         </div>
 
-        {/* Clear Role Switcher Tabs */}
+        {/* Role Switcher Tabs */}
         <div className="bg-white dark:bg-[#1a222d] border border-gray-300 dark:border-gray-700 rounded-t-lg p-1.5 flex gap-1 shadow-xs">
           <button
             type="button"
@@ -176,7 +209,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
           </button>
         </div>
 
-        {/* Clean Aritii Form Container */}
+        {/* Form Container */}
         <div className="bg-white dark:bg-[#1a222d] border-x border-b border-gray-300 dark:border-gray-700 rounded-b-lg p-6 sm:p-8 shadow-sm">
           {/* Header & Role Badge */}
           <div className="mb-6">
@@ -194,7 +227,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
           </div>
 
           {/* Benefits summary list */}
-          <div className="mb-6 p-3.5 rounded bg-[#F7F7F7] dark:bg-gray-850 border border-gray-200 dark:border-gray-800">
+          <div className="mb-6 p-3.5 rounded bg-[#F7F7F7] dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700">
             <p className="text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
               Account Highlights:
             </p>
@@ -209,13 +242,15 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+              <label htmlFor="signup-name" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                 Your name / Business contact
               </label>
               <input
+                id="signup-name"
+                name="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -228,10 +263,12 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+              <label htmlFor="signup-email" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                 Email address
               </label>
               <input
+                id="signup-email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -245,7 +282,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
             {/* Phone & City Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+                <label htmlFor="signup-phone" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                   Mobile Phone Number
                 </label>
                 <div className="relative">
@@ -253,6 +290,8 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
                     +251
                   </span>
                   <input
+                    id="signup-phone"
+                    name="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -265,10 +304,12 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+                <label htmlFor="signup-city" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                   City / Location
                 </label>
                 <select
+                  id="signup-city"
+                  name="city"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   disabled={loading}
@@ -288,11 +329,13 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+              <label htmlFor="signup-password" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                 Password
               </label>
               <div className="relative">
                 <input
+                  id="signup-password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -306,7 +349,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-                  aria-label="Toggle password visibility"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <AiOutlineEyeInvisible size={18} /> : <AiOutlineEye size={18} />}
                 </button>
@@ -318,11 +361,13 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
+              <label htmlFor="signup-confirm-password" className="block text-xs font-bold text-[#0F1111] dark:text-white mb-1">
                 Re-enter password
               </label>
               <div className="relative">
                 <input
+                  id="signup-confirm-password"
+                  name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -336,7 +381,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-                  aria-label="Toggle confirm password visibility"
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                 >
                   {showConfirmPassword ? <AiOutlineEyeInvisible size={18} /> : <AiOutlineEye size={18} />}
                 </button>
@@ -345,15 +390,16 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
 
             {/* Terms Agreement */}
             <div className="pt-2">
-              <label className="flex items-start gap-2.5 cursor-pointer">
+              <label htmlFor="signup-agree" className="flex items-start gap-2.5 cursor-pointer">
                 <input
+                  id="signup-agree"
                   type="checkbox"
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
                   className="mt-0.5 w-4 h-4 rounded accent-[#FF9900]"
                 />
                 <span className="text-xs text-[#565959] dark:text-gray-400 leading-snug">
-                  By continuing, you agree to Aritii Market's{' '}
+                  By continuing, you agree to Ariiti Market&apos;s{' '}
                   <Link to="/contact" className="text-[#007185] dark:text-[#42a2b3] hover:underline hover:text-[#C7511F]">
                     Conditions of Use
                   </Link>{' '}
@@ -380,22 +426,22 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
             </button>
           </form>
 
-          {/* Already have an account */}
-          <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-700 text-xs text-[#0F1111] dark:text-white">
+          {/* Already have an account? Log in */}
+          <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-700 text-xs text-[#0F1111] dark:text-white flex items-center justify-between">
             <p>
               Already have an account?{' '}
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={handleGoToLogin}
                 className="text-[#007185] dark:text-[#42a2b3] hover:text-[#C7511F] hover:underline font-bold"
               >
-                Sign in →
+                Log in &rarr;
               </button>
             </p>
           </div>
         </div>
 
-        {/* Clean Aritii Footer */}
+        {/* Clean Ariiti Footer */}
         <div className="mt-8 text-center text-[11px] text-[#565959] dark:text-gray-400 space-y-2">
           <div className="flex justify-center gap-4">
             <Link to="/contact" className="hover:underline hover:text-[#0F1111] dark:hover:text-white">
@@ -408,7 +454,7 @@ const SignUp = ({ registrationType = 'BUYER' }) => {
               Help
             </Link>
           </div>
-          <p>© 2026, Aritii Market, Inc. or its affiliates</p>
+          <p>© 2026, Ariiti Market, Inc. or its affiliates</p>
         </div>
       </div>
     </div>
