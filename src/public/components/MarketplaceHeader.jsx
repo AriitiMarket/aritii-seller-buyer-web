@@ -45,6 +45,7 @@ const NAV_LINKS = [
 ]
 
 const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
+  const headerRef = useRef(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [deliverToOpen, setDeliverToOpen] = useState(false)
   const deliverToRef = useRef(null)
@@ -52,6 +53,28 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
   const drawerCloseRef = useRef(null)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  // Track header height for viewport offsets and modal overlays
+  useEffect(() => {
+    if (!headerRef.current) return;
+    const updateHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        document.documentElement.style.setProperty('--market-header-height', `${height}px`);
+      }
+    };
+    updateHeight();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeight) : null;
+    if (observer && headerRef.current) {
+      observer.observe(headerRef.current);
+    }
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateHeight);
+      document.documentElement.style.removeProperty('--market-header-height');
+    };
+  }, []);
 
   const { isAuthenticated, user } = useAuth()
   const { cart } = useSelector((state) => state.cart || {})
@@ -127,6 +150,7 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
     <>
       {/* ===== Main header — dark Aritii border-bottom rail ===== */}
       <header
+        ref={headerRef}
         className="sticky top-0 z-[70] w-full border-b border-[#232f3e] bg-[#131921]"
         role="banner"
       >

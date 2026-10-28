@@ -369,7 +369,10 @@ const UnifiedLoginModal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 sm:p-6 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-center bg-black/65 p-4 sm:p-6 backdrop-blur-xs overflow-y-auto"
+      style={{
+        top: 'var(--market-header-height, 0px)',
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}

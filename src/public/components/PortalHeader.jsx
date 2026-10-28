@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import { useLayout } from '@/app/providers/LayoutContext';
@@ -46,11 +46,33 @@ const PortalHeader = ({
   cta = { label: 'Start Selling', to: '/seller-sign-up' },
   breakpoint = 'lg',
   stickyTop = 'top-0',
-  zIndex = 'z-50',
+  zIndex = 'z-[70]',
 }) => {
+  const headerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { openLoginModal } = useLayout();
   const bp = BREAKPOINTS[breakpoint] || BREAKPOINTS.lg;
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+    const updateHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        document.documentElement.style.setProperty('--market-header-height', `${height}px`);
+      }
+    };
+    updateHeight();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeight) : null;
+    if (observer && headerRef.current) {
+      observer.observe(headerRef.current);
+    }
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateHeight);
+      document.documentElement.style.removeProperty('--market-header-height');
+    };
+  }, []);
 
   const handleSignIn = () => {
     setMobileMenuOpen(false);
@@ -59,6 +81,7 @@ const PortalHeader = ({
 
   return (
     <header
+      ref={headerRef}
       className={`sticky ${stickyTop} ${zIndex} bg-[#131921] border-b border-[#232f3e] shadow-sm`}
     >
       <div className="px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 h-16">
