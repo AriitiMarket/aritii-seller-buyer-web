@@ -116,9 +116,10 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
       await dispatch(logoutUser())
       toast.success('Signed out successfully')
       setMobileMenuOpen(false)
-      navigate('/')
+      navigate('/', { replace: true })
     } catch (err) {
       toast.error('Failed to sign out')
+      navigate('/', { replace: true })
     }
   }
 

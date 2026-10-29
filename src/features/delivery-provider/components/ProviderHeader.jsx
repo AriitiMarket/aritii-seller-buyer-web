@@ -5,6 +5,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import { BiMenuAltRight } from "react-icons/bi";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 import { logoutUser } from '@/store/slices/userThunks';
 import { FiCheckCircle } from 'react-icons/fi';
 import RoleSwitcher from '@/shared/components/RoleSwitcher';
@@ -38,10 +39,12 @@ const ProviderHeader = ({ onMenuClick }) => {
 
   const handleLogout = async () => {
     try {
-      await dispatch(logoutUser());
-      navigate('/delivery', { replace: true });
+      const res = await dispatch(logoutUser());
+      toast.success(res?.message || 'Logged out successfully');
+      navigate('/', { replace: true });
     } catch (err) {
       console.error('Logout failed:', err);
+      navigate('/', { replace: true });
     }
   };
 

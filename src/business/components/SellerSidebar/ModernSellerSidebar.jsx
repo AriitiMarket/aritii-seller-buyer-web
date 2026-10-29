@@ -46,9 +46,10 @@ const ModernSellerSidebar = ({ onClose, isCollapsed = false, className = '' }) =
     try {
       const res = await dispatch(logoutUser());
       toast.success(res?.message || 'Logged out successfully');
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Logout failed');
+      navigate('/', { replace: true });
     }
   };
 

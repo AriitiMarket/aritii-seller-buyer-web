@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import BrandLogo from '@/components/common/BrandLogo';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { logoutUser } from '@/store/slices/userThunks';
 import { useBusinessShops } from '@/business/hooks/useBusinessShops';
 import { normalizeStatus, ORDER_STATUSES } from '@/shared/utils/orderStatus';
@@ -57,10 +58,12 @@ const ModernSellerHeader = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) 
   // Handle logout
   const handleLogout = async () => {
     try {
-      await dispatch(logoutUser());
-      navigate('/login', { replace: true });
+      const res = await dispatch(logoutUser());
+      toast.success(res?.message || 'Signed out successfully');
+      navigate('/', { replace: true });
     } catch (err) {
       console.error('Logout failed:', err);
+      navigate('/', { replace: true });
     }
   };
 
