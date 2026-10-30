@@ -6,7 +6,7 @@ import { loginUser, verify2FALogin } from '@/store/slices/userThunks';
 import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import UnifiedLoginModal from '@/auth/components/UnifiedLoginModal';
-import { getSafeRedirect } from '@/auth/utils/redirect';
+import { getSafeRedirect, resolvePostLoginRedirect } from '@/auth/utils/redirect';
 
 /**
  * LoginPage
@@ -49,8 +49,9 @@ const LoginPage = ({ role = 'BUYER' }) => {
         return res;
       }
       toast.success('Signed in successfully!');
-      const fallback = await authService.loginDestination(tokenStore.getLoginRole() || role);
-      const destination = getSafeRedirect(from, fallback);
+      const resolvedRole = tokenStore.getLoginRole() || res?.loginRole || role;
+      const fallback = await authService.loginDestination(resolvedRole);
+      const destination = resolvePostLoginRedirect(from, fallback, resolvedRole);
       navigate(destination, { replace: true });
       return res;
     } catch (err) {
@@ -67,8 +68,9 @@ const LoginPage = ({ role = 'BUYER' }) => {
     try {
       const res = await dispatch(verify2FALogin(verificationData));
       toast.success('Signed in successfully!');
-      const fallback = await authService.loginDestination(tokenStore.getLoginRole() || role);
-      const destination = getSafeRedirect(from, fallback);
+      const resolvedRole = tokenStore.getLoginRole() || res?.loginRole || role;
+      const fallback = await authService.loginDestination(resolvedRole);
+      const destination = resolvePostLoginRedirect(from, fallback, resolvedRole);
       navigate(destination, { replace: true });
       return res;
     } catch (err) {

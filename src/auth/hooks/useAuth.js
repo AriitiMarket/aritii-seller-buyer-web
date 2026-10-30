@@ -12,6 +12,7 @@ import {
   selectCurrentUser,
   selectIsAuthenticated,
   selectIsSeller,
+  selectIsProvider,
   selectSeller,
 } from '@/auth/authSlice';
 
@@ -31,6 +32,7 @@ export function useAuth() {
   const user = useSelector(selectCurrentUser);
   const error = useSelector(selectAuthError);
   const isSeller = useSelector(selectIsSeller);
+  const isProvider = useSelector(selectIsProvider);
   const seller = useSelector(selectSeller);
 
   const login = useCallback((emailOrPhone, password) => dispatch(loginUser(emailOrPhone, password)), [dispatch]);
@@ -44,6 +46,7 @@ export function useAuth() {
     user,
     error,
     isSeller,
+    isProvider,
     seller,
     login,
     register,

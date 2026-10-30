@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import { useLayout } from '@/app/providers/LayoutContext';
+import { useAuth } from '@/auth/hooks/useAuth';
 
 /**
  * PortalHeader — the ONE header for every public portal.
@@ -51,7 +52,24 @@ const PortalHeader = ({
   const headerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { openLoginModal } = useLayout();
+  const { isAuthenticated, isSeller, isProvider } = useAuth();
   const bp = BREAKPOINTS[breakpoint] || BREAKPOINTS.lg;
+
+  let userWorkspaceLink = null;
+  let userWorkspaceLabel = null;
+  let userCtaLabel = null;
+
+  if (isAuthenticated) {
+    if (signInRole === 'PROVIDER' && isProvider) {
+      userWorkspaceLink = '/provider';
+      userWorkspaceLabel = 'Provider Portal →';
+      userCtaLabel = 'Open Workspace';
+    } else if (signInRole === 'SELLER' && isSeller) {
+      userWorkspaceLink = '/business';
+      userWorkspaceLabel = 'Seller Central →';
+      userCtaLabel = 'Open Central';
+    }
+  }
 
   useEffect(() => {
     if (!headerRef.current) return;
@@ -141,18 +159,28 @@ const PortalHeader = ({
             </Link>
           )}
 
-          <button
-            type="button"
-            onClick={handleSignIn}
-            className="hidden sm:inline-flex px-3 py-1.5 text-xs sm:text-sm font-medium text-[#CCCCCB] hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 rounded"
-            style={{ '--tw-ring-color': accent }}
-          >
-            {signInLabel}
-          </button>
+          {isAuthenticated && userWorkspaceLink ? (
+            <Link
+              to={userWorkspaceLink}
+              className="hidden sm:inline-flex px-3 py-1.5 text-xs sm:text-sm font-semibold text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 rounded hover:underline"
+              style={{ '--tw-ring-color': accent }}
+            >
+              {userWorkspaceLabel}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSignIn}
+              className="hidden sm:inline-flex px-3 py-1.5 text-xs sm:text-sm font-medium text-[#CCCCCB] hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 rounded"
+              style={{ '--tw-ring-color': accent }}
+            >
+              {signInLabel}
+            </button>
+          )}
 
           {cta && (
             <Link
-              to={cta.to}
+              to={isAuthenticated && userWorkspaceLink ? userWorkspaceLink : cta.to}
               className="px-3 sm:px-6 py-1.5 sm:py-2 text-white text-xs sm:text-sm font-bold rounded transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#131921] whitespace-nowrap"
               style={{
                 backgroundColor: accent,
@@ -161,7 +189,7 @@ const PortalHeader = ({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = accentHover)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accent)}
             >
-              {cta.label}
+              {isAuthenticated && userWorkspaceLink ? userCtaLabel : cta.label}
             </Link>
           )}
 
@@ -203,13 +231,24 @@ const PortalHeader = ({
             )
           )}
           <div className="pt-3 border-t border-[#131921] space-y-2">
-            <button
-              type="button"
-              onClick={handleSignIn}
-              className="block py-2 px-2 text-sm text-[#CCCCCB] hover:text-white transition-colors rounded hover:bg-[#131921]"
-            >
-              {signInLabel}
-            </button>
+            {isAuthenticated && userWorkspaceLink ? (
+              <Link
+                to={userWorkspaceLink}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 px-2 text-sm font-bold transition-colors rounded hover:bg-[#131921]"
+                style={{ color: accent }}
+              >
+                {userWorkspaceLabel}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSignIn}
+                className="block py-2 px-2 text-sm text-[#CCCCCB] hover:text-white transition-colors rounded hover:bg-[#131921]"
+              >
+                {signInLabel}
+              </button>
+            )}
           </div>
         </div>
       )}

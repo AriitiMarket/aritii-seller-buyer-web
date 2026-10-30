@@ -76,7 +76,7 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
     };
   }, []);
 
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, isSeller, isProvider } = useAuth()
   const { cart } = useSelector((state) => state.cart || {})
   const cartItemCount = cart ? cart.reduce((total, item) => total + Number(item.quantity ?? 1), 0) : 0
   const location = useLocation()
@@ -251,16 +251,16 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
               {/* Quick portal links (desktop) */}
               <div className="hidden xl:flex items-center gap-1 text-xs">
                 <Link
-                  to="/seller-center"
+                  to={isSeller ? '/business' : '/seller-center'}
                   className="px-2 py-1 text-[#cccccc] hover:text-white rounded hover:outline hover:outline-1 hover:outline-white whitespace-nowrap"
                 >
-                  Sell
+                  {isSeller ? 'Seller Central' : 'Sell'}
                 </Link>
                 <Link
-                  to="/delivery-center"
+                  to={isProvider ? '/provider' : '/delivery-center'}
                   className="px-2 py-1 text-[#cccccc] hover:text-white rounded hover:outline hover:outline-1 hover:outline-white whitespace-nowrap"
                 >
-                  Driver
+                  {isProvider ? 'Driver Portal' : 'Driver'}
                 </Link>
               </div>
 
@@ -460,6 +460,34 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
                     Buyer Account
                   </p>
                   <div className="space-y-0.5">
+                    {isSeller && (
+                      <Link
+                        to="/business"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                          location.pathname.startsWith('/business')
+                            ? 'bg-[#FF9900]/20 text-[#FF9900] font-bold'
+                            : 'text-[#FF9900] hover:bg-[#232f3e]'
+                        }`}
+                      >
+                        <MdDashboard size={16} className="text-[#FF9900]" />
+                        <span>Seller Central Portal</span>
+                      </Link>
+                    )}
+                    {isProvider && (
+                      <Link
+                        to="/provider"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                          location.pathname.startsWith('/provider')
+                            ? 'bg-[#00A8E1]/20 text-[#00A8E1] font-bold'
+                            : 'text-[#00A8E1] hover:bg-[#232f3e]'
+                        }`}
+                      >
+                        <MdLocalShipping size={16} className="text-[#00A8E1]" />
+                        <span>Delivery Provider Portal</span>
+                      </Link>
+                    )}
                     <Link
                       to="/my-dashboard"
                       onClick={() => setMobileMenuOpen(false)}
@@ -599,18 +627,18 @@ const MarketplaceHeader = ({ hideSubNav = false, onOpenAll, ...props }) => {
                 </p>
                 <div className="space-y-0.5">
                   <Link
-                    to="/seller-center"
+                    to={isSeller ? '/business' : '/seller-center'}
                     onClick={() => setMobileMenuOpen(false)}
                     className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
                   >
-                    Sell on Aritii
+                    {isSeller ? 'Seller Central (Portal)' : 'Sell on Aritii'}
                   </Link>
                   <Link
-                    to="/delivery-center"
+                    to={isProvider ? '/provider' : '/delivery-center'}
                     onClick={() => setMobileMenuOpen(false)}
                     className="block px-2.5 py-2 rounded-lg text-xs text-[#c9d1d9] hover:bg-[#232f3e] hover:text-white transition-colors"
                   >
-                    Become a Delivery Driver
+                    {isProvider ? 'Delivery Driver (Portal)' : 'Become a Delivery Driver'}
                   </Link>
                   <Link
                     to="/help"

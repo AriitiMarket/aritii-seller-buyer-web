@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AiOutlineArrowRight,
   AiOutlineSafety,
@@ -7,6 +7,7 @@ import {
   AiOutlineClockCircle,
 } from 'react-icons/ai';
 import { useLayout } from '@/app/providers/LayoutContext';
+import { useAuth } from '@/auth/hooks/useAuth';
 
 import DeliveryPortalLayout from '../layout/DeliveryPortalLayout';
 import DeliveryPortalHero from '../components/DeliveryPortalHero';
@@ -58,7 +59,15 @@ const DELIVERY_STEPS = [
 ];
 
 const DeliveryPortalLanding = () => {
+  const navigate = useNavigate();
   const { openLoginModal } = useLayout();
+  const { isAuthenticated, isProvider } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && isProvider) {
+      navigate('/provider', { replace: true });
+    }
+  }, [isAuthenticated, isProvider, navigate]);
 
   return (
     <DeliveryPortalLayout
@@ -189,20 +198,32 @@ const DeliveryPortalLanding = () => {
             Apply today, get verified within 24 hours, and start earning on your own schedule.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/delivery-sign-up"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded transition-colors"
-            >
-              Apply to Deliver
-              <AiOutlineArrowRight size={18} />
-            </Link>
-            <button
-              type="button"
-              onClick={() => openLoginModal('PROVIDER')}
-              className="px-8 py-3.5 border border-[#565959] text-white font-semibold text-sm rounded hover:border-white hover:bg-white/5 transition-colors"
-            >
-              Sign In to Driver Portal
-            </button>
+            {isAuthenticated && isProvider ? (
+              <Link
+                to="/provider"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded transition-colors"
+              >
+                Open Provider Portal
+                <AiOutlineArrowRight size={18} />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/delivery-sign-up"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded transition-colors"
+                >
+                  Apply to Deliver
+                  <AiOutlineArrowRight size={18} />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => openLoginModal('PROVIDER')}
+                  className="px-8 py-3.5 border border-[#565959] text-white font-semibold text-sm rounded hover:border-white hover:bg-white/5 transition-colors"
+                >
+                  Sign In to Driver Portal
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>

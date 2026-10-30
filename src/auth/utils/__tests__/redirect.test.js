@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSafeRedirect } from '../redirect';
+import { getSafeRedirect, resolvePostLoginRedirect } from '../redirect';
 
 describe('getSafeRedirect utility', () => {
   it('allows safe internal relative paths', () => {
@@ -32,5 +32,37 @@ describe('getSafeRedirect utility', () => {
     expect(getSafeRedirect(undefined, '/default')).toBe('/default');
     expect(getSafeRedirect('', '/default')).toBe('/default');
     expect(getSafeRedirect('   ', null)).toBe(null);
+  });
+});
+
+describe('resolvePostLoginRedirect utility', () => {
+  it('redirects provider to fallback /provider if target was a public/marketing page', () => {
+    expect(resolvePostLoginRedirect('/delivery-center', '/provider', 'PROVIDER')).toBe('/provider');
+    expect(resolvePostLoginRedirect('/', '/provider', 'PROVIDER')).toBe('/provider');
+    expect(resolvePostLoginRedirect(null, '/provider', 'PROVIDER')).toBe('/provider');
+  });
+
+  it('preserves provider deep link if target is an internal provider route', () => {
+    expect(resolvePostLoginRedirect('/provider/deliveries', '/provider', 'PROVIDER')).toBe('/provider/deliveries');
+    expect(resolvePostLoginRedirect('/provider/batches', '/provider', 'PROVIDER')).toBe('/provider/batches');
+  });
+
+  it('redirects seller to fallback /business if target was a public/marketing page', () => {
+    expect(resolvePostLoginRedirect('/seller-center', '/business', 'SELLER')).toBe('/business');
+    expect(resolvePostLoginRedirect('/', '/business', 'SELLER')).toBe('/business');
+  });
+
+  it('preserves seller deep link if target is an internal business route', () => {
+    expect(resolvePostLoginRedirect('/business/orders', '/business', 'SELLER')).toBe('/business/orders');
+  });
+
+  it('redirects buyer from public landing pages to fallback /products', () => {
+    expect(resolvePostLoginRedirect('/', '/products', 'BUYER')).toBe('/products');
+    expect(resolvePostLoginRedirect('/delivery-center', '/products', 'BUYER')).toBe('/products');
+  });
+
+  it('preserves buyer checkout and protected pages', () => {
+    expect(resolvePostLoginRedirect('/checkout', '/products', 'BUYER')).toBe('/checkout');
+    expect(resolvePostLoginRedirect('/my-dashboard/orders', '/products', 'BUYER')).toBe('/my-dashboard/orders');
   });
 });

@@ -7,7 +7,7 @@ import { authService } from '@/services';
 import { tokenStore } from '@/services/tokenStore';
 import { useLayout } from '@/app/providers/LayoutContext';
 import UnifiedLoginModal from '@/auth/components/UnifiedLoginModal';
-import { getSafeRedirect } from '@/auth/utils/redirect';
+import { getSafeRedirect, resolvePostLoginRedirect } from '@/auth/utils/redirect';
 
 /**
  * The legacy sign-in URLs and the role each one hints at.
@@ -38,10 +38,12 @@ const GlobalLoginModal = () => {
       closeLoginModal();
       toast.success('Signed in successfully!');
 
-      const fallbackDestination = await authService.loginDestination(tokenStore.getLoginRole());
-      const destination = getSafeRedirect(
+      const resolvedRole = tokenStore.getLoginRole() || res?.loginRole || res?.user?.role || loginModalRole;
+      const fallbackDestination = await authService.loginDestination(resolvedRole);
+      const destination = resolvePostLoginRedirect(
         loginModalReturnTo || location.state?.from,
-        fallbackDestination
+        fallbackDestination,
+        resolvedRole
       );
       navigate(destination, { replace: true });
       return res;
@@ -64,10 +66,12 @@ const GlobalLoginModal = () => {
       closeLoginModal();
       toast.success('Signed in successfully!');
 
-      const fallbackDestination = await authService.loginDestination(tokenStore.getLoginRole());
-      const destination = getSafeRedirect(
+      const resolvedRole = tokenStore.getLoginRole() || res?.loginRole || res?.user?.role || loginModalRole;
+      const fallbackDestination = await authService.loginDestination(resolvedRole);
+      const destination = resolvePostLoginRedirect(
         loginModalReturnTo || location.state?.from,
-        fallbackDestination
+        fallbackDestination,
+        resolvedRole
       );
       navigate(destination, { replace: true });
       return res;

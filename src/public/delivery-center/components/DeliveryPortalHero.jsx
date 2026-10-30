@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineArrowRight, AiOutlineCheckCircle } from 'react-icons/ai';
 import { useLayout } from '@/app/providers/LayoutContext';
+import { useAuth } from '@/auth/hooks/useAuth';
 
 /**
  * DeliveryPortalHero - Aritii Delivery Partner Hero
@@ -9,6 +10,7 @@ import { useLayout } from '@/app/providers/LayoutContext';
  */
 const DeliveryPortalHero = () => {
   const { openLoginModal } = useLayout();
+  const { isAuthenticated, isProvider } = useAuth();
 
   return (
     <section className="bg-[#131921] text-white py-12 md:py-18 border-b border-[#232F3E]">
@@ -62,20 +64,32 @@ const DeliveryPortalHero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/delivery-sign-up"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded shadow-md transition-colors"
-              >
-                Apply to Deliver
-                <AiOutlineArrowRight size={18} />
-              </Link>
-              <button
-                type="button"
-                onClick={() => openLoginModal('PROVIDER')}
-                className="inline-flex items-center justify-center px-6 py-3.5 border border-[#565959] hover:border-white text-white font-semibold text-sm rounded bg-[#232F3E] hover:bg-[#37475A] transition-colors"
-              >
-                Partner Sign In
-              </button>
+              {isAuthenticated && isProvider ? (
+                <Link
+                  to="/provider"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded shadow-md transition-colors"
+                >
+                  Open Provider Portal
+                  <AiOutlineArrowRight size={18} />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/delivery-sign-up"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#00A8E1] hover:bg-[#0087B8] text-white font-bold text-sm rounded shadow-md transition-colors"
+                  >
+                    Apply to Deliver
+                    <AiOutlineArrowRight size={18} />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => openLoginModal('PROVIDER')}
+                    className="inline-flex items-center justify-center px-6 py-3.5 border border-[#565959] hover:border-white text-white font-semibold text-sm rounded bg-[#232F3E] hover:bg-[#37475A] transition-colors"
+                  >
+                    Partner Sign In
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
