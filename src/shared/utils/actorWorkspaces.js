@@ -99,10 +99,10 @@ export function workspaceForLogin(role, status) {
   const state = String(status || '').trim().toUpperCase();
 
   if (requested === 'SELLER') {
-    return state === 'ACTIVE' ? '/business' : '/seller-registration/status';
+    return state === 'ACTIVE' || state === 'APPROVED' ? '/business' : '/seller-registration/status';
   }
   if (requested === 'PROVIDER') {
-    return state === 'ACTIVE' ? '/provider' : '/provider-application/status';
+    return state === 'ACTIVE' || state === 'APPROVED' ? '/provider' : '/provider-application/status';
   }
   // Buyers land on the consistent public marketplace layout (same one
   // unauthenticated shoppers use) instead of the buyer account shell or the

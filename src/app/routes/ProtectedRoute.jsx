@@ -89,7 +89,10 @@ const ProtectedRoute = ({ children, require = 'AUTHENTICATED', redirectTo }) => 
     user?.activeRole === 'SELLER' ||
     (Array.isArray(user?.roles) && user.roles.includes('SELLER'));
   const hasProviderCapability =
-    user?.capabilities?.includes('PROVIDER') || user?.role === 'PROVIDER';
+    user?.capabilities?.includes('PROVIDER') ||
+    user?.role === 'PROVIDER' ||
+    user?.activeRole === 'PROVIDER' ||
+    (Array.isArray(user?.roles) && user.roles.includes('PROVIDER'));
 
   // ---- Approval status (user_roles.status) carried on the profile -----------
   // `roleStatuses` only lists roles the account actually holds, e.g.
