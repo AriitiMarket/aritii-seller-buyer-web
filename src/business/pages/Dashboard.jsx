@@ -1,10 +1,2 @@
-import React from 'react'
-import DashboardHero from '@/business/components/BusinessDashboardHero'
-
-const BusinessDashboardPage = () => (
-  <>
-    <DashboardHero />
-  </>
-)
-
-export default BusinessDashboardPage
+export { default } from '@/features/seller/pages/Dashboard';
+export * from '@/features/seller/pages/Dashboard';

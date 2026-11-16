@@ -1,17 +1,44 @@
 :root {
-  /* Aritii Brand Colors */
+  /* Multivendor Design Tokens */
+  --primary-color: #75d04b;
+  --primary-light: #f3ffee;
+  --primary-dark: #5ac12f;
+  --primary-hover: #68c73e;
+  --primary-pressed: #56b02f;
+  --primary-focus: rgba(117, 208, 75, 0.32);
+  --primary-disabled: #b9e8a3;
+  --secondary-color: #75d04b;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+
+  /* Brand Palette */
+  --brand-primary: #75d04b;
+  --brand-primary-light: #f3ffee;
+  --brand-primary-dark: #5ac12f;
+  --brand-primary-hover: #68c73e;
+  --brand-primary-pressed: #56b02f;
+  --brand-primary-disabled: #b9e8a3;
+  --brand-secondary-border: #111827;
+  --brand-dark: #141414;
+
+  /* Semantic Portal Tokens */
+  --portal-seller: #f59e0b;
+  --portal-delivery: #0ea5e9;
+
+  /* Aritii Brand Palette (Standardized) */
   --aritii-green: #75d04b;
-  --aritii-green-dark: #5ab82e;
+  --aritii-green-dark: #5ac12f;
   --aritii-green-light: #8fda6f;
-  --aritii-dark: #131921;
+  --aritii-dark: #141414;
   --aritii-dark-alt: #0f1111;
-  --aritii-border: #232f3e;
+  --aritii-border: #1f2937;
   --aritii-muted: #9aa6b2;
   --aritii-success: #28a745;
   --aritii-warning: #ffc107;
   --aritii-error: #dc3545;
   
-  /* Aritii Light Mode Colors */
+  /* Marketplace Theme Variables */
   --market-surface: #ffffff;
   --market-surface-dim: #f7f7f7;
   --market-surface-bright: #ffffff;
@@ -20,16 +47,16 @@
   --market-surface-container: #e6e6e6;
   --market-surface-container-high: #d5d9d9;
   --market-surface-container-highest: #c0c5c5;
-  --market-on-surface: #131921;
+  --market-on-surface: #141414;
   --market-on-surface-variant: #9aa6b2;
-  --market-header: #131921;
-  --market-header-border: #232f3e;
-  --market-subnav: #232f3e;
-  --market-subnav-border: #37475a;
+  --market-header: #141414;
+  --market-header-border: #1f2937;
+  --market-subnav: #1f2937;
+  --market-subnav-border: #374151;
   --market-primary: #75d04b;
-  --market-primary-hover: #5ab82e;
-  --market-primary-pressed: #4da11f;
-  --market-primary-container: #8fda6f;
+  --market-primary-hover: #68c73e;
+  --market-primary-pressed: #56b02f;
+  --market-primary-container: #f3ffee;
   --market-on-primary: #ffffff;
   --market-inverse-primary: #75d04b;
   --market-secondary: #2162a1;
@@ -43,42 +70,67 @@
   --market-price: #dc3545;
   --market-outline: #888c8c;
   --market-outline-variant: #969696;
-  --market-border: #232f3e;
+  --market-border: #1f2937;
   --market-background: #ffffff;
-  --market-on-background: #131921;
+  --market-on-background: #141414;
   --market-surface-variant: #f0f2f2;
-  --market-inverse-surface: #131921;
+  --market-inverse-surface: #141414;
   --market-inverse-on-surface: #ffffff;
 }
 
 /* Dark Mode Colors */
 .dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 24, 39;
+  --background-end-rgb: 17, 24, 39;
+
+  --primary-color: #75d04b;
+  --primary-light: #f3ffee;
+  --primary-dark: #5ac12f;
+  --primary-hover: #68c73e;
+  --primary-pressed: #56b02f;
+  --primary-focus: rgba(117, 208, 75, 0.32);
+  --primary-disabled: #b9e8a3;
+  --secondary-color: #75d04b;
+
+  --brand-primary: #75d04b;
+  --brand-primary-light: #f3ffee;
+  --brand-primary-dark: #5ac12f;
+  --brand-primary-hover: #68c73e;
+  --brand-primary-pressed: #56b02f;
+  --brand-primary-disabled: #b9e8a3;
+  --brand-secondary-border: #374151;
+  --brand-dark: #141414;
+
+  --portal-seller: #f59e0b;
+  --portal-delivery: #0ea5e9;
+
   --aritii-green: #75d04b;
-  --aritii-green-dark: #5ab82e;
+  --aritii-green-dark: #5ac12f;
   --aritii-green-light: #8fda6f;
-  --aritii-dark: #131921;
+  --aritii-dark: #141414;
   --aritii-dark-alt: #0f1111;
-  --aritii-border: #232f3e;
+  --aritii-border: #1f2937;
   --aritii-muted: #9aa6b2;
   
-  --market-surface: #131921;
+  --market-surface: #141414;
   --market-surface-dim: #0f1111;
-  --market-surface-bright: #1a1f2a;
+  --market-surface-bright: #181818;
   --market-surface-container-lowest: #0f1111;
-  --market-surface-container-low: #1a1f2a;
-  --market-surface-container: #232f3e;
-  --market-surface-container-high: #2d3a4a;
-  --market-surface-container-highest: #37475a;
+  --market-surface-container-low: #181818;
+  --market-surface-container: #1f2937;
+  --market-surface-container-high: #27272a;
+  --market-surface-container-highest: #374151;
   --market-on-surface: #ffffff;
   --market-on-surface-variant: #b0b0b0;
   --market-header: #0f1111;
-  --market-header-border: #232f3e;
-  --market-subnav: #1a1f2a;
-  --market-subnav-border: #37475a;
+  --market-header-border: #1f2937;
+  --market-subnav: #181818;
+  --market-subnav-border: #374151;
   --market-primary: #75d04b;
   --market-primary-hover: #8fda6f;
-  --market-primary-pressed: #5ab82e;
-  --market-primary-container: #5ab82e;
+  --market-primary-pressed: #5ac12f;
+  --market-primary-container: #5ac12f;
   --market-on-primary: #0f1111;
   --market-inverse-primary: #75d04b;
   --market-secondary: #6fa8e8;
@@ -92,10 +144,10 @@
   --market-price: #f44336;
   --market-outline: #5a5a5a;
   --market-outline-variant: #6a6a6a;
-  --market-border: #232f3e;
-  --market-background: #0f1111;
+  --market-border: #1f2937;
+  --market-background: #111827;
   --market-on-background: #ffffff;
-  --market-surface-variant: #232f3e;
+  --market-surface-variant: #1f2937;
   --market-inverse-surface: #ffffff;
   --market-inverse-on-surface: #0f1111;
 }

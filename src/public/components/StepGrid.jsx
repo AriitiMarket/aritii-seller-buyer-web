@@ -1,22 +1,17 @@
 import React from 'react';
 
 /**
- * StepGrid — the shared "N steps" grid used by every public journey
- * (seller onboarding, delivery onboarding, how-it-works).
- *
- * Six pages used to hand-roll the same card grid, and the seller copy and the
- * delivery copy were near-identical down to the class names. One component
- * keeps the journeys visually identical; only the accent and the copy change.
+ * StepGrid — The shared "N steps" grid used by public onboarding & how-it-works journeys.
  */
 const StepGrid = ({
   steps = [],
-  accent = '#00A8E1',
+  accent = '#0ea5e9',
   columns = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
-  cardClassName = 'p-6 bg-[#F7F7F7] dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-xl',
-  badgeClassName = 'w-12 h-12 text-white font-black text-lg rounded-xl flex items-center justify-center mb-4',
+  cardClassName = 'p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xs',
+  badgeClassName = 'w-12 h-12 text-white font-black text-lg rounded-full flex items-center justify-center mb-4 shadow-xs',
   badgeTextClassName = 'text-white',
-  titleClassName = 'font-bold text-base text-[#0F1111] dark:text-white mb-2',
-  descriptionClassName = 'text-xs text-[#565959] dark:text-gray-400 leading-relaxed',
+  titleClassName = 'font-bold text-base text-gray-900 dark:text-white mb-2',
+  descriptionClassName = 'text-xs text-gray-600 dark:text-gray-400 leading-relaxed',
 }) => {
   if (!steps.length) return null;
 

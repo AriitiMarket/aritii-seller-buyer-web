@@ -3,44 +3,32 @@ import { Navigate, Route } from 'react-router-dom';
 import ProtectedRoute from '@/app/routes/ProtectedRoute';
 
 /**
- * PROVIDER routes - the delivery provider workspace.
+ * PROVIDER / DELIVERY routes - the courier partner hub and operations.
  *
- * This domain is for external delivery providers who work with Aritii's delivery
+ * This domain is for delivery providers who work with Aritii's delivery
  * system. Providers can view available work, manage their deliveries, track batches,
- * and update their profile.
+ * and manage their earnings/wallet.
  *
- * Route concepts:
- *   /provider                      overview and available work
- *   /provider/deliveries            active and completed deliveries
- *   /provider/batches                delivery batches for efficiency
- *   /provider/batches/:id           batch details
- *   /provider/profile               provider profile and settings
- *   /provider/availability           availability toggle
- *   /provider/warnings              warnings and notifications
+ * Namespaces:
+ *   /provider/*        - Canonical delivery workspace route
+ *   /delivery-center/* - Dedicated courier partner hub namespace
  */
-const ProviderLayout = lazy(() => import('@/features/delivery-provider/components/ProviderLayout'));
-const ProviderOverviewPage = lazy(() => import('@/features/delivery-provider/pages/ProviderOverview'));
-const AvailableWorkPage = lazy(() => import('@/features/delivery-provider/pages/AvailableWork'));
-const MyDeliveriesPage = lazy(() => import('@/features/delivery-provider/pages/MyDeliveries'));
-const BatchesPage = lazy(() => import('@/features/delivery-provider/pages/Batches'));
-const BatchDetailsPage = lazy(() => import('@/features/delivery-provider/pages/BatchDetails'));
-const ActiveDeliveryPage = lazy(() => import('@/features/delivery-provider/pages/ActiveDelivery'));
-const WarningsPage = lazy(() => import('@/features/delivery-provider/pages/Warnings'));
-const ProviderProfilePage = lazy(() => import('@/features/delivery-provider/pages/ProviderProfile'));
-const OperatingAreaPage = lazy(() => import('@/features/delivery-provider/pages/OperatingArea'));
-const ProviderWalletPage = lazy(() => import('@/features/delivery-provider/pages/Wallet'));
+const ProviderLayout = lazy(() => import('@/features/delivery/components/ProviderLayout'));
+const ProviderOverviewPage = lazy(() => import('@/features/delivery/pages/ProviderOverview'));
+const AvailableWorkPage = lazy(() => import('@/features/delivery/pages/AvailableWork'));
+const MyDeliveriesPage = lazy(() => import('@/features/delivery/pages/MyDeliveries'));
+const BatchesPage = lazy(() => import('@/features/delivery/pages/Batches'));
+const BatchDetailsPage = lazy(() => import('@/features/delivery/pages/BatchDetails'));
+const ActiveDeliveryPage = lazy(() => import('@/features/delivery/pages/ActiveDelivery'));
+const WarningsPage = lazy(() => import('@/features/delivery/pages/Warnings'));
+const ProviderProfilePage = lazy(() => import('@/features/delivery/pages/ProviderProfile'));
+const OperatingAreaPage = lazy(() => import('@/features/delivery/pages/OperatingArea'));
+const ProviderWalletPage = lazy(() => import('@/features/delivery/pages/Wallet'));
 
-export const ProviderRoutes = () => (
-  <Route
-    path="/provider"
-    element={
-      <ProtectedRoute require="PROVIDER">
-        <ProviderLayout />
-      </ProtectedRoute>
-    }
-  >
+const renderProviderChildRoutes = (basePath) => (
+  <>
     <Route index element={<ProviderOverviewPage />} />
-    <Route path="dashboard" element={<Navigate to="/provider" replace />} />
+    <Route path="dashboard" element={<Navigate to={basePath} replace />} />
     <Route path="available-work" element={<AvailableWorkPage />} />
     <Route path="deliveries" element={<MyDeliveriesPage />} />
     <Route path="deliveries/:id" element={<ActiveDeliveryPage />} />
@@ -50,7 +38,55 @@ export const ProviderRoutes = () => (
     <Route path="profile" element={<ProviderProfilePage />} />
     <Route path="operating-area" element={<OperatingAreaPage />} />
     <Route path="wallet" element={<ProviderWalletPage />} />
-  </Route>
+  </>
+);
+
+export const ProviderRoutes = () => (
+  <>
+    {/* Canonical /provider workspace */}
+    <Route
+      path="/provider"
+      element={
+        <ProtectedRoute require="PROVIDER">
+          <ProviderLayout />
+        </ProtectedRoute>
+      }
+    >
+      {renderProviderChildRoutes('/provider')}
+    </Route>
+
+    {/* Dedicated /delivery-center/hub courier partner hub namespace */}
+    <Route
+      path="/delivery-center/hub"
+      element={
+        <ProtectedRoute require="PROVIDER">
+          <ProviderLayout />
+        </ProtectedRoute>
+      }
+    >
+      {renderProviderChildRoutes('/delivery-center/hub')}
+    </Route>
+
+    {/* Courier operations aliases under /delivery-center/* */}
+    <Route
+      path="/delivery-center"
+      element={
+        <ProtectedRoute require="PROVIDER">
+          <ProviderLayout />
+        </ProtectedRoute>
+      }
+    >
+      <Route path="available-work" element={<AvailableWorkPage />} />
+      <Route path="deliveries" element={<MyDeliveriesPage />} />
+      <Route path="deliveries/:id" element={<ActiveDeliveryPage />} />
+      <Route path="batches" element={<BatchesPage />} />
+      <Route path="batches/:id" element={<BatchDetailsPage />} />
+      <Route path="warnings" element={<WarningsPage />} />
+      <Route path="profile" element={<ProviderProfilePage />} />
+      <Route path="operating-area" element={<OperatingAreaPage />} />
+      <Route path="wallet" element={<ProviderWalletPage />} />
+    </Route>
+  </>
 );
 
 export default ProviderRoutes;

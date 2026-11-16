@@ -18,8 +18,8 @@ function CategoryItem({ name, count, isActive, isSubcategory = false, onClick })
       onClick={onClick}
       className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-all flex items-center justify-between group ${
         isActive
-          ? 'font-bold text-[#131921] dark:text-white bg-[#75d04b]/20 border-l-3 border-[#75d04b] shadow-xs'
-          : 'text-gray-700 dark:text-gray-300 hover:text-[#131921] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+          ? 'font-bold text-[#141414] dark:text-white bg-[#75d04b]/20 border-l-3 border-[#75d04b] shadow-xs'
+          : 'text-gray-700 dark:text-gray-300 hover:text-[#141414] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
       } ${isSubcategory ? 'ml-3 text-[11px] font-normal pl-2' : ''}`}
     >
       <span className="truncate pr-1">{name}</span>
@@ -240,7 +240,7 @@ const CategorySidebar = ({
         {selectedCount > 0 && (
           <div className="mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-[#131921] dark:text-white">
+              <span className="text-xs font-semibold text-[#141414] dark:text-white">
                 Filtered by category
               </span>
               <button
@@ -304,7 +304,7 @@ const CategorySidebar = ({
                   className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-between ${
                     !activeCategory
                       ? 'bg-[#75d04b] text-white shadow-xs font-bold'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-[#131921] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-[#141414] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
                   <span>{allLabel}</span>

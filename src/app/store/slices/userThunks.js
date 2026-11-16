@@ -1,0 +1,359 @@
+/**
+ * Redux User Actions — OAuth 2.1 + OIDC. Token-based, no cookies/sessions.
+ */
+import { authService, addressService, sellerService, shopService } from "@/services";
+import { refreshAccessToken, tokenStore } from "@/services/tokenStore";
+import { disconnectRealtime } from "@/services/realtime";
+import { fetchWishlist } from "./wishlistThunks";
+import { syncGuestCart } from "./cartThunks";
+
+/**
+ * Read `registrationType` from either a FormData (what the sign-up form sends)
+ * or a plain object.
+ *
+ * FormData exposes its entries only through `.get()` — `formData.registrationType`
+ * is always `undefined` — so the old check sent every seller/provider sign-up to
+ * the plain buyer endpoint and no PENDING membership was ever recorded.
+ */
+function readRegistrationType(userData) {
+  const raw = (typeof FormData !== 'undefined' && userData instanceof FormData)
+    ? userData.get('registrationType')
+    : userData?.registrationType;
+  const role = String(raw || 'BUYER').trim().toUpperCase();
+  return ['BUYER', 'SELLER', 'PROVIDER'].includes(role) ? role : 'BUYER';
+}
+
+export const registerUser = (userData) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+
+    // SELLER / PROVIDER must use the role-specific endpoint: it records the
+    // PENDING membership that the seller/provider application later activates.
+    // BUYER keeps the plain registration endpoint (there is no membership to
+    // record — buyer access is implicit for every account).
+    const registrationType = readRegistrationType(userData);
+    const result = registrationType !== 'BUYER'
+      ? await authService.registerWithRole(userData)
+      : await authService.register(userData);
+
+    // The registration response carries only a minimal user. Re-read the full
+    // profile so the guards and header see the real role + capability set (a new
+    // SELLER/PROVIDER holds a PENDING membership, so it is deliberately absent
+    // from `capabilities` until an admin approves the application).
+    let user = result.user;
+    try {
+      const profile = await authService.getCurrentUser();
+      if (profile) user = profile;
+    } catch (err) {
+      /* profile fetch is best-effort — registration and tokens already succeeded */
+    }
+
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    return { ...result, user };
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+/**
+ * Sign in with credentials.
+ *
+ * The role is NOT part of the request: the Identity Service resolves it from
+ * the account's own role memberships and returns it as `login_role`, which
+ * `authService.login` stores in the token store.
+ */
+export const loginUser = (email, password) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.login(email, password);
+    if (result?.requires2fa) {
+      dispatch({ type: "LoadUserFail", payload: null });
+      return result;
+    }
+    // login() already refreshed the profile; fall back to a fetch only when the
+    // token store has nothing (keeps the previous behaviour without the
+    // redundant round-trip).
+    const user = tokenStore.getUser() || await authService.getCurrentUser();
+    // If seller role, signal capability check is pending so guard waits
+    if (user?.role === 'SELLER') {
+      dispatch({ type: "LoadSellerRequest" });
+    }
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    // Hydrate this account's wishlist (header badge + heart states).
+    dispatch(fetchWishlist());
+    // Synchronize guest cart items from localStorage with server cart
+    dispatch(syncGuestCart());
+    // Ensure seller capability is resolved for role-based routing
+    await dispatch(loadSeller());
+    return { ...result, user };
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const verify2FALogin = (verificationData) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    const result = await authService.verify2FA(verificationData);
+    const user = tokenStore.getUser() || await authService.getCurrentUser();
+    if (user?.role === 'SELLER') {
+      dispatch({ type: "LoadSellerRequest" });
+    }
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    dispatch(fetchWishlist());
+    dispatch(syncGuestCart());
+    await dispatch(loadSeller());
+    return { ...result, user };
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const submitSellerApplication = (applicationData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    const application = await sellerService.submitApplication(applicationData);
+    // Applying must not replace the authenticated identity with the application
+    // document. Keep the buyer account intact; seller capability is granted only
+    // after admin approval and is picked up on the next profile refresh.
+    const currentUser = getState()?.user?.user;
+    dispatch({ type: "LoadUserSuccess", payload: { ...(currentUser || {}), sellerStatus: application?.status || 'PENDING_REVIEW', application } });
+    return application;
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const switchUserRole = (role) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    await authService.switchRole(role);
+    // The token now presents the chosen actor role. Re-read the profile so the
+    // guards, headers and menus see the new activeRole/capabilities.
+    const user = await authService.getCurrentUser();
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    // Seller capability feeds the BUSINESS guard, so keep it in step too.
+    await dispatch(loadSeller());
+    return user;
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const updateUserAvatar = (formData) => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    const user = await authService.updateAvatar(formData);
+    dispatch({ type: "LoadUserSuccess", payload: user });
+    return user;
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+    throw error;
+  }
+};
+
+export const loadUser = () => async (dispatch) => {
+  try {
+    dispatch({ type: "LoadUserRequest" });
+    if (!tokenStore.isAuthenticated()) {
+      if (!tokenStore.getRefreshToken()) {
+        dispatch({ type: "LoadUserFail", payload: "Not authenticated" });
+        return;
+      }
+      await refreshAccessToken();
+    }
+    const user = await authService.getCurrentUser();
+    dispatch({ type: "LoadUserSuccess", payload: user });
+
+    // Auto-resolve seller capability when user holds the SELLER capability or role
+    const hasSeller = user?.role === 'SELLER'
+      || user?.activeRole === 'SELLER'
+      || (Array.isArray(user?.capabilities) && user.capabilities.includes('SELLER'))
+      || (Array.isArray(user?.roles) && user.roles.includes('SELLER'));
+    if (hasSeller) {
+      dispatch(loadSeller());
+    }
+  } catch (error) {
+    dispatch({ type: "LoadUserFail", payload: error.response?.data?.message || error.message });
+  }
+};
+
+export const logoutUser = () => async (dispatch) => {
+  try {
+    dispatch({ type: "LogoutRequest" });
+    // Stop the realtime socket before credentials go away.
+    disconnectRealtime();
+    const result = await authService.logout();
+    dispatch({ type: "RESET_STORE" });
+    dispatch({ type: "LogoutSuccess", payload: result.message });
+    dispatch({ type: "SellerLogoutSuccess" });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("wishlistItems");
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
+    return result;
+  } catch (_error) {
+    // Even if server call fails, clear local state and reset store.
+    tokenStore.clear();
+    dispatch({ type: "RESET_STORE" });
+    dispatch({ type: "LogoutSuccess", payload: "Logged out" });
+    dispatch({ type: "SellerLogoutSuccess" });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("wishlistItems");
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
+    return { message: "Logged out" };
+  }
+};
+
+export const updatUserAddress =
+  (addressData) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: "updateUserAddressRequest" });
+      let address;
+      if (addressData._id) {
+        address = await addressService.update(addressData._id, addressData);
+      } else {
+        address = await addressService.add(addressData);
+      }
+      dispatch({ type: "updateUserAddressSuccess", payload: { updateAddressSuccessMessage: "User address updated successfully!", address } });
+    } catch (error) {
+      dispatch({ type: "updateUserAddressFailed", payload: error.response?.data?.message || error.message });
+    }
+  };
+
+export const deleteUserAddress = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: "deleteUserAddressRequest" });
+    await addressService.delete(id);
+    dispatch({ type: "deleteUserAddressSuccess", payload: { successMessage: "Address deleted successfully!", addressId: id } });
+  } catch (error) {
+    dispatch({ type: "deleteUserAddressFailed", payload: error.response?.data?.message || error.message });
+  }
+};
+
+export const loadSeller = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: "LoadSellerRequest" });
+
+    // If the user is already loaded in Redux, use it directly (avoids redundant API call).
+    const existingUser = getState()?.user?.user;
+    if (existingUser) {
+      const status = existingUser.sellerStatus || existingUser.application?.status;
+      // A suspended business keeps role=SELLER (the one-account model), so the
+      // role/shopId checks below must never win over an explicit suspension —
+      // otherwise a deactivated seller keeps the whole business dashboard.
+      if (String(existingUser.sellerStatus || '').toUpperCase() === 'SUSPENDED') {
+        dispatch({ type: "LoadSellerFail", payload: "Your seller account is suspended." });
+        return;
+      }
+
+      const hasSellerRole = existingUser.role === "SELLER"
+        || existingUser.activeRole === "SELLER"
+        || (Array.isArray(existingUser.capabilities) && existingUser.capabilities.includes("SELLER"))
+        || (Array.isArray(existingUser.roles) && existingUser.roles.includes("SELLER"));
+
+      const sellerRoleActive = existingUser.roleStatuses?.SELLER === "ACTIVE"
+        || (!existingUser.roleStatuses?.SELLER && hasSellerRole);
+
+      const approved = (hasSellerRole && sellerRoleActive)
+        || Boolean(existingUser.shopId)
+        || status === "APPROVED"
+        || status === "APPROVED_SELLER";
+
+      if (!approved) {
+        dispatch({ type: "LoadSellerFail", payload: "Seller approval is required." });
+        return;
+      }
+      dispatch({ type: "LoadSellerSuccess", payload: existingUser });
+      return;
+    }
+
+    // Fallback: fetch from API (only works if access token is available)
+    if (!tokenStore.isAuthenticated()) {
+      dispatch({ type: "LoadSellerFail", payload: "User not authenticated" });
+      return;
+    }
+    const seller = await authService.getCurrentUser();
+    const status = seller?.sellerStatus || seller?.application?.status;
+    if (String(seller?.sellerStatus || '').toUpperCase() === 'SUSPENDED') {
+      dispatch({ type: "LoadSellerFail", payload: "Your seller account is suspended." });
+      return;
+    }
+
+    const hasSellerRole = seller?.role === "SELLER"
+      || seller?.activeRole === "SELLER"
+      || (Array.isArray(seller?.capabilities) && seller.capabilities.includes("SELLER"))
+      || (Array.isArray(seller?.roles) && seller.roles.includes("SELLER"));
+
+    const sellerRoleActive = seller?.roleStatuses?.SELLER === "ACTIVE"
+      || (!seller?.roleStatuses?.SELLER && hasSellerRole);
+
+    const approved = (hasSellerRole && sellerRoleActive)
+      || Boolean(seller?.shopId)
+      || status === "APPROVED"
+      || status === "APPROVED_SELLER";
+
+    if (!approved) {
+      dispatch({ type: "LoadSellerFail", payload: "Seller approval is required." });
+      return;
+    }
+    dispatch({ type: "LoadSellerSuccess", payload: seller });
+  } catch (error) {
+    if (error.response?.status === 404) {
+      dispatch({ type: "LoadSellerFail", payload: "No seller shop found. User may not be an approved seller yet." });
+    } else if (error.response?.status === 401) {
+      dispatch({ type: "LoadSellerFail", payload: "User not authenticated" });
+    } else {
+      dispatch({ type: "LoadSellerFail", payload: error.response?.data?.message || error.message });
+    }
+  }
+};
+
+export const logoutSeller = () => async (dispatch) => {
+  try {
+    dispatch({ type: "SellerLogoutRequest" });
+    disconnectRealtime();
+    const result = await authService.logout();
+    dispatch({ type: "RESET_SELLER_STATE" });
+    dispatch({ type: "SellerLogoutSuccess", payload: result.message });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
+    return result;
+  } catch (_error) {
+    tokenStore.clear();
+    dispatch({ type: "RESET_SELLER_STATE" });
+    dispatch({ type: "SellerLogoutSuccess", payload: "Logged out" });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
+    return { message: "Logged out" };
+  }
+};
+
+export const updateUserInformation =
+  (name, email, phoneNumber, password) => async (dispatch) => {
+    try {
+      dispatch({ type: "updateUserInfoRequest" });
+      const user = await authService.updateProfile({ email, password, phoneNumber, name });
+      dispatch({ type: "updateUserInfoSuccess", payload: user });
+    } catch (error) {
+      dispatch({ type: "updateUserInfoFailed", payload: error.response?.data?.message || error.message });
+    }
+  };
+
+export const updateShopAvatar = (shopId, formData) => async () => {
+  // No local state is written here: the caller refreshes the shop list
+  // (`useBusinessShops().refresh()`), which is the single source of truth for
+  // shop data. This thunk previously pushed a SHOP into the USER slice.
+  return shopService.updateShopAvatar(shopId, formData);
+};

@@ -10,8 +10,8 @@ import PortalHeader from '@/public/components/PortalHeader';
  */
 const SellerCentralHeader = ({ navItems = [], ...rest }) => (
   <PortalHeader
-    accent="#FF9900"
-    accentHover="#E68A00"
+    accent="#f59e0b"
+    accentHover="#d97706"
     brandTop="Aritii"
     brandBottom="Seller Central"
     homeTo="/seller-center"

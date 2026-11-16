@@ -4,36 +4,22 @@ import { publicContentService } from '@/public/services/publicContentService';
 
 /**
  * EventsSection - Upcoming events for the public pages.
- *
- * Events are an INDEPENDENT feature (own service, own model — see docs/ARCHITECTURE.md).
- * This section only renders the publicly visible, featured events returned by the
- * backend (`showOnPublic` + `featured`). It renders nothing when there are no
- * publicly curated events, so no mock events ever reach production.
- *
- * `events` — the list to render. The events page passes the list it already
- * fetched into Redux, so the page does not request the same endpoint twice
- * (the page's "no events" state and the section's list used to disagree).
- * When the prop is omitted the section fetches the list itself.
  */
 const EventsSection = ({ events: eventsProp = null, limit = 3 }) => {
-  const [events, setEvents] = useState(eventsProp || []);
+  const [fetchedEvents, setFetchedEvents] = useState([]);
   const [loading, setLoading] = useState(!eventsProp);
 
   useEffect(() => {
-    if (eventsProp) {
-      setEvents(eventsProp);
-      setLoading(false);
-      return undefined;
-    }
+    if (eventsProp) return undefined;
 
     let active = true;
     publicContentService
       .getFeaturedEvents(limit)
       .then((items) => {
-        if (active) setEvents(items);
+        if (active) setFetchedEvents(items || []);
       })
       .catch(() => {
-        if (active) setEvents([]);
+        if (active) setFetchedEvents([]);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -43,10 +29,13 @@ const EventsSection = ({ events: eventsProp = null, limit = 3 }) => {
     };
   }, [eventsProp, limit]);
 
-  if (loading || events.length === 0) return null;
+  const events = eventsProp || fetchedEvents;
+  const isLoading = eventsProp ? false : loading;
+
+  if (isLoading || events.length === 0) return null;
 
   return (
-    <section className="py-10 md:py-14 bg-[#EAEDED] dark:bg-gray-950">
+    <section className="py-10 md:py-14 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>
@@ -70,7 +59,7 @@ const EventsSection = ({ events: eventsProp = null, limit = 3 }) => {
             const banner = event.banner || event.image;
             return (
               <Link key={id} to={`/events?event=${id}`} className="group">
-                <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                <div className="h-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
                   <div className="relative h-40 md:h-48 bg-gray-100 dark:bg-gray-700">
                     {banner ? (
                       <img
@@ -82,7 +71,7 @@ const EventsSection = ({ events: eventsProp = null, limit = 3 }) => {
                       <div className="w-full h-full flex items-center justify-center text-4xl">🎪</div>
                     )}
                     {event.startDate ? (
-                      <span className="absolute top-3 left-3 bg-[#75d04b] text-white text-xs font-bold px-2 py-1 rounded">
+                      <span className="absolute top-3 left-3 bg-[#75d04b] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-xs">
                         {new Date(event.startDate).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',

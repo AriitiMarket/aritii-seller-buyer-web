@@ -103,3 +103,4 @@ export const useMultipleRoleAccess = (roles = []) => {
 
   return { accessStatus, loading, error };
 };
+export default useRoleAccess;

@@ -6,6 +6,7 @@ const initialState = {
 export const userReducer = (state = initialState, action) => {
     switch (action.type) {
         case "LoadUserRequest":
+        case "LogoutRequest":
             return {
                 ...state,
                 loading: true,
@@ -27,13 +28,8 @@ export const userReducer = (state = initialState, action) => {
                 isAuthenticated: false,
             };
 
-        case "LogoutRequest":
-            return {
-                ...state,
-                loading: true,
-            };
-
         case "LogoutSuccess":
+        case "RESET_STORE":
             return {
                 ...state,
                 loading: false,

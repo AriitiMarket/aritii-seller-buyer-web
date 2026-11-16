@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { AiOutlineCheck, AiOutlineArrowRight, AiOutlineUser, AiOutlineShop, AiOutlineCar } from 'react-icons/ai';
 
 /**
- * PlatformRolesSection - the three connected experiences of Aritii Market.
+ * PlatformRolesSection - The three connected experiences of Aritii Market.
  *
- * One platform, three experiences: the Marketplace where buyers shop, the
- * Seller experience for businesses, and the Delivery experience for providers.
- * The cards are connected with arrows to show they are part of a single local
- * commerce flow (see HowItWorksSection for the step-by-step journey).
+ * One platform, three experiences:
+ * - Marketplace Experience (Buyers) -> #75d04b
+ * - Seller Experience (Merchants) -> #f59e0b
+ * - Delivery Experience (Couriers) -> #0ea5e9
  */
 
 const experiences = [
@@ -17,7 +17,7 @@ const experiences = [
     image: '/buyer.png',
     imageAlt: 'A shopper using the Aritii marketplace',
     accent: '#75d04b',
-    tint: 'bg-white dark:bg-gray-900',
+    btnClass: 'bg-[#75d04b] hover:brightness-95',
     eyebrow: 'Marketplace Experience',
     icon: AiOutlineUser,
     title: 'Discover and shop local',
@@ -36,8 +36,8 @@ const experiences = [
     key: 'sellers',
     image: '/seller.png',
     imageAlt: 'A local seller managing an Aritii shop',
-    accent: '#FF9900',
-    tint: 'bg-white dark:bg-gray-900',
+    accent: '#f59e0b',
+    btnClass: 'bg-amber-500 hover:bg-amber-600',
     eyebrow: 'Seller Experience',
     icon: AiOutlineShop,
     title: 'Sell through Aritii',
@@ -56,8 +56,8 @@ const experiences = [
     key: 'delivery',
     image: '/delivery.png',
     imageAlt: 'An Aritii delivery provider handing an order to a customer',
-    accent: '#00A8E1',
-    tint: 'bg-white dark:bg-gray-900',
+    accent: '#0ea5e9',
+    btnClass: 'bg-sky-500 hover:bg-sky-600',
     eyebrow: 'Delivery Experience',
     icon: AiOutlineCar,
     title: 'Move orders to customers',
@@ -76,11 +76,11 @@ const experiences = [
 
 const PlatformRolesSection = () => {
   return (
-    <section id="ariiti-ecosystem" className="home-brand-section home-brand-section--commerce py-12 md:py-16 bg-[#EAEDED] dark:bg-gray-950 scroll-mt-24">
+    <section id="ariiti-ecosystem" className="home-brand-section home-brand-section--commerce py-12 md:py-16 bg-gray-50 dark:bg-gray-900 transition-colors scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">
-          <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-block px-3.5 py-1 mb-4 rounded-full bg-[#75d04b]/15 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
             One platform · Three connected experiences
           </span>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -99,8 +99,8 @@ const PlatformRolesSection = () => {
             return (
               <div
                 key={item.key}
-                className={`group relative flex h-full flex-col overflow-hidden ${item.tint} rounded-2xl border border-gray-200 dark:border-gray-700 p-5 md:p-6 hover:shadow-lg transition-all duration-300`}
-                style={{ '--role-accent': item.accent, borderTopColor: item.accent }}
+                className="group relative flex h-full flex-col overflow-hidden bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 md:p-6 hover:shadow-md transition-all duration-300"
+                style={{ borderTopWidth: '3px', borderTopColor: item.accent }}
               >
                 <img
                   src={item.image}
@@ -110,19 +110,19 @@ const PlatformRolesSection = () => {
                   loading="lazy"
                   className="-mx-5 -mt-5 mb-5 aspect-[2/1] w-[calc(100%_+_2.5rem)] object-cover transition-transform duration-700 group-hover:scale-[1.025] md:-mx-6 md:-mt-6 md:mb-6 md:w-[calc(100%_+_3rem)]"
                 />
-                {/* Connector arrow to the next experience (md–lg only; hidden at lg
-                    where the grid gap narrows again, and on small screens) */}
+
+                {/* Connector arrow */}
                 {index < experiences.length - 1 && (
                   <span
                     aria-hidden="true"
-                    className="hidden md:flex lg:hidden absolute -right-[26px] top-16 z-10 w-9 h-9 rounded-full bg-white dark:bg-gray-800 border border-[#75d04b]/40 text-[#75d04b] items-center justify-center shadow-sm"
+                    className="hidden md:flex lg:hidden absolute -right-[26px] top-16 z-10 w-9 h-9 rounded-full bg-white dark:bg-gray-800 border border-[#75d04b]/40 text-[#75d04b] items-center justify-center shadow-xs"
                   >
                     <AiOutlineArrowRight size={16} />
                   </span>
                 )}
 
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="w-11 h-11 rounded-xl bg-white/80 dark:bg-gray-900/60 flex items-center justify-center" style={{ color: item.accent }}>
+                  <span className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-gray-700 flex items-center justify-center" style={{ color: item.accent }}>
                     <Icon size={22} />
                   </span>
                   <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200">
@@ -156,8 +156,7 @@ const PlatformRolesSection = () => {
 
                 <Link
                   to={item.cta.to}
-                  className="mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-semibold transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: item.accent }}
+                  className={`mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-white text-sm font-semibold transition-all shadow-xs hover:shadow-sm ${item.btnClass}`}
                 >
                   {item.cta.label}
                   <AiOutlineArrowRight size={16} aria-hidden="true" />

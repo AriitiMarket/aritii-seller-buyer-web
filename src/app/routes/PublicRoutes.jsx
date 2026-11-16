@@ -7,13 +7,13 @@ import PublicCatalogLayout from '@/public/layout/PublicCatalogLayout';
  *
  * Public pages present curated content and explain the platform.
  *
- * The three public experiences:
- *   /marketplace     → shopping-focused entry into the catalog (/products, /shops)
- *   /sell-on-aritii  → seller marketing/onboarding (→ /become-a-seller)
- *   /delivery        → delivery ecosystem explanation (public only, no ops data)
+ * Namespaces:
+ *   /marketplace/*   → retail shopping experience, product catalog, cart
+ *   /seller-center/* → seller marketing and onboarding
+ *   /delivery        → delivery ecosystem overview
  *
  * Catalog browsing pages (Products, Categories, Shops, Deals, etc.)
- * are also public and wrapped in PublicCatalogLayout.
+ * are also accessible at root paths and wrapped in PublicCatalogLayout.
  */
 const HomePage = lazy(() => import('@/public/platform/pages/Home'));
 const AboutPage = lazy(() => import('@/public/platform/pages/About'));
@@ -36,30 +36,32 @@ const BestSellersPage = lazy(() => import('@/features/marketplace/pages/BestSell
 const ProductDetailsPage = lazy(() => import('@/features/marketplace/pages/ProductDetail'));
 const CategoriesPage = lazy(() => import('@/features/marketplace/pages/Categories'));
 const ShopsPage = lazy(() => import('@/features/marketplace/pages/Shops'));
-const ShopDetailsPage = lazy(() => import('@/buyer/pages/ShopDetail'));
+const ShopDetailsPage = lazy(() => import('@/features/buyer/pages/ShopDetail'));
 const DealsPage = lazy(() => import('@/features/marketplace/pages/DealsPage'));
-const BuyerCartPage = lazy(() => import('@/buyer/pages/Cart'));
+const BuyerCartPage = lazy(() => import('@/features/buyer/pages/Cart'));
 
 export const PublicRoutes = () => (
   <>
     {/* Marketing / informational pages */}
     <Route path="/" element={<HomePage />} />
-    <Route path="/marketplace" element={<MarketplaceLandingPage />} />
     <Route path="/sell-on-aritii" element={<SellOnAritiiPage />} />
-    {/* Seller Center landing has its own horizontal navigation header. */}
+
+    {/* Seller Center marketing pages — dedicated public sections */}
     <Route path="/seller-center" element={<SellerCentralLandingPage />} />
-    <Route path="/seller" element={<Navigate to="/seller-center" replace />} />
-    {/* Seller Center pages - dedicated sections */}
     <Route path="/seller-center/overview" element={<SellerCenterOverviewPage />} />
     <Route path="/seller-center/benefits" element={<SellerCenterBenefitsPage />} />
     <Route path="/seller-center/how-it-works" element={<SellerCenterHowItWorksPage />} />
     <Route path="/seller-center/workspace" element={<SellerCenterWorkspacePage />} />
+
+    {/* Delivery public marketing */}
     <Route path="/delivery" element={<DeliveryExperiencePage />} />
     <Route path="/delivery-center" element={<DeliveryPortalLandingPage />} />
+
     <Route path="/about" element={<AboutPage />} />
     <Route path="/how-it-works" element={<HowItWorksPage />} />
     <Route path="/faq" element={<FAQPage />} />
     <Route path="/events" element={<PublicEventsPage />} />
+
     {/* Aliases for the help entry points used by the header and the footer */}
     <Route path="/help" element={<Navigate to="/faq" replace />} />
     <Route path="/support" element={<Navigate to="/faq" replace />} />
@@ -68,7 +70,23 @@ export const PublicRoutes = () => (
     <Route path="/terms" element={<LegalPage doc="terms" />} />
     <Route path="/cookie" element={<LegalPage doc="cookie" />} />
 
-    {/* Catalog browsing - public, no auth required */}
+    {/* Explicit /marketplace/* Retail Catalog Namespace */}
+    <Route path="/marketplace" element={<PublicCatalogLayout />}>
+      <Route index element={<MarketplaceLandingPage />} />
+      <Route path="products" element={<ProductsPage />} />
+      <Route path="product/:id" element={<ProductDetailsPage />} />
+      <Route path="categories" element={<CategoriesPage />} />
+      <Route path="shops" element={<ShopsPage />} />
+      <Route path="shops/:id" element={<ShopDetailsPage />} />
+      <Route path="shop/:id" element={<ShopDetailsPage />} />
+      <Route path="deals" element={<DealsPage />} />
+      <Route path="best-selling" element={<BestSellersPage />} />
+      <Route path="cart" element={<BuyerCartPage />} />
+      <Route path="new-arrivals" element={<Navigate to="/marketplace/products?sort=newest" replace />} />
+      <Route path="search" element={<Navigate to="/marketplace/products" replace />} />
+    </Route>
+
+    {/* Canonical root catalog browsing paths — wrapped in PublicCatalogLayout */}
     <Route element={<PublicCatalogLayout />}>
       <Route path="/cart" element={<BuyerCartPage />} />
       <Route path="/products" element={<ProductsPage />} />

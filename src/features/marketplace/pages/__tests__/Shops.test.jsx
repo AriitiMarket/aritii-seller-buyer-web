@@ -27,7 +27,7 @@ vi.mock('@/shared/hooks/useShops', () => ({
   filterShopsByLocation: vi.fn((shops, { _zoneId, _cityId, _regionId } = {}) => shops),
 }));
 
-vi.mock('@/auth/hooks/useAuth', () => ({
+vi.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
@@ -41,7 +41,7 @@ vi.mock('@/features/marketplace/components/CategorySidebar', () => ({
 
 import ShopsPage from '../Shops';
 import { useShops, filterShops } from '@/shared/hooks/useShops';
-import { useAuth } from '@/auth/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const mockShops = [
   {

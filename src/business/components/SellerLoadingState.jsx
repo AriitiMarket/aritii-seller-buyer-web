@@ -1,15 +1,2 @@
-import React from 'react';
-import Loader from '@/components/common/Loading';
-
-/**
- * SellerLoadingState — centered loading state for seller pages.
- */
-const SellerLoadingState = ({ label = 'Loading…' }) => {
-  return (
-    <div className="seller-loading-state">
-      <Loader variant="inline" label={label} />
-    </div>
-  );
-};
-
-export default SellerLoadingState;
+export { default } from '@/features/seller/components/SellerLoadingState';
+export * from '@/features/seller/components/SellerLoadingState';

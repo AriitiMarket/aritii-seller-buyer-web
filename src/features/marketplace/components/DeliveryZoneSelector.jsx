@@ -217,7 +217,7 @@ export function DeliveryZoneSelector({
     <div className="space-y-3 sm:space-y-4">
       {/* Header row: label + clear button */}
       <div className="flex items-center justify-between gap-2 sm:gap-3">
-        <span className="text-xs font-bold text-[#131921] dark:text-white uppercase tracking-wider leading-tight">
+        <span className="text-xs font-bold text-[#141414] dark:text-white uppercase tracking-wider leading-tight">
           {label}
         </span>
         {hasSelection && !disabled && (
@@ -292,7 +292,7 @@ export function DeliveryZoneSelector({
       )}
 
       {hasSelection && (
-        <div className="bg-[#FDF6EC] dark:bg-gray-900 border border-[#75d04b]/20 rounded-lg p-2.5 text-xs sm:text-sm">
+        <div className="bg-[#f3ffee] dark:bg-gray-900 border border-[#75d04b]/20 rounded-lg p-2.5 text-xs sm:text-sm">
           <span className="flex items-center gap-1.5">
             <span className="font-bold text-[#75d04b] dark:text-[#75d04b]">Selected:</span>
             <span className="text-gray-700 dark:text-gray-300 truncate">{selectionText}</span>

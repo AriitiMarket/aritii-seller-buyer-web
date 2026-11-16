@@ -29,29 +29,29 @@ function ParamRedirect({ to }) {
  * - Cart management
  * - Checkout & Payment
  */
-const BuyerLayout = lazy(() => import('@/buyer/components/BuyerLayout'));
+const BuyerLayout = lazy(() => import('@/features/buyer/components/BuyerLayout'));
 // BuyerAccountLayout is aliased to BuyerLayout to eliminate duplication.
-const BuyerOverviewPage = lazy(() => import('@/buyer/pages/Dashboard/Dashboard'));
-const BuyerProfilePage = lazy(() => import('@/buyer/pages/Profile'));
-const BuyerOrdersPage = lazy(() => import('@/buyer/pages/Orders'));
-const BuyerAddressesPage = lazy(() => import('@/buyer/pages/Addresses'));
-const BuyerWishlistPage = lazy(() => import('@/buyer/pages/Wishlist'));
-const BuyerReviewsPage = lazy(() => import('@/buyer/pages/Reviews'));
-const BuyerRequestsPage = lazy(() => import('@/buyer/pages/Requests/Requests'));
-const BuyerSelectSellerPage = lazy(() => import('@/buyer/pages/Requests/SelectSeller'));
-const BuyerSellerProfilePage = lazy(() => import('@/buyer/pages/Requests/SellerProfile'));
-const BuyerNewRequestPage = lazy(() => import('@/buyer/pages/Requests/NewRequest'));
-const BuyerRequestWorkspacePage = lazy(() => import('@/buyer/pages/Requests/RequestWorkspace'));
-const BuyerSettingsPage = lazy(() => import('@/buyer/pages/Settings'));
-const BuyerCartPage = lazy(() => import('@/buyer/pages/Cart'));
-const BuyerPaymentMethodsPage = lazy(() => import('@/buyer/pages/PaymentMethods'));
-const BuyerTransactionsPage = lazy(() => import('@/buyer/pages/Transactions'));
-const CheckoutPage = lazy(() => import('@/buyer/pages/Checkout'));
-const OrderSuccessPage = lazy(() => import('@/buyer/pages/OrderSuccess'));
-const PaymentPage = lazy(() => import('@/buyer/pages/Payment'));
-const PaymentReturnPage = lazy(() => import('@/buyer/pages/PaymentReturn'));
-const BuyerOrderDetailPage = lazy(() => import('@/buyer/pages/OrderDetail'));
-const BuyerTrackOrderPage = lazy(() => import('@/buyer/pages/OrderTracking'));
+const BuyerOverviewPage = lazy(() => import('@/features/buyer/pages/Dashboard/Dashboard'));
+const BuyerProfilePage = lazy(() => import('@/features/buyer/pages/Profile'));
+const BuyerOrdersPage = lazy(() => import('@/features/buyer/pages/Orders'));
+const BuyerAddressesPage = lazy(() => import('@/features/buyer/pages/Addresses'));
+const BuyerWishlistPage = lazy(() => import('@/features/buyer/pages/Wishlist'));
+const BuyerReviewsPage = lazy(() => import('@/features/buyer/pages/Reviews'));
+const BuyerRequestsPage = lazy(() => import('@/features/buyer/pages/Requests/Requests'));
+const BuyerSelectSellerPage = lazy(() => import('@/features/buyer/pages/Requests/SelectSeller'));
+const BuyerSellerProfilePage = lazy(() => import('@/features/buyer/pages/Requests/SellerProfile'));
+const BuyerNewRequestPage = lazy(() => import('@/features/buyer/pages/Requests/NewRequest'));
+const BuyerRequestWorkspacePage = lazy(() => import('@/features/buyer/pages/Requests/RequestWorkspace'));
+const BuyerSettingsPage = lazy(() => import('@/features/buyer/pages/Settings'));
+const BuyerCartPage = lazy(() => import('@/features/buyer/pages/Cart'));
+const BuyerPaymentMethodsPage = lazy(() => import('@/features/buyer/pages/PaymentMethods'));
+const BuyerTransactionsPage = lazy(() => import('@/features/buyer/pages/Transactions'));
+const CheckoutPage = lazy(() => import('@/features/buyer/pages/Checkout'));
+const OrderSuccessPage = lazy(() => import('@/features/buyer/pages/OrderSuccess'));
+const PaymentPage = lazy(() => import('@/features/buyer/pages/Payment'));
+const PaymentReturnPage = lazy(() => import('@/features/buyer/pages/PaymentReturn'));
+const BuyerOrderDetailPage = lazy(() => import('@/features/buyer/pages/OrderDetail'));
+const BuyerTrackOrderPage = lazy(() => import('@/features/buyer/pages/OrderTracking'));
 
 export const BuyerRoutes = () => (
   <>

@@ -44,7 +44,7 @@ const DeliveryFlowVisual = () => {
   return (
     <div>
       <div className="text-center mb-10 md:mb-12">
-        <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#2563eb]/10 text-[#2563eb] text-xs font-bold uppercase tracking-wider">
+        <span className="inline-block px-3.5 py-1 mb-4 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30 text-xs font-bold uppercase tracking-wider">
           The delivery flow
         </span>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -58,19 +58,18 @@ const DeliveryFlowVisual = () => {
         {flowSteps.map((item, index) => (
           <div
             key={item.title}
-            className="relative flex flex-col h-full bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+            className="relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 shadow-sm"
           >
             {index < flowSteps.length - 1 && (
               <span
                 aria-hidden="true"
-                className="hidden lg:flex absolute -right-[26px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-900 border text-[#2563eb] items-center justify-center shadow-sm"
-                style={{ borderColor: '#2563eb66' }}
+                className="hidden lg:flex absolute -right-[26px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border text-[#75d04b] border-[#75d04b]/40 items-center justify-center shadow-sm"
               >
                 <AiOutlineArrowRight size={14} />
               </span>
             )}
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-10 h-10 rounded-xl bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center">
+              <span className="w-10 h-10 rounded-xl bg-[#75d04b]/15 text-[#75d04b] flex items-center justify-center font-bold">
                 {index + 1}
               </span>
               <span className="text-xs font-bold text-gray-400 dark:text-gray-500">

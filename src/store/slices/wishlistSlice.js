@@ -56,11 +56,23 @@ export const wishlistSlice = createSlice({
   extraReducers: (builder) => {
     // Logout must never leak the previous account's wishlist into the next
     // login on the same browser.
-    builder.addCase('LogoutSuccess', (state) => {
+    const wipeWishlist = (state) => {
       state.wishlist = [];
       state.error = null;
       state.isLoading = false;
-    });
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.removeItem('wishlistItems');
+        }
+      } catch (_e) {
+        // Ignore
+      }
+    };
+
+    builder
+      .addCase('LogoutSuccess', wipeWishlist)
+      .addCase('RESET_STORE', wipeWishlist)
+      .addCase('RESET_BUYER_STATE', wipeWishlist);
   },
 });
 

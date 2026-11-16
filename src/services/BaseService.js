@@ -6,8 +6,8 @@ import api from './api';
  * Never create new axios instances in feature services.
  */
 export class BaseService {
-  constructor() {
-    this.api = api;
+  constructor(apiClient = api) {
+    this.api = apiClient;
   }
 
   /**

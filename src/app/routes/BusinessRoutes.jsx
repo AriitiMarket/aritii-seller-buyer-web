@@ -6,59 +6,44 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute';
  * BUSINESS / SELLER routes - the management workspace of an approved business.
  *
  * Every route is behind ProtectedRoute require="BUSINESS": the backend must have
- * confirmed an approved business capability. The whole domain shares ONE layout
- * (BusinessLayout), which owns the business header + sidebar.
+ * confirmed an approved business capability. The domain uses BusinessLayout,
+ * which owns the business header + sidebar without cross-portal style leakage.
  *
- * Route concepts follow the target contract:
- *   /business                overview
- *   /business/shops[/:id]    multiple shops per business
- *   /business/products       catalog management (+ create)
- *   /business/orders         order queue
- *   /business/inventory      stock
- *   /business/promotions     commercial offers (own feature)
- *   /business/events         time-based events (own feature)
- *   /business/analytics      reporting
- *   /business/requests       product requests from buyers
- *   /business/settings       account + store profile settings
+ * Namespaces:
+ *   /business/* - Canonical business portal route
+ *   /seller/*   - Dedicated merchant portal namespace
  */
-const BusinessLayout = lazy(() => import('../../business/components/BusinessLayout.jsx'));
-const BusinessDashboardPage = lazy(() => import('../../business/pages/Dashboard.jsx'));
-const BusinessShopsPage = lazy(() => import('../../business/pages/Shops/Shops.jsx'));
-const BusinessShopDetailPage = lazy(() => import('../../business/pages/Shops/ShopDetail.jsx'));
-const BusinessProductsPage = lazy(() => import('../../business/pages/Products/Products.jsx'));
-const BusinessProductCreatePage = lazy(() => import('../../business/pages/Products/Create.jsx'));
-const BusinessProductEditPage = lazy(() => import('../../business/pages/Products/Edit.jsx'));
-const BusinessProductDetailPage = lazy(() => import('../../business/pages/Products/Detail.jsx'));
-const BusinessInventoryPage = lazy(() => import('../../business/pages/Inventory/Inventory.jsx'));
-const BusinessOrdersPage = lazy(() => import('../../business/pages/Orders/Orders.jsx'));
-const BusinessOrderDetailPage = lazy(() => import('../../business/pages/Orders/Detail.jsx'));
-const BusinessRefundsPage = lazy(() => import('../../business/pages/Orders/Refunds.jsx'));
-const BusinessCustomersPage = lazy(() => import('../../business/pages/Customers/Customers.jsx'));
-const BusinessFinancePage = lazy(() => import('../../business/pages/Finance/Finance.jsx'));
-const BusinessPromotionsPage = lazy(() => import('../../business/pages/Promotions/Promotions.jsx'));
-const BusinessRequestsPage = lazy(() => import('../../business/pages/Requests/Requests.jsx'));
-const BusinessReportsPage = lazy(() => import('../../business/pages/Reports/Reports.jsx'));
-const BusinessReviewsPage = lazy(() => import('../../business/pages/Reviews/Reviews.jsx'));
-const BusinessEventsPage = lazy(() => import('../../business/pages/Events/Events.jsx'));
-const BusinessAnalyticsPage = lazy(() => import('../../business/pages/Analytics/Analytics.jsx'));
-const BusinessSettingsPage = lazy(() => import('../../business/pages/Profile/Settings.jsx'));
-const BusinessStoreMetricsPage = lazy(() => import('../../business/pages/Analytics/StoreMetrics.jsx'));
+const BusinessLayout = lazy(() => import('@/features/seller/components/BusinessLayout.jsx'));
+const BusinessDashboardPage = lazy(() => import('@/features/seller/pages/Dashboard.jsx'));
+const BusinessShopsPage = lazy(() => import('@/features/seller/pages/Shops/Shops.jsx'));
+const BusinessShopDetailPage = lazy(() => import('@/features/seller/pages/Shops/ShopDetail.jsx'));
+const BusinessProductsPage = lazy(() => import('@/features/seller/pages/Products/Products.jsx'));
+const BusinessProductCreatePage = lazy(() => import('@/features/seller/pages/Products/Create.jsx'));
+const BusinessProductEditPage = lazy(() => import('@/features/seller/pages/Products/Edit.jsx'));
+const BusinessProductDetailPage = lazy(() => import('@/features/seller/pages/Products/Detail.jsx'));
+const BusinessInventoryPage = lazy(() => import('@/features/seller/pages/Inventory/Inventory.jsx'));
+const BusinessOrdersPage = lazy(() => import('@/features/seller/pages/Orders/Orders.jsx'));
+const BusinessOrderDetailPage = lazy(() => import('@/features/seller/pages/Orders/Detail.jsx'));
+const BusinessRefundsPage = lazy(() => import('@/features/seller/pages/Orders/Refunds.jsx'));
+const BusinessCustomersPage = lazy(() => import('@/features/seller/pages/Customers/Customers.jsx'));
+const BusinessFinancePage = lazy(() => import('@/features/seller/pages/Finance/Finance.jsx'));
+const BusinessPromotionsPage = lazy(() => import('@/features/seller/pages/Promotions/Promotions.jsx'));
+const BusinessRequestsPage = lazy(() => import('@/features/seller/pages/Requests/Requests.jsx'));
+const BusinessReportsPage = lazy(() => import('@/features/seller/pages/Reports/Reports.jsx'));
+const BusinessReviewsPage = lazy(() => import('@/features/seller/pages/Reviews/Reviews.jsx'));
+const BusinessEventsPage = lazy(() => import('@/features/seller/pages/Events/Events.jsx'));
+const BusinessAnalyticsPage = lazy(() => import('@/features/seller/pages/Analytics/Analytics.jsx'));
+const BusinessSettingsPage = lazy(() => import('@/features/seller/pages/Profile/Settings.jsx'));
+const BusinessStoreMetricsPage = lazy(() => import('@/features/seller/pages/Analytics/StoreMetrics.jsx'));
 
-export const BusinessRoutes = () => (
-  <Route
-    path="/business"
-    element={
-      <ProtectedRoute require="BUSINESS">
-        <BusinessLayout />
-      </ProtectedRoute>
-    }
-  >
+const renderBusinessChildRoutes = (basePath) => (
+  <>
     <Route index element={<BusinessDashboardPage />} />
-    {/* Canonical dashboard is the index route (/business); keep the old path as a redirect */}
-    <Route path="dashboard" element={<Navigate to="/business" replace />} />
+    {/* Canonical dashboard is the index route; keep the old path as a redirect */}
+    <Route path="dashboard" element={<Navigate to={basePath} replace />} />
     {/* Store Profile moved into Settings; Order History merged into Orders */}
-    <Route path="profile" element={<Navigate to="/business/settings" replace />} />
-    <Route path="orders/history" element={<Navigate to="/business/orders" replace />} />
+    <Route path="profile" element={<Navigate to={`${basePath}/settings`} replace />} />
+    <Route path="orders/history" element={<Navigate to={`${basePath}/orders`} replace />} />
     <Route path="reviews" element={<BusinessReviewsPage />} />
 
     <Route path="shops" element={<BusinessShopsPage />} />
@@ -77,15 +62,15 @@ export const BusinessRoutes = () => (
     <Route path="customers" element={<BusinessCustomersPage />} />
     <Route path="finance" element={<BusinessFinancePage />} />
     {/* Keep older finance URLs usable and open the matching Finance tab. */}
-    <Route path="revenue" element={<Navigate to="/business/finance?tab=revenue" replace />} />
-    <Route path="transactions" element={<Navigate to="/business/finance?tab=transactions" replace />} />
+    <Route path="revenue" element={<Navigate to={`${basePath}/finance?tab=revenue`} replace />} />
+    <Route path="transactions" element={<Navigate to={`${basePath}/finance?tab=transactions`} replace />} />
 
-    {/* Payment Management Routes (NEW) */}
-    <Route path="payment-accounts" element={<Navigate to="/business/finance?tab=payment-accounts" replace />} />
-    <Route path="payouts" element={<Navigate to="/business/finance?tab=payouts" replace />} />
-    <Route path="refund-management" element={<Navigate to="/business/finance?tab=refund-management" replace />} />
-    <Route path="returns" element={<Navigate to="/business/finance?tab=returns" replace />} />
-    <Route path="metrics" element={<Navigate to="/business/finance?tab=metrics" replace />} />
+    {/* Payment Management Routes */}
+    <Route path="payment-accounts" element={<Navigate to={`${basePath}/finance?tab=payment-accounts`} replace />} />
+    <Route path="payouts" element={<Navigate to={`${basePath}/finance?tab=payouts`} replace />} />
+    <Route path="refund-management" element={<Navigate to={`${basePath}/finance?tab=refund-management`} replace />} />
+    <Route path="returns" element={<Navigate to={`${basePath}/finance?tab=returns`} replace />} />
+    <Route path="metrics" element={<Navigate to={`${basePath}/finance?tab=metrics`} replace />} />
 
     {/* Promotions and Events are separate features, each with its own page */}
     <Route path="promotions" element={<BusinessPromotionsPage />} />
@@ -99,8 +84,36 @@ export const BusinessRoutes = () => (
     <Route path="settings" element={<BusinessSettingsPage />} />
 
     {/* Legacy alias kept so existing links keep working */}
-    <Route path="store" element={<Navigate to="/business/settings" replace />} />
-  </Route>
+    <Route path="store" element={<Navigate to={`${basePath}/settings`} replace />} />
+  </>
+);
+
+export const BusinessRoutes = () => (
+  <>
+    {/* Canonical /business portal */}
+    <Route
+      path="/business"
+      element={
+        <ProtectedRoute require="BUSINESS">
+          <BusinessLayout />
+        </ProtectedRoute>
+      }
+    >
+      {renderBusinessChildRoutes('/business')}
+    </Route>
+
+    {/* Explicit /seller merchant namespace */}
+    <Route
+      path="/seller"
+      element={
+        <ProtectedRoute require="BUSINESS">
+          <BusinessLayout />
+        </ProtectedRoute>
+      }
+    >
+      {renderBusinessChildRoutes('/seller')}
+    </Route>
+  </>
 );
 
 export default BusinessRoutes;

@@ -28,17 +28,17 @@ function FilterGroup({
   };
 
   return (
-    <div className="border-b border-[#e7e7e7] dark:border-gray-700 py-3">
+    <div className="border-b border-gray-200 dark:border-gray-800 py-3">
       <button
         type="button"
         onClick={toggleOpen}
-        className="flex w-full items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-[#0f1111] dark:text-white mb-2"
+        className="flex w-full items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-2"
         aria-expanded={open}
       >
         <span className="flex items-center gap-1.5">
           {title}
           {countBadge && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 bg-[#febd69] text-[#0f1111] text-[10px] font-bold rounded-full">
+            <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1.5 bg-[#75d04b] text-white text-[10px] font-bold rounded-full shadow-xs">
               {countBadge}
             </span>
           )}

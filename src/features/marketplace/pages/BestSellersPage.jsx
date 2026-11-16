@@ -2,7 +2,7 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { IoRefresh } from 'react-icons/io5';
-import ProductCard from '@/shared/components/ProductCard';
+import ProductCard from '@/features/marketplace/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import EmptyState from '@/components/common/EmptyState';
@@ -23,7 +23,6 @@ const SORT_OPTIONS = PRODUCT_SORT_OPTIONS.filter((option) =>
  * Premium gold / silver / bronze rank badge
  */
 const BestSellersBadge = ({ rank, category }) => {
-  const isTopThree = rank <= 3;
   const rankColors =
     rank === 1
       ? 'from-amber-400 to-yellow-500 text-black border-amber-300'
@@ -82,7 +81,7 @@ const BestSellersHeader = ({
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F1111] dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
               Aritii Best Sellers
             </h1>
           </div>
@@ -125,7 +124,7 @@ const BestSellersHeader = ({
             onClick={() => onSelectCategory('all')}
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === 'all'
-                ? 'bg-[#131921] dark:bg-white text-white dark:text-[#131921] shadow-sm'
+                ? 'bg-[#75d04b] text-white shadow-sm'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >

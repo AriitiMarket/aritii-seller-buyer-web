@@ -1,1 +1,1 @@
-export { default as SellerRegistrationGuard } from './components/SellerRegistrationGuard';
+export * from '@/features/auth/seller-registration/index';

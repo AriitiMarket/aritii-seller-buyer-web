@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
  */
 const MarketplaceCTA = () => {
   return (
-    <section className="py-12 md:py-16 bg-[#EAEDED] dark:bg-gray-950 border-y border-gray-100 dark:border-gray-800">
+    <section className="py-12 md:py-16 bg-gray-50 dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -21,13 +21,13 @@ const MarketplaceCTA = () => {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Link
               to="/products"
-              className="px-8 py-3.5 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-semibold rounded-xl transition-colors text-base"
+              className="px-8 py-3.5 bg-[#75d04b] hover:brightness-95 text-white font-semibold rounded-full transition-all text-base shadow-sm"
             >
               Browse Products
             </Link>
             <Link
               to="/shops"
-              className="px-8 py-3.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold rounded-xl border border-gray-300 dark:border-gray-700 transition-colors text-base"
+              className="px-8 py-3.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-750 font-semibold rounded-full border border-gray-200 dark:border-gray-700 transition-colors text-base shadow-sm"
             >
               Browse Shops
             </Link>

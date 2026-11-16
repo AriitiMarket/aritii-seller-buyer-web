@@ -189,19 +189,26 @@ export const logoutUser = () => async (dispatch) => {
     // Stop the realtime socket before credentials go away.
     disconnectRealtime();
     const result = await authService.logout();
+    dispatch({ type: "RESET_STORE" });
     dispatch({ type: "LogoutSuccess", payload: result.message });
-    // Also clear seller capability state so account switch works cleanly
     dispatch({ type: "SellerLogoutSuccess" });
-    // Drop the wishlist cache so the next account on this browser starts clean.
-    // (The wishlist slice also clears its state on LogoutSuccess.)
-    localStorage.removeItem("wishlistItems");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("wishlistItems");
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
     return result;
-  } catch (error) {
-    // Even if server call fails, clear local state.
+  } catch (_error) {
+    // Even if server call fails, clear local state and reset store.
     tokenStore.clear();
+    dispatch({ type: "RESET_STORE" });
     dispatch({ type: "LogoutSuccess", payload: "Logged out" });
     dispatch({ type: "SellerLogoutSuccess" });
-    localStorage.removeItem("wishlistItems");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("wishlistItems");
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
     return { message: "Logged out" };
   }
 };
@@ -316,11 +323,19 @@ export const logoutSeller = () => async (dispatch) => {
     dispatch({ type: "SellerLogoutRequest" });
     disconnectRealtime();
     const result = await authService.logout();
+    dispatch({ type: "RESET_SELLER_STATE" });
     dispatch({ type: "SellerLogoutSuccess", payload: result.message });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
     return result;
-  } catch (error) {
+  } catch (_error) {
     tokenStore.clear();
+    dispatch({ type: "RESET_SELLER_STATE" });
     dispatch({ type: "SellerLogoutSuccess", payload: "Logged out" });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("aritii.business.selectedShopId");
+    }
     return { message: "Logged out" };
   }
 };

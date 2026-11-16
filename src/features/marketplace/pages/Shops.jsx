@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import ShopCard from '@/shared/components/ShopCard';
+import ShopCard from '@/features/marketplace/components/ShopCard';
 import CategorySidebar from '@/features/marketplace/components/CategorySidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
@@ -10,7 +10,7 @@ import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import Button from '@/components/common/Button';
 import { useShops, filterShops } from '@/shared/hooks/useShops';
-import { useAuth } from '@/auth/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
 
 const SORT_OPTIONS = [

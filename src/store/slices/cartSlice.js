@@ -107,6 +107,25 @@ export const cartSlice = createSlice({
       state.error = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    const wipeCart = (state) => {
+      state.cart = [];
+      state.error = null;
+      state.isLoading = false;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('cartItems', JSON.stringify([]));
+        }
+      } catch (_e) {
+        // Ignore localStorage write failures
+      }
+    };
+
+    builder
+      .addCase('RESET_STORE', wipeCart)
+      .addCase('LogoutSuccess', wipeCart)
+      .addCase('RESET_BUYER_STATE', wipeCart);
+  },
 });
 
 export const cartReducer = cartSlice.reducer;
