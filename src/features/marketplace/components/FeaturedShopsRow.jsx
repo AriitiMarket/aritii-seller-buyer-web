@@ -4,13 +4,12 @@ import { useShops } from '@/shared/hooks/useShops';
 import { AiOutlineStar, AiFillStar, AiOutlineEnvironment } from 'react-icons/ai';
 
 /**
- * FeaturedShopsRow - Clean Aritii marketplace row for local Ethiopian shops
- * Limits to top 4 verified shops from the live API with direct detail links to `/shops/:id`
+ * FeaturedShopsRow - Clean Aritii marketplace row for local Ethiopian shops.
+ * Limits to top 4 verified shops from the live API with direct detail links to `/shops/:id`.
  */
 const FeaturedShopsRow = () => {
   const { shops = [], loading } = useShops();
 
-  // Filter approved/active shops and limit to at most 4 top shops
   const realShops = (shops || []).filter(
     (s) => s.showOnPublic !== false && (s.status === 'APPROVED' || s.status === 'ACTIVE' || !s.status)
   );
@@ -32,23 +31,23 @@ const FeaturedShopsRow = () => {
   }
 
   return (
-    <section className="py-8 bg-white dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800 my-4">
+    <section className="py-8 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 my-4 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF9900]" />
-              <h2 className="text-xl sm:text-2xl font-bold text-[#0F1111] dark:text-white">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#75d04b]" />
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                 Featured Verified Shops
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-[#565959] dark:text-gray-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               Support trusted local sellers with direct storefronts and fast delivery
             </p>
           </div>
           <Link
             to="/shops"
-            className="text-xs sm:text-sm font-semibold text-[#007185] dark:text-[#42a2b3] hover:text-[#C7511F] hover:underline"
+            className="text-xs sm:text-sm font-semibold text-[#75d04b] hover:underline"
           >
             Explore all shops ({shops.length || '12+'}) →
           </Link>
@@ -59,23 +58,23 @@ const FeaturedShopsRow = () => {
           {displayShops.map((shop) => (
             <div
               key={shop._id}
-              className="group flex flex-col justify-between bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:shadow-lg transition-all duration-200"
+              className="group flex flex-col justify-between rounded-md bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300"
             >
               <div>
                 {/* Header: Badge & Status */}
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FF9900]/15 text-[#E68A00] border border-[#FF9900]/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
                     {shop.badge}
                   </span>
-                  <span className="text-[11px] font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span className="text-[11px] font-medium text-[#5ac12f] flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#75d04b]" />
                     Open Now
                   </span>
                 </div>
 
                 {/* Avatar / Store Icon */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-lg bg-[#F7F7F7] dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center p-2 flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex items-center justify-center p-2 flex-shrink-0 group-hover:scale-105 transition-transform">
                     <img
                       src={shop.image}
                       alt={shop.name}
@@ -84,11 +83,11 @@ const FeaturedShopsRow = () => {
                     />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-bold text-sm text-[#0F1111] dark:text-white truncate group-hover:text-[#007185] transition-colors">
+                    <h3 className="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-[#75d04b] transition-colors">
                       {shop.name}
                     </h3>
-                    <p className="text-[11px] text-[#565959] dark:text-gray-400 flex items-center gap-1 mt-0.5">
-                      <AiOutlineEnvironment size={12} className="text-[#FF9900] flex-shrink-0" />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
+                      <AiOutlineEnvironment size={12} className="text-amber-500 flex-shrink-0" />
                       <span className="truncate">{shop.address}</span>
                     </p>
                   </div>
@@ -96,23 +95,23 @@ const FeaturedShopsRow = () => {
 
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 mb-2.5">
-                  <div className="flex text-[#FFA41C] text-xs">
+                  <div className="flex text-yellow-400 text-xs">
                     {[...Array(5)].map((_, i) => (
                       <span key={i}>
                         {i < Math.floor(shop.rating) ? <AiFillStar /> : <AiOutlineStar />}
                       </span>
                     ))}
                   </div>
-                  <span className="text-xs font-bold text-[#0F1111] dark:text-white">
+                  <span className="text-xs font-bold text-gray-900 dark:text-white">
                     {shop.rating}
                   </span>
-                  <span className="text-[11px] text-[#565959] dark:text-gray-400">
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400">
                     ({shop.ratingsCount})
                   </span>
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-[#565959] dark:text-gray-400 line-clamp-2 leading-relaxed mb-4">
+                <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-4">
                   {shop.description}
                 </p>
               </div>
@@ -120,7 +119,7 @@ const FeaturedShopsRow = () => {
               {/* Direct Link to Storefront Details */}
               <Link
                 to={`/shops/${shop._id}`}
-                className="w-full py-2 px-3 bg-[#F7F7F7] dark:bg-gray-800 hover:bg-[#FFD814] dark:hover:bg-[#FF9900] hover:text-[#111111] text-[#0F1111] dark:text-white text-xs font-bold rounded text-center border border-gray-300 dark:border-gray-700 transition-colors shadow-xs"
+                className="w-full py-2 px-3 bg-gray-50 dark:bg-gray-700 hover:bg-[#75d04b] hover:text-white text-gray-800 dark:text-white text-xs font-semibold rounded-full text-center border border-gray-200 dark:border-gray-600 transition-all shadow-xs"
               >
                 Visit Storefront →
               </Link>

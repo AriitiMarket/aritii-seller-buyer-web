@@ -1,2 +1,1 @@
-/** Business wallet service - re-exports the single canonical wallet client. */
-export { default, walletService } from '@/services/wallet.service';
+export * from '@/features/seller/services/wallet.service';

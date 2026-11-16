@@ -12,14 +12,14 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductListItem from '@/features/marketplace/components/ProductListItem';
-import ProductCard from '@/shared/components/ProductCard';
+import ProductCard from '@/features/marketplace/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import { useProducts } from '@/shared/hooks/useProducts';
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
-import { useAuth } from '@/auth/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { PRODUCT_SORT_OPTIONS, sortProducts } from '@/features/marketplace/utils/sortProducts';
 import CatalogSortSelect from '@/features/marketplace/components/CatalogSortSelect';
 import CatalogErrorState from '@/features/marketplace/components/CatalogErrorState';

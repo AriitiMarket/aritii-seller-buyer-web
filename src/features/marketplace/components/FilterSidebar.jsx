@@ -19,7 +19,7 @@ import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation';
  *   - Mobile: Drawer, not visible by default
  *   - Desktop: Fixed left sidebar
  *   - Consistent styling with Categories and Shops pages
- *   - Aritii branding (#75d04b green, #131921 dark headers)
+ *   - Aritii branding (#75d04b green, #141414 dark headers)
  *   - Show "X categories selected" counter
  *   - Clear all button
  */
@@ -98,10 +98,10 @@ function RatingFilter({ searchParams, setSearchParams }) {
             key={n}
             type="button"
             onClick={() => setParam('rating', active ? '' : String(n))}
-            className={`flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded transition-colors ${
+            className={`flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded-md transition-colors ${
               active
-                ? 'font-bold text-[#e77600] bg-orange-50/50'
-                : 'text-[#0f1111] dark:text-gray-300 hover:text-[#e77600]'
+                ? 'font-bold text-[#75d04b] bg-[#f3ffee] dark:bg-[#75d04b]/10'
+                : 'text-gray-700 dark:text-gray-300 hover:text-[#75d04b]'
             }`}
           >
             <Stars n={n} />
@@ -153,13 +153,13 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
         {activeFilters > 0 && (
           <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-[#131921] dark:text-white">
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
                 {activeFilters} filter{activeFilters === 1 ? '' : 's'} applied
               </span>
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-white bg-[#75d04b] hover:bg-[#5ac12f] rounded-lg transition-colors min-h-[32px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#75d04b] hover:brightness-95 rounded-full transition-all min-h-[32px] shadow-xs"
                 aria-label="Clear all filters"
               >
                 ✕ Clear All
@@ -174,7 +174,7 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
         {/* Availability & Delivery Program */}
         <FilterGroup title="Availability & Programs" defaultOpen={false}>
           <div className="space-y-2 pt-1 text-xs text-gray-700 dark:text-gray-300">
-            <label className="flex items-center gap-2 cursor-pointer hover:text-[#131921] dark:hover:text-white">
+            <label className="flex items-center gap-2 cursor-pointer hover:text-gray-900 dark:hover:text-white">
               <input
                 type="checkbox"
                 checked={searchParams.get('inStock') === 'true'}
@@ -188,7 +188,7 @@ const FilterSidebar = ({ products = [], basePath = '/products' }) => {
               />
               <span>In Stock Only</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer hover:text-[#131921] dark:hover:text-white">
+            <label className="flex items-center gap-2 cursor-pointer hover:text-gray-900 dark:hover:text-white">
               <input
                 type="checkbox"
                 checked={searchParams.get('deal') === 'true'}

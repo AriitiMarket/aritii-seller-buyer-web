@@ -5,10 +5,6 @@ import PortalFooter from '@/public/components/PortalFooter';
  * DeliveryPortalFooter — the Delivery Center portal footer.
  *
  * Thin configuration wrapper around the shared `PortalFooter`.
- *
- * The "Getting Started" column links to sections of the page that renders the
- * footer, so the anchor map is supplied by the page. Everything else points at
- * routes that exist.
  */
 export const deliveryFooterColumns = ({
   waysToDeliver = '/delivery#how-it-works',
@@ -56,8 +52,8 @@ export const deliveryFooterColumns = ({
 
 const DeliveryPortalFooter = ({ columns = deliveryFooterColumns() }) => (
   <PortalFooter
-    accent="#00A8E1"
-    accentHover="#5FD4F0"
+    accent="#75d04b"
+    accentHover="#66bb3f"
     columns={columns}
     accountLabel="Sign in to Delivery Center"
     signInRole="PROVIDER"

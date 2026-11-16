@@ -19,7 +19,7 @@ vi.mock('@/services/api', () => ({
 
 import api from '@/services/api';
 import { paymentService } from '@/services/payment.service';
-import sellerPaymentsService from '@/business/services/sellerPayments.service';
+import sellerPaymentsService from '@/features/seller/services/sellerPayments.service';
 
 const mockSuccess = (data = {}) => Promise.resolve({ data: { success: true, ...data } });
 const mockList = (name, items = []) => mockSuccess({ [name]: items });

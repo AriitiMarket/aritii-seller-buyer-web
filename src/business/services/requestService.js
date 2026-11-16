@@ -1,2 +1,1 @@
-/** Business request service - re-exports the shared request client (single client). */
-export { default, requestService } from '@/services/request.service';
+export * from '@/features/seller/services/requestService';

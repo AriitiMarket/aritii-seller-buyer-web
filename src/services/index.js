@@ -46,7 +46,12 @@ export { paymentService };
 export const getSellerAllocations = (...args) =>
   paymentService.getSellerAllocations(...args);
 
-export { default as api } from "@/services/api";
+export { default as api, publicApi, API_BASE_URL, backend_url } from "@/services/api";
+export { buyerApiClient, default as buyerApi } from "@/services/buyerApiClient";
+export { sellerApiClient, default as sellerApi } from "@/services/sellerApiClient";
+export { deliveryApiClient, default as deliveryApi } from "@/services/deliveryApiClient";
+export { createPortalApiClient } from "@/services/createPortalApiClient";
+export { socketService, default as socket } from "@/services/socketService";
 
 /**
  * Usage in components:

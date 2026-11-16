@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistThunks'
 import { addTocart } from '@/store/slices/cartThunks'
 import { toast } from 'react-toastify'
-import ProductCard from '@/shared/components/ProductCard'
+import ProductCard from '@/features/marketplace/components/ProductCard'
 import { useLayout } from '@/app/providers/LayoutContext'
 import { useDeliveryLocation } from '@/shared/hooks/useDeliveryLocation'
 
@@ -284,15 +284,15 @@ const ProductDetailPage = () => {
                       <span>Escrow Protection</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <AiOutlineThunderbolt size={18} className="text-[#FF9900] flex-shrink-0" />
+                      <AiOutlineThunderbolt size={18} className="text-amber-500 flex-shrink-0" />
                       <span>Direct Local Delivery</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <AiOutlineCheckCircle size={18} className="text-blue-500 flex-shrink-0" />
+                      <AiOutlineCheckCircle size={18} className="text-sky-500 flex-shrink-0" />
                       <span>Verified Merchant</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <AiOutlineCheckCircle size={18} className="text-green-500 flex-shrink-0" />
+                      <AiOutlineCheckCircle size={18} className="text-[#75d04b] flex-shrink-0" />
                       <span>Easy 7-Day Returns</span>
                     </div>
                   </div>
@@ -315,7 +315,7 @@ const ProductDetailPage = () => {
                     </div>
                   )}
 
-                  <h1 className="text-xl sm:text-2xl font-bold text-[#0F1111] dark:text-white leading-snug">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-snug">
                     {data?.name || 'Product'}
                   </h1>
 
@@ -334,7 +334,7 @@ const ProductDetailPage = () => {
                 <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
                   <div className="flex items-baseline gap-2">
                     <span className="text-xs font-semibold text-gray-500">ETB</span>
-                    <span className="text-3xl font-extrabold text-[#0F1111] dark:text-white">
+                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
                       {Number(displayPrice).toLocaleString()}
                     </span>
                     {data?.originalPrice && data.originalPrice > displayPrice && (
@@ -351,7 +351,7 @@ const ProductDetailPage = () => {
                 {/* Description */}
                 {data?.description && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-bold text-[#0F1111] dark:text-white">About this item</h3>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">About this item</h3>
                     <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                       {data.description}
                     </p>
@@ -385,18 +385,18 @@ const ProductDetailPage = () => {
 
               {/* Right Column: Buy Box (3 cols) */}
               <div className="lg:col-span-3">
-                <div className="bg-white dark:bg-[#1a222d] border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-md space-y-4 sticky top-24">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-4 sticky top-24">
                   {/* Price */}
                   <div>
-                    <span className="text-2xl font-black text-[#0F1111] dark:text-white">
+                    <span className="text-2xl font-black text-gray-900 dark:text-white">
                       {formatCurrency(displayPrice)}
                     </span>
                   </div>
 
                   {/* Delivery Info */}
-                  <div className="text-xs text-gray-700 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-800/60 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs text-gray-700 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-750 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
                     <div className="flex items-start gap-1.5">
-                      <AiOutlineEnvironment size={16} className="text-[#e77600] flex-shrink-0 mt-0.5" />
+                      <AiOutlineEnvironment size={16} className="text-[#75d04b] flex-shrink-0 mt-0.5" />
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Deliver to: </span>
                         <span className="font-bold text-gray-900 dark:text-white">{deliveryLocationText}</span>
@@ -412,7 +412,7 @@ const ProductDetailPage = () => {
                         )}
                       </div>
                     ) : (
-                      <p className="text-[11px] text-green-700 dark:text-green-400 font-medium pl-5">
+                      <p className="text-[11px] text-[#5ac12f] font-medium pl-5">
                         Fast local transit available
                       </p>
                     )}
@@ -441,7 +441,7 @@ const ProductDetailPage = () => {
                         >
                           -
                         </button>
-                        <span className="w-10 text-center font-bold text-sm text-[#0F1111] dark:text-white">
+                        <span className="w-10 text-center font-bold text-sm text-gray-900 dark:text-white">
                           {quantity}
                         </span>
                         <button
@@ -463,7 +463,7 @@ const ProductDetailPage = () => {
                       disabled={!inStock}
                       className={`w-full py-2.5 px-4 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all ${
                         inStock
-                          ? 'bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] active:scale-98'
+                          ? 'bg-[#75d04b] hover:brightness-95 text-white active:scale-98'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                       }`}
                     >
@@ -477,7 +477,7 @@ const ProductDetailPage = () => {
                       disabled={!inStock}
                       className={`w-full py-2.5 px-4 rounded-full font-bold text-xs sm:text-sm shadow-sm transition-all ${
                         inStock
-                          ? 'bg-[#FFA41C] hover:bg-[#FA8900] text-[#0F1111] active:scale-98'
+                          ? 'bg-[#141414] hover:bg-black text-white active:scale-98'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                       }`}
                     >
@@ -517,7 +517,7 @@ const ProductDetailPage = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Returns:</span>
-                      <span className="text-[#007185] dark:text-[#42a2b3]">Eligible for return</span>
+                      <span className="text-[#75d04b]">Eligible for return</span>
                     </div>
                   </div>
                 </div>
@@ -529,7 +529,7 @@ const ProductDetailPage = () => {
               <section className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8" aria-labelledby="related-products-heading">
                 <div className="flex items-center justify-between gap-4 mb-6">
                   <div>
-                    <h2 id="related-products-heading" className="text-xl sm:text-2xl font-bold text-[#0F1111] dark:text-white">
+                    <h2 id="related-products-heading" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                       Customers also viewed
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">

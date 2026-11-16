@@ -51,6 +51,7 @@ export function useAppBootstrap() {
 
     // Handle token-expired / unauthorized events from the API layer.
     const onUnauthorized = () => {
+      Store.dispatch({ type: 'RESET_STORE' });
       Store.dispatch({ type: 'LogoutSuccess' });
       openLoginModal('BUYER', window.location.pathname + window.location.search);
     };

@@ -65,7 +65,7 @@ const CategoriesPage = () => {
     <>
       <div className="categories-page-container">
         {/* Marketplace & Logistics Category Banner */}
-        <section className="bg-gradient-to-r from-[#131921] via-[#1a222d] to-[#20305c] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#232f3e]">
+        <section className="bg-gradient-to-r from-gray-900 via-gray-850 to-gray-900 text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-800">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="max-w-2xl">
@@ -85,11 +85,11 @@ const CategoriesPage = () => {
                 {/* Logistics Key Signals */}
                 <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-gray-300">
                   <div className="flex items-center gap-1.5">
-                    <MdLocalShipping size={16} className="text-[#00A8E1]" />
+                    <MdLocalShipping size={16} className="text-sky-400" />
                     <span>Fast Zone Delivery</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <MdStorefront size={16} className="text-[#febd69]" />
+                    <MdStorefront size={16} className="text-amber-400" />
                     <span>Verified Local Vendors</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -108,7 +108,7 @@ const CategoriesPage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search categories & items…"
-                    className="w-full pl-9 pr-8 py-2.5 bg-[#131921] border border-[#37475a] rounded-lg text-xs text-white placeholder-gray-400 focus:outline-none focus:border-[#febd69] focus:ring-1 focus:ring-[#febd69]"
+                    className="w-full pl-9 pr-8 py-2.5 bg-gray-800 border border-gray-700 rounded-full text-xs text-white placeholder-gray-400 focus:outline-none focus:border-[#75d04b] focus:ring-1 focus:ring-[#75d04b]"
                   />
                   {searchTerm && (
                     <button
@@ -240,7 +240,7 @@ const CategoriesPage = () => {
               </div>
 
               {/* Sidebar Logistics Guarantee Card */}
-              <div className="mt-6 p-4 rounded-xl bg-gradient-to-br from-[#131921] to-[#1f2b3e] text-white border border-[#232f3e] shadow-sm">
+              <div className="mt-6 p-4 rounded-xl bg-gray-900 dark:bg-gray-800 text-white border border-gray-800 dark:border-gray-700 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-base">🚚</span>
                   <span className="text-xs font-bold text-white">Aritii Delivery Hub</span>
@@ -249,11 +249,11 @@ const CategoriesPage = () => {
                   Every order is tracked from verified shops to your doorstep across Addis Ababa and nationwide zones.
                 </p>
                 <div className="space-y-1.5 text-[11px]">
-                  <Link to="/delivery" className="flex items-center justify-between text-[#febd69] hover:underline font-medium">
+                  <Link to="/delivery" className="flex items-center justify-between text-[#75d04b] hover:underline font-medium">
                     <span>View Delivery Zones</span>
                     <MdArrowForward size={12} />
                   </Link>
-                  <Link to="/seller-center" className="flex items-center justify-between text-[#75d04b] hover:underline font-medium">
+                  <Link to="/seller-center" className="flex items-center justify-between text-amber-400 hover:underline font-medium">
                     <span>Sell in this Directory</span>
                     <MdArrowForward size={12} />
                   </Link>
@@ -270,7 +270,7 @@ const CategoriesPage = () => {
                   <h2 className="grid-title">All Categories ({filteredCategories.length})</h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Browse verified products across active categories</p>
                 </div>
-                <Link to="/products" className="text-xs font-bold text-[#007185] hover:underline flex items-center gap-1">
+                <Link to="/products" className="text-xs font-bold text-[#75d04b] hover:underline flex items-center gap-1">
                   View Full Product Catalog <MdArrowForward size={14} />
                 </Link>
               </div>
@@ -300,7 +300,7 @@ const CategoriesPage = () => {
                         <div className="category-card-content p-4 flex flex-col justify-between flex-1">
                           <div>
                             <div className="flex items-center justify-between gap-1 mb-1">
-                              <h3 className="category-title text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#4a8f28] transition-colors">
+                              <h3 className="category-title text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#75d04b] transition-colors">
                                 {cat.title}
                               </h3>
                               <MdChevronRight size={16} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -313,13 +313,13 @@ const CategoriesPage = () => {
                             )}
 
                             {/* Logistics tag */}
-                            <div className="flex items-center gap-1.5 text-[10px] text-[#00A8E1] font-medium mb-3">
+                            <div className="flex items-center gap-1.5 text-[10px] text-sky-500 font-medium mb-3">
                               <MdLocalShipping size={13} />
                               <span>Direct Port & Door Delivery</span>
                             </div>
                           </div>
 
-                          <span className="text-xs font-bold text-[#FF9900] group-hover:text-[#E68A00] inline-flex items-center gap-1 mt-auto">
+                          <span className="text-xs font-bold text-[#75d04b] group-hover:text-[#5ac12f] inline-flex items-center gap-1 mt-auto">
                             Explore Category <MdArrowForward size={13} />
                           </span>
                         </div>
@@ -336,7 +336,7 @@ const CategoriesPage = () => {
                   <button
                     type="button"
                     onClick={() => setSearchTerm('')}
-                    className="px-4 py-2 bg-[#febd69] hover:bg-[#f3a847] text-[#131921] text-xs font-bold rounded-lg"
+                    className="px-5 py-2 bg-[#75d04b] hover:brightness-95 text-white text-xs font-semibold rounded-full shadow-xs"
                   >
                     Clear Search
                   </button>

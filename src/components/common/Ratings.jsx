@@ -1,17 +1,35 @@
-import React from "react";
+import React from 'react';
 
-const Ratings = ({ rating }) => {
+const sizeMap = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
+};
+
+const Ratings = ({ rating = 0, size = 'md' }) => {
   const stars = [];
   const value = Number(rating) || 0;
+  const sizeClass = sizeMap[size] || (typeof size === 'number' ? `text-[${size}px]` : 'text-sm');
 
   for (let i = 1; i <= 5; i++) {
-    if (i <= value) {
-      stars.push(<span key={i} className="market-rating-star" aria-hidden="true">★</span>);
-    } else {
-      stars.push(<span key={i} className="market-rating-star-empty" aria-hidden="true">★</span>);
-    }
+    const isFilled = i <= Math.ceil(value);
+    stars.push(
+      <span
+        key={i}
+        className={`${isFilled ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'} mr-0.5 ${sizeClass}`}
+        aria-hidden="true"
+      >
+        ★
+      </span>
+    );
   }
-  return <div className="flex items-center gap-0.5" role="img" aria-label={`Rating ${value} out of 5`}>{stars}</div>;
+
+  return (
+    <div className="flex items-center" role="img" aria-label={`Rating ${value} out of 5`}>
+      {stars}
+    </div>
+  );
 };
 
 export default Ratings;

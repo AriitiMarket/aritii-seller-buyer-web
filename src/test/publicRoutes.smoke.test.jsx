@@ -7,10 +7,12 @@ import { createStore } from '@reduxjs/toolkit';
 
 vi.mock('@/services/api', () => ({
   default: { get: vi.fn().mockResolvedValue({ data: { hierarchy: [] } }) },
+  publicApi: { get: vi.fn().mockResolvedValue({ data: { hierarchy: [] } }) },
+  API_BASE_URL: 'http://localhost:8000/api',
   backend_url: 'http://localhost:8000',
 }));
 
-vi.mock('@/auth/hooks/useAuth', () => ({
+vi.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ isAuthenticated: false, loading: false, user: null })),
 }));
 

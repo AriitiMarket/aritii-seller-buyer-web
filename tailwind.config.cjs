@@ -6,20 +6,38 @@ module.exports = {
     extend: {
       colors: {
         // Aritii Brand Colors
+        brand: {
+          primary: '#75d04b',
+          'primary-light': '#f3ffee',
+          'primary-dark': '#5ac12f',
+          'primary-hover': '#68c73e',
+          'primary-pressed': '#56b02f',
+          'primary-disabled': '#b9e8a3',
+          'secondary-border': '#111827',
+          dark: '#141414',
+        },
+        // Semantic Portal Accents
+        portal: {
+          seller: '#f59e0b',
+          delivery: '#0ea5e9',
+        },
+        'portal-seller': '#f59e0b',
+        'portal-delivery': '#0ea5e9',
+        // Backward-compatible Aritii Brand Map
         aritii: {
-          green: '#75d04b',           // Primary - buttons, highlights, active states
-          'green-dark': '#5ab82e',    // Dark variant for hover
-          'green-light': '#8fda6f',   // Light variant for backgrounds
-          dark: '#131921',            // Headers, primary text
-          'dark-alt': '#0f1111',      // Alternative dark
-          border: '#232f3e',          // Light borders
-          muted: '#9aa6b2',           // Secondary text
-          success: '#28a745',         // Success states
-          warning: '#ffc107',         // Warning states
-          error: '#dc3545',           // Error states
-          'error-light': '#f8d7da',   // Error light background
-          'success-light': '#d4edda', // Success light background
-          'warning-light': '#fff3cd', // Warning light background
+          green: '#75d04b',
+          'green-dark': '#5ac12f',
+          'green-light': '#8fda6f',
+          dark: '#141414',
+          'dark-alt': '#0f1111',
+          border: '#232f3e',
+          muted: '#9aa6b2',
+          success: '#28a745',
+          warning: '#ffc107',
+          error: '#dc3545',
+          'error-light': '#f8d7da',
+          'success-light': '#d4edda',
+          'warning-light': '#fff3cd',
         },
         market: {
           surface: '#ffffff',
@@ -30,55 +48,66 @@ module.exports = {
           'surface-container': '#e6e6e6',
           'surface-container-high': '#d5d9d9',
           'surface-container-highest': '#c0c5c5',
-          'on-surface': '#131921',    // Use Aritii dark
-          'on-surface-variant': '#9aa6b2',  // Use Aritii muted
-          header: '#131921',
+          'on-surface': '#141414',
+          'on-surface-variant': '#9aa6b2',
+          header: '#141414',
           'header-border': '#232f3e',
           subnav: '#232f3e',
           'subnav-border': '#37475a',
-          primary: '#75d04b',         // Aritii green
-          'primary-hover': '#5ab82e', // Aritii green dark
-          'primary-pressed': '#4da11f',
-          'primary-container': '#8fda6f',  // Aritii green light
+          primary: '#75d04b',
+          'primary-hover': '#68c73e',
+          'primary-pressed': '#56b02f',
+          'primary-container': '#f3ffee',
           'on-primary': '#ffffff',
           'inverse-primary': '#75d04b',
           secondary: '#2162a1',
           'secondary-hover': '#0064f9',
           'on-secondary': '#ffffff',
-          tertiary: '#dc3545',        // Aritii error
+          tertiary: '#dc3545',
           'tertiary-hover': '#c82333',
           'on-tertiary': '#ffffff',
-          error: '#dc3545',           // Aritii error
+          error: '#dc3545',
           'on-error': '#ffffff',
-          price: '#dc3545',           // Use error for prices
+          price: '#dc3545',
           outline: '#888c8c',
           'outline-variant': '#969696',
-          border: '#232f3e',          // Aritii border
+          border: '#232f3e',
           background: '#ffffff',
-          'on-background': '#131921',
+          'on-background': '#141414',
           'surface-variant': '#f0f2f2',
-          'inverse-surface': '#131921',
+          'inverse-surface': '#141414',
           'inverse-on-surface': '#ffffff',
         },
-        brand: {
-          primary: '#75d04b',         // Aritii green
-          'primary-light': '#8fda6f', // Aritii green light
-          'primary-dark': '#5ab82e',  // Aritii green dark
-          'primary-hover': '#5ab82e',
-          'primary-pressed': '#4da11f',
-          'primary-disabled': '#c9e6bb',
-          'secondary-border': '#232f3e',  // Aritii border
-          dark: '#131921'             // Aritii dark
-        }
       },
       fontFamily: {
-        'market-display': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
-        'market-text': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
-        display: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-        body: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'market-display': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'market-text': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      width: {
+        'custom-button': '110px',
+        'app-bar-search': '408px',
+      },
+      minWidth: {
+        '110': '110px',
+      },
+      scale: {
+        '102': '1.02',
       },
       fontSize: {
+        'heading-1': ['30px', { lineHeight: '40px', fontWeight: '700' }],
+        'heading-2': ['22px', { lineHeight: '40px', fontWeight: '700' }],
+        'heading-3': ['20px', { lineHeight: '36px', fontWeight: '700' }],
+        'heading-4': ['18px', { lineHeight: '32px', fontWeight: '700' }],
+        'heading-5': ['16px', { lineHeight: '28px', fontWeight: '700' }],
+        'heading-6': ['14px', { lineHeight: '24px', fontWeight: '700' }],
+        'heading-7': ['12px', { lineHeight: '20px', fontWeight: '700' }],
+        'card-h1': ['15px', { lineHeight: '20px', fontWeight: '700' }],
+        'card-h2': ['13px', { lineHeight: '20px', fontWeight: '400' }],
+        'card-h3': ['11px', { lineHeight: '20px', fontWeight: '400' }],
         'display': ['56px', { lineHeight: '64px', fontWeight: '700', letterSpacing: '-0.02em' }],
         'headline-lg': ['40px', { lineHeight: '48px', fontWeight: '700', letterSpacing: '-0.01em' }],
         'headline-md': ['28px', { lineHeight: '36px', fontWeight: '700' }],
@@ -120,7 +149,7 @@ module.exports = {
         'xl': '12px',
         '2xl': '16px',
         'full': '9999px',
-        'button': '5px',
+        'button': '9999px',
       },
       boxShadow: {
         'level-1': 'none',
@@ -132,11 +161,12 @@ module.exports = {
         'card-hover': '0 4px 8px rgba(15, 17, 17, 0.15)',
       },
       minHeight: {
-        'button': '40px',
+        'button': '45px',
         'input': '40px',
       },
       height: {
-        'button': '40px',
+        'button': '45px',
+        'custom-button': '45px',
         'input': '40px',
         'header': '60px',
         'subnav': '40px',
@@ -167,10 +197,10 @@ module.exports = {
         'dropdown': '40',
         'modal': '80',
         'toast': '90',
-      }
-    }
+      },
+    },
   },
   plugins: [
-    require('tailwind-scrollbar')
+    require('tailwind-scrollbar'),
   ],
-}
+};

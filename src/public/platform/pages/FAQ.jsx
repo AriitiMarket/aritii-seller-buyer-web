@@ -8,11 +8,9 @@ import {
   AiOutlineSearch,
   AiOutlineInbox,
   AiOutlineRollback,
-  AiOutlineCreditCard,
   AiOutlineCar,
   AiOutlineShop,
   AiOutlineMail,
-  AiOutlinePhone,
   AiOutlineCustomerService,
 } from 'react-icons/ai';
 
@@ -127,45 +125,45 @@ const CustomerServicePage = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
           <Link
             to="/my-dashboard/orders"
-            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
+            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
           >
             <div className="w-12 h-12 rounded-full bg-[#75d04b]/15 text-[#5ac12f] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <AiOutlineInbox size={24} />
             </div>
-            <h3 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Your Orders</h3>
+            <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Your Orders</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">Track shipments & view invoices</p>
           </Link>
 
           <Link
             to="/my-dashboard/orders"
-            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
+            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
           >
-            <div className="w-12 h-12 rounded-full bg-[#FF9900]/15 text-[#FF9900] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-full bg-amber-500/15 text-amber-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <AiOutlineRollback size={24} />
             </div>
-            <h3 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Returns & Refunds</h3>
+            <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Returns & Refunds</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">Return items & track refunds</p>
           </Link>
 
           <Link
             to="/delivery"
-            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
+            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
           >
-            <div className="w-12 h-12 rounded-full bg-[#00A8E1]/15 text-[#00A8E1] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-full bg-sky-500/15 text-sky-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <AiOutlineCar size={24} />
             </div>
-            <h3 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Delivery Rates</h3>
+            <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Delivery Rates</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">Explore rates across zones</p>
           </Link>
 
           <Link
             to="/seller-center"
-            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a222d] shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
+            className="flex flex-col items-center text-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-xs hover:border-[#75d04b] hover:shadow-md transition group"
           >
             <div className="w-12 h-12 rounded-full bg-purple-500/15 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <AiOutlineShop size={24} />
             </div>
-            <h3 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Seller Hub</h3>
+            <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Seller Hub</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">Open & manage your store</p>
           </Link>
         </div>
@@ -177,9 +175,9 @@ const CustomerServicePage = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[#131921] dark:bg-white text-white dark:text-[#131921] shadow-xs'
+                  ? 'bg-[#75d04b] text-white shadow-xs'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -200,9 +198,9 @@ const CustomerServicePage = () => {
         </div>
 
         {/* Dedicated Support Channels */}
-        <div className="bg-gray-50 dark:bg-[#131921] rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sm:p-10">
+        <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sm:p-10">
           <div className="text-center max-w-xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#0F1111] dark:text-white mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Still need assistance?
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -211,12 +209,12 @@ const CustomerServicePage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <div className="flex items-start gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="flex items-start gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
               <div className="w-10 h-10 rounded-lg bg-[#75d04b]/15 text-[#5ac12f] flex items-center justify-center flex-shrink-0">
                 <AiOutlineMail size={22} />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Email Support</h4>
+                <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Email Support</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Responses within 2 to 4 business hours</p>
                 <a
                   href="mailto:support@aritii.market"
@@ -227,12 +225,12 @@ const CustomerServicePage = () => {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="w-10 h-10 rounded-lg bg-[#00A8E1]/15 text-[#00A8E1] flex items-center justify-center flex-shrink-0">
+            <div className="flex items-start gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+              <div className="w-10 h-10 rounded-lg bg-sky-500/15 text-sky-500 flex items-center justify-center flex-shrink-0">
                 <AiOutlineCustomerService size={22} />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-[#0F1111] dark:text-white mb-1">Support Hours</h4>
+                <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-1">Support Hours</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Monday – Saturday: 8:30 AM – 6:30 PM EAT</p>
                 <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Addis Ababa, Ethiopia

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   FiMapPin,
@@ -13,8 +13,6 @@ import {
   FiShoppingBag,
   FiChevronDown,
   FiChevronUp,
-  FiExternalLink,
-  FiPlus,
 } from 'react-icons/fi';
 import { ProductImage } from '@/components/common/ImageWithFallback';
 import { productService, shopService } from '@/services';
@@ -57,7 +55,7 @@ export default function LocationCompatibilityAdvisor({
   const [shopDetails, setShopDetails] = useState({});
   const [recommendations, setRecommendations] = useState({});
   const [alternativeShops, setAlternativeShops] = useState([]);
-  const [loadingAlternatives, setLoadingAlternatives] = useState(false);
+  const [, setLoadingAlternatives] = useState(false);
   const [swappingId, setSwappingId] = useState(null);
   const [clearingAll, setClearingAll] = useState(false);
   const [activeShopId, setActiveShopId] = useState(null);
@@ -120,6 +118,7 @@ export default function LocationCompatibilityAdvisor({
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemSignature]);
 
   // Fetch alternative products and shops delivering to currentZoneId
@@ -191,6 +190,7 @@ export default function LocationCompatibilityAdvisor({
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemSignature, currentZoneId]);
 
   if (!incompatibleItems.length) return null;
@@ -304,7 +304,7 @@ export default function LocationCompatibilityAdvisor({
         const id = item.productId || item._id;
         try {
           await dispatch(addToWishlist(item));
-        } catch {}
+        } catch { /* ignore */ }
         if (onRemoveItem) {
           onRemoveItem(id);
         } else {
@@ -399,7 +399,7 @@ export default function LocationCompatibilityAdvisor({
             type="button"
             disabled={clearingAll}
             onClick={handleSaveAllForLater}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] text-xs font-bold rounded-lg border border-[#a88734] shadow-xs transition disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#75d04b] hover:brightness-95 text-white text-xs font-semibold rounded-full shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             title="Save incompatible items to wishlist and clear them from order"
           >
             <FiBookmark size={12} />
@@ -544,7 +544,7 @@ export default function LocationCompatibilityAdvisor({
                           type="button"
                           disabled={swappingId === itemId}
                           onClick={() => handleSwapItem(item, alt)}
-                          className="w-full flex items-center justify-center gap-1 py-1.5 px-2 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] text-xs font-bold rounded border border-[#a88734] transition shadow-xs disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-1 py-1.5 px-3 bg-[#75d04b] hover:brightness-95 text-white text-xs font-semibold rounded-full transition-all shadow-xs disabled:opacity-50"
                         >
                           <FiRefreshCw size={11} className={swappingId === itemId ? 'animate-spin' : ''} />
                           <span>Swap with this</span>
@@ -673,7 +673,7 @@ export default function LocationCompatibilityAdvisor({
                       <button
                         type="button"
                         onClick={() => handleAddAlternativeProduct(prod)}
-                        className="px-2.5 py-1 bg-[#febd69] hover:bg-[#f3a847] text-[#0f1111] text-xs font-bold rounded border border-[#a88734] transition shadow-xs flex-shrink-0 cursor-pointer"
+                        className="px-3 py-1 bg-[#75d04b] hover:brightness-95 text-white text-xs font-semibold rounded-full transition-all shadow-xs flex-shrink-0 cursor-pointer"
                       >
                         Add to Cart
                       </button>

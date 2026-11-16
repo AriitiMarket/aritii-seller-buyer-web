@@ -20,9 +20,9 @@ import {
   AiOutlineCompass,
 } from 'react-icons/ai';
 import { PublicLayout } from '@/public/layout/PublicLayout';
-import ProductCard from '@/shared/components/ProductCard';
-import ShopCard from '@/shared/components/ShopCard';
-import { useAuth } from '@/auth/hooks/useAuth';
+import ProductCard from '@/features/marketplace/components/ProductCard';
+import ShopCard from '@/features/marketplace/components/ShopCard';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useLayout } from '@/app/providers/LayoutContext';
 import { useProducts, useFilteredProducts } from '@/shared/hooks/useProducts';
 import { useShops } from '@/shared/hooks/useShops';
@@ -84,7 +84,7 @@ const MarketplaceLandingPage = () => {
     <PublicLayout>
       <div className="w-full">
         {/* Hero Section - Fully Centered */}
-        <section className="relative bg-gradient-to-br from-[#FDF6EC] to-white dark:from-gray-900 dark:to-gray-950 py-10 md:py-14 lg:py-16">
+        <section className="relative bg-gradient-to-br from-[#f3ffee] to-white dark:from-gray-900 dark:to-gray-950 py-10 md:py-14 lg:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
               {/* Title */}
@@ -301,7 +301,7 @@ const MarketplaceLandingPage = () => {
         {!isAuthenticated && (
           <section className="py-16 md:py-20 bg-white dark:bg-gray-950">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="bg-gradient-to-br from-[#FDF6EC] to-white dark:from-gray-900 dark:to-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 px-6 sm:px-8 py-10 md:py-14 text-center shadow-lg">
+              <div className="bg-gradient-to-br from-[#f3ffee] to-white dark:from-gray-900 dark:to-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 px-6 sm:px-8 py-10 md:py-14 text-center shadow-lg">
                 <AiOutlineShop size={40} className="mx-auto text-[#75d04b] mb-4" aria-hidden="true" />
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                   One account to shop everything

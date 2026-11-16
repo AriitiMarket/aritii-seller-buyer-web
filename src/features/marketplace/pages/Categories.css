@@ -1,14 +1,14 @@
 /* Categories Page Styles
  * Aritii Branding:
  * - Primary Green: #75d04b
- * - Dark Headers: #131921
+ * - Dark Headers: #141414
  * - Professional typography
  * - Consistent color palette
  */
 
 :root {
   --aritii-green: #75d04b;
-  --aritii-dark: #131921;
+  --aritii-dark: #141414;
   --aritii-light: #f8f9fa;
   --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.12);
   --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);

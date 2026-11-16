@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import ProductCard from '@/shared/components/ProductCard';
+import ProductCard from '@/features/marketplace/components/ProductCard';
 import FilterSidebar from '@/features/marketplace/components/FilterSidebar';
 import CatalogPageLayout from '@/features/marketplace/components/CatalogPageLayout';
 import Loading from '@/components/common/Loading';
@@ -37,13 +37,13 @@ const DealsPageHeader = ({
   onSelectCategory,
 }) => {
   return (
-    <div className="bg-white dark:bg-[#131921] border-b border-gray-200 dark:border-gray-800 mb-6 px-1 py-4">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 mb-6 px-1 py-4">
       {/* Title and Daily refresh Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
             <AiOutlineFire size={24} className="text-red-500 animate-pulse" />
-            <h1 className="text-2xl md:text-3xl font-extrabold text-[#131921] dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">
               Today's Lightning Deals
             </h1>
           </div>
@@ -83,7 +83,7 @@ const DealsPageHeader = ({
             onClick={() => onSelectCategory('')}
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               !activeCategory
-                ? 'bg-[#cc0c39] text-white shadow-xs'
+                ? 'bg-[#75d04b] text-white shadow-xs'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
@@ -99,7 +99,7 @@ const DealsPageHeader = ({
                 onClick={() => onSelectCategory(label)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-[#cc0c39] text-white shadow-xs'
+                    ? 'bg-[#75d04b] text-white shadow-xs'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
@@ -128,6 +128,8 @@ const DealsContent = ({
   activeCategory,
   onSelectCategory,
 }) => {
+  const { isAuthenticated } = useSelector((state) => state.user || {});
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -154,8 +156,6 @@ const DealsContent = ({
       />
     );
   }
-
-  const { isAuthenticated } = useSelector((state) => state.user || {});
 
   return (
     <div className="w-full">

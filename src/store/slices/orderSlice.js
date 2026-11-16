@@ -61,5 +61,15 @@ export const orderReducer = createReducer(initialState, (builder) => {
         })
         .addCase("clearError", (state) => {
             state.error = null;
+        })
+        .addCase("RESET_STORE", () => initialState)
+        .addCase("LogoutSuccess", () => initialState)
+        .addCase("RESET_BUYER_STATE", (state) => {
+            state.orders = [];
+            state.buyerOrdersLoading = false;
+        })
+        .addCase("RESET_SELLER_STATE", (state) => {
+            state.ShopOrders = [];
+            state.sellerOrdersLoading = false;
         });
 });

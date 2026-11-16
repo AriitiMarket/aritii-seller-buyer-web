@@ -112,7 +112,7 @@ const CatalogPageLayout = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 p-4 min-h-[56px] flex-shrink-0">
-              <h2 className="text-base font-bold text-[#131921] dark:text-white">
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">
                 Filters & Categories
               </h2>
               <button
@@ -136,7 +136,7 @@ const CatalogPageLayout = ({
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="w-full rounded-lg bg-[#75d04b] px-4 py-3 text-base font-bold text-white transition-colors hover:bg-[#5ac12f] active:bg-[#4ab01f] min-h-[44px]"
+                className="w-full rounded-full bg-[#75d04b] px-4 py-3 text-base font-semibold text-white transition-all hover:brightness-95 min-h-[44px] shadow-sm"
               >
                 Done
               </button>

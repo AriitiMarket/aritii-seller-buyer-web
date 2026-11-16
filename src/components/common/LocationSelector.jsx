@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import locationService from '@/services/location.service';
 
 /**
@@ -87,6 +87,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
       });
 
     return () => { isMounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Load cities when region changes
@@ -357,7 +358,7 @@ const LocationSelector = ({ onSelect, initialSelection = {}, className = '', req
   }, [emitSelection]);
 
   const selectClass =
-    'w-full px-3 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#20305C] focus:ring-1 focus:ring-[#20305C] text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-[#20305C] transition-all duration-200';
+    'w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#75d04b] focus:ring-2 focus:ring-[#75d04b]/25 text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-[#75d04b] transition-all duration-200';
 
   const hasSubLocations = areas.length > 0 || sectors.length > 0;
 

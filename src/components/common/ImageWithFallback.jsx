@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { resolveImageUrl, getFirstImage, getAvatarImage } from "@/shared/utils/image";
 import { PlaceholderProduct, PlaceholderShop, PlaceholderAvatar } from "@/assets";
 
@@ -19,30 +19,28 @@ const ImageWithFallback = ({
   style,
   ...rest
 }) => {
-  const [imgSrc, setImgSrc] = useState(() => blank(src || fallback));
+  const [prevSrc, setPrevSrc] = useState(src);
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
-    setImgSrc(blank(src || fallback));
+  // Reset error state when src changes without requiring an effect
+  if (src !== prevSrc) {
+    setPrevSrc(src);
     setFailed(false);
-  }, [src, fallback]);
+  }
+
+  const effectiveSrc = failed
+    ? (fallback ? blank(fallback) : BLANK_1PX)
+    : blank(src || fallback);
 
   const handleError = () => {
     if (!failed) {
-      if (fallback && String(imgSrc) !== String(fallback)) {
-        setFailed(true);
-        setImgSrc(blank(fallback));
-      } else {
-        // Even the fallback failed (or missing) -> never leave src empty.
-        setFailed(true);
-        setImgSrc(BLANK_1PX);
-      }
+      setFailed(true);
     }
   };
 
   return (
     <img
-      src={imgSrc}
+      src={effectiveSrc}
       alt={alt}
       className={className}
       loading={loading}

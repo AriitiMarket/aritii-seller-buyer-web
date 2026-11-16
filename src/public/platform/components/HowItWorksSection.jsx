@@ -57,10 +57,10 @@ const journeySteps = [
 
 const HowItWorksSection = () => {
   return (
-    <section className="home-brand-section home-brand-section--flow py-12 md:py-16 bg-[#EAEDED] dark:bg-gray-950">
+    <section className="home-brand-section home-brand-section--flow py-12 md:py-16 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 md:mb-12">
-          <span className="inline-block px-3 py-1 mb-4 rounded-full bg-[#75d04b]/10 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-block px-3.5 py-1 mb-4 rounded-full bg-[#75d04b]/15 text-[#5ac12f] text-xs font-bold uppercase tracking-wider">
             One connected flow
           </span>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -78,20 +78,20 @@ const HowItWorksSection = () => {
             return (
               <li
                 key={item.step}
-                className="relative flex flex-col h-full bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+                className="relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300"
               >
                 {/* Connector to the next step */}
                 {index < journeySteps.length - 1 && (
                   <span
                     aria-hidden="true"
-                    className="hidden lg:flex absolute -right-7 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-[#75d04b]/40 text-[#75d04b] items-center justify-center"
+                    className="hidden lg:flex absolute -right-7 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-[#75d04b]/40 text-[#75d04b] items-center justify-center shadow-xs"
                   >
                     <AiOutlineArrowRight size={15} />
                   </span>
                 )}
 
                 <div className="flex items-center justify-between mb-3">
-                  <span className="w-10 h-10 rounded-full bg-[#75d04b] text-white font-bold flex items-center justify-center text-sm">
+                  <span className="w-10 h-10 rounded-full bg-[#75d04b] text-white font-bold flex items-center justify-center text-sm shadow-xs">
                     {item.step}
                   </span>
                   <span className="w-10 h-10 rounded-xl bg-[#75d04b]/10 text-[#5ac12f] flex items-center justify-center">
@@ -99,7 +99,7 @@ const HowItWorksSection = () => {
                   </span>
                 </div>
 
-                <span className="self-start px-2.5 py-1 mb-2 rounded-full bg-gray-100 dark:bg-gray-800 text-[11px] font-bold uppercase tracking-wide text-gray-600 dark:text-gray-300">
+                <span className="self-start px-2.5 py-0.5 mb-2 rounded-full bg-gray-100 dark:bg-gray-700 text-[11px] font-bold uppercase tracking-wide text-gray-600 dark:text-gray-300">
                   {item.actor}
                 </span>
 
@@ -117,13 +117,13 @@ const HowItWorksSection = () => {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to="/products"
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#75d04b] hover:bg-[#5ac12f] text-white font-semibold rounded-full text-base transition-colors text-center"
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#75d04b] hover:brightness-95 text-white font-semibold rounded-full text-base transition-all text-center shadow-sm"
           >
             Shop Now
           </Link>
           <Link
-            to="/seller-sign-up"
-            className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-full text-base border border-gray-300 dark:border-gray-600 transition-colors text-center"
+            to="/seller-center"
+            className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-900 dark:text-white font-semibold rounded-full text-base border border-gray-200 dark:border-gray-700 transition-colors text-center shadow-sm"
           >
             Sell on Aritii
           </Link>

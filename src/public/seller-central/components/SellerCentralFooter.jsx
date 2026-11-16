@@ -49,8 +49,8 @@ export const SELLER_FOOTER_COLUMNS = [
 
 const SellerCentralFooter = ({ columns = SELLER_FOOTER_COLUMNS }) => (
   <PortalFooter
-    accent="#FF9900"
-    accentHover="#FFB84D"
+    accent="#f59e0b"
+    accentHover="#d97706"
     columns={columns}
     accountLabel="Sign in to your Seller Central account"
     signInRole="SELLER"

@@ -23,9 +23,7 @@ const SRC = path.join(ROOT, 'src')
 const EXTS = ['.js', '.jsx', '.mjs', '.json', '.css', '.scss', '.svg', '.png', '.jpg', '.jpeg']
 
 const STALE = [
-  [/^@\/features\//, 'pre-restructure "feature folder" path'],
   [/^@\/pages\//, 'pre-restructure "src/pages/**" path'],
-  [/^@\/features$/, 'pre-restructure "feature folder" path'],
   [/^@\/routes\//, 'moved to @/app/routes/'],
   [/^@\/context\//, 'moved to @/app/providers/'],
   [/^@\/utils\//, 'moved to @/shared/utils/'],
@@ -49,7 +47,7 @@ function resolveSpec(spec, fromFile) {
   for (const c of [base, ...EXTS.map((e) => base + e)]) {
     try {
       if (fs.statSync(c).isFile()) return c
-    } catch (_e) {
+    } catch {
       // not a file
     }
   }
@@ -57,7 +55,7 @@ function resolveSpec(spec, fromFile) {
     if (fs.statSync(base).isDirectory()) {
       for (const e of EXTS) { const i = path.join(base, 'index' + e); if (fs.existsSync(i)) return i }
     }
-  } catch (_e) {
+  } catch {
     // not a directory
   }
   return null

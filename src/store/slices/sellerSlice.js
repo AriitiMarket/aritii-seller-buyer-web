@@ -6,6 +6,7 @@ const initialState = {
 export const sellerReducer = (state = initialState, action) => {
     switch (action.type) {
         case "LoadSellerRequest":
+        case "SellerLogoutRequest":
             return {
                 ...state,
                 isLoading: true,
@@ -27,13 +28,9 @@ export const sellerReducer = (state = initialState, action) => {
                 isSeller: false,
             };
 
-        case "SellerLogoutRequest":
-            return {
-                ...state,
-                isLoading: true,
-            };
-
         case "SellerLogoutSuccess":
+        case "RESET_STORE":
+        case "RESET_SELLER_STATE":
             return {
                 ...state,
                 isLoading: false,

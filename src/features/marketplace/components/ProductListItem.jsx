@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistThunks'
 import { addTocart, updateCartQuantity } from '@/store/slices/cartThunks'
 import { toast } from 'react-toastify'
-import { useLayout } from '@/app/providers/LayoutContext'
 
 const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const dispatch = useDispatch()
@@ -15,7 +14,6 @@ const ProductListItem = ({ data, variant = 'default', basePath = '' }) => {
   const { cart } = useSelector((state) => state.cart || {})
   const { isAuthenticated } = useSelector((state) => state.user || {})
   const [inWishlist, setInWishlist] = useState(false)
-  const { openLoginModal } = useLayout()
 
   const isPublic = variant === 'public'
 

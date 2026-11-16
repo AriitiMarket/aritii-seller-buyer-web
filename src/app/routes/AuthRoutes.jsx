@@ -1,6 +1,6 @@
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { SellerRegistrationGuard } from '@/seller-registration';
+import { SellerRegistrationGuard } from '@/features/auth/seller-registration';
 
 /**
  * Auth routes.
@@ -10,14 +10,14 @@ import { SellerRegistrationGuard } from '@/seller-registration';
  * GlobalLoginModal). The `/login` family of URLs is kept purely so existing
  * links and route guards reach that modal instead of a 404.
  */
-const LoginPage = lazy(() => import('@/auth/pages/LoginPage'));
-const SignUpPage = lazy(() => import('@/auth/pages/SignUpPage'));
-const ForgotPasswordPage = lazy(() => import('@/auth/pages/ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('@/auth/pages/ResetPasswordPage'));
-const ContactPage = lazy(() => import('@/auth/pages/ContactPage'));
-const CreateShopPage = lazy(() => import('@/auth/pages/CreateShopPage'));
-const SellerRegistrationPage = lazy(() => import('@/seller-registration/pages/SellerRegistrationPage'));
-const SellerApplicationStatusPage = lazy(() => import('@/seller-registration/pages/SellerApplicationStatusPage'));
+const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
+const SignUpPage = lazy(() => import('@/features/auth/pages/SignUpPage'));
+const ForgotPasswordPage = lazy(() => import('@/features/auth/pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/features/auth/pages/ResetPasswordPage'));
+const ContactPage = lazy(() => import('@/features/auth/pages/ContactPage'));
+const CreateShopPage = lazy(() => import('@/features/auth/pages/CreateShopPage'));
+const SellerRegistrationPage = lazy(() => import('@/features/auth/seller-registration/pages/SellerRegistrationPage'));
+const SellerApplicationStatusPage = lazy(() => import('@/features/auth/seller-registration/pages/SellerApplicationStatusPage'));
 
 export const AuthRoutes = () => (
   <>

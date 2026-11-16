@@ -35,9 +35,14 @@ const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL)
   || sameOriginApiUrl()
   || DEFAULT_API_URL;
 
+const SOCKET_URL = normalizeApiUrl(import.meta.env.VITE_SOCKET_URL)
+  || API_URL.replace(/\/api\/?$/, '');
+
 export const ENV = Object.freeze({
   /** Gateway base URL, always without a trailing slash. */
   API_URL,
+  /** Real-time WebSocket origin (Socket.io gateway host). */
+  SOCKET_URL,
   APP_NAME: 'aritii market',
   IS_DEV: Boolean(import.meta.env.DEV),
   IS_PROD: Boolean(import.meta.env.PROD),

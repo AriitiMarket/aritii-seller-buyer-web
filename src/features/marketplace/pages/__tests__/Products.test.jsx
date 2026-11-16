@@ -13,7 +13,7 @@ vi.mock('@/shared/hooks/useCatalogCategories', () => ({
   useCatalogCategories: vi.fn(() => ({ categories: [], loading: false })),
 }));
 
-vi.mock('@/auth/hooks/useAuth', () => ({
+vi.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
